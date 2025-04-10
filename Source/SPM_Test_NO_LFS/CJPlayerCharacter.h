@@ -26,6 +26,21 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	float GetRage() const { return Rage; };
+	void FireGrapple();
+	
 private:
 	float Rage = 66.f;
+	bool DidGrapple = false;
+	FVector GrappleLocation = FVector::ZeroVector;
+	FVector GrappleStartLocation = FVector::ZeroVector;
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	USceneComponent* GrapplingHookPosition;
+	
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TSubclassOf<class AGrapplingHook> GrapplingHookClass;
+
+	UPROPERTY()
+	AGrapplingHook* GrapplingHook;
+
+	
 };

@@ -7,17 +7,16 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GrapplingHook.h"
 
 void ACJPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	ACJPlayerCharacter* CurrentPlayer = Cast<ACJPlayerCharacter>(GetPawn());
+	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ACJPlayerCharacter was nullptr"));
 		return;
-	}
+	
 	CurrentPlayer->GetCharacterMovement()->AirControl = 1.f;
 	
 }
@@ -31,6 +30,7 @@ void ACJPlayerController::SetupInputComponent()
 	Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ACJPlayerController::Jump);
 	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ACJPlayerController::Interact);
 	Input->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ACJPlayerController::LookAround);
+	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &ACJPlayerController::Grapple);
 	
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	
@@ -59,12 +59,9 @@ void ACJPlayerController::SetupInputComponent()
 
 void ACJPlayerController::Move(const FInputActionValue& Value)
 {
-	ACJPlayerCharacter* CurrentPlayer = Cast<ACJPlayerCharacter>(GetPawn());
+	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ACJPlayerCharacter was nullptr"));
 		return;
-	}
 
 	FVector2D AxisValue2D = Value.Get<FVector2D>();
 	FVector Movement = FVector(AxisValue2D.X * MoveSpeed, AxisValue2D.Y * MoveSpeed, 0);
@@ -74,12 +71,10 @@ void ACJPlayerController::Move(const FInputActionValue& Value)
 
 void ACJPlayerController::Jump(const FInputActionValue& Value)
 {
-	ACJPlayerCharacter* CurrentPlayer = Cast<ACJPlayerCharacter>(GetPawn());
+	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ACJPlayerCharacter was nullptr"));
 		return;
-	}
+	
 	bool Jump = Value.Get<bool>();
 	if (Jump)
 	{
@@ -94,28 +89,42 @@ void ACJPlayerController::Jump(const FInputActionValue& Value)
 
 void ACJPlayerController::Interact(const FInputActionValue& Value)
 {
-	ACJPlayerCharacter* CurrentPlayer = Cast<ACJPlayerCharacter>(GetPawn());
+	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ACJPlayerCharacter was nullptr"));
 		return;
-	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Interact: Rage = %f"), CurrentPlayer->GetRage());
 }
 
 void ACJPlayerController::LookAround(const FInputActionValue& Value)
 {
-	ACJPlayerCharacter* CurrentPlayer = Cast<ACJPlayerCharacter>(GetPawn());
+	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ACJPlayerCharacter was nullptr"));
 		return;
-	}
 
 	FVector2D AxisValue2D = Value.Get<FVector2D>();
 	CurrentPlayer->AddControllerPitchInput(AxisValue2D.Y);
 	CurrentPlayer->AddControllerYawInput(AxisValue2D.X);
 }
 
+void ACJPlayerController::Grapple(const FInputActionValue& Value)
+{
+	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
+	if (CurrentPlayer == nullptr)
+		return;
 
+	CurrentPlayer->FireGrapple();
+}
+
+
+ACJPlayerCharacter* ACJPlayerController::GetValidPlayerCharacter()
+{
+	ACJPlayerCharacter* CurrentPlayer = Cast<ACJPlayerCharacter>(GetPawn());
+	if (CurrentPlayer == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ACJPlayerCharacter was nullptr"));
+		return nullptr;
+	}
+	
+	return CurrentPlayer;
+}

@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "CJPlayerController.generated.h"
 
+class ACJPlayerCharacter;
 /**
  * 
  */
@@ -25,6 +26,9 @@ private:
 	void Jump(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
+	void Grapple(const FInputActionValue& Value);
+
+	ACJPlayerCharacter* GetValidPlayerCharacter();
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float MoveSpeed = 5;
@@ -40,5 +44,7 @@ private:
 	UInputAction* InteractInputAction;
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	UInputAction* LookAroundInputAction;
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UInputAction* GrappleInputAction;
 	
 };
