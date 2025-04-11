@@ -33,14 +33,18 @@ void ACJPlayerCharacter::BeginPlay()
 void ACJPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (DidGrapple)
+	if (GrapplingHook->IsActivated())
 	{
-		FVector NewPosition = FMath::VInterpTo(GetActorLocation(), GrappleLocation, GetWorld()->GetDeltaSeconds(), 700 * DeltaTime);
-		float DistanceToGrapplePoint = FVector::Distance(GrappleLocation, NewPosition); 
+		FVector NewPosition = FMath::VInterpTo(GetActorLocation(),
+			GrapplingHook->GetAttachmentPoint(),
+			GetWorld()->GetDeltaSeconds(),
+			GrapplingHook->GetDragSpeed() * DeltaTime);
+		
+		float DistanceToGrapplePoint = FVector::Distance(GrapplingHook->GetAttachmentPoint(), NewPosition); 
 		UE_LOG(LogTemp, Warning, TEXT("Grapple Location: %f"), DistanceToGrapplePoint);
+
 		if (DistanceToGrapplePoint < 150)
 		{
-			DidGrapple = false;
 			GrapplingHook->Deactivate();
 			GetCharacterMovement()->GravityScale = 1;		
 		}
@@ -63,8 +67,7 @@ void ACJPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void ACJPlayerCharacter::FireGrapple()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Fire Grapple"));
-	
-	DidGrapple = GrapplingHook->TryGrapple(GrappleLocation);
+	GrapplingHook->FireGrapple();
 	GetCharacterMovement()->GravityScale = 0.5;
 }
 

@@ -30,9 +30,6 @@ public:
 	
 private:
 	float Rage = 66.f;
-	bool DidGrapple = false;
-	FVector GrappleLocation = FVector::ZeroVector;
-	FVector GrappleStartLocation = FVector::ZeroVector;
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	USceneComponent* GrapplingHookPosition;
 	
