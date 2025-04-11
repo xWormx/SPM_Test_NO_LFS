@@ -31,4 +31,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	UCableComponent* CableComponent;
 
+	UPROPERTY(EditAnywhere)
+	float MaxHookRange = 1000;
 };

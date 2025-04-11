@@ -52,8 +52,7 @@ bool AGrapplingHook::TryGrapple(FVector& OutGrapplePoint)
 	FRotator ViewRotation;
 	PlayerController->GetPlayerViewPoint(ViewLocation, ViewRotation);
 	FHitResult HitResult;
-	int MaxRange = 1000;
-	FVector TraceEnd = ViewLocation + ViewRotation.Vector() * MaxRange;
+	FVector TraceEnd = ViewLocation + ViewRotation.Vector() * MaxHookRange;
 	bool didHit = GetWorld()->LineTraceSingleByChannel(HitResult, ViewLocation, TraceEnd, ECC_GameTraceChannel1);
 	
 	DrawDebugPoint(GetWorld(), TraceEnd, 25, FColor::Red, false, 8);
@@ -66,7 +65,16 @@ bool AGrapplingHook::TryGrapple(FVector& OutGrapplePoint)
 		return false;
 	}
 
-	DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 20, 12, FColor::Red, true);DrawDebugLine(GetWorld(), GetActorLocation(), HitResult.ImpactPoint, FColor::Blue, false, 8);
+	DrawDebugSphere(GetWorld(),
+					HitResult.ImpactPoint,
+					20, 12,
+					FColor::Red,
+					true);
+	DrawDebugLine(GetWorld(),
+		GetActorLocation(),
+		HitResult.ImpactPoint,
+		FColor::Blue,
+		false, 8);
 	// Gör om ImpactPoint till cablecomponents local space så att punkten blir korrekt.
 	CableComponent->SetVisibility(true);
 	FVector InverseImpactPoint = UKismetMathLibrary::InverseTransformLocation(GetTransform(), HitResult.ImpactPoint);
