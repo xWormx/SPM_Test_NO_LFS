@@ -97,6 +97,7 @@ void AGrapplingHook::FireGrapple()
 	// För att karaktären inte ska bromsas när den dras mot väggar
 	Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
 	Controller->GetCharacter()->GetCharacterMovement()->bUseSeparateBrakingFriction = true;
+	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 0.5f;
 	bDidGrapple = didHit;
 	AttachmentPoint = HitResult.ImpactPoint;
 	PointOfDeparture = GetActorLocation();
@@ -127,6 +128,7 @@ void AGrapplingHook::ResetGrapple()
 		UE_LOG(LogTemp, Warning, TEXT("ACJPlayerController Not Found!"));
 		return;
 	}
+	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 1.5f;
 	//Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
 }
 

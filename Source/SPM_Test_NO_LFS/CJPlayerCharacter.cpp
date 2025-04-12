@@ -55,6 +55,7 @@ void ACJPlayerCharacter::Tick(float DeltaTime)
 			
 			SetActorLocation(NewPosition);
 		}
+		
 				
 	}
 }
@@ -70,7 +71,7 @@ void ACJPlayerCharacter::FireGrapple()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Fire Grapple"));
 	GrapplingHook->FireGrapple();
-	GetCharacterMovement()->GravityScale = 0.5;
+	//GetCharacterMovement()->GravityScale = 0.5;
 }
 
 
