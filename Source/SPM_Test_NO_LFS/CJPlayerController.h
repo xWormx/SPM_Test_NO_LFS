@@ -36,6 +36,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class UInputMappingContext* InputMapping;
 
+	// INPUT
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	UInputAction* MoveInputAction;
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
@@ -46,5 +47,10 @@ private:
 	UInputAction* LookAroundInputAction;
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	UInputAction* GrappleInputAction;
+
+	// HUD
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	TSubclassOf<UUserWidget> HUDClass;
+	
 	
 };

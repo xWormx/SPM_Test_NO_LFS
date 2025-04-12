@@ -29,7 +29,7 @@ AGrapplingHook::AGrapplingHook()
 void AGrapplingHook::BeginPlay()
 {
 	Super::BeginPlay();
-	CableComponent->SetVisibility(true);
+	SetGrappleVisibility(false);
 //	CableComponent->EndLocation = GrappleHead->GetComponentLocation();
 	FVector End = UKismetMathLibrary::InverseTransformLocation(GetTransform(), GrappleHead->GetComponentLocation());
 	CableComponent->EndLocation = End;
@@ -43,19 +43,18 @@ void AGrapplingHook::Tick(float DeltaTime)
 
 	if (bDidGrapple)
 	{
-		FVector NewPosition = FMath::VInterpTo(GrappleHead->GetComponentLocation(), AttachmentPoint,
+		// Detta skjuter iväg Grapplehead och uppdateras dess position tills att den är inom 50 enheter
+		// av AttachmentPoint
+		FVector NewHeadPosition = FMath::VInterpTo(GrappleHead->GetComponentLocation(), AttachmentPoint,
 													GetWorld()->GetDeltaSeconds(), 5);
-		if (FVector::Dist(NewPosition, AttachmentPoint) < 50)
+		if (FVector::Dist(NewHeadPosition, AttachmentPoint) < 50)
 		{
-			bIsActivated = true;
+			bHeadAttached = true;
 			bDidGrapple = false;
-			GrappleHead->SetWorldLocation(GetActorLocation());
-			GrappleHead->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
-			
 		}
 		else
 		{
-			GrappleHead->SetWorldLocation(NewPosition);
+			GrappleHead->SetWorldLocation(NewHeadPosition);
 		}
 		
 		//GrappleHead->SetWorldLocation(AttachmentPoint);
@@ -64,16 +63,8 @@ void AGrapplingHook::Tick(float DeltaTime)
 
 void AGrapplingHook::FireGrapple()
 {
-	DrawDebugCamera(GetWorld(), GetActorLocation(), GetActorRotation(), 90, 2, FColor::Blue, false, 8);
-	APawn* GrappleOwner = Cast<APawn>(GetOwner());
-	if (GrappleOwner == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Owner Not Found!"));
-		return;
-	}
-
-	ACJPlayerController* PlayerController = Cast<ACJPlayerController>(GrappleOwner->GetController());
-	if (PlayerController == nullptr)
+	AController* Controller = GetValidController();
+	if (Controller == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ACJPlayerController Not Found!"));
 		return;
@@ -81,27 +72,35 @@ void AGrapplingHook::FireGrapple()
 
 	FVector ViewLocation;
 	FRotator ViewRotation;
-	PlayerController->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
 	FHitResult HitResult;
 	FVector TraceEnd = ViewLocation + ViewRotation.Vector() * MaxHookRange;
-	bool didHit = GetWorld()->LineTraceSingleByChannel(HitResult, ViewLocation, TraceEnd, ECC_GameTraceChannel1);
+
+	// Detta är basically SphereTraceByChannel
+	bool didHit = GetWorld()->SweepSingleByChannel(HitResult, ViewLocation, TraceEnd,
+												FQuat::Identity, ECC_GameTraceChannel1,
+													FCollisionShape::MakeSphere(30));
 	
 	DrawDebugPoint(GetWorld(), TraceEnd, 25, FColor::Red, false, 8);
 
 	if (!didHit)
 	{
-		Deactivate();
+		ResetGrapple();
 		return;
 	}
-	PlayerController->GetCharacter()->LaunchCharacter(FVector(0, 0, 300), true, true);
-	PlayerController->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
+
+	GrappleDirection = TraceEnd - ViewLocation;
+	GrappleDirection.Normalize();
+	
+	// Skjuter upp karaktären när hooken avlossas för att få ett bra momentum
+	Controller->GetCharacter()->LaunchCharacter(FVector(0, 0, 300), true, true);
+	// För att karaktären inte ska bromsas när den dras mot väggar
+	Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
+	Controller->GetCharacter()->GetCharacterMovement()->bUseSeparateBrakingFriction = true;
 	bDidGrapple = didHit;
 	AttachmentPoint = HitResult.ImpactPoint;
 	PointOfDeparture = GetActorLocation();
-	// Gör om ImpactPoint till cablecomponents local space så att punkten blir korrekt.
-	FVector InverseImpactPoint = UKismetMathLibrary::InverseTransformLocation(GetTransform(), HitResult.ImpactPoint);
-	//CableComponent->EndLocation = InverseImpactPoint;
-	CableComponent->SetVisibility(true);
+	SetGrappleVisibility(true);
 	GrappleHead->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	
 	DrawDebugSphere(GetWorld(),
@@ -114,16 +113,41 @@ void AGrapplingHook::FireGrapple()
 		HitResult.ImpactPoint,
 		FColor::Blue,
 		false, 8);
-	
-	
 }
 
-void AGrapplingHook::Deactivate()
+void AGrapplingHook::ResetGrapple()
 {
-	bIsActivated = false;
-	//CableComponent->EndLocation = FVector::ZeroVector;
-	//CableComponent->SetVisibility(false);
-	//GrappleHead->SetRelativeLocation(FVector(0, 0, 0));
+	bHeadAttached = false;
+	GrappleHead->SetWorldLocation(GetActorLocation());
+	GrappleHead->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+	SetGrappleVisibility(false);
+	AController* Controller = GetValidController();
+	if (Controller == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ACJPlayerController Not Found!"));
+		return;
+	}
+	//Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
+}
+
+void AGrapplingHook::SetGrappleVisibility(bool bVisibility)
+{
+	GrappleHead->SetVisibility(bVisibility);
+	CableComponent->SetVisibility(bVisibility);
+}
+
+
+AController* AGrapplingHook::GetValidController() const
+{
+	DrawDebugCamera(GetWorld(), GetActorLocation(), GetActorRotation(), 90, 2, FColor::Blue, false, 8);
+	APawn* GrappleOwner = Cast<APawn>(GetOwner());
+	if (GrappleOwner == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Owner Not Found!"));
+		return nullptr;
+	}
+
+	return GrappleOwner->GetController();
 }
 
 

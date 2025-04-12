@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GrapplingHook.h"
+#include "Blueprint/UserWidget.h"
 
 void ACJPlayerController::BeginPlay()
 {
@@ -18,7 +19,12 @@ void ACJPlayerController::BeginPlay()
 		return;
 	
 	CurrentPlayer->GetCharacterMovement()->AirControl = 1.f;
-	
+
+	UUserWidget* CrossHair = CreateWidget<UUserWidget>(this, HUDClass);
+	if (CrossHair)
+	{
+		CrossHair->AddToViewport();
+	}
 }
 
 void ACJPlayerController::SetupInputComponent()

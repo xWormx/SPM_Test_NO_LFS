@@ -6,6 +6,7 @@
 #include "GrapplingHook.h"
 #include "MaterialHLSLTree.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ACJPlayerCharacter::ACJPlayerCharacter()
@@ -33,7 +34,7 @@ void ACJPlayerCharacter::BeginPlay()
 void ACJPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (GrapplingHook->IsActivated())
+	if (GrapplingHook->HeadAttached())
 	{
 		FVector NewPosition = FMath::VInterpTo(GetActorLocation(),
 			GrapplingHook->GetAttachmentPoint(),
@@ -45,8 +46,9 @@ void ACJPlayerCharacter::Tick(float DeltaTime)
 
 		if (DistanceToGrapplePoint < 150)
 		{
-			GrapplingHook->Deactivate();
-			GetCharacterMovement()->GravityScale = 1;		
+			GrapplingHook->ResetGrapple();
+			GetCharacterMovement()->AddImpulse(GrapplingHook->GetGrappleDirectionNormalized() * 80000);
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, GrapplingHook->GetGrappleDirectionNormalized().ToString());
 		}
 		else
 		{

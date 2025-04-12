@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CableComponent.h"
+#include "HeadMountedDisplayTypes.h"
 #include "GrapplingHook.generated.h"
 
 UCLASS()
@@ -25,10 +26,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void FireGrapple();
-	void Deactivate();
-	bool IsActivated() const { return bIsActivated; }
+	void ResetGrapple();
+	void SetGrappleVisibility(bool bVisibility);
+	bool HeadAttached() const { return bHeadAttached; }
 	FVector GetAttachmentPoint() const { return AttachmentPoint; }
+	FVector GetGrappleDirectionNormalized() const { return GrappleDirection; }
 	float GetDragSpeed() const { return DragSpeed; }
+	
+	
 private:
 	
 	UPROPERTY(EditAnywhere)
@@ -43,9 +48,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	float DragSpeed = 1000;
 
-	bool bIsActivated = false;
+	bool bHeadAttached = false;
 	bool bDidGrapple =false;
 	
 	FVector AttachmentPoint = FVector::ZeroVector;
 	FVector PointOfDeparture = FVector::ZeroVector;
+	FVector GrappleDirection = FVector::ZeroVector;
+	
+	AController* GetValidController() const;
 };
