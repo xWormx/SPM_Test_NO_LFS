@@ -27,6 +27,7 @@ private:
 	void Interact(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
 	void Grapple(const FInputActionValue& Value);
+	void FireGun(const FInputActionValue& Value);
 
 	ASGPlayerCharacter* GetValidPlayerCharacter();
 
@@ -47,6 +48,8 @@ private:
 	UInputAction* LookAroundInputAction;
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	UInputAction* GrappleInputAction;
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UInputAction* FireGunInputAction;
 
 	// HUD
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)

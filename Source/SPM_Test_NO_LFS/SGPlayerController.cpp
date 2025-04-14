@@ -37,6 +37,7 @@ void ASGPlayerController::SetupInputComponent()
 	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Interact);
 	Input->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::LookAround);
 	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Grapple);
+	Input->BindAction(FireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::FireGun);
 	
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	
@@ -120,6 +121,15 @@ void ASGPlayerController::Grapple(const FInputActionValue& Value)
 		return;
 
 	CurrentPlayer->FireGrapple();
+}
+
+void ASGPlayerController::FireGun(const FInputActionValue& Value)
+{
+	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
+	if (CurrentPlayer == nullptr)
+		return;
+
+	CurrentPlayer->FireGun();
 }
 
 

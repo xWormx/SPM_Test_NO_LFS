@@ -1,10 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "SGPlayerCharacter.generated.h"
+
+// Forward declarations
+class ASGGun;
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGPlayerCharacter : public ACharacter
@@ -27,6 +28,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	float GetRage() const { return Rage; };
 	void FireGrapple();
+	void FireGun();
 	
 private:
 	float Rage = 66.f;
@@ -39,5 +41,9 @@ private:
 	UPROPERTY()
 	ASGGrapplingHook* GrapplingHook;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	TSubclassOf<ASGGun> GunClass;
 	
+	UPROPERTY()
+	ASGGun* Gun;
 };
