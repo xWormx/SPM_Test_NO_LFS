@@ -42,7 +42,8 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* GrappleHead;
 
-
+	class UPhysicsConstraintComponent* PhysicsConstraint;
+	
 	/* Maximum range that the hook can hit */
 	UPROPERTY(EditAnywhere)
 	float MaxHookRange = 1000;

@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "PhysicsEngine/PhysicsConstraintComponent.h"
 
 // Sets default values
 ASGGrapplingHook::ASGGrapplingHook()
@@ -22,6 +23,9 @@ ASGGrapplingHook::ASGGrapplingHook()
 
 	GrappleHead = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GrappleHead"));
 	GrappleHead->SetupAttachment(GetRootComponent());
+
+	PhysicsConstraint = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("PhysicsConstraint"));
+	
 	
 }
 
@@ -71,6 +75,7 @@ void ASGGrapplingHook::FireGrapple()
 		return;
 	}	
 
+	
 	FVector ViewLocation;
 	FRotator ViewRotation;
 	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
@@ -89,7 +94,7 @@ void ASGGrapplingHook::FireGrapple()
 		ResetGrapple();
 		return;
 	}
-
+	
 	GrappleDirection = TraceEnd - ViewLocation;
 	GrappleDirection.Normalize();
 	
@@ -130,7 +135,7 @@ void ASGGrapplingHook::ResetGrapple()
 		return;
 	}
 	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 1.5f;
-	//Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
+	Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
 }
 
 void ASGGrapplingHook::SetGrappleVisibility(bool bVisibility)
@@ -149,7 +154,7 @@ AController* ASGGrapplingHook::GetValidController() const
 		UE_LOG(LogTemp, Warning, TEXT("Owner Not Found!"));
 		return nullptr;
 	}
-
+	PhysicsConstraint->SetConstrainedComponents(GrappleHead, NAME_None, GrappleOwner->GetComponentByClass<USkeletalMeshComponent>(), NAME_None);
 	return GrappleOwner->GetController();
 }
 
