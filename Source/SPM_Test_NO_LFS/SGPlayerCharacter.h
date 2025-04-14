@@ -29,6 +29,7 @@ public:
 	float GetRage() const { return Rage; };
 	void FireGrapple();
 	void FireGun();
+	const ASGGun* GetGunRef() const;
 	
 private:
 	float Rage = 66.f;

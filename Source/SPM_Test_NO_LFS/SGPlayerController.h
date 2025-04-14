@@ -27,8 +27,13 @@ private:
 	void Interact(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
 	void Grapple(const FInputActionValue& Value);
-	void FireGun(const FInputActionValue& Value);
-
+	void StartFiringGun(const FInputActionValue& Value);
+	void StopFiringGun(const FInputActionValue& Value);
+	void FireGun();
+	
+	FTimerHandle FireRateTimer;
+	bool bIsFiring = false;
+	
 	ASGPlayerCharacter* GetValidPlayerCharacter();
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -50,6 +55,8 @@ private:
 	UInputAction* GrappleInputAction;
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	UInputAction* FireGunInputAction;
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UInputAction* StopFireGunInputAction;
 
 	// HUD
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)

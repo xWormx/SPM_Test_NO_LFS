@@ -98,4 +98,9 @@ void ASGPlayerCharacter::FireGun()
 	if (Gun) Gun->Fire();
 }
 
+const ASGGun* ASGPlayerCharacter::GetGunRef() const
+{
+	return Gun;
+}
+
 
