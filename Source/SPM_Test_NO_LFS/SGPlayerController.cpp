@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "SGGrapplingHook.h"
+#include "SGGun.h"
 #include "Blueprint/UserWidget.h"
 
 void ASGPlayerController::BeginPlay()
@@ -37,7 +38,8 @@ void ASGPlayerController::SetupInputComponent()
 	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Interact);
 	Input->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::LookAround);
 	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Grapple);
-	Input->BindAction(FireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::FireGun);
+	Input->BindAction(FireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::StartFiringGun);
+	Input->BindAction(StopFireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::StopFiringGun);
 	
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	
@@ -123,12 +125,32 @@ void ASGPlayerController::Grapple(const FInputActionValue& Value)
 	CurrentPlayer->FireGrapple();
 }
 
-void ASGPlayerController::FireGun(const FInputActionValue& Value)
+void ASGPlayerController::StartFiringGun(const FInputActionValue& Value)
+{
+	if (bIsFiring) return;
+	bIsFiring = true;
+	FireGun();
+
+	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
+	if (CurrentPlayer == nullptr) return;
+	
+	const ASGGun* Gun = CurrentPlayer->GetGunRef();
+	float FireRate = Gun->GetFireRate();
+	
+	GetWorld()->GetTimerManager().SetTimer(FireRateTimer, this, &ASGPlayerController::FireGun, FireRate, true);
+}
+
+void ASGPlayerController::StopFiringGun(const FInputActionValue& Value)
+{
+	bIsFiring = false;
+	GetWorld()->GetTimerManager().ClearTimer(FireRateTimer);
+}
+
+void ASGPlayerController::FireGun()
 {
 	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
 		return;
-
 	CurrentPlayer->FireGun();
 }
 

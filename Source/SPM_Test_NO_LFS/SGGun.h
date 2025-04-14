@@ -13,6 +13,7 @@ public:
 	ASGGun();
 	virtual void Tick(float DeltaTime) override;
 	void Fire();
+	float GetFireRate() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -36,6 +37,8 @@ private:
 	float MaxRange = 5000.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float Damage = 100.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	float FireRate = 0.1f; // 0.1 = 10 skott per sekund
 
 	bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
 	AController* GetOwnerController() const;

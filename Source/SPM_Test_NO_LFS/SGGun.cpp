@@ -39,6 +39,11 @@ void ASGGun::Fire()
 	}
 }
 
+float ASGGun::GetFireRate() const
+{
+	return FireRate;
+}
+
 // Protected
 void ASGGun::BeginPlay()
 {
