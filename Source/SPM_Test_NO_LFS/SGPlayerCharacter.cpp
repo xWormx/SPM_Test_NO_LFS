@@ -1,9 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SGPlayerCharacter.h"
-
 #include "SGGrapplingHook.h"
+#include "SGGun.h"
 #include "MaterialHLSLTree.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -28,6 +25,14 @@ void ASGPlayerCharacter::BeginPlay()
 	GrapplingHook->AddActorLocalRotation(FRotator(0, 180, 0));
 	GrapplingHook->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
 	GrapplingHook->SetOwner(this);
+
+	Gun = GetWorld()->SpawnActor<ASGGun>(GunClass);
+	if (Gun)
+	{
+		// WeaponSocket == bone-socket där vapnet ska sitta fast
+		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+		Gun->SetOwner(this);
+	}
 }
 
 // Called every frame
@@ -86,6 +91,11 @@ void ASGPlayerCharacter::FireGrapple()
 	UE_LOG(LogTemp, Warning, TEXT("Fire Grapple"));
 	GrapplingHook->FireGrapple();
 	//GetCharacterMovement()->GravityScale = 0.5;
+}
+
+void ASGPlayerCharacter::FireGun()
+{
+	if (Gun) Gun->Fire();
 }
 
 
