@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "CJPlayerCharacter.generated.h"
+#include "SGPlayerCharacter.generated.h"
 
 UCLASS()
-class SPM_TEST_NO_LFS_API ACJPlayerCharacter : public ACharacter
+class SPM_TEST_NO_LFS_API ASGPlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	ACJPlayerCharacter();
+	ASGPlayerCharacter();
 
 protected:
 	// Called when the game starts or when spawned
@@ -34,10 +34,10 @@ private:
 	USceneComponent* GrapplingHookPosition;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TSubclassOf<class AGrapplingHook> GrapplingHookClass;
+	TSubclassOf<class ASGGrapplingHook> GrapplingHookClass;
 
 	UPROPERTY()
-	AGrapplingHook* GrapplingHook;
+	ASGGrapplingHook* GrapplingHook;
 
 	
 };

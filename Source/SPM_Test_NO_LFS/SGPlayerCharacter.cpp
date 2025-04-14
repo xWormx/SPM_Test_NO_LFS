@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CJPlayerCharacter.h"
+#include "SGPlayerCharacter.h"
 
-#include "GrapplingHook.h"
+#include "SGGrapplingHook.h"
 #include "MaterialHLSLTree.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
-ACJPlayerCharacter::ACJPlayerCharacter()
+ASGPlayerCharacter::ASGPlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -18,10 +18,10 @@ ACJPlayerCharacter::ACJPlayerCharacter()
 }
 
 // Called when the game starts or when spawned
-void ACJPlayerCharacter::BeginPlay()
+void ASGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	GrapplingHook = GetWorld()->SpawnActor<AGrapplingHook>(GrapplingHookClass);
+	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
 	GrapplingHook->SetActorLocation(GrapplingHookPosition->GetComponentLocation());
 	// Grapplinghooken verkar vara omvänt roterad från början, debugkameran visar att den är riktad bakåt
 	// Så vi roterar den 180 grader för att den ska vara riktad framåt från början.
@@ -31,7 +31,7 @@ void ACJPlayerCharacter::BeginPlay()
 }
 
 // Called every frame
-void ACJPlayerCharacter::Tick(float DeltaTime)
+void ASGPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (GrapplingHook->HeadAttached())
@@ -75,13 +75,13 @@ void ACJPlayerCharacter::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
-void ACJPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void ASGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
 
-void ACJPlayerCharacter::FireGrapple()
+void ASGPlayerCharacter::FireGrapple()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Fire Grapple"));
 	GrapplingHook->FireGrapple();

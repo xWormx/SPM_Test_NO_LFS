@@ -5,14 +5,14 @@
 #include "CoreMinimal.h"
 #include "InputAction.h"
 #include "GameFramework/PlayerController.h"
-#include "CJPlayerController.generated.h"
+#include "SGPlayerController.generated.h"
 
-class ACJPlayerCharacter;
+class ASGPlayerCharacter;
 /**
  * 
  */
 UCLASS()
-class SPM_TEST_NO_LFS_API ACJPlayerController : public APlayerController
+class SPM_TEST_NO_LFS_API ASGPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
@@ -28,7 +28,7 @@ private:
 	void LookAround(const FInputActionValue& Value);
 	void Grapple(const FInputActionValue& Value);
 
-	ACJPlayerCharacter* GetValidPlayerCharacter();
+	ASGPlayerCharacter* GetValidPlayerCharacter();
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float MoveSpeed = 5;

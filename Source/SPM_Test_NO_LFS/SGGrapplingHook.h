@@ -6,16 +6,16 @@
 #include "GameFramework/Actor.h"
 #include "CableComponent.h"
 #include "HeadMountedDisplayTypes.h"
-#include "GrapplingHook.generated.h"
+#include "SGGrapplingHook.generated.h"
 
 UCLASS()
-class SPM_TEST_NO_LFS_API AGrapplingHook : public AActor
+class SPM_TEST_NO_LFS_API ASGGrapplingHook : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AGrapplingHook();
+	ASGGrapplingHook();
 
 protected:
 	// Called when the game starts or when spawned

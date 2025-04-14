@@ -1,20 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CJPlayerController.h"
-#include "CJPlayerCharacter.h"
+#include "SGPlayerController.h"
+#include "SGPlayerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GrapplingHook.h"
+#include "SGGrapplingHook.h"
 #include "Blueprint/UserWidget.h"
 
-void ACJPlayerController::BeginPlay()
+void ASGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
+	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
 		return;
 	
@@ -27,16 +27,16 @@ void ACJPlayerController::BeginPlay()
 	}
 }
 
-void ACJPlayerController::SetupInputComponent()
+void ASGPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
 	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
-	Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ACJPlayerController::Move);
-	Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ACJPlayerController::Jump);
-	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ACJPlayerController::Interact);
-	Input->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ACJPlayerController::LookAround);
-	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &ACJPlayerController::Grapple);
+	Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Move);
+	Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Jump);
+	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Interact);
+	Input->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::LookAround);
+	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Grapple);
 	
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	
@@ -63,9 +63,9 @@ void ACJPlayerController::SetupInputComponent()
 	InputSubsytem->AddMappingContext(InputMapping, 0);
 }
 
-void ACJPlayerController::Move(const FInputActionValue& Value)
+void ASGPlayerController::Move(const FInputActionValue& Value)
 {
-	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
+	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
 		return;
 
@@ -75,9 +75,9 @@ void ACJPlayerController::Move(const FInputActionValue& Value)
 	CurrentPlayer->AddMovementInput(CurrentPlayer->GetActorRightVector(), Movement.X);
 }
 
-void ACJPlayerController::Jump(const FInputActionValue& Value)
+void ASGPlayerController::Jump(const FInputActionValue& Value)
 {
-	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
+	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
 		return;
 	
@@ -93,18 +93,18 @@ void ACJPlayerController::Jump(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Warning, TEXT("Jump: + %hhd"), Value.Get<bool>());
 }
 
-void ACJPlayerController::Interact(const FInputActionValue& Value)
+void ASGPlayerController::Interact(const FInputActionValue& Value)
 {
-	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
+	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
 		return;
 
 	UE_LOG(LogTemp, Warning, TEXT("Interact: Rage = %f"), CurrentPlayer->GetRage());
 }
 
-void ACJPlayerController::LookAround(const FInputActionValue& Value)
+void ASGPlayerController::LookAround(const FInputActionValue& Value)
 {
-	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
+	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
 		return;
 
@@ -113,9 +113,9 @@ void ACJPlayerController::LookAround(const FInputActionValue& Value)
 	CurrentPlayer->AddControllerYawInput(AxisValue2D.X);
 }
 
-void ACJPlayerController::Grapple(const FInputActionValue& Value)
+void ASGPlayerController::Grapple(const FInputActionValue& Value)
 {
-	ACJPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
+	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
 		return;
 
@@ -123,9 +123,9 @@ void ACJPlayerController::Grapple(const FInputActionValue& Value)
 }
 
 
-ACJPlayerCharacter* ACJPlayerController::GetValidPlayerCharacter()
+ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()
 {
-	ACJPlayerCharacter* CurrentPlayer = Cast<ACJPlayerCharacter>(GetPawn());
+	ASGPlayerCharacter* CurrentPlayer = Cast<ASGPlayerCharacter>(GetPawn());
 	if (CurrentPlayer == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ACJPlayerCharacter was nullptr"));

@@ -1,16 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GrapplingHook.h"
+#include "SGGrapplingHook.h"
 
-#include "CJPlayerController.h"
+#include "SGPlayerController.h"
 #include "LandscapeGizmoActiveActor.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
-AGrapplingHook::AGrapplingHook()
+ASGGrapplingHook::ASGGrapplingHook()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -26,7 +26,7 @@ AGrapplingHook::AGrapplingHook()
 }
 
 // Called when the game starts or when spawned
-void AGrapplingHook::BeginPlay()
+void ASGGrapplingHook::BeginPlay()
 {
 	Super::BeginPlay();
 	SetGrappleVisibility(false);
@@ -37,7 +37,7 @@ void AGrapplingHook::BeginPlay()
 }
 
 // Called every frame
-void AGrapplingHook::Tick(float DeltaTime)
+void ASGGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -62,7 +62,7 @@ void AGrapplingHook::Tick(float DeltaTime)
 	}
 }
 
-void AGrapplingHook::FireGrapple()
+void ASGGrapplingHook::FireGrapple()
 {
 	AController* Controller = GetValidController();
 	if (Controller == nullptr)
@@ -117,7 +117,7 @@ void AGrapplingHook::FireGrapple()
 		false, 8);
 }
 
-void AGrapplingHook::ResetGrapple()
+void ASGGrapplingHook::ResetGrapple()
 {
 	bHeadAttached = false;
 	GrappleHead->SetWorldLocation(GetActorLocation());
@@ -133,14 +133,14 @@ void AGrapplingHook::ResetGrapple()
 	//Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
 }
 
-void AGrapplingHook::SetGrappleVisibility(bool bVisibility)
+void ASGGrapplingHook::SetGrappleVisibility(bool bVisibility)
 {
 	GrappleHead->SetVisibility(bVisibility);
 	CableComponent->SetVisibility(bVisibility);
 }
 
 
-AController* AGrapplingHook::GetValidController() const
+AController* ASGGrapplingHook::GetValidController() const
 {
 	DrawDebugCamera(GetWorld(), GetActorLocation(), GetActorRotation(), 90, 2, FColor::Blue, false, 8);
 	APawn* GrappleOwner = Cast<APawn>(GetOwner());
