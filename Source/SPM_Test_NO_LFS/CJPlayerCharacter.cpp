@@ -39,15 +39,29 @@ void ACJPlayerCharacter::Tick(float DeltaTime)
 		FVector NewPosition = FMath::VInterpTo(GetActorLocation(),
 			GrapplingHook->GetAttachmentPoint(),
 			GetWorld()->GetDeltaSeconds(),
-			GrapplingHook->GetDragSpeed() * DeltaTime);
+			GrapplingHook->GetDragSpeed());
 		
+		UE_LOG(LogTemp, Warning, TEXT("DELTASECONDS: %f"), DeltaTime);
 		float DistanceToGrapplePoint = FVector::Distance(GrapplingHook->GetAttachmentPoint(), NewPosition); 
 		UE_LOG(LogTemp, Warning, TEXT("Grapple Location: %f"), DistanceToGrapplePoint);
 
 		if (DistanceToGrapplePoint < 150)
 		{
 			GrapplingHook->ResetGrapple();
-			GetCharacterMovement()->AddImpulse(GrapplingHook->GetGrappleDirectionNormalized() * 80000);
+			// Om hook riktningen är uppåt så lägg till lite extra kraft uppåt!
+			if (GrapplingHook->GetGrappleDirectionNormalized().Z > 0)
+			{
+				FVector Impuls = GrapplingHook->GetGrappleDirectionNormalized() * 80000;
+				float ExtraUpwardsImpuls = 50000;
+				Impuls.Z += ExtraUpwardsImpuls;
+				GetCharacterMovement()->AddImpulse(Impuls);	
+			}
+			else
+			{
+				FVector Impuls = GrapplingHook->GetGrappleDirectionNormalized() * 80000;
+				GetCharacterMovement()->AddImpulse(Impuls);
+			}
+			
 			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, GrapplingHook->GetGrappleDirectionNormalized().ToString());
 		}
 		else

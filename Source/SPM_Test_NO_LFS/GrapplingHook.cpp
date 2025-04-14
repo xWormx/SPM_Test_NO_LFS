@@ -46,7 +46,8 @@ void AGrapplingHook::Tick(float DeltaTime)
 		// Detta skjuter iväg Grapplehead och uppdateras dess position tills att den är inom 50 enheter
 		// av AttachmentPoint
 		FVector NewHeadPosition = FMath::VInterpTo(GrappleHead->GetComponentLocation(), AttachmentPoint,
-													GetWorld()->GetDeltaSeconds(), 5);
+													DeltaTime, 5);
+		
 		if (FVector::Dist(NewHeadPosition, AttachmentPoint) < 50)
 		{
 			bHeadAttached = true;

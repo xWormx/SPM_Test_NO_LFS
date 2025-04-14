@@ -41,10 +41,13 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMeshComponent* GrappleHead;
-	
+
+
+	/* Maximum range that the hook can hit */
 	UPROPERTY(EditAnywhere)
 	float MaxHookRange = 1000;
 
+	/* Speed at which the character drags towards the grapple attachpoint */
 	UPROPERTY(EditAnywhere)
 	float DragSpeed = 1000;
 
