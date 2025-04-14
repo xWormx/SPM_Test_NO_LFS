@@ -55,7 +55,7 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 		}
 		else
 		{
-			GrappleHead->SetWorldLocation(NewHeadPosition);
+			GrappleHead->SetWorldLocation(NewHeadPosition);	
 		}
 		
 		//GrappleHead->SetWorldLocation(AttachmentPoint);
