@@ -3,6 +3,7 @@
 
 #include "SGBTServie_PlayerLocation.h"
 
+#include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -13,12 +14,22 @@ USGBTServie_PlayerLocation::USGBTServie_PlayerLocation()
 
 void USGBTServie_PlayerLocation::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
+
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
-	if (PlayerPawn)
+	if (!PlayerPawn || !OwnerComp.GetAIOwner())
+	{
+		return;
+	}
+
+	if (OwnerComp.GetAIOwner()->LineOfSightTo(PlayerPawn))
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), PlayerPawn->GetActorLocation());
+	}
+	else
+	{
+		OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());
 	}
 }

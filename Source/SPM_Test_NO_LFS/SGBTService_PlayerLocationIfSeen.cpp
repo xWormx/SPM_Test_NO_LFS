@@ -3,7 +3,6 @@
 
 #include "SGBTService_PlayerLocationIfSeen.h"
 
-#include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -19,17 +18,8 @@ void USGBTService_PlayerLocationIfSeen::TickNode(UBehaviorTreeComponent& OwnerCo
 
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
-	if (!PlayerPawn || !OwnerComp.GetAIOwner())
-	{
-		return;
-	}
-
-	if (OwnerComp.GetAIOwner()->LineOfSightTo(PlayerPawn))
+	if (PlayerPawn)
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), PlayerPawn->GetActorLocation());
-	}
-	else
-	{
-		OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());
 	}
 }
