@@ -2,7 +2,8 @@
 
 
 #include "SGGrapplingHook.h"
-
+#include "SGGrappleHeadBase.h"
+#include "AssetTypeCategories.h"
 #include "SGPlayerController.h"
 #include "LandscapeGizmoActiveActor.h"
 #include "GameFramework/Character.h"
@@ -14,26 +15,31 @@ ASGGrapplingHook::ASGGrapplingHook()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(Root);
 	
 	CableComponent = CreateDefaultSubobject<UCableComponent>(TEXT("CableComponent"));
 	CableComponent->SetupAttachment(GetRootComponent());
 	CableComponent->NumSegments = 3;
-
-	GrappleHead = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GrappleHead"));
-	GrappleHead->SetupAttachment(GetRootComponent());
 	
+	GrappleHeadPosition = CreateDefaultSubobject<USceneComponent>(TEXT("GrappleHeadPosition"));
+	GrappleHeadPosition->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
 void ASGGrapplingHook::BeginPlay()
 {
 	Super::BeginPlay();
-	SetGrappleVisibility(false);
-//	CableComponent->EndLocation = GrappleHead->GetComponentLocation();
-	FVector End = UKismetMathLibrary::InverseTransformLocation(GetTransform(), GrappleHead->GetComponentLocation());
+	
+	Head = GetWorld()->SpawnActor<ASGGrappleHeadBase>(GrappleHeadClass);
+	Head->SetActorLocation(GrappleHeadPosition->GetComponentLocation());
+	Head->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+
+	FVector End = UKismetMathLibrary::InverseTransformLocation(GetTransform(), Head->GetActorLocation());
+	CableComponent->SetAttachEndToComponent(Head->GetComponentByClass<UStaticMeshComponent>());
 	CableComponent->EndLocation = End;
-	CableComponent->SetAttachEndToComponent(GrappleHead);
+	SetGrappleVisibility(false);
+
 }
 
 // Called every frame
@@ -45,21 +51,33 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 	{
 		// Detta skjuter iväg Grapplehead och uppdateras dess position tills att den är inom 50 enheter
 		// av AttachmentPoint
-		FVector NewHeadPosition = FMath::VInterpTo(GrappleHead->GetComponentLocation(), AttachmentPoint,
-													DeltaTime, 5);
+		FVector NewHeadPosition = Head->GetActorLocation();
 		
-		if (FVector::Dist(NewHeadPosition, AttachmentPoint) < 50)
+		float DistanceBetweenHeadAndAttachment = FVector::Dist(NewHeadPosition, AttachmentPoint); 
+		if (DistanceBetweenHeadAndAttachment < 10)
 		{
 			bHeadAttached = true;
 			bDidGrapple = false;
 		}
 		else
 		{
-			GrappleHead->SetWorldLocation(NewHeadPosition);	
+			// Sålänge avståndet är större än 150 så interpolar vi långsammare mot slutet
+			// Annars (när vi är nära målet gör vi det med konstant hastighet)
+			if (DistanceBetweenHeadAndAttachment > 150)
+			{
+				NewHeadPosition = FMath::VInterpTo(Head->GetActorLocation(), AttachmentPoint,
+														DeltaTime, 5d);	
+			}
+			else
+			{
+				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint,
+															DeltaTime, 1000);		
+			}
+				
+			Head->SetActorLocation(NewHeadPosition);
 		}
-		
-		//GrappleHead->SetWorldLocation(AttachmentPoint);
 	}
+
 }
 
 void ASGGrapplingHook::FireGrapple()
@@ -69,7 +87,7 @@ void ASGGrapplingHook::FireGrapple()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ACJPlayerController Not Found!"));
 		return;
-	}	
+	}
 
 	FVector ViewLocation;
 	FRotator ViewRotation;
@@ -89,10 +107,11 @@ void ASGGrapplingHook::FireGrapple()
 		ResetGrapple();
 		return;
 	}
-
+	
 	GrappleDirection = TraceEnd - ViewLocation;
 	GrappleDirection.Normalize();
-	
+	CableLengthWhenAttached = CableComponent->CableLength;
+	Head->SetActorRotation(ViewRotation);
 	// Skjuter upp karaktären när hooken avlossas för att få ett bra momentum
 	Controller->GetCharacter()->LaunchCharacter(FVector(0, 0, 300), true, true);
 	// För att karaktären inte ska bromsas när den dras mot väggar
@@ -103,7 +122,7 @@ void ASGGrapplingHook::FireGrapple()
 	AttachmentPoint = HitResult.ImpactPoint;
 	PointOfDeparture = GetActorLocation();
 	SetGrappleVisibility(true);
-	GrappleHead->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	Head->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	
 	DrawDebugSphere(GetWorld(),
 					HitResult.ImpactPoint,
@@ -119,10 +138,6 @@ void ASGGrapplingHook::FireGrapple()
 
 void ASGGrapplingHook::ResetGrapple()
 {
-	bHeadAttached = false;
-	GrappleHead->SetWorldLocation(GetActorLocation());
-	GrappleHead->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
-	SetGrappleVisibility(false);
 	AController* Controller = GetValidController();
 	if (Controller == nullptr)
 	{
@@ -130,13 +145,23 @@ void ASGGrapplingHook::ResetGrapple()
 		return;
 	}
 	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 1.5f;
-	//Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
+	Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
+	
+	Head->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+	Head->SetActorLocation(GrappleHeadPosition->GetComponentLocation());
+	SetGrappleVisibility(false);
+	bHeadAttached = false;
 }
 
 void ASGGrapplingHook::SetGrappleVisibility(bool bVisibility)
 {
-	GrappleHead->SetVisibility(bVisibility);
+	Head->GetComponentByClass<UStaticMeshComponent>()->SetVisibility(bVisibility);
 	CableComponent->SetVisibility(bVisibility);
+}
+
+void ASGGrapplingHook::SetHeadConstraint(AActor* OtherActor)
+{
+	Head->SetConstraintTo(OtherActor);
 }
 
 
