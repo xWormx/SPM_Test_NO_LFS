@@ -16,5 +16,7 @@ class SPM_TEST_NO_LFS_API USGBTTask_ClearBlackBoardValue : public UBTTask_Blackb
 
 public:
 	USGBTTask_ClearBlackBoardValue();
-	
+
+protected:
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& Comp, uint8* NodeMemory) override;
 };
