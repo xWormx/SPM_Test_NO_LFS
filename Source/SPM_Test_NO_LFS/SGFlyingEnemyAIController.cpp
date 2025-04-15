@@ -1,26 +1,29 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGGroundEnemyAIController.h"
+#include "SGFlyingEnemyAIController.h"
 
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-void ASGGroundEnemyAIController::BeginPlay()
+void ASGFlyingEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
+
 	PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	
 
 	if (AIBehaviorTree)
 	{
 		RunBehaviorTree(AIBehaviorTree);
 
-		GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), GetPawn()->GetActorLocation());
+		//GetBlackboardComponent()
 	}
 }
 
-void ASGGroundEnemyAIController::Tick(float DeltaTime)
+void ASGFlyingEnemyAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	SetFocus(PlayerPawn);
+
+	//MoveToActor(PlayerPawn, 200);
 }
