@@ -2,6 +2,7 @@
 
 #pragma once
 
+
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CableComponent.h"
@@ -28,6 +29,7 @@ public:
 	void FireGrapple();
 	void ResetGrapple();
 	void SetGrappleVisibility(bool bVisibility);
+	void SetHeadConstraint(AActor* OtherActor);
 	bool HeadAttached() const { return bHeadAttached; }
 	FVector GetAttachmentPoint() const { return AttachmentPoint; }
 	FVector GetGrappleDirectionNormalized() const { return GrappleDirection; }
@@ -35,14 +37,22 @@ public:
 	
 	
 private:
+
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
+	USceneComponent* Root;
+	
+	UPROPERTY(EditDefaultsOnly)
 	UCableComponent* CableComponent;
 
-	UPROPERTY(EditDefaultsOnly)
-	UStaticMeshComponent* GrappleHead;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ASGGrappleHeadBase> GrappleHeadClass;
 
-	class UPhysicsConstraintComponent* PhysicsConstraint;
+	UPROPERTY()
+	ASGGrappleHeadBase* Head;
+
+	UPROPERTY(EditDefaultsOnly)
+	USceneComponent* GrappleHeadPosition;
 	
 	/* Maximum range that the hook can hit */
 	UPROPERTY(EditAnywhere)
@@ -52,8 +62,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	float DragSpeed = 1000;
 
+	float CableLengthWhenAttached = 0;
 	bool bHeadAttached = false;
-	bool bDidGrapple =false;
+	bool bDidGrapple = false;
 	
 	FVector AttachmentPoint = FVector::ZeroVector;
 	FVector PointOfDeparture = FVector::ZeroVector;
