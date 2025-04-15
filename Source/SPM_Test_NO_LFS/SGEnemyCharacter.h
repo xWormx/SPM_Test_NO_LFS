@@ -18,6 +18,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UFUNCTION()
+	void HandleDeath(float NewHealth);
 
 public:	
 	// Called every frame
@@ -25,5 +28,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+private:
+	UPROPERTY()
+	class USGHealthComponent* HealthComponent;
 
 };

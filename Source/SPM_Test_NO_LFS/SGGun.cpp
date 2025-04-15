@@ -61,7 +61,7 @@ bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
 	OwnerController->GetPlayerViewPoint(Location, Rotation);
 	//DrawDebugCamera(GetWorld(), Location, Rotation, 90, 3, FColor::Green, true);
 	FVector End = Location + Rotation.Vector() * MaxRange;
-	DrawDebugLine(GetWorld(), Location, End, FColor::Green, true);
+	//DrawDebugLine(GetWorld(), Location, End, FColor::Green, true);
 	FVector OutDirection = -Rotation.Vector();
 	
 	FCollisionQueryParams Params;
