@@ -13,5 +13,11 @@ UCLASS()
 class SPM_TEST_NO_LFS_API USGBTServie_PlayerLocation : public UBTService_BlackboardBase
 {
 	GENERATED_BODY()
+
+public:
+	USGBTServie_PlayerLocation();
+
+protected:
+	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 	
 };
