@@ -26,5 +26,13 @@ private:
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
 	APawn* PlayerPawn;
-	
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
+	class UBehaviorTree* AIBehaviorTree;
+
+	/*UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
+	FVector PlayerLocation;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
+	FVector StartLocation;*/
 };

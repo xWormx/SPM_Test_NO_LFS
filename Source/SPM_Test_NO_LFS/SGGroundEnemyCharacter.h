@@ -13,5 +13,13 @@ UCLASS()
 class SPM_TEST_NO_LFS_API ASGGroundEnemyCharacter : public ASGEnemyCharacter
 {
 	GENERATED_BODY()
+
+public:
+	ASGGroundEnemyCharacter();
+	virtual void Tick(float DeltaTime) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+protected:
+	virtual void BeginPlay() override;
 	
 };
