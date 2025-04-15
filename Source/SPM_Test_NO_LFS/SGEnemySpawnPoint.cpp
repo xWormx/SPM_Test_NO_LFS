@@ -8,17 +8,12 @@ ASGEnemySpawnPoint::ASGEnemySpawnPoint()
 	PrimaryActorTick.bCanEverTick = true;
 	Tags.Add(FName("EnemySpawnPoint"));
 
-	/* Samla alla spawn points i managern sen:
-	TArray<AActor*> EnemySpawnPoints;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("EnemySpawnPoint"), EnemySpawnPoints);
-	*/
-
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	UBillboardComponent* Billboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
+	Billboard->SetupAttachment(RootComponent);
+	
 	//Billboard->SetRelativeScale3D(FVector(2.f));
 	Billboard->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
-	Billboard->SetupAttachment(RootComponent);
-
 	static ConstructorHelpers::FObjectFinder<UTexture2D> SpriteTexture(TEXT("/Game/Textures/T_EnemySpawnPointEditorOnly"));
 	if (SpriteTexture.Succeeded()) Billboard->SetSprite(SpriteTexture.Object);
 }
