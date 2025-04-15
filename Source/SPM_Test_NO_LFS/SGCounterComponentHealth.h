@@ -4,7 +4,7 @@
 #include "SGCounterComponent.h"
 #include "SGCounterComponentHealth.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoHealth, float, NewHealth);
+class USGHealthComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class SPM_TEST_NO_LFS_API USGCounterComponentHealth : public USGCounterComponent
@@ -13,36 +13,33 @@ class SPM_TEST_NO_LFS_API USGCounterComponentHealth : public USGCounterComponent
 
 public:
 	USGCounterComponentHealth();
-	
-	UPROPERTY(BlueprintAssignable, Category = "Counter Component")
-	FOnNoHealth OnNoHealth;	
 
+	UFUNCTION(BlueprintCallable, Category = "Counter Component")
+	void IncreaseHealth(float Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Counter Component")
+	void UseHealthBuffer(float Amount);
+
+	//TODO: Eventuellt ta bort - är bara en redirector till HealthComponent
 	UFUNCTION(BlueprintPure, Category = "Counter Component")
 	float GetCurrentHealth() const;
 
 	UFUNCTION(BlueprintPure, Category = "Counter Component")
 	float GetBufferedHealth() const;
 
-	UFUNCTION(BlueprintCallable, Category = "Counter Component")
-	void IncreaseHealth(float Amount);
-
-	UFUNCTION(BlueprintCallable, Category = "Counter Component")
-	void DecreaseHealth(float Amount);
-	
 protected:
+
+	virtual void BeginPlay() override;
+	
 	virtual void ProcessPickup(AActor* Pickup) override;
 	
 	//TODO: Byt ut så counter syns i en widget
-	virtual void LogCounter() override;
-
-	// TODO: Byt ut till HealthComponent
-	UPROPERTY(EditAnywhere, Category = "Counter Properties")
-	float CurrentHealth = 100.0f;
+	virtual void LogCounter() override;	
 
 	UPROPERTY(EditAnywhere, Category = "Counter Properties")
-	float MaxHealth = 100.0f;
-
+	USGHealthComponent* HealthComponent;
+	
 	// TODO: Implementera Timer
 	UPROPERTY(EditAnywhere, Category = "Counter Properties")
-	float HealthBuffer = 0.0f;
+	float HealthBuffer = 0.0f;	
 };
