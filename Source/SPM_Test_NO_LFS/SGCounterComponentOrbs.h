@@ -1,0 +1,32 @@
+﻿#pragma once
+
+#include "CoreMinimal.h"
+#include "SGCounterComponent.h"
+#include "SGCounterComponentOrbs.generated.h"
+
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+class SPM_TEST_NO_LFS_API USGCounterComponentOrbs : public USGCounterComponent
+{
+	GENERATED_BODY()
+
+public:
+	USGCounterComponentOrbs();
+
+	UFUNCTION(BlueprintPure, Category = "Counter Component")
+	float GetOrbCount() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Counter Component")
+	void AddOrbs(float Amount);
+
+	UFUNCTION(BlueprintCallable, Category = "Counter Component")
+	void RemoveOrbs(float Amount);
+
+protected:
+	virtual void ProcessPickup(AActor* Pickup) override;
+
+	//TODO: Byt ut så counter syns i en widget
+	virtual void LogCounter() override;
+	
+	UPROPERTY(EditAnywhere, Category = "Counter Properties")
+	float OrbCount = 0.0f;
+};
