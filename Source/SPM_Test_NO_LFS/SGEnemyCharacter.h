@@ -20,7 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
-	void HandleDeath(float NewHealth);
+	virtual void HandleDeath(float NewHealth);
 
 public:	
 	// Called every frame
