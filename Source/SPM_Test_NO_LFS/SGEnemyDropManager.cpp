@@ -5,53 +5,35 @@
 
 ASGEnemyDropManager::ASGEnemyDropManager()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-void ASGEnemyDropManager::BeginPlay()
-{
-	Super::BeginPlay();	
-}
 
-void ASGEnemyDropManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-void ASGEnemyDropManager::DropItem(ASGEnemyCharacter* EnemyCharacter)
+void ASGEnemyDropManager::DropItem(ASGEnemyCharacter* EnemyCharacter) const
 {
 	if (!EnemyCharacter)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyCharacter is null."));
 		return;
 	}
-
-	const FSGEnemyDropContainer* Drops = EnemyDropMap.Find(EnemyCharacter->GetClass());
-
-	if (!Drops)
+	if (!EnemyDropDataTable)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No drops found for the given enemy."));
+		UE_LOG(LogTemp, Warning, TEXT("EnemyDropDataTable is null."));
 		return;
 	}
+	
+	const FVector SpawnLocation = EnemyCharacter->GetActorLocation();
+	const FRotator SpawnRotation = FRotator::ZeroRotator;
 
-	for (const auto& Drop : Drops->EnemyDrops)
+	const FString DebugMessage = TEXT("Iterate Enemy Drop Data");
+	auto DropLoot = [&]([[maybe_unused]] const FName& Key, const FEnemyDropInfo& Drop)
 	{
-		if (!Drop.PickUpClass)
+		if (EnemyCharacter->GetClass()->IsChildOf(Drop.EnemyClass))
 		{
-			continue;
-		}
-		
-		FVector SpawnLocation = EnemyCharacter->GetActorLocation();
-		FRotator SpawnRotation = FRotator::ZeroRotator;
-		
-		for (int i = 0; i < Drop.PickUpCount; ++i)
-		{
-			//Den bortkommenterade koden är inte ordentligt testad än
-			/* FVector RandomOffset = FMath::VRand() * FMath::RandRange(0.0f, Drop.SpawnRadius);
-			FVector RandomSpawnLocation = SpawnLocation + RandomOffset;
-			GetWorld()->SpawnActor<ASGPickUp>(Drop.PickUpClass, RandomSpawnLocation, SpawnRotation);*/
 			GetWorld()->SpawnActor<ASGPickUp>(Drop.PickUpClass, SpawnLocation, SpawnRotation);
 		}
-	}
+	};
+		
+	EnemyDropDataTable->ForeachRow<FEnemyDropInfo>(DebugMessage, DropLoot);
 }
 
