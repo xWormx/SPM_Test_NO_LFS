@@ -22,12 +22,11 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
-	float AcceptanceRadius = 100.f;
+	float AttackRange = 100.f;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
 	APawn* PlayerPawn;
 
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
-	class UBehaviorTree* AIBehaviorTree;
+	bool CanHitPlayer() const;
 	
 };

@@ -24,6 +24,10 @@ void USGBTService_PlayerLocationIfSeen::TickNode(UBehaviorTreeComponent& OwnerCo
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), PlayerPawn->GetActorLocation());
 	}
+	else if (!OwnerComp.GetAIOwner()->LineOfSightTo(PlayerPawn))
+	{
+		OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());
+	}
 	
 	/*if (PlayerPawn)
 	{

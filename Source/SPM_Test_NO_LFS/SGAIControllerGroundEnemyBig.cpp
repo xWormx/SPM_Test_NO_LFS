@@ -11,18 +11,42 @@ void ASGAIControllerGroundEnemyBig::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-
-	if (AIBehaviorTree)
-	{
-		RunBehaviorTree(AIBehaviorTree);
-
-		GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"),GetPawn()->GetActorLocation());
-	}
+	
 }
 
 void ASGAIControllerGroundEnemyBig::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (!PlayerPawn)
+	{
+		return;
+	}
+
+	SetFocus(PlayerPawn);
+
+	if (CanHitPlayer())
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, TEXT("Enemy is attacking"));
+		}
+	}
+	else
+	{
+		MoveToActor(PlayerPawn);
+	}
+}
+
+bool ASGAIControllerGroundEnemyBig::CanHitPlayer() const
+{
+	FVector Location = GetPawn()->GetActorLocation();
+	FVector PlayerLocation = PlayerPawn->GetActorLocation();
+
+	float DistanceToPlayer = FVector::Dist(PlayerLocation, Location);
+
+	bool bCanHitPlayer = DistanceToPlayer <= AttackRange;
+	return bCanHitPlayer;
 }
 
 
