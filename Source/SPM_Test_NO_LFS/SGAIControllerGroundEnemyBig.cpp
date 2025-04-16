@@ -3,7 +3,6 @@
 
 #include "SGAIControllerGroundEnemyBig.h"
 
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 void ASGAIControllerGroundEnemyBig::BeginPlay()
@@ -25,12 +24,15 @@ void ASGAIControllerGroundEnemyBig::Tick(float DeltaTime)
 
 	SetFocus(PlayerPawn);
 
+	
+
 	if (CanHitPlayer())
 	{
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, TEXT("Enemy is attacking"));
 		}
+		
 	}
 	else
 	{
@@ -45,7 +47,7 @@ bool ASGAIControllerGroundEnemyBig::CanHitPlayer() const
 
 	float DistanceToPlayer = FVector::Dist(PlayerLocation, Location);
 
-	bool bCanHitPlayer = DistanceToPlayer <= AttackRange;
+	bool bCanHitPlayer = DistanceToPlayer <= AttackRange -1.f;
 	return bCanHitPlayer;
 }
 
