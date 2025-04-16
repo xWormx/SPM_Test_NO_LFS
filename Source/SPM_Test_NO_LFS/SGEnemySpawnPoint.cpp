@@ -27,9 +27,7 @@ void ASGEnemySpawnPoint::Tick(float DeltaTime)
 ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyCharacter> EnemyClass) const
 {
 	if (EnemyClass == nullptr) return nullptr;
-	
 	ASGEnemyCharacter* SpawnedEnemyPtr = GetWorld()->SpawnActor<ASGEnemyCharacter>(EnemyClass, GetActorLocation(), GetActorRotation());
-	if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, GetActorLocation());
 	return SpawnedEnemyPtr;
 }
 

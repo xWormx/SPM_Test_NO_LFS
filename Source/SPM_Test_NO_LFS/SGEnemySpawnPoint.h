@@ -18,8 +18,4 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
-private:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
-	USoundBase* SpawnSound;
 };

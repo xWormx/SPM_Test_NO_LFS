@@ -40,5 +40,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float EnemyCountScalingFactor = 1.75f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
+	USoundBase* SpawnSound;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	TArray<TSubclassOf<ASGEnemyCharacter>> EnemyTypes;
 };

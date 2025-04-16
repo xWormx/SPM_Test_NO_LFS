@@ -61,7 +61,12 @@ void ASGEnemySpawnManager::SpawnEnemies()
 	{
 		++EnemiesAlive;
 		ASGEnemyCharacter* SpawnedEnemyPtr = GetRandomSpawnPoint()->SpawnEnemy(GetRandomEnemyType());
-		SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
+		
+		if (SpawnedEnemyPtr != nullptr)
+		{
+			SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
+			if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, SpawnedEnemyPtr->GetActorLocation());
+		}
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Wave %i started! %i enemies left..."), CurrentWave, EnemiesAlive);
