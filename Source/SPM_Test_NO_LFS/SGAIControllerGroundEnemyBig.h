@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "SGGroundEnemyAIController.generated.h"
+#include "SGAIControllerGroundEnemyBig.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SPM_TEST_NO_LFS_API ASGGroundEnemyAIController : public AAIController
+class SPM_TEST_NO_LFS_API ASGAIControllerGroundEnemyBig : public AAIController
 {
 	GENERATED_BODY()
 
@@ -21,18 +21,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	/*UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
-	float AcceptanceRadius = 100.f;*/
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
+	float AcceptanceRadius = 100.f;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
 	APawn* PlayerPawn;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
 	class UBehaviorTree* AIBehaviorTree;
-
-	/*UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
-	FVector PlayerLocation;
-
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
-	FVector StartLocation;*/
+	
 };
