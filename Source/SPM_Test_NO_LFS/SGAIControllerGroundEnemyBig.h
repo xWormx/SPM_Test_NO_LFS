@@ -22,7 +22,7 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
-	float AttackRange = 100.f;
+	float AttackRange = 200.f;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
 	APawn* PlayerPawn;

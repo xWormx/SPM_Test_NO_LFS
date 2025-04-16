@@ -23,7 +23,6 @@ void ASGAIControllerGroundEnemyBig::Tick(float DeltaTime)
 	}
 
 	SetFocus(PlayerPawn);
-
 	
 
 	if (CanHitPlayer())
@@ -32,7 +31,6 @@ void ASGAIControllerGroundEnemyBig::Tick(float DeltaTime)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, TEXT("Enemy is attacking"));
 		}
-		
 	}
 	else
 	{
@@ -47,7 +45,7 @@ bool ASGAIControllerGroundEnemyBig::CanHitPlayer() const
 
 	float DistanceToPlayer = FVector::Dist(PlayerLocation, Location);
 
-	bool bCanHitPlayer = DistanceToPlayer <= AttackRange -1.f;
+	bool bCanHitPlayer = DistanceToPlayer <= AttackRange - 1.f;
 	return bCanHitPlayer;
 }
 
