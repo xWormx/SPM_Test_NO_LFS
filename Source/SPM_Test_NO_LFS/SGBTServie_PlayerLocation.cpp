@@ -28,8 +28,4 @@ void USGBTServie_PlayerLocation::TickNode(UBehaviorTreeComponent& OwnerComp, uin
 	{
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), PlayerPawn->GetActorLocation());
 	}
-	else
-	{
-		OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());
-	}
 }

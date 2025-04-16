@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "SGEnemyCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDied, ASGEnemyCharacter*, DeadEnemy);
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGEnemyCharacter : public ACharacter
 {
@@ -28,6 +30,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnEnemyDied OnEnemyDied;
 
 private:
 	UPROPERTY()
