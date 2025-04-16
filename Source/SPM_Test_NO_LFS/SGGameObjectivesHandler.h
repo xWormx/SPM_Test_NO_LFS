@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "SGGameObjectivesHandler.generated.h"
 
+class ASGEnemyCharacter;
 UENUM(BlueprintType)
 enum class EObjectiveType : uint8
 {
@@ -21,14 +22,43 @@ public:
 	// Sets default values for this actor's properties
 	ASGGameObjectivesHandler();
 
+	void RegisterEnemy(ASGEnemyCharacter* Enemy);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TArray<EObjectiveType> GameObjectiveOrder;
+	
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	EObjectiveType CurrentObjective;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	EObjectiveType StartObjective;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	int EnemiesKilled = 0;
+	
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	int NumberOfEnemiesToKill;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	int CurrentCollectedAmout = 0;
+	
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	int GoalCollectiblesAmount;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	bool bPodDefended = false;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TSubclassOf<ASGEnemyCharacter> TargetCharacterClass;
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	ASGEnemyCharacter* TargetCharacter;
+	
+	UFUNCTION()
+	void UpdateCurrentGameObjective(class ASGEnemyCharacter* Actor);
+	
+	void StartNextObjective(EObjectiveType NextObjectiveType);
 };

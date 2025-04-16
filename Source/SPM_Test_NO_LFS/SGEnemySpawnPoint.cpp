@@ -1,5 +1,6 @@
 #include "SGEnemySpawnPoint.h"
 #include "SGEnemyCharacter.h"
+#include "SGGameObjectivesHandler.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BillboardComponent.h"
 
@@ -28,6 +29,10 @@ ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyChar
 {
 	if (EnemyClass == nullptr) return nullptr;
 	ASGEnemyCharacter* SpawnedEnemyPtr = GetWorld()->SpawnActor<ASGEnemyCharacter>(EnemyClass, GetActorLocation(), GetActorRotation());
+	if (ObjectiveHandler)
+		ObjectiveHandler->RegisterEnemy(SpawnedEnemyPtr);
+	else
+		UE_LOG(LogTemp, Error, TEXT("EnemySpawnPoint: Must Assign ObjectiveHandler"));
 	return SpawnedEnemyPtr;
 }
 
