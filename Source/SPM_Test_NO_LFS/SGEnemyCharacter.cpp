@@ -24,7 +24,7 @@ void ASGEnemyCharacter::BeginPlay()
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
 {
-	// Gör andra coola saker
+	OnEnemyDied.Broadcast(this);
 	Destroy();
 }
 
