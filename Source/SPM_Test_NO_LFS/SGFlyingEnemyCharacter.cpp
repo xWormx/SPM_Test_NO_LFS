@@ -63,8 +63,11 @@ void ASGFlyingEnemyCharacter::Tick(float DeltaTime)
 
 void ASGFlyingEnemyCharacter::FlyTowradsPlayer()
 {
-	float DesiredDistance = 500.f; 
-	if (!Target) return;
+	float DesiredDistance = 300.f; 
+	if (!Target)
+	{
+		return;
+	}
 
 	FVector ToPlayer = Target->GetActorLocation() - GetActorLocation();
 	float Distance = ToPlayer.Size();

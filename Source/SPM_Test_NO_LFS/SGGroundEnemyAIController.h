@@ -21,8 +21,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
-	float AcceptanceRadius = 100.f;
+	/*UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
+	float AcceptanceRadius = 100.f;*/
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
 	APawn* PlayerPawn;
