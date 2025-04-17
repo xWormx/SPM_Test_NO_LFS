@@ -48,7 +48,7 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bCanGrapple)
+	if (!CanGrapple())
 	{
 		int TimeLeft = GetWorldTimerManager().GetTimerRemaining(GrappleTimerHandle);
 		FString str = FString::Printf(TEXT("Grapple Time: %d"), TimeLeft);
@@ -87,33 +87,39 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 		}
 	}
 
+	if (HeadAttached() && PlayerWantToTravel())
+	{
+		UpdatePlayerPosition(GetValidController()->GetCharacter(), DeltaTime);
+	}
+
 }
 
 void ASGGrapplingHook::FireGrapple()
 {
-
-	if (!CanGrapple())
-		return;
-	
 	FHitResult HitResult;
 	AController* Controller = GetValidController();
-	bool didHit = GrappleTrace(HitResult, Controller);
-	
-	if (!didHit)
-	{
-		ResetGrapple();
+	bool bDidAttach = AttachGrapple(Controller, HitResult);
+	// What happends if the hook attached to a point?
+	/*
+		1 - Could Disable and go towards point directly
+		2 - Could let the hook be attached and then go towards on press.
+		3 - Could let it be attached will button held down and go towards on release.
+	*/
+	if (!bDidAttach)
 		return;
-	}
-	DisableGrappling();
-
+	
+	TravelDirectly(Controller->GetCharacter(), HitResult);
+	//DisableGrappling();
+	/*
 	GetWorldTimerManager().SetTimer(GrappleTimerHandle, this, &ASGGrapplingHook::EnableGrappling, HookCooldown);
 	
-	StartCharacterLaunch(Controller->GetCharacter());
+	//StartCharacterLaunch(Controller->GetCharacter());
 	bDidGrapple = true;
 	AttachmentPoint = HitResult.ImpactPoint;
 	PointOfDeparture = GetActorLocation();
 	SetGrappleVisibility(true);
 	Head->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	*/
 }
 
 void ASGGrapplingHook::ResetGrapple()
@@ -131,6 +137,7 @@ void ASGGrapplingHook::ResetGrapple()
 	Head->SetActorLocation(GrappleHeadPosition->GetComponentLocation());
 	SetGrappleVisibility(false);
 	bHeadAttached = false;
+	bStartTravel = false;
 }
 
 void ASGGrapplingHook::SetGrappleVisibility(bool bVisibility)
@@ -198,8 +205,73 @@ void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
 	// För att karaktären inte ska bromsas när den dras mot väggar
 	Character->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
 	Character->GetCharacterMovement()->bUseSeparateBrakingFriction = true;
-	Character->GetCharacterMovement()->GravityScale = 0.5f;
+	Character->GetCharacterMovement()->GravityScale = 0.2f;
 }
 
+void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTime)
+{
+	if (Character == nullptr)
+		return;
+	
+	if (HeadAttached())
+	{
+		FVector NewPosition = FMath::VInterpTo(Character->GetActorLocation(),
+												GetAttachmentPoint(),
+												GetWorld()->GetDeltaSeconds(),
+												GetDragSpeed());
+		
+		UE_LOG(LogTemp, Warning, TEXT("DELTASECONDS: %f"), DeltaTime);
+		float DistanceToGrapplePoint = FVector::Distance(GetAttachmentPoint(), NewPosition); 
+		UE_LOG(LogTemp, Warning, TEXT("Grapple Location: %f"), DistanceToGrapplePoint);
 
+		if (DistanceToGrapplePoint < 150)
+		{
+			ResetGrapple();
+
+			FVector Impuls = FVector::ZeroVector;
+			Impuls = GetGrappleDirectionNormalized() * ImpulsAtArrival;
+			
+			// Om hook riktningen är uppåt så lägg till lite extra kraft uppåt!
+			if (GetGrappleDirectionNormalized().Z > 0)
+				Impuls.Z += ExtraUpwardsImpuls;
+
+			Impuls /= DeltaTime;
+			Character->GetCharacterMovement()->Launch(Impuls);
+			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, GetGrappleDirectionNormalized().ToString());
+		}
+		else
+		{			
+			Character->SetActorLocation(NewPosition);
+		}			
+	}
+}
+
+bool ASGGrapplingHook::AttachGrapple(AController* Controller, FHitResult& HitResult)
+{
+	if (!CanGrapple())
+		return false;
+	
+	
+	bool didHit = GrappleTrace(HitResult, Controller);
+	
+	if (!didHit)
+	{
+		ResetGrapple();
+		return false;
+	}
+	return true;
+}
+
+void ASGGrapplingHook::TravelDirectly(ACharacter* Character, FHitResult& HitResult)
+{
+	DisableGrappling();
+	GetWorldTimerManager().SetTimer(GrappleTimerHandle, this, &ASGGrapplingHook::EnableGrappling, HookCooldown);
+	StartCharacterLaunch(Character);
+	bDidGrapple = true;
+	bStartTravel = true;
+	AttachmentPoint = HitResult.ImpactPoint;
+	PointOfDeparture = GetActorLocation();
+	SetGrappleVisibility(true);
+	Head->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+}
 
