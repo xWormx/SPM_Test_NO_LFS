@@ -16,10 +16,7 @@ void ASGGameObjectivesHandler::BeginPlay()
 {
 	Super::BeginPlay();
 	CurrentObjective = GameObjectiveOrder[0];
-	if (TargetCharacter != nullptr)
-		TargetCharacter->OnEnemyDied.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
-	else
-		UE_LOG(LogTemp, Error, TEXT("ASGGameObjectivesHandler::BeginPlay: Must assign TargetCharacter responsible for the delegate!"));
+
 }
 
 void ASGGameObjectivesHandler::RegisterEnemy(ASGEnemyCharacter* Enemy)
@@ -28,40 +25,50 @@ void ASGGameObjectivesHandler::RegisterEnemy(ASGEnemyCharacter* Enemy)
 		return;
 
 	Enemy->OnEnemyDied.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
+	TargetCharacters.Push(Enemy);
 }
 
 void ASGGameObjectivesHandler::UpdateCurrentGameObjective(ASGEnemyCharacter* Actor)
 {
+	bool CurrenObjectiveDone = false;
 	switch (CurrentObjective)
 	{
 		case EObjectiveType::EOT_KillAllEnemies:
 			{
+				EnemiesKilled++;
 				if (EnemiesKilled == NumberOfEnemiesToKill)
 				{
 					FString str = FString::Printf(TEXT("Objective Completed: KillAllEnemies!"));
 					GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, str);
-					
+					CurrenObjectiveDone = true;
 				}
 			} break;
 		case EObjectiveType::EOT_CollectAndPlace:
 			{
+				CurrentCollectedAmout++;
 				if (CurrentCollectedAmout == GoalCollectiblesAmount)
 				{
 					FString str = FString::Printf(TEXT("Objective Completed: GoalCollectiblesAmount!"));
 					GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, str);
+					CurrenObjectiveDone = true;
 				}
 			} break;
 		case EObjectiveType::EOT_DefendThePod:
 			{
+				bPodDefended = true;
 				if (bPodDefended)
 				{
 					FString str = FString::Printf(TEXT("Objective Completed: DefendThePod!"));
 					GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, str);
-						
+					CurrenObjectiveDone = true;
 				}
 			} break;
 	}
+
+	if (CurrenObjectiveDone && ObjectiveCounter < GameObjectiveOrder.Num() - 1)
+		StartNextObjective(GameObjectiveOrder[++ObjectiveCounter]);
 }
+
 
 void ASGGameObjectivesHandler::StartNextObjective(EObjectiveType NextObjectiveType)
 {

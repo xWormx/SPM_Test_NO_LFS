@@ -20,5 +20,6 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	class ASGGameObjectivesHandler* ObjectiveHandler;
 };

@@ -28,6 +28,9 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+
+	int ObjectiveCounter = 0;
+	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<EObjectiveType> GameObjectiveOrder;
 	
@@ -55,7 +58,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<ASGEnemyCharacter> TargetCharacterClass;
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	ASGEnemyCharacter* TargetCharacter;
+	TArray<ASGEnemyCharacter*> TargetCharacters;
 	
 	UFUNCTION()
 	void UpdateCurrentGameObjective(class ASGEnemyCharacter* Actor);
