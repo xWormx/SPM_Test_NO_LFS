@@ -39,7 +39,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UFunction - Enemy Drops")
 	void DropItem(ASGEnemyCharacter* EnemyCharacter) const;
 
+protected:
+	virtual void BeginPlay() override;
+	
 private:	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UProperty - Enemy Drops", meta = (AllowPrivateAccess = "true"))
 	UDataTable* EnemyDropDataTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UProperty - Enemy Drops", meta = (AllowPrivateAccess = "true"))
+	class ASGUtilObjectPoolManager* ObjectPoolManager;
 };
