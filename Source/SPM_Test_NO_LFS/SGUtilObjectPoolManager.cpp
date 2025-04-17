@@ -5,7 +5,7 @@ ASGUtilObjectPoolManager::ASGUtilObjectPoolManager()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void ASGUtilObjectPoolManager::InitializePool(TSubclassOf<AActor> ObjectClass, int32 PoolSize)
+void ASGUtilObjectPoolManager::InitializePool(const TSubclassOf<AActor>& ObjectClass, const int32 PoolSize)
 {	
 	if (Pools.Contains(ObjectClass))
 	{
@@ -13,16 +13,19 @@ void ASGUtilObjectPoolManager::InitializePool(TSubclassOf<AActor> ObjectClass, i
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Initializing pool for class: %s"), *ObjectClass->GetName());
+
 	TArray<AActor*> NewPool;
 	AddActorsToPool(ObjectClass, PoolSize, NewPool);
+
 	const FActorPool NewPoolStruct(NewPool);
 	Pools.Add(ObjectClass, NewPoolStruct);	
 }
 
-AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor> ObjectClass)
+AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectClass)
 {
 	if (!Pools.Contains(ObjectClass))
 	{
+		
 		InitializePool(ObjectClass, 5);
 		return GetPooledObject(ObjectClass);
 	}
@@ -48,8 +51,8 @@ void ASGUtilObjectPoolManager::ReturnObjectToPool(AActor* Object)
 	{
 		return;
 	}
-	
-	TSubclassOf<AActor> ObjectClass = Object->GetClass();
+
+	const TSubclassOf<AActor> ObjectClass = Object->GetClass();
 	if (!Pools.Contains(ObjectClass))
 	{
 		return;
