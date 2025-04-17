@@ -67,7 +67,7 @@ bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(GetOwner());
-	return GetWorld()->LineTraceSingleByChannel(OutHitResult, Location, End, ECC_GameTraceChannel1, Params);
+	return GetWorld()->LineTraceSingleByChannel(OutHitResult, Location, End, ECC_GameTraceChannel2, Params); //ECC_GameTraceChannel2 = Projectile (Blockas av pawns)
 }
 
 AController* ASGGun::GetOwnerController() const

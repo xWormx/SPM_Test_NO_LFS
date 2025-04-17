@@ -23,9 +23,6 @@ public:
 
 protected:
 	virtual void ProcessPickup(AActor* Pickup) override;
-
-	//TODO: Byt ut så counter syns i en widget
-	virtual void LogCounter() override;
 	
 	UPROPERTY(EditAnywhere, Category = "Counter Properties")
 	float OrbCount = 0.0f;

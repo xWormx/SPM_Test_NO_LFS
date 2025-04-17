@@ -26,13 +26,6 @@ void USGCounterComponentOrbs::ProcessPickup(AActor* Pickup)
 	if (ASGPickUpOrbs* Orb = Cast<ASGPickUpOrbs>(Pickup))
 	{
 		AddOrbs(Orb->GetPickupValue());
-		LogCounter(); 
-
 		Orb->OnPickup();	
 	}
-}
-
-void USGCounterComponentOrbs::LogCounter()
-{
-	UE_LOG(LogTemp, Warning, TEXT("USGCounterComponentOrbs: Orb Count: %f"), OrbCount);
 }
