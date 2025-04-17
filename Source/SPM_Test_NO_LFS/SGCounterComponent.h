@@ -21,7 +21,5 @@ protected:
 
 	virtual void ProcessPickup(AActor* Pickup) PURE_VIRTUAL(UBaseCounterComponent::ProcessPickup, );
 
-	//TODO: Byt ut så counter syns i en widget
-	virtual void LogCounter() PURE_VIRTUAL(UBaseCounterComponent::LogCounter, );
 	
 };

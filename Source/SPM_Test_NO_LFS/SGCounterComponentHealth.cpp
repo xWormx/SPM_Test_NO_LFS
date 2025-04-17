@@ -3,7 +3,7 @@
 #include "SGHealthComponent.h"
 #include "SGPickUpHealthPack.h"
 
-//TODO: Potentiellt värt att ändra så att buffert-delen av klassen får jobba på eget håll. Ifall den funktionalitet skulle behövas i andra klasser.
+//TODO: Potentiellt värt att ändra så att buffert-delen och FTimern i klassen får jobba på eget håll. Ifall den funktionalitet skulle behövas i andra klasser.
 
 USGCounterComponentHealth::USGCounterComponentHealth(){}
 
@@ -39,6 +39,7 @@ void USGCounterComponentHealth::IncreaseHealth(const float Amount)
 	if (CurrentHealth == MaxHealth)
 	{
 		HealthBuffer += Amount;
+		StartHealthBufferTimer(); //Startar bara om timern inte är aktiv
 	}
 	else if (CurrentHealth + Amount > MaxHealth)
 	{
@@ -78,8 +79,31 @@ void USGCounterComponentHealth::ProcessPickup(AActor* Pickup)
 	if (ASGPickUpHealthPack* HealthPacket = Cast<ASGPickUpHealthPack>(Pickup))
 	{
 		IncreaseHealth(HealthPacket->GetPickupValue());
-		LogCounter();	
 		HealthPacket->OnPickup();
+	}
+}
+
+void USGCounterComponentHealth::StartHealthBufferTimer()
+{
+	if (GetWorld()->GetTimerManager().IsTimerActive(HealthBufferTimerHandle))
+	{
+		return;
+	}
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUObject(this, &USGCounterComponentHealth::DecreaseHealthBuffer, HealthBufferDecreaseRate);
+	GetWorld()->GetTimerManager().SetTimer(HealthBufferTimerHandle, TimerDelegate, HealthBufferDecreaseRate, true);
+}
+
+void USGCounterComponentHealth::DecreaseHealthBuffer(const float Amount)
+{
+	if (HealthBuffer > 0)
+	{
+		HealthBuffer -= Amount;
+	}
+	else
+	{
+		HealthBuffer = 0;
+		GetWorld()->GetTimerManager().ClearTimer(HealthBufferTimerHandle);
 	}
 }
 
@@ -91,9 +115,4 @@ float USGCounterComponentHealth::GetCurrentHealth() const
 float USGCounterComponentHealth::GetBufferedHealth() const
 {
 	return HealthBuffer;
-}
-
-void USGCounterComponentHealth::LogCounter()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Current Health: %f, Buffered Health: %f"), HealthComponent->GetCurrentHealth(), HealthBuffer);
 }
