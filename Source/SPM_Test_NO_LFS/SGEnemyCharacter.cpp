@@ -3,7 +3,9 @@
 
 #include "SGEnemyCharacter.h"
 
+#include "SGEnemyDropManager.h"
 #include "SGHealthComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASGEnemyCharacter::ASGEnemyCharacter()
@@ -24,6 +26,16 @@ void ASGEnemyCharacter::BeginPlay()
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
 {
+
+	//TODO: Ska ändras - temporär lösning
+	if (AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), ASGEnemyDropManager::StaticClass()))
+	{
+		if (ASGEnemyDropManager* DropManager = Cast<ASGEnemyDropManager>(Actor))
+		{
+			DropManager->DropItem(this);
+		}
+	}
+	
 	OnEnemyDied.Broadcast(this);
 	Destroy();
 }
