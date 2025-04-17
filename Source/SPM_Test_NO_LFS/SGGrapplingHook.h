@@ -30,6 +30,9 @@ public:
 	void ResetGrapple();
 	void SetGrappleVisibility(bool bVisibility);
 	void SetHeadConstraint(AActor* OtherActor);
+	void EnableGrappling();
+	void DisableGrappling();
+	bool CanGrapple() const { return bCanGrapple; }
 	bool HeadAttached() const { return bHeadAttached; }
 	FVector GetAttachmentPoint() const { return AttachmentPoint; }
 	FVector GetGrappleDirectionNormalized() const { return GrappleDirection; }
@@ -55,20 +58,30 @@ private:
 	USceneComponent* GrappleHeadPosition;
 	
 	/* Maximum range that the hook can hit */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float MaxHookRange = 1000;
 
 	/* Speed at which the character drags towards the grapple attachpoint */
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float DragSpeed = 1000;
 
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	float HookCooldown = 3;
+
+	FTimerHandle GrappleTimerHandle;
+
 	float CableLengthWhenAttached = 0;
+
 	bool bHeadAttached = false;
 	bool bDidGrapple = false;
+	bool bCanGrapple = true;
 	
 	FVector AttachmentPoint = FVector::ZeroVector;
 	FVector PointOfDeparture = FVector::ZeroVector;
 	FVector GrappleDirection = FVector::ZeroVector;
+
 	
 	AController* GetValidController() const;
+	bool GrappleTrace(FHitResult& OutHitResult, AController* Controller);
+	void StartCharacterLaunch(ACharacter* Character);
 };

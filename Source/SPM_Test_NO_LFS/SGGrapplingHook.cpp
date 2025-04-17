@@ -8,6 +8,7 @@
 #include "LandscapeGizmoActiveActor.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -47,6 +48,14 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!bCanGrapple)
+	{
+		int TimeLeft = GetWorldTimerManager().GetTimerRemaining(GrappleTimerHandle);
+		FString str = FString::Printf(TEXT("Grapple Time: %d"), TimeLeft);
+		GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Red, str);
+	}
+		
+	
 	if (bDidGrapple)
 	{
 		// Detta skjuter iväg Grapplehead och uppdateras dess position tills att den är inom 50 enheter
@@ -82,58 +91,29 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 
 void ASGGrapplingHook::FireGrapple()
 {
-	AController* Controller = GetValidController();
-	if (Controller == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ACJPlayerController Not Found!"));
+
+	if (!CanGrapple())
 		return;
-	}
-
-	FVector ViewLocation;
-	FRotator ViewRotation;
-	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
-	FHitResult HitResult;
-	FVector TraceEnd = ViewLocation + ViewRotation.Vector() * MaxHookRange;
-
-	// Detta är basically SphereTraceByChannel
-	bool didHit = GetWorld()->SweepSingleByChannel(HitResult, ViewLocation, TraceEnd,
-												FQuat::Identity, ECC_GameTraceChannel1,
-													FCollisionShape::MakeSphere(30));
 	
-	DrawDebugPoint(GetWorld(), TraceEnd, 25, FColor::Red, false, 8);
-
+	FHitResult HitResult;
+	AController* Controller = GetValidController();
+	bool didHit = GrappleTrace(HitResult, Controller);
+	
 	if (!didHit)
 	{
 		ResetGrapple();
 		return;
 	}
+	DisableGrappling();
+
+	GetWorldTimerManager().SetTimer(GrappleTimerHandle, this, &ASGGrapplingHook::EnableGrappling, HookCooldown);
 	
-	GrappleDirection = TraceEnd - ViewLocation;
-	GrappleDirection.Normalize();
-	CableLengthWhenAttached = CableComponent->CableLength;
-	Head->SetActorRotation(ViewRotation);
-	// Skjuter upp karaktären när hooken avlossas för att få ett bra momentum
-	Controller->GetCharacter()->LaunchCharacter(FVector(0, 0, 300), true, true);
-	// För att karaktären inte ska bromsas när den dras mot väggar
-	Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
-	Controller->GetCharacter()->GetCharacterMovement()->bUseSeparateBrakingFriction = true;
-	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 0.5f;
-	bDidGrapple = didHit;
+	StartCharacterLaunch(Controller->GetCharacter());
+	bDidGrapple = true;
 	AttachmentPoint = HitResult.ImpactPoint;
 	PointOfDeparture = GetActorLocation();
 	SetGrappleVisibility(true);
 	Head->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	
-	DrawDebugSphere(GetWorld(),
-					HitResult.ImpactPoint,
-					20, 12,
-					FColor::Red,
-					true);
-	DrawDebugLine(GetWorld(),
-		GetActorLocation(),
-		HitResult.ImpactPoint,
-		FColor::Blue,
-		false, 8);
 }
 
 void ASGGrapplingHook::ResetGrapple()
@@ -164,6 +144,15 @@ void ASGGrapplingHook::SetHeadConstraint(AActor* OtherActor)
 	Head->SetConstraintTo(OtherActor);
 }
 
+void ASGGrapplingHook::EnableGrappling()
+{
+	bCanGrapple = true;
+}
+
+void ASGGrapplingHook::DisableGrappling()
+{
+	bCanGrapple = false;
+}
 
 AController* ASGGrapplingHook::GetValidController() const
 {
@@ -177,5 +166,40 @@ AController* ASGGrapplingHook::GetValidController() const
 
 	return GrappleOwner->GetController();
 }
+
+bool ASGGrapplingHook::GrappleTrace(FHitResult& OutHitResult, AController* Controller)
+{
+	if (Controller == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ACJPlayerController Not Found!"));
+		return false;
+	}
+
+	FVector ViewLocation;
+	FRotator ViewRotation;
+	Controller->GetPlayerViewPoint(ViewLocation, ViewRotation);
+	FVector TraceEnd = ViewLocation + ViewRotation.Vector() * MaxHookRange;
+	GrappleDirection = TraceEnd - ViewLocation;
+	GrappleDirection.Normalize();
+	Head->SetActorRotation(ViewRotation);
+	DrawDebugPoint(GetWorld(), TraceEnd, 25, FColor::Red, false, 8);
+	// Detta är basically SphereTraceByChannel
+	return GetWorld()->SweepSingleByChannel(OutHitResult, ViewLocation, TraceEnd,
+												FQuat::Identity, ECC_GameTraceChannel1,
+													FCollisionShape::MakeSphere(30));
+}
+
+void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
+{
+	if (Character == nullptr)
+		return;
+	// Skjuter upp karaktären när hooken avlossas för att få ett bra momentum
+	Character->LaunchCharacter(FVector(0, 0, 300), true, true);
+	// För att karaktären inte ska bromsas när den dras mot väggar
+	Character->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
+	Character->GetCharacterMovement()->bUseSeparateBrakingFriction = true;
+	Character->GetCharacterMovement()->GravityScale = 0.5f;
+}
+
 
 

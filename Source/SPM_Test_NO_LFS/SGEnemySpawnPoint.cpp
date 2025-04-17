@@ -1,4 +1,6 @@
 #include "SGEnemySpawnPoint.h"
+#include "SGEnemyCharacter.h"
+#include "SGGameObjectivesHandler.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BillboardComponent.h"
 
@@ -23,13 +25,15 @@ void ASGEnemySpawnPoint::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASGEnemySpawnPoint::SpawnEnemy() const
+ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyCharacter> EnemyClass) const
 {
-	if (EnemyClass == nullptr) return;
-
-	UE_LOG(LogTemp, Warning, TEXT("%s spawned an enemy!"), *GetActorNameOrLabel());
-	AActor* SpawnedEnemyPtr = GetWorld()->SpawnActor<AActor>(EnemyClass, GetActorLocation(), GetActorRotation());
-	if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, GetActorLocation());
+	if (EnemyClass == nullptr) return nullptr;
+	ASGEnemyCharacter* SpawnedEnemyPtr = GetWorld()->SpawnActor<ASGEnemyCharacter>(EnemyClass, GetActorLocation(), GetActorRotation());
+	if (ObjectiveHandler)
+		ObjectiveHandler->RegisterEnemy(SpawnedEnemyPtr);
+	else
+		UE_LOG(LogTemp, Error, TEXT("EnemySpawnPoint: Must Assign ObjectiveHandler"));
+	return SpawnedEnemyPtr;
 }
 
 // Protected
