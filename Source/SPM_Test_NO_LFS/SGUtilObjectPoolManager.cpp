@@ -11,9 +11,7 @@ void ASGUtilObjectPoolManager::InitializePool(const TSubclassOf<AActor>& ObjectC
 	{
 		return;
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Initializing pool for class: %s"), *ObjectClass->GetName());
-
+	
 	TArray<AActor*> NewPool;
 	AddActorsToPool(ObjectClass, PoolSize, NewPool);
 
@@ -24,8 +22,7 @@ void ASGUtilObjectPoolManager::InitializePool(const TSubclassOf<AActor>& ObjectC
 AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectClass)
 {
 	if (!Pools.Contains(ObjectClass))
-	{
-		
+	{		
 		InitializePool(ObjectClass, 5);
 		return GetPooledObject(ObjectClass);
 	}
@@ -47,21 +44,14 @@ AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectCla
 
 void ASGUtilObjectPoolManager::ReturnObjectToPool(AActor* Object)
 {
-	if (!Object)
-	{
-		return;
-	}
-
-	const TSubclassOf<AActor> ObjectClass = Object->GetClass();
-	if (!Pools.Contains(ObjectClass))
+	if (!Object || !Pools.Contains(Object->GetClass()))
 	{
 		return;
 	}
 	
 	Object->SetActorEnableCollision(false);
 	Object->SetActorHiddenInGame(true);
-	Object->SetActorTickEnabled(false);
-	Pools[ObjectClass].Actors.Add(Object);	
+	Object->SetActorTickEnabled(false);	
 }
 
 void ASGUtilObjectPoolManager::ExpandPool(const TSubclassOf<AActor>& ObjectClass, const int32 AdditionalSize)
@@ -72,8 +62,7 @@ void ASGUtilObjectPoolManager::ExpandPool(const TSubclassOf<AActor>& ObjectClass
 	}
 
 	FActorPool& Pool = Pools[ObjectClass];
-	UE_LOG(LogTemp, Error, TEXT("Expanding pool for class: %s to %d"), *ObjectClass->GetName(), Pool.Actors.Num()+AdditionalSize);
-	AddActorsToPool(ObjectClass, AdditionalSize, Pool.Actors);
+	AddActorsToPool(ObjectClass, AdditionalSize, Pool.Actors);	
 }
 
 void ASGUtilObjectPoolManager::AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, const int32 Size, TArray<AActor*>& Actors) const
@@ -82,7 +71,7 @@ void ASGUtilObjectPoolManager::AddActorsToPool(const TSubclassOf<AActor>& Object
 	{
 		AActor* NewObject = GetWorld()->SpawnActor<AActor>(ObjectClass);
 		if (NewObject)
-		{
+		{			
 			NewObject->SetActorEnableCollision(false);
 			NewObject->SetActorHiddenInGame(true);
 			NewObject->SetActorTickEnabled(false);
