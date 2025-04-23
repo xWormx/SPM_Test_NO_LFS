@@ -23,7 +23,7 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	void FlyTowradsPlayer();
+	void FlyTowardsPlayer();
 
 	UPROPERTY(EditAnywhere, Category = "AI" ,meta = (AllowPrivateAccess = true))
 	float DetectionRadius = 1000.f;

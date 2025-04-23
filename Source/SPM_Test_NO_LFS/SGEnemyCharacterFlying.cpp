@@ -16,6 +16,8 @@ ASGEnemyCharacterFlying::ASGEnemyCharacterFlying()
 	GetCharacterMovement()->SetMovementMode(MOVE_Flying);
 
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
+
+	GetMesh()->SetEnableGravity(false);
 }
 
 void ASGEnemyCharacterFlying::BeginPlay()
@@ -57,11 +59,11 @@ void ASGEnemyCharacterFlying::Tick(float DeltaTime)
 	
 	if (Target)
 	{
-		FlyTowradsPlayer();
+		FlyTowardsPlayer();
 	}
 }
 
-void ASGEnemyCharacterFlying::FlyTowradsPlayer()
+void ASGEnemyCharacterFlying::FlyTowardsPlayer()
 {
 	float DesiredDistance = 300.f; 
 	if (!Target)

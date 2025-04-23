@@ -58,8 +58,8 @@ void ASGAIControllerGroundEnemySmall::HandleMovement()
 
 	if (DistanceToPlayer < AcceptanceRadius)
 	{
-		FVector DirectionAwayFromPlayer = (Location - PlayerLocation).GetSafeNormal(); // Vector pointing away from the player
-		FVector MoveAwayLocation = Location + DirectionAwayFromPlayer * RetreatDistance; // Calculate a new location to retreat to
+		FVector DirectionAwayFromPlayer = (Location - PlayerLocation).GetSafeNormal(); // Vector pointing away from the player postion
+		FVector MoveAwayLocation = Location + DirectionAwayFromPlayer * RetreatDistance; // Calculate a new location to back up to
 		
 		MoveToLocation(MoveAwayLocation);
 	}
