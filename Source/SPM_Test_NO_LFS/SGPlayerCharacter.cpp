@@ -19,13 +19,16 @@ void ASGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
-	GrapplingHook->SetActorLocation(GrapplingHookPosition->GetComponentLocation());
-	// Grapplinghooken verkar vara omvänt roterad från början, debugkameran visar att den är riktad bakåt
-	// Så vi roterar den 180 grader för att den ska vara riktad framåt från början.
-	GrapplingHook->AddActorLocalRotation(FRotator(0, 180, 0));
-	GrapplingHook->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
-	GrapplingHook->SetOwner(this);
-
+	if (GrapplingHook)
+	{
+		GrapplingHook->SetActorLocation(GrapplingHookPosition->GetComponentLocation());
+		// Grapplinghooken verkar vara omvänt roterad från början, debugkameran visar att den är riktad bakåt
+		// Så vi roterar den 180 grader för att den ska vara riktad framåt från början.
+		GrapplingHook->AddActorLocalRotation(FRotator(0, 180, 0));
+		GrapplingHook->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
+		GrapplingHook->SetOwner(this);	
+	}
+	
 	Gun = GetWorld()->SpawnActor<ASGGun>(GunClass);
 	if (Gun)
 	{
@@ -39,6 +42,7 @@ void ASGPlayerCharacter::BeginPlay()
 void ASGPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+/*
 	if (GrapplingHook->HeadAttached())
 	{
 		FVector NewPosition = FMath::VInterpTo(GetActorLocation(),
@@ -66,17 +70,14 @@ void ASGPlayerCharacter::Tick(float DeltaTime)
 				FVector Impuls = GrapplingHook->GetGrappleDirectionNormalized() * 80000;
 				GetCharacterMovement()->AddImpulse(Impuls);
 			}
-			
 			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, GrapplingHook->GetGrappleDirectionNormalized().ToString());
 		}
 		else
-		{
-			
+		{			
 			SetActorLocation(NewPosition);
-		}
-		
-				
+		}			
 	}
+	*/
 }
 
 // Called to bind functionality to input

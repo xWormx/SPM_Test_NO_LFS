@@ -18,7 +18,11 @@ class SPM_TEST_NO_LFS_API ASGPlayerController : public APlayerController
 
 public:
 	virtual void SetupInputComponent() override;
-
+	void SetCanInteractWithTerminal(bool bInteract) { bCanInteractWithTerminal = bInteract; }
+	void SetWantToInteractWithTerminal(bool bInteract) { bWantToInteract = bInteract; }
+	bool GetCanInteractWithTerminal() { return bCanInteractWithTerminal; }
+	bool GetWantToInteractWithTerminal() { return bWantToInteract; }
+	
 protected:
 	virtual void BeginPlay() override;	
 private:
@@ -33,6 +37,9 @@ private:
 	
 	FTimerHandle FireRateTimer;
 	bool bIsFiring = false;
+
+	bool bCanInteractWithTerminal = false;
+	bool bWantToInteract = false;
 	
 	ASGPlayerCharacter* GetValidPlayerCharacter();
 

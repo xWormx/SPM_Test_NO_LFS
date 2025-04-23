@@ -34,6 +34,7 @@ public:
 	void DisableGrappling();
 	bool CanGrapple() const { return bCanGrapple; }
 	bool HeadAttached() const { return bHeadAttached; }
+	bool PlayerWantToTravel() const { return bStartTravel; }
 	FVector GetAttachmentPoint() const { return AttachmentPoint; }
 	FVector GetGrappleDirectionNormalized() const { return GrappleDirection; }
 	float GetDragSpeed() const { return DragSpeed; }
@@ -65,6 +66,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float DragSpeed = 1000;
 
+	/* If grappledirection is upwards z > 0, this is the extra impuls on Z-axis*/
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	float ExtraUpwardsImpuls = 100000;
+
+	/* When player arrives at the attachment point, this impuls is added to the player */
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	float ImpulsAtArrival = 100000;
+
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float HookCooldown = 3;
 
@@ -75,6 +84,7 @@ private:
 	bool bHeadAttached = false;
 	bool bDidGrapple = false;
 	bool bCanGrapple = true;
+	bool bStartTravel = false;
 	
 	FVector AttachmentPoint = FVector::ZeroVector;
 	FVector PointOfDeparture = FVector::ZeroVector;
@@ -84,4 +94,7 @@ private:
 	AController* GetValidController() const;
 	bool GrappleTrace(FHitResult& OutHitResult, AController* Controller);
 	void StartCharacterLaunch(ACharacter* Character);
+	void UpdatePlayerPosition(ACharacter* Character, float DeltaTime);
+	bool AttachGrapple(AController* Controller,FHitResult& HitResult);
+	void TravelDirectly(ACharacter* Character, FHitResult& HitResult);
 };
