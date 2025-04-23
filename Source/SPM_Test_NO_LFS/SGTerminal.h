@@ -9,6 +9,8 @@
 #include "SGTerminal.generated.h"
 
 
+class USGTerminalWidget;
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGTerminal : public AActor
 {
@@ -42,12 +44,15 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshFloor;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	class ASGGameObjectivesHandler* GameObjectivesHandler;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TSubclassOf<UUserWidget> HUDTerminalClass;
+	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
 	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	UUserWidget* HUDTerminal;
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	USGTerminalWidget* HUDTerminal;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class ASGPlayerController* LastInteractingPlayerController;
@@ -56,4 +61,7 @@ private:
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	UFUNCTION()
+	void OnStartMissionButtonClicked();
 };

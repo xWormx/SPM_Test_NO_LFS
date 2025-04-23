@@ -15,7 +15,7 @@ public:
 	ASGEnemySpawnPoint();
 	virtual void Tick(float DeltaTime) override;
 	ASGEnemyCharacter* SpawnEnemy(const TSubclassOf<ASGEnemyCharacter> EnemyClass) const;
-
+	
 protected:
 	virtual void BeginPlay() override;
 

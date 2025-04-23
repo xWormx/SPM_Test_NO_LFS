@@ -2,7 +2,7 @@
 
 
 #include "SGTerminal.h"
-
+#include "SGTerminalWidget.h"
 #include "SGPlayerController.h"
 #include "Components/SphereComponent.h"
 #include "Blueprint/UserWidget.h"
@@ -38,14 +38,25 @@ void ASGTerminal::BeginPlay()
 	InteractSphere->OnComponentBeginOverlap.AddDynamic(this, &ASGTerminal::OnOverlapBegin);
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController != nullptr)
-		HUDTerminal = CreateWidget<UUserWidget>(PlayerController, HUDTerminalClass);
+		HUDTerminal = Cast<USGTerminalWidget>(CreateWidget<UUserWidget>(PlayerController, HUDTerminalClass));
 	
 	if (HUDTerminal)
 	{
 		HUDTerminal->AddToViewport();
 		HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
+		if (!HUDTerminal->OnStartMission.IsAlreadyBound(this, &ASGTerminal::OnStartMissionButtonClicked))
+			HUDTerminal->OnStartMission.AddDynamic(this, &ASGTerminal::OnStartMissionButtonClicked);
 	}
 
+}
+
+void ASGTerminal::OnStartMissionButtonClicked()
+{
+	HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
+	LastInteractingPlayerController->SetInputMode(FInputModeGameOnly());
+	LastInteractingPlayerController->SetShowMouseCursor(false);
+	LastInteractingPlayerController->SetWantToInteractWithTerminal(false);
+	LastInteractingPlayerController->EnableInput(LastInteractingPlayerController);
 }
 
 // Called every frame
@@ -57,9 +68,11 @@ void ASGTerminal::Tick(float DeltaTime)
 		if (HUDTerminal->GetVisibility() == ESlateVisibility::Hidden)
 		{
 			UE_LOG(LogTemp, Display, TEXT("Interacting with terminal"));
+			LastInteractingPlayerController->DisableInput(LastInteractingPlayerController);
 			LastInteractingPlayerController->SetInputMode(FInputModeUIOnly());
 			LastInteractingPlayerController->SetShowMouseCursor(true);
-			HUDTerminal->SetVisibility(ESlateVisibility::Visible);	
+			HUDTerminal->SetVisibility(ESlateVisibility::Visible);
+			HUDTerminal->SetObjectiveHandler(GameObjectivesHandler);
 		}
 	}
 	
@@ -87,25 +100,7 @@ void ASGTerminal::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 void ASGTerminal::OnComponentHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnComponentHit"));
-	if (OtherActor != nullptr)
-	{
-		ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
-		if (Player == nullptr)
-			return;
 
-		HUDTerminal->SetVisibility(ESlateVisibility::Visible);
-		
-		ASGPlayerController* PlayerController = Cast<ASGPlayerController>(Player->GetController());
-		if (PlayerController != nullptr)
-		{
-			if (PlayerController->GetWantToInteractWithTerminal())
-			{
-				PlayerController->SetInputMode(FInputModeUIOnly());
-				PlayerController->SetShowMouseCursor(true);	
-			}
-		}
-			
-	}
 }
 
 

@@ -6,13 +6,17 @@
 #include "GameFramework/Actor.h"
 #include "SGGameObjectivesHandler.generated.h"
 
+class USGObjectiveToolTipWidget;
+class ASGObjectiveBase;
 class ASGEnemyCharacter;
+class USGTerminalWidget;
+
 UENUM(BlueprintType)
 enum class EObjectiveType : uint8
 {
 	EOT_KillAllEnemies, EOT_CollectAndPlace, EOT_DefendThePod
 };
-
+class UButton;
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGGameObjectivesHandler : public AActor
 {
@@ -23,6 +27,7 @@ public:
 	ASGGameObjectivesHandler();
 
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);
+	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -30,12 +35,28 @@ protected:
 private:
 
 	int ObjectiveCounter = 0;
+	UButton* StartButton;
+	
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	USGTerminalWidget* TerminalHUD;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveToolTipClass;
+	
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<EObjectiveType> GameObjectiveOrder;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TArray<ASGObjectiveBase*> GameObjectives;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	ASGObjectiveBase* CurrentObjective;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	EObjectiveType CurrentObjective;
+	EObjectiveType CurrentObjectiveEnum;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	EObjectiveType StartObjective;
@@ -62,6 +83,9 @@ private:
 	
 	UFUNCTION()
 	void UpdateCurrentGameObjective(class ASGEnemyCharacter* Actor);
+
+	UFUNCTION()
+	void StartMission();
 	
 	void StartNextObjective(EObjectiveType NextObjectiveType);
 };
