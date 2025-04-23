@@ -11,6 +11,7 @@ void USGTerminalWidget::NativeConstruct()
 	{
 		ButtonStartMission->OnClicked.AddDynamic(this, &USGTerminalWidget::OnClickStartMission);
 		ButtonStartMission->OnHovered.AddDynamic(this, &USGTerminalWidget::OnHoverStartMission);
+		ButtonStartMission->OnUnhovered.AddDynamic(this, &USGTerminalWidget::OnUnHoverStartMission);
 	}
 }
 
@@ -21,6 +22,10 @@ void USGTerminalWidget::OnClickStartMission()
 
 void USGTerminalWidget::OnHoverStartMission()
 {
-	
+	ButtonStartMission->SetBackgroundColor(FLinearColor::Blue);
 }
 
+void USGTerminalWidget::OnUnHoverStartMission()
+{
+	ButtonStartMission->SetBackgroundColor(FLinearColor::Gray);
+}

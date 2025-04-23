@@ -66,6 +66,7 @@ void ASGPlayerController::SetupInputComponent()
 	InputSubsytem->AddMappingContext(InputMapping, 0);
 }
 
+
 void ASGPlayerController::Move(const FInputActionValue& Value)
 {
 	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
@@ -98,6 +99,10 @@ void ASGPlayerController::Jump(const FInputActionValue& Value)
 
 void ASGPlayerController::Interact(const FInputActionValue& Value)
 {
+	if (!bCanInteractWithTerminal)
+		return;
+
+	SetWantToInteractWithTerminal(true);
 	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
 		return;

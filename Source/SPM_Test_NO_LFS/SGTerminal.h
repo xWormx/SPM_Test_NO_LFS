@@ -8,6 +8,7 @@
 #include "SGPlayerCharacter.h"
 #include "SGTerminal.generated.h"
 
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGTerminal : public AActor
 {
@@ -32,16 +33,27 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UCapsuleComponent* Capsule;
+
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* InteractSphere;
 	
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* MeshFloor;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<UUserWidget> HUDTerminalClass;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	UUserWidget* HUDTerminal;
-	
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	class ASGPlayerController* LastInteractingPlayerController;
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 };

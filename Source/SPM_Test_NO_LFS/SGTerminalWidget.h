@@ -24,5 +24,7 @@ protected:
 	void OnClickStartMission();
 	UFUNCTION()
 	void OnHoverStartMission();
+	UFUNCTION()
+	void OnUnHoverStartMission();
 
 };
