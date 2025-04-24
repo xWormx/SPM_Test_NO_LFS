@@ -9,6 +9,8 @@
 #include "SGTerminal.generated.h"
 
 
+class USGTerminalWidget;
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGTerminal : public AActor
 {
@@ -25,7 +27,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	
 private:
 
 	UPROPERTY(EditAnywhere)
@@ -42,12 +44,18 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshFloor;
-	
+
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TSubclassOf<UUserWidget> HUDTerminalClass;
-	
+	class ASGGameObjectivesHandler* GameObjectivesHandler;
+
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	UUserWidget* HUDTerminal;
+	class USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
+	
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	USGTerminalWidget* HUDTerminal;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class ASGPlayerController* LastInteractingPlayerController;
@@ -56,4 +64,7 @@ private:
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	UFUNCTION()
+	void OnStartMissionButtonClicked();
 };

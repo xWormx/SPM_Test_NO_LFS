@@ -23,8 +23,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void ActivateObjective();
-
+	virtual bool CheckProgress(){ return false; }
+	virtual void Update(){}
+	virtual FText GetToolTipText();
 	UPROPERTY(EditAnywhere)
 	bool bIsActivated = false;
-	
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	FString ObjectiveToolTip;
+
+
 };

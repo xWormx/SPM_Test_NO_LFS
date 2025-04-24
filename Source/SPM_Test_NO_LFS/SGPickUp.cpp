@@ -22,7 +22,6 @@ void ASGPickUp::BeginPlay()
 	Super::BeginPlay();	
 }
 
-
 void ASGPickUp::OnPickup_Implementation()
 {
 	//TODO: Temporär lösning för enkelheten - ska ändras! 
@@ -31,6 +30,7 @@ void ASGPickUp::OnPickup_Implementation()
 	{
 		return;
 	}
+	
 	ASGUtilObjectPoolManager* ObjectPoolManager = Cast<ASGUtilObjectPoolManager>(ObjectPoolActor);
 	if (!ObjectPoolManager) 
 	{

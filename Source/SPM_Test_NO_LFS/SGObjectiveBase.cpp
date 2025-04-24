@@ -30,3 +30,9 @@ void ASGObjectiveBase::ActivateObjective()
 	bIsActivated = true;
 }
 
+FText ASGObjectiveBase::GetToolTipText()
+{
+	return FText::FromString(ObjectiveToolTip);
+	
+}
+
