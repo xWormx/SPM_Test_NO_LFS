@@ -51,7 +51,8 @@ void ASGEnemySpawnManager::EndIntermissionTimer()
 void ASGEnemySpawnManager::StartNextWave()
 {
 	++CurrentWave;
-	SpawnEnemiesEverywhere();
+	//SpawnEnemiesEverywhere();
+	SpawnEnemiesFromGroup(0);
 }
 
 void ASGEnemySpawnManager::SpawnEnemiesEverywhere()
@@ -70,7 +71,7 @@ void ASGEnemySpawnManager::SpawnEnemiesEverywhere()
 
 	if (TempArray.Num() <= 0) return;
 
-	int32 EnemyCount = FMath::CeilToInt(CurrentWave * EnemyCountScalingFactor);
+	int32 EnemyCount = FMath::CeilToInt(CurrentWave * EnemyCountScalingFactor); // TO-DO: Bestäm nytt sätt att hämta mängd
 	for (int32 i = 0; i < EnemyCount; ++i)
 	{
 		++EnemiesAlive;
@@ -84,6 +85,27 @@ void ASGEnemySpawnManager::SpawnEnemiesEverywhere()
 	}
 
 	//UE_LOG(LogTemp, Warning, TEXT("Wave %i started! %i enemies left..."), CurrentWave, EnemiesAlive);
+}
+
+void ASGEnemySpawnManager::SpawnEnemiesFromGroup(uint32 GroupNumber)
+{
+	if (EnemySpawnPointGroups[GroupNumber].EnemySpawnPoints.Num() <= 0) return;
+
+	TArray<AActor*> TempArray = EnemySpawnPointGroups[GroupNumber].EnemySpawnPoints;
+	if (TempArray.Num() <= 0) return;
+
+	int32 EnemyCount = FMath::CeilToInt(CurrentWave * EnemyCountScalingFactor); // TO-DO: Bestäm nytt sätt att hämta mängd
+	for (int32 i = 0; i < EnemyCount; ++i)
+	{
+		++EnemiesAlive;
+		ASGEnemyCharacter* SpawnedEnemyPtr = GetRandomSpawnPoint(TempArray)->SpawnEnemy(GetRandomEnemyType());
+		
+		if (SpawnedEnemyPtr != nullptr)
+		{
+			SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
+			if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, SpawnedEnemyPtr->GetActorLocation());
+		}
+	}
 }
 
 const ASGEnemySpawnPoint* ASGEnemySpawnManager::GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const

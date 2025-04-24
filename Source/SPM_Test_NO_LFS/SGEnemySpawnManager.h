@@ -8,6 +8,15 @@ class ASGEnemySpawnPoint;
 class ASGEnemyCharacter;
 class ASGPlayerCharacter;
 
+USTRUCT(BlueprintType)
+struct FSpawnPointGroup
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design")
+	TArray<AActor*> EnemySpawnPoints;
+};
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGEnemySpawnManager : public AActor
 {
@@ -28,18 +37,16 @@ private:
 	void EndIntermissionTimer();
 	void StartNextWave();
 	void SpawnEnemiesEverywhere();
+	void SpawnEnemiesFromGroup(uint32 GroupNumber);
 	const ASGEnemySpawnPoint* GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const;
 	const TSubclassOf<ASGEnemyCharacter> GetRandomEnemyType() const;
 	
 	TArray<AActor*> AllEnemySpawnPoints;
-	TArray<AActor*> SpawnAreaA;
-	TArray<AActor*> SpawnAreaB;
-	TArray<AActor*> SpawnAreaC;
 	ASGPlayerCharacter* PlayerCharacter;
 	int32 CurrentWave = 0;
 	int32 EnemiesAlive = 0;
 	FTimerHandle IntermissionTimer;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float TimeBetweenWaves = 9.9f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
@@ -50,4 +57,6 @@ private:
 	TArray<TSubclassOf<ASGEnemyCharacter>> EnemyTypes;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	float MinDistanceFromPlayer = 3000.0f;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
+	TArray<FSpawnPointGroup> EnemySpawnPointGroups;
 };
