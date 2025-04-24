@@ -6,6 +6,7 @@
 
 class ASGEnemySpawnPoint;
 class ASGEnemyCharacter;
+class ASGPlayerCharacter;
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGEnemySpawnManager : public AActor
@@ -26,11 +27,15 @@ private:
 	void StartIntermissionTimer();
 	void EndIntermissionTimer();
 	void StartNextWave();
-	void SpawnEnemies();
-	const ASGEnemySpawnPoint* GetRandomSpawnPoint() const;
+	void SpawnEnemiesEverywhere();
+	const ASGEnemySpawnPoint* GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const;
 	const TSubclassOf<ASGEnemyCharacter> GetRandomEnemyType() const;
 	
-	TArray<AActor*> EnemySpawnPoints;
+	TArray<AActor*> AllEnemySpawnPoints;
+	TArray<AActor*> SpawnAreaA;
+	TArray<AActor*> SpawnAreaB;
+	TArray<AActor*> SpawnAreaC;
+	ASGPlayerCharacter* PlayerCharacter;
 	int32 CurrentWave = 0;
 	int32 EnemiesAlive = 0;
 	FTimerHandle IntermissionTimer;
@@ -43,4 +48,6 @@ private:
 	USoundBase* SpawnSound;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	TArray<TSubclassOf<ASGEnemyCharacter>> EnemyTypes;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
+	float MinDistanceFromPlayer = 3000.0f;
 };
