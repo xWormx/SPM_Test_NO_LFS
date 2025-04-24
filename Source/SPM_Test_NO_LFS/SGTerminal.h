@@ -27,7 +27,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	
 private:
 
 	UPROPERTY(EditAnywhere)
@@ -47,7 +47,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class ASGGameObjectivesHandler* GameObjectivesHandler;
-	
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	class USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
+
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
 	

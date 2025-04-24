@@ -4,6 +4,7 @@
 #include "SGTerminal.h"
 #include "SGTerminalWidget.h"
 #include "SGPlayerController.h"
+#include "SGObjectiveToolTipWidget.h"
 #include "Components/SphereComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -71,8 +72,17 @@ void ASGTerminal::Tick(float DeltaTime)
 			LastInteractingPlayerController->DisableInput(LastInteractingPlayerController);
 			LastInteractingPlayerController->SetInputMode(FInputModeUIOnly());
 			LastInteractingPlayerController->SetShowMouseCursor(true);
+
+			USGObjectiveToolTipWidget* ToolTipWidget = GameObjectivesHandler->GetObjectiveToolTipWidget();
+			if (ToolTipWidget)
+			{
+				if (!ToolTipWidget->GetIsHidden())
+					ToolTipWidget->InterruptAndHide();	
+			}
+			
 			HUDTerminal->SetVisibility(ESlateVisibility::Visible);
 			HUDTerminal->SetObjectiveHandler(GameObjectivesHandler);
+			
 		}
 	}
 	

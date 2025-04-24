@@ -30,7 +30,6 @@ void ASGGameObjectivesHandler::BeginPlay()
 		ObjectiveToolTipWidget->AddToViewport();
 		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
-		
 }
 
 void ASGGameObjectivesHandler::RegisterEnemy(ASGEnemyCharacter* Enemy)
@@ -74,8 +73,7 @@ void ASGGameObjectivesHandler::StartMission()
 	}
 	FString str = FString::Printf(TEXT("StartMission: %s"), *CurrentObjective->GetName());
 	UE_LOG(LogTemp, Warning, TEXT("StartMission: %s"), *str);
-	ObjectiveToolTipWidget->SetToolTipText(CurrentObjective->GetToolTipText());
-	ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::Visible);
+	ObjectiveToolTipWidget->Display(CurrentObjective->GetToolTipText());
 	/*
 	 StartNextObjectiveInPipeline();
 	*/
@@ -83,15 +81,29 @@ void ASGGameObjectivesHandler::StartMission()
 
 void ASGGameObjectivesHandler::UpdateCurrentGameObjective(ASGEnemyCharacter* Actor)
 {
+	if (CurrentObjective == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CurrentObjective is nullptr!"));
+		return;
+	}
+	
 	CurrentObjective->Update();
 	if (CurrentObjective->CheckProgress())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CurrentObjective Done!"));
 		FString str = FString::Printf(TEXT("Mission Accomplished: %s"), *CurrentObjective->GetName());
-		ObjectiveToolTipWidget->SetToolTipText(FText::FromString(str));
-		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::Visible);
-		if (ObjectiveCounter < GameObjectives.Num())
-			CurrentObjective = GameObjectives[ObjectiveCounter++];
+		ObjectiveToolTipWidget->Display(FText::FromString(str));
+
+		// Om det finns några objectives, ta bort den första i listan (som blev avklarad)
+		// Finns det kvar några obectives så sätt Current till nästa i listan (som nu på på [0]).
+		if (GameObjectives.Num() > 0)
+		{
+			GameObjectives.RemoveAt(0);
+			if (GameObjectives.Num() > 0)
+			{
+				CurrentObjective = GameObjectives[0];
+			}
+		}
 	}
 }
 

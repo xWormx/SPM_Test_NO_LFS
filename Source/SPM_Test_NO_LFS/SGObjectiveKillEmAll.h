@@ -17,7 +17,7 @@ public:
 	virtual bool CheckProgress() override;
 	virtual void Update() override;
 private:
-	UPROPERTY(EditAnywhere ,Category=UPROPERTY)
+	UPROPERTY(EditAnywhere, Category=UPROPERTY)
 	unsigned int EnemiesToKill;
 
 	UPROPERTY(EditAnywhere ,Category=UPROPERTY)

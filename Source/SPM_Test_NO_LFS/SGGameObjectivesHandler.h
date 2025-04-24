@@ -28,6 +28,7 @@ public:
 
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
+	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() {return ObjectiveToolTipWidget;}
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
