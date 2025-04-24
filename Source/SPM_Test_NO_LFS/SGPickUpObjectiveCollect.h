@@ -1,13 +1,14 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "SGObjectiveInterface.h"
 #include "SGPickUp.h"
 #include "SGPickUpObjectiveCollect.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCollected, ASGPickUpObjectiveCollect*, Collectable);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCollected, UObject*, ObjectiveInterfaceImplementor);
 
 UCLASS()
-class SPM_TEST_NO_LFS_API ASGPickUpObjectiveCollect : public ASGPickUp
+class SPM_TEST_NO_LFS_API ASGPickUpObjectiveCollect : public ASGPickUp, public ISGObjectiveInterface
 {
 	GENERATED_BODY()
 
@@ -17,6 +18,8 @@ public:
 
 	virtual void OnPickup_Implementation() override;
 
+	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_Collect; }
+	
 protected:
 	virtual void BeginPlay() override;
 

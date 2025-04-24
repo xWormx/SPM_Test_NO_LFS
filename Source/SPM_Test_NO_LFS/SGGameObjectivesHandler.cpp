@@ -5,6 +5,7 @@
 #include "SGEnemyCharacter.h"
 #include "SGObjectiveBase.h"
 #include "SGObjectiveToolTipWidget.h"
+#include "SGPickUpObjectiveCollect.h"
 #include "SGPlayerCharacter.h"
 #include "SGPlayerController.h"
 #include "SGTerminalWidget.h"
@@ -37,12 +38,26 @@ void ASGGameObjectivesHandler::RegisterEnemy(ASGEnemyCharacter* Enemy)
 	if (Enemy == nullptr)
 		return;
 
-	Enemy->OnEnemyDied.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
+	Enemy->OnEnemyDiedObjective.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
 	TargetCharacters.Push(Enemy);
+}
+
+void ASGGameObjectivesHandler::RegisterCollectible(ASGPickUpObjectiveCollect* Collectible)
+{
+	if (Collectible == nullptr)
+		return;
+
+	if (!Collectible->OnCollected.IsAlreadyBound(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective))
+	{
+		Collectible->OnCollected.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
+		TargetCollectibles.Push(Collectible);		
+	}
+
 }
 
 void ASGGameObjectivesHandler::RegisterTerminalWidget(USGTerminalWidget* TerminalWidget)
 {
+	
 	if (TerminalWidget == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TerminalWidget was Valid."));
@@ -79,8 +94,17 @@ void ASGGameObjectivesHandler::StartMission()
 	*/
 }
 
-void ASGGameObjectivesHandler::UpdateCurrentGameObjective(ASGEnemyCharacter* Actor)
+void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor)
 {
+	if (ASGEnemyCharacter* enemy = Cast<ASGEnemyCharacter>(ObjectiveInterfaceImplementor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyKilled"));
+	}
+	else if (ASGPickUpObjectiveCollect* collectible = Cast<ASGPickUpObjectiveCollect>(ObjectiveInterfaceImplementor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Collectible"));
+	}
+
 	if (CurrentObjective == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CurrentObjective is nullptr!"));
@@ -107,10 +131,5 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(ASGEnemyCharacter* Act
 	}
 }
 
-
-void ASGGameObjectivesHandler::StartNextObjective(EObjectiveType NextObjectiveType)
-{
-	//CurrentObjective = NextObjectiveType;
-}
 
 
