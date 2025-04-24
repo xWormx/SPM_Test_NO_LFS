@@ -178,19 +178,13 @@ ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()
 //Added by Basir 
 void ASGPlayerController::PauseGame()
 {
-
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Yellow, TEXT("Pause"));
-	}
-	
 	SetPause(true);
 
-	if (PauseMenu)
+	if (!PauseMenu)
 	{
-		PauseMenu->AddToViewport();
-		bShowMouseCursor = true;
-		SetInputMode(FInputModeUIOnly());
+		return;
 	}
-	
+	PauseMenu->AddToViewport();
+	bShowMouseCursor = true;
+	SetInputMode(FInputModeUIOnly());
 }
