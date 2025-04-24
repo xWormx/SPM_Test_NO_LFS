@@ -1,6 +1,7 @@
 #include "SGEnemySpawnManager.h"
 #include "SGEnemySpawnPoint.h"
 #include "SGEnemyCharacter.h"
+#include "SGPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 // Public
@@ -17,7 +18,7 @@ void ASGEnemySpawnManager::Tick(float DeltaTime)
 void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
 	--EnemiesAlive;
-	UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), EnemiesAlive);
+	//UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), EnemiesAlive);
 
 	if (EnemiesAlive <= 0)
 	{
@@ -29,8 +30,9 @@ void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 void ASGEnemySpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("EnemySpawnPoint"), EnemySpawnPoints);
-	UE_LOG(LogTemp, Warning, TEXT("EnemySpawnPoints found: %i"), EnemySpawnPoints.Num());
+	PlayerCharacter = Cast<ASGPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("EnemySpawnPoint"), AllEnemySpawnPoints);
+	//UE_LOG(LogTemp, Warning, TEXT("EnemySpawnPoints found: %i"), AllEnemySpawnPoints.Num());
 	StartIntermissionTimer();
 }
 
@@ -49,18 +51,31 @@ void ASGEnemySpawnManager::EndIntermissionTimer()
 void ASGEnemySpawnManager::StartNextWave()
 {
 	++CurrentWave;
-	SpawnEnemies();
+	SpawnEnemiesEverywhere();
+	//SpawnEnemiesFromGroup(0);
 }
 
-void ASGEnemySpawnManager::SpawnEnemies()
+void ASGEnemySpawnManager::SpawnEnemiesEverywhere()
 {
-	if (EnemySpawnPoints.Num() <= 0) return;
+	if (AllEnemySpawnPoints.Num() <= 0) return;
 
-	int32 EnemyCount = FMath::CeilToInt(CurrentWave * EnemyCountScalingFactor);
+	TArray<AActor*> TempArray = AllEnemySpawnPoints;
+	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
+
+	for (int32 i = TempArray.Num() - 1; i >= 0; --i)
+	{
+		AActor* EnemySpawnPoint = TempArray[i];
+		float DistanceFromPlayer = FVector::Dist(EnemySpawnPoint->GetActorLocation(), PlayerLocation);
+		if (DistanceFromPlayer < MinDistanceFromPlayer) TempArray.RemoveAt(i);
+	}
+
+	if (TempArray.Num() <= 0) return;
+
+	int32 EnemyCount = FMath::CeilToInt(CurrentWave * EnemyCountScalingFactor); // TO-DO: Bestäm nytt sätt att hämta mängd
 	for (int32 i = 0; i < EnemyCount; ++i)
 	{
 		++EnemiesAlive;
-		ASGEnemyCharacter* SpawnedEnemyPtr = GetRandomSpawnPoint()->SpawnEnemy(GetRandomEnemyType());
+		ASGEnemyCharacter* SpawnedEnemyPtr = GetRandomSpawnPoint(TempArray)->SpawnEnemy(GetRandomEnemyType());
 		
 		if (SpawnedEnemyPtr != nullptr)
 		{
@@ -69,12 +84,33 @@ void ASGEnemySpawnManager::SpawnEnemies()
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Wave %i started! %i enemies left..."), CurrentWave, EnemiesAlive);
+	//UE_LOG(LogTemp, Warning, TEXT("Wave %i started! %i enemies left..."), CurrentWave, EnemiesAlive);
 }
 
-const ASGEnemySpawnPoint* ASGEnemySpawnManager::GetRandomSpawnPoint() const
+void ASGEnemySpawnManager::SpawnEnemiesFromGroup(uint32 GroupNumber)
 {
-	return Cast<ASGEnemySpawnPoint>(EnemySpawnPoints[FMath::RandRange(0, EnemySpawnPoints.Num() - 1)]);
+	if (EnemySpawnPointGroups[GroupNumber].EnemySpawnPoints.Num() <= 0) return;
+
+	TArray<AActor*> TempArray = EnemySpawnPointGroups[GroupNumber].EnemySpawnPoints;
+	if (TempArray.Num() <= 0) return;
+
+	int32 EnemyCount = FMath::CeilToInt(CurrentWave * EnemyCountScalingFactor); // TO-DO: Bestäm nytt sätt att hämta mängd
+	for (int32 i = 0; i < EnemyCount; ++i)
+	{
+		++EnemiesAlive;
+		ASGEnemyCharacter* SpawnedEnemyPtr = GetRandomSpawnPoint(TempArray)->SpawnEnemy(GetRandomEnemyType());
+		
+		if (SpawnedEnemyPtr != nullptr)
+		{
+			SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
+			if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, SpawnedEnemyPtr->GetActorLocation());
+		}
+	}
+}
+
+const ASGEnemySpawnPoint* ASGEnemySpawnManager::GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const
+{
+	return Cast<ASGEnemySpawnPoint>(SpawnPointArray[FMath::RandRange(0, SpawnPointArray.Num() - 1)]);
 }
 
 const TSubclassOf<ASGEnemyCharacter> ASGEnemySpawnManager::GetRandomEnemyType() const
