@@ -22,9 +22,10 @@ public:
 	void SetWantToInteractWithTerminal(bool bInteract) { bWantToInteract = bInteract; }
 	bool GetCanInteractWithTerminal() { return bCanInteractWithTerminal; }
 	bool GetWantToInteractWithTerminal() { return bWantToInteract; }
-	
+
 protected:
-	virtual void BeginPlay() override;	
+	virtual void BeginPlay() override;
+
 private:
 	void Move(const FInputActionValue& Value);
 	void Jump(const FInputActionValue& Value);
@@ -34,6 +35,9 @@ private:
 	void StartFiringGun(const FInputActionValue& Value);
 	void StopFiringGun(const FInputActionValue& Value);
 	void FireGun();
+
+	//Added by Basir
+	void PauseGame();
 	
 	FTimerHandle FireRateTimer;
 	bool bIsFiring = false;
@@ -65,9 +69,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	UInputAction* StopFireGunInputAction;
 
+	//Added by Basir
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UInputAction* PauseGameAction;
+
 	// HUD
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	TSubclassOf<UUserWidget> HUDClass;
+
+	//Added by Basir
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	class UUserWidget* PauseMenu;
 	
 	
 };

@@ -11,6 +11,7 @@
 #include "SGGun.h"
 #include "Blueprint/UserWidget.h"
 
+
 void ASGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -40,6 +41,8 @@ void ASGPlayerController::SetupInputComponent()
 	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Grapple);
 	Input->BindAction(FireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::StartFiringGun);
 	Input->BindAction(StopFireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::StopFiringGun);
+
+	Input->BindAction(PauseGameAction, ETriggerEvent::Triggered, this, &ASGPlayerController::PauseGame);  //Pause Game
 	
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	
@@ -170,4 +173,24 @@ ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()
 	}
 	
 	return CurrentPlayer;
+}
+
+//Added by Basir 
+void ASGPlayerController::PauseGame()
+{
+
+	if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Yellow, TEXT("Pause"));
+	}
+	
+	SetPause(true);
+
+	if (PauseMenu)
+	{
+		PauseMenu->AddToViewport();
+		bShowMouseCursor = true;
+		SetInputMode(FInputModeUIOnly());
+	}
+	
 }
