@@ -17,7 +17,6 @@ public:
 	FOnCollected OnCollected;
 
 	virtual void OnPickup_Implementation() override;
-
 	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_Collect; }
 	
 protected:

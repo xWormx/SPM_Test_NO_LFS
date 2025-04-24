@@ -16,6 +16,7 @@ class SPM_TEST_NO_LFS_API ASGObjectiveCollectEmAll : public ASGObjectiveBase
 public:
 	virtual bool CheckProgress() override;
 	virtual void Update() override;
+	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_Collect; }
 private:
 	UPROPERTY(EditAnywhere, Category=UPROPERTY)
 	unsigned int CollectGoal;
