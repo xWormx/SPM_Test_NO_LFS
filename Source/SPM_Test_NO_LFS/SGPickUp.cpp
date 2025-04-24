@@ -4,7 +4,6 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 
-
 ASGPickUp::ASGPickUp()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -24,14 +23,14 @@ void ASGPickUp::BeginPlay()
 
 void ASGPickUp::OnPickup_Implementation()
 {
-	//TODO: Temporär lösning för enkelheten - ska ändras! 
+	/*//TODO: Temporär lösning för enkelheten - ska ändras! 
 	AActor* ObjectPoolActor = UGameplayStatics::GetActorOfClass(GetWorld(), ASGUtilObjectPoolManager::StaticClass());
 	if (!ObjectPoolActor)
 	{
 		return;
-	}
+	}*/
 	
-	ASGUtilObjectPoolManager* ObjectPoolManager = Cast<ASGUtilObjectPoolManager>(ObjectPoolActor);
+	ASGUtilObjectPoolManager* ObjectPoolManager = Cast<ASGUtilObjectPoolManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ASGUtilObjectPoolManager::StaticClass()));
 	if (!ObjectPoolManager) 
 	{
 		Destroy(); // Ifall ObjectPoolManager inte existerar i leveln
