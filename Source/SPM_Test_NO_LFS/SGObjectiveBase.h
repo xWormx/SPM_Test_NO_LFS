@@ -30,7 +30,7 @@ public:
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_InvalidObjectiveType; }
 	UPROPERTY(EditAnywhere)
 	bool bIsActivated = false;
-
+private:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	FString ObjectiveToolTip;
 
