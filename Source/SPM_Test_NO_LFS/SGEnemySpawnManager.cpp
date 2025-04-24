@@ -51,8 +51,8 @@ void ASGEnemySpawnManager::EndIntermissionTimer()
 void ASGEnemySpawnManager::StartNextWave()
 {
 	++CurrentWave;
-	//SpawnEnemiesEverywhere();
-	SpawnEnemiesFromGroup(0);
+	SpawnEnemiesEverywhere();
+	//SpawnEnemiesFromGroup(0);
 }
 
 void ASGEnemySpawnManager::SpawnEnemiesEverywhere()
