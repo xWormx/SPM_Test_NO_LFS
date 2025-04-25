@@ -20,7 +20,23 @@ protected:
 
 	virtual bool CanAttackTarget() const;
 
-	virtual void HandleMovement();
+	virtual void HandleMovement() PURE_VIRTUAL(ASGAIControllerEnemyBase::HandleMovement, );
+
+	virtual float GetAttackRange() const;
+
+	virtual void SetAttackRange(const float NewAttackRange);
+
+	virtual AActor* GetAttackTarget() const;
+
+	virtual void SetAttackTarget(AActor* NewAttackTarget);
+
+	virtual float GetAcceptanceRadius() const;
+
+	virtual void SetAcceptanceRadius(const float NewAcceptanceRadius);
+
+	virtual float GetRetreatDistance() const;
+
+	virtual void SetRetreatDistance(const float NewRetreatDistance);
 
 	UPROPERTY(EditAnywhere, Category= "Combat", meta = (AllowPrivateAccess = true))
 	float AttackRange;

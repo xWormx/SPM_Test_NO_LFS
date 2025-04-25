@@ -5,6 +5,7 @@
 
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	AttackRange = 500.0f;
 	AttackTarget = nullptr;
 	AcceptanceRadius = 500.0f;
@@ -28,9 +29,46 @@ bool ASGAIControllerEnemyBase::CanAttackTarget() const
 	return bCanAttackTarget;
 }
 
-void ASGAIControllerEnemyBase::HandleMovement()
+float ASGAIControllerEnemyBase::GetAttackRange() const
 {
+	return AttackRange;
 }
+
+void ASGAIControllerEnemyBase::SetAttackRange(const float NewAttackRange)
+{
+	AttackRange = NewAttackRange;
+}
+
+AActor* ASGAIControllerEnemyBase::GetAttackTarget() const
+{
+	return AttackTarget;
+}
+
+void ASGAIControllerEnemyBase::SetAttackTarget(AActor* NewAttackTarget)
+{
+	AttackTarget = NewAttackTarget;
+}
+
+float ASGAIControllerEnemyBase::GetAcceptanceRadius() const
+{
+	return AcceptanceRadius;
+}
+
+void ASGAIControllerEnemyBase::SetAcceptanceRadius(const float NewAcceptanceRadius)
+{
+	AcceptanceRadius = NewAcceptanceRadius;
+}
+
+float ASGAIControllerEnemyBase::GetRetreatDistance() const
+{
+	return RetreatDistance;
+}
+
+void ASGAIControllerEnemyBase::SetRetreatDistance(const float NewRetreatDistance)
+{
+	RetreatDistance = NewRetreatDistance;
+}
+
 
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 {
