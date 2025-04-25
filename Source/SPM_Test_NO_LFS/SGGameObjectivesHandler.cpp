@@ -5,6 +5,7 @@
 #include "SGEnemyCharacter.h"
 #include "SGObjectiveBase.h"
 #include "SGObjectiveToolTipWidget.h"
+#include "SGPickUpObjectiveCollect.h"
 #include "SGPlayerCharacter.h"
 #include "SGPlayerController.h"
 #include "SGTerminalWidget.h"
@@ -37,12 +38,26 @@ void ASGGameObjectivesHandler::RegisterEnemy(ASGEnemyCharacter* Enemy)
 	if (Enemy == nullptr)
 		return;
 
-	Enemy->OnEnemyDied.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
+	Enemy->OnEnemyDiedObjective.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
 	TargetCharacters.Push(Enemy);
+}
+
+void ASGGameObjectivesHandler::RegisterCollectible(ASGPickUpObjectiveCollect* Collectible)
+{
+	if (Collectible == nullptr)
+		return;
+
+	if (!Collectible->OnCollected.IsAlreadyBound(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective))
+	{
+		Collectible->OnCollected.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
+		TargetCollectibles.Push(Collectible);		
+	}
+
 }
 
 void ASGGameObjectivesHandler::RegisterTerminalWidget(USGTerminalWidget* TerminalWidget)
 {
+	
 	if (TerminalWidget == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TerminalWidget was Valid."));
@@ -69,6 +84,9 @@ void ASGGameObjectivesHandler::StartMission()
 	if (CurrentObjective == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CurrentObjective is nullptr!"))
+		FString str = FString::Printf(TEXT("No more objectives!"));
+		UE_LOG(LogTemp, Warning, TEXT("StartMission: %s"), *str);
+		ObjectiveToolTipWidget->Display(FText::FromString(str));
 		return;
 	}
 	FString str = FString::Printf(TEXT("StartMission: %s"), *CurrentObjective->GetName());
@@ -79,13 +97,28 @@ void ASGGameObjectivesHandler::StartMission()
 	*/
 }
 
-void ASGGameObjectivesHandler::UpdateCurrentGameObjective(ASGEnemyCharacter* Actor)
+void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor)
 {
+	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_KillAllEnemies;
+	if (ASGEnemyCharacter* enemy = Cast<ASGEnemyCharacter>(ObjectiveInterfaceImplementor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyKilled"));
+		IncomingObjectiveType = enemy->GetObjectiveType();
+	}
+	else if (ASGPickUpObjectiveCollect* collectible = Cast<ASGPickUpObjectiveCollect>(ObjectiveInterfaceImplementor))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Collectible"));
+		IncomingObjectiveType = collectible->GetObjectiveType();
+	}
+
 	if (CurrentObjective == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CurrentObjective is nullptr!"));
 		return;
 	}
+	// Om fel objectivetype har broadcastat så behöver vi inte uppdatera CurrenObjective.
+	if (CurrentObjective->GetObjectiveType() != IncomingObjectiveType)
+		return;
 	
 	CurrentObjective->Update();
 	if (CurrentObjective->CheckProgress())
@@ -95,7 +128,7 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(ASGEnemyCharacter* Act
 		ObjectiveToolTipWidget->Display(FText::FromString(str));
 
 		// Om det finns några objectives, ta bort den första i listan (som blev avklarad)
-		// Finns det kvar några obectives så sätt Current till nästa i listan (som nu på på [0]).
+		// Finns det kvar några obectives så sätt Current till nästa i listan (som nu är på [0]).
 		if (GameObjectives.Num() > 0)
 		{
 			GameObjectives.RemoveAt(0);
@@ -103,14 +136,13 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(ASGEnemyCharacter* Act
 			{
 				CurrentObjective = GameObjectives[0];
 			}
+			else
+			{
+				CurrentObjective = nullptr;
+			}
 		}
 	}
 }
 
-
-void ASGGameObjectivesHandler::StartNextObjective(EObjectiveType NextObjectiveType)
-{
-	//CurrentObjective = NextObjectiveType;
-}
 
 

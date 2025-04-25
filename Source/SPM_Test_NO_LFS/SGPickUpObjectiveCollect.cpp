@@ -29,7 +29,7 @@ void ASGPickUpObjectiveCollect::BeginPlay()
 		return;
 	}
 	
-	//GameObjectivesHandler->RegisterCollectable(this);
+	GameObjectivesHandler->RegisterCollectible(this);
 }
 
 //TODO: Se över hantering av collectables. Kompakt lösning för enkelheten just nu.

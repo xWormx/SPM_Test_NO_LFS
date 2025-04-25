@@ -16,10 +16,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	ASGEnemyCharacter* SpawnEnemy(const TSubclassOf<ASGEnemyCharacter> EnemyClass) const;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY)
+	class ASGGameObjectivesHandler* ObjectiveHandler;
 protected:
 	virtual void BeginPlay() override;
 
-private:
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	class ASGGameObjectivesHandler* ObjectiveHandler;
 };

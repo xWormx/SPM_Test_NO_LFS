@@ -1,0 +1,39 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "SGObjectiveBase.h"
+#include "SGObjectiveDefendThePod.generated.h"
+
+class USphereComponent;
+/**
+ * 
+ */
+UCLASS()
+class SPM_TEST_NO_LFS_API ASGObjectiveDefendThePod : public ASGObjectiveBase
+{
+	GENERATED_BODY()
+	
+public:
+	virtual bool CheckProgress(){ return false; }
+	virtual void Update(){}
+	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_InvalidObjectiveType; }
+private:
+	
+	// Mesh for the Pod (or thing to defend) - OR Should this be a separat class with HP and things, with TSubclassOf<>?
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UStaticMeshComponent* MeshToDefend;
+
+	// Are the follwing 2 needed?
+	// Mesh for the Pod (or thing to defend)
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UStaticMeshComponent* MeshRestrictiveFloor;
+	
+	// Sphere for the area in which the player must be standing for the quest to active
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	USphereComponent* SphereRestrictiveArea;
+
+	// Timer for the objective
+	FTimerHandle TimerHandle;
+};

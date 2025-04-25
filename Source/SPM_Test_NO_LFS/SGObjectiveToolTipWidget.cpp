@@ -30,7 +30,6 @@ void USGObjectiveToolTipWidget::Render(float InDeltaTime)
 		{
 			SetRenderOpacity(CurrentOpacity);
 			CurrentOpacity -= (FadeFactor * InDeltaTime);
-			UE_LOG(LogTemp, Warning, TEXT("Render Opacity: %f"), CurrentOpacity);
 		}
 		else
 		{

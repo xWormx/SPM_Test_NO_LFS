@@ -15,15 +15,26 @@ void ASGEnemySpawnManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ASGEnemySpawnManager::StartSpawning()
+{
+	bSpawningIsActive = true;
+	StartSpawnLoopTimer();
+}
+
+void ASGEnemySpawnManager::StopSpawning()
+{
+	bSpawningIsActive = false;
+}
+
+void ASGEnemySpawnManager::SetSpawnMode(ESpawnMode NewMode)
+{
+	SpawnMode = NewMode;
+}
+
 void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
 	--EnemiesAlive;
 	//UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), EnemiesAlive);
-
-	if (EnemiesAlive <= 0)
-	{
-		StartIntermissionTimer();
-	}
 }
 
 // Protected
@@ -33,26 +44,53 @@ void ASGEnemySpawnManager::BeginPlay()
 	PlayerCharacter = Cast<ASGPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("EnemySpawnPoint"), AllEnemySpawnPoints);
 	//UE_LOG(LogTemp, Warning, TEXT("EnemySpawnPoints found: %i"), AllEnemySpawnPoints.Num());
-	StartIntermissionTimer();
+	
+	StartSpawning();
 }
 
 // Private
-void ASGEnemySpawnManager::StartIntermissionTimer()
+void ASGEnemySpawnManager::StartSpawnLoopTimer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Intermission timer started! %f seconds to next wave..."), TimeBetweenWaves);
-	GetWorldTimerManager().SetTimer(IntermissionTimer, this, &ASGEnemySpawnManager::EndIntermissionTimer, TimeBetweenWaves, false);
+	//UE_LOG(LogTemp, Warning, TEXT("Intermission timer started! %f seconds to next wave..."), TimeBetweenSpawns);
+	GetWorldTimerManager().SetTimer(SpawnLoopTimer, this, &ASGEnemySpawnManager::EndSpawnLoopTimer, TimeBetweenSpawns, false);
 }
 
-void ASGEnemySpawnManager::EndIntermissionTimer()
+void ASGEnemySpawnManager::EndSpawnLoopTimer()
 {
-	StartNextWave();
+	if (!bSpawningIsActive) return;
+
+	switch (SpawnMode)
+	{
+		case ESpawnMode::Everywhere:
+			{
+				SpawnEnemiesEverywhere();
+				break;
+			}
+		
+		case ESpawnMode::AtArea:
+			{
+				SpawnEnemiesAtArea();
+				break;
+			}
+		
+		case ESpawnMode::AroundPlayer:
+			{
+				SpawnEnemiesAroundPlayer();
+				break;
+			}
+	}
+	
+	StartSpawnLoopTimer();
 }
 
-void ASGEnemySpawnManager::StartNextWave()
+void ASGEnemySpawnManager::SetSpawnArea(uint32 Index)
 {
-	++CurrentWave;
-	SpawnEnemiesEverywhere();
-	//SpawnEnemiesFromGroup(0);
+	SpawnAreaIndex = Index;
+}
+
+void ASGEnemySpawnManager::SetEnemyCount(uint32 NewEnemyCount)
+{
+	EnemyCount = NewEnemyCount;
 }
 
 void ASGEnemySpawnManager::SpawnEnemiesEverywhere()
@@ -67,46 +105,63 @@ void ASGEnemySpawnManager::SpawnEnemiesEverywhere()
 		AActor* EnemySpawnPoint = TempArray[i];
 		float DistanceFromPlayer = FVector::Dist(EnemySpawnPoint->GetActorLocation(), PlayerLocation);
 		if (DistanceFromPlayer < MinDistanceFromPlayer) TempArray.RemoveAt(i);
+
+		if (MinDistanceFromPlayer >= SpawnRadiusAroundPlayer)
+			UE_LOG(LogTemp, Error, TEXT("SpawnRadiusAroundPlayer must be larger than MinDistanceFromPlayer to allow spawning!"));
 	}
 
 	if (TempArray.Num() <= 0) return;
-
-	int32 EnemyCount = FMath::CeilToInt(CurrentWave * EnemyCountScalingFactor); // TO-DO: Bestäm nytt sätt att hämta mängd
-	for (int32 i = 0; i < EnemyCount; ++i)
-	{
-		++EnemiesAlive;
-		ASGEnemyCharacter* SpawnedEnemyPtr = GetRandomSpawnPoint(TempArray)->SpawnEnemy(GetRandomEnemyType());
-		
-		if (SpawnedEnemyPtr != nullptr)
-		{
-			SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
-			if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, SpawnedEnemyPtr->GetActorLocation());
-		}
-	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("Wave %i started! %i enemies left..."), CurrentWave, EnemiesAlive);
+	
+	SpawnEnemies(TempArray);
 }
 
-void ASGEnemySpawnManager::SpawnEnemiesFromGroup(uint32 GroupNumber)
+void ASGEnemySpawnManager::SpawnEnemiesAtArea()
 {
-	if (EnemySpawnPointGroups[GroupNumber].EnemySpawnPoints.Num() <= 0) return;
+	if (EnemySpawnPointGroups[SpawnAreaIndex].EnemySpawnPoints.Num() <= 0) return;
 
-	TArray<AActor*> TempArray = EnemySpawnPointGroups[GroupNumber].EnemySpawnPoints;
+	TArray<AActor*> TempArray = EnemySpawnPointGroups[SpawnAreaIndex].EnemySpawnPoints;
 	if (TempArray.Num() <= 0) return;
+	
+	SpawnEnemies(TempArray);
+}
 
-	int32 EnemyCount = FMath::CeilToInt(CurrentWave * EnemyCountScalingFactor); // TO-DO: Bestäm nytt sätt att hämta mängd
-	for (int32 i = 0; i < EnemyCount; ++i)
+void ASGEnemySpawnManager::SpawnEnemiesAroundPlayer()
+{
+	if (AllEnemySpawnPoints.Num() <= 0) return;
+
+	TArray<AActor*> TempArray = AllEnemySpawnPoints;
+	FVector PlayerLocation = PlayerCharacter->GetActorLocation();
+
+	for (int32 i = TempArray.Num() - 1; i >= 0; --i)
 	{
-		++EnemiesAlive;
-		ASGEnemyCharacter* SpawnedEnemyPtr = GetRandomSpawnPoint(TempArray)->SpawnEnemy(GetRandomEnemyType());
+		AActor* EnemySpawnPoint = TempArray[i];
+		float DistanceFromPlayer = FVector::Dist(EnemySpawnPoint->GetActorLocation(), PlayerLocation);
+		if (DistanceFromPlayer < MinDistanceFromPlayer || DistanceFromPlayer > SpawnRadiusAroundPlayer) TempArray.RemoveAt(i);
+		
+		if (MinDistanceFromPlayer >= SpawnRadiusAroundPlayer)
+			UE_LOG(LogTemp, Error, TEXT("SpawnRadiusAroundPlayer must be larger than MinDistanceFromPlayer to allow spawning!"));
+	}
+
+	if (TempArray.Num() <= 0) return;
+	
+	SpawnEnemies(TempArray);
+}
+
+void ASGEnemySpawnManager::SpawnEnemies(const TArray<AActor*>& AvailableSpawnPoints)
+{
+	for (uint32 i = 0; i < EnemyCount; ++i)
+	{
+		ASGEnemyCharacter* SpawnedEnemyPtr = GetRandomSpawnPoint(AvailableSpawnPoints)->SpawnEnemy(GetRandomEnemyType());
 		
 		if (SpawnedEnemyPtr != nullptr)
 		{
+			++EnemiesAlive;
 			SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
 			if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, SpawnedEnemyPtr->GetActorLocation());
 		}
 	}
 }
+
 
 const ASGEnemySpawnPoint* ASGEnemySpawnManager::GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const
 {

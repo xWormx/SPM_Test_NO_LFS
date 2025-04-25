@@ -37,6 +37,7 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 	}
 	
 	OnEnemyDied.Broadcast(this);
+	OnEnemyDiedObjective.Broadcast(this);
 	Destroy();
 }
 

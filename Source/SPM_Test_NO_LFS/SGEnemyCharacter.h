@@ -3,13 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SGObjectiveInterface.h"
 #include "GameFramework/Character.h"
 #include "SGEnemyCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDied, ASGEnemyCharacter*, DeadEnemy);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDiedObjective, UObject*, ObjectiveInterfaceImplementor);
 
 UCLASS()
-class SPM_TEST_NO_LFS_API ASGEnemyCharacter : public ACharacter
+class SPM_TEST_NO_LFS_API ASGEnemyCharacter : public ACharacter, public ISGObjectiveInterface
 {
 	GENERATED_BODY()
 
@@ -31,9 +33,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_KillAllEnemies; }
+	
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEnemyDied OnEnemyDied;
-
+	
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnEnemyDiedObjective OnEnemyDiedObjective;
 private:
 	UPROPERTY()
 	class USGHealthComponent* HealthComponent;
