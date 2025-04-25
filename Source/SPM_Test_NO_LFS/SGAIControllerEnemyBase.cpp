@@ -6,10 +6,6 @@
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	AttackRange = 500.0f;
-	AttackTarget = nullptr;
-	AcceptanceRadius = 500.0f;
-	RetreatDistance = 500.0f;
 }
 
 void ASGAIControllerEnemyBase::BeginPlay()
@@ -19,12 +15,16 @@ void ASGAIControllerEnemyBase::BeginPlay()
 
 bool ASGAIControllerEnemyBase::CanAttackTarget() const
 {
-	FVector Location = GetPawn()->GetActorLocation();
-	FVector TargetLocation = AttackTarget->GetActorLocation();
+	if (!AttackTarget)
+	{
+		return false;
+	}
+	const FVector Location = GetPawn()->GetActorLocation();
+	const FVector TargetLocation = AttackTarget->GetActorLocation();
 
-	float DistanceToPlayer = FVector::Dist(TargetLocation, Location);
+	const float DistanceToPlayer = FVector::Dist(TargetLocation, Location);
 
-	bool bCanAttackTarget = DistanceToPlayer < AttackRange;
+	const bool bCanAttackTarget = DistanceToPlayer < AttackRange;
 
 	return bCanAttackTarget;
 }

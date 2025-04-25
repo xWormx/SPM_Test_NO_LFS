@@ -3,24 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AIController.h"
-#include "SGAIControllerFlyingEnemy.generated.h"
+#include "SGAIControllerEnemyBase.h"
+#include "SGAIControllerEnemySmall.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SPM_TEST_NO_LFS_API ASGAIControllerFlyingEnemy : public AAIController
+class SPM_TEST_NO_LFS_API ASGAIControllerEnemySmall : public ASGAIControllerEnemyBase
 {
 	GENERATED_BODY()
 protected:
+	ASGAIControllerEnemySmall();
+
 	virtual void BeginPlay() override;
+
+	virtual void HandleMovement() override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
-
-private:
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
-	APawn* PlayerPawn;
 	
 };

@@ -17,38 +17,47 @@ protected:
 	ASGAIControllerEnemyBase();
 	
 	virtual void BeginPlay() override;
-
+	
+	UFUNCTION(BlueprintCallable)
 	virtual bool CanAttackTarget() const;
-
+	
 	virtual void HandleMovement() PURE_VIRTUAL(ASGAIControllerEnemyBase::HandleMovement, );
 
+	UFUNCTION(BlueprintCallable)
 	virtual float GetAttackRange() const;
 
+	UFUNCTION(BlueprintCallable)
 	virtual void SetAttackRange(const float NewAttackRange);
 
+	UFUNCTION(BlueprintCallable)
 	virtual AActor* GetAttackTarget() const;
-
+	
+	UFUNCTION(BlueprintCallable)
 	virtual void SetAttackTarget(AActor* NewAttackTarget);
-
+	
+	UFUNCTION(BlueprintCallable)
 	virtual float GetAcceptanceRadius() const;
 
+	UFUNCTION(BlueprintCallable)
 	virtual void SetAcceptanceRadius(const float NewAcceptanceRadius);
 
+	UFUNCTION(BlueprintCallable)
 	virtual float GetRetreatDistance() const;
 
+	UFUNCTION(BlueprintCallable)
 	virtual void SetRetreatDistance(const float NewRetreatDistance);
 
 	UPROPERTY(EditAnywhere, Category= "Combat", meta = (AllowPrivateAccess = true))
-	float AttackRange;
+	float AttackRange = 0;
 
 	UPROPERTY(EditAnywhere,  Category= "Combat", meta = (AllowPrivateAccess = true))
-	AActor* AttackTarget;
+	AActor* AttackTarget = nullptr;
 
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
-	float AcceptanceRadius;
+	float AcceptanceRadius = 0;
 
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
-	float RetreatDistance;
+	float RetreatDistance = 0;
 
 
 public:
