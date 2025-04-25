@@ -41,4 +41,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Actor Pool", meta = (AllowPrivateAccess = "true"))
 	TMap<TSubclassOf<AActor>, FActorPool> Pools;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Actor Pool", meta = (AllowPrivateAccess = "true"))
+	int InitialSize = 5;
 };
