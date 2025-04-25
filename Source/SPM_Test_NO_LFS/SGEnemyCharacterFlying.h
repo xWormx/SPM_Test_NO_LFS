@@ -23,18 +23,5 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	void FlyTowardsPlayer();
-
-	UPROPERTY(EditAnywhere, Category = "AI" ,meta = (AllowPrivateAccess = true))
-	float DetectionRadius = 1000.f;
-
-	FVector StartLocation;
-
-	float HoverAmplitude = 50.f;
-	float HoverSpeed = 1.5f;
-
-	UPROPERTY(EditAnywhere, Category = "AI", meta = (AllowPrivateAccess = true))
-	AActor* Target;
-	
-	
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 };

@@ -15,7 +15,7 @@ ASGEnemyCharacterFlying::ASGEnemyCharacterFlying()
 	
 	GetCharacterMovement()->SetMovementMode(MOVE_Flying);
 
-	GetCharacterMovement()->MaxFlySpeed = 600.f;
+	GetCharacterMovement()->MaxFlySpeed = 400.f;
 
 	GetMesh()->SetEnableGravity(false);
 }
@@ -23,68 +23,14 @@ ASGEnemyCharacterFlying::ASGEnemyCharacterFlying()
 void ASGEnemyCharacterFlying::BeginPlay()
 {
 	Super::BeginPlay();
-
-	StartLocation = GetActorLocation();
 }
 
 void ASGEnemyCharacterFlying::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	float TargetZ = StartLocation.Z;
-
-	if (Target)
-	{
-		TargetZ = Target->GetActorLocation().Z;
-	}
-
-	
-	float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
-
-	
-	FVector CurrentLocation = GetActorLocation();
-	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, DeltaTime, 2.0f);
-	SetActorLocation(CurrentLocation, true);
-
-	
-	if (!Target)
-	{
-		ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-		if (Player && FVector::Dist(Player->GetActorLocation(), GetActorLocation()) <= DetectionRadius)
-		{
-			Target = Player;
-		}
-	}
-
-	
-	if (Target)
-	{
-		FlyTowardsPlayer();
-	}
 }
 
-void ASGEnemyCharacterFlying::FlyTowardsPlayer()
+void ASGEnemyCharacterFlying::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	float DesiredDistance = 300.f; 
-	if (!Target)
-	{
-		return;
-	}
-
-	FVector ToPlayer = Target->GetActorLocation() - GetActorLocation();
-	float Distance = ToPlayer.Size();
-	
-	if (Distance > DesiredDistance)
-	{
-		FVector Direction = ToPlayer.GetSafeNormal();
-		FVector NewVelocity = Direction * GetCharacterMovement()->MaxFlySpeed;
-		GetCharacterMovement()->Velocity = NewVelocity;
-
-		FRotator LookRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
-		SetActorRotation(LookRotation);
-	}
-	else
-	{
-		GetCharacterMovement()->Velocity = FVector::ZeroVector;
-	}
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
