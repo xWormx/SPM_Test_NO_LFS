@@ -24,7 +24,6 @@ void ASGAIControllerGroundEnemyBig::Tick(float DeltaTime)
 	
 	if (CanHitPlayer())
 	{
-		//SetFocus(PlayerPawn);
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, TEXT("Enemy is attacking"));
