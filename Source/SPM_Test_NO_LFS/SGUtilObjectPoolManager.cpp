@@ -23,7 +23,7 @@ AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectCla
 {
 	if (!Pools.Contains(ObjectClass))
 	{		
-		InitializePool(ObjectClass, 5);
+		InitializePool(ObjectClass, InitialSize);
 		return GetPooledObject(ObjectClass);
 	}
 
@@ -38,7 +38,7 @@ AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectCla
 			return Object;
 		}
 	}
-	ExpandPool(ObjectClass, 5);
+	ExpandPool(ObjectClass, Pool.DefaultPoolGrowthSize);
 	return GetPooledObject(ObjectClass);
 }
 
