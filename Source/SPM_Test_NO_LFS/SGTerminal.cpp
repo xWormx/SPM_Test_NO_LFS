@@ -73,11 +73,19 @@ void ASGTerminal::Tick(float DeltaTime)
 			LastInteractingPlayerController->SetInputMode(FInputModeUIOnly());
 			LastInteractingPlayerController->SetShowMouseCursor(true);
 
-			USGObjectiveToolTipWidget* ToolTipWidget = GameObjectivesHandler->GetObjectiveToolTipWidget();
-			if (ToolTipWidget)
+			if (GameObjectivesHandler)
 			{
-				if (!ToolTipWidget->GetIsHidden())
-					ToolTipWidget->InterruptAndHide();	
+				USGObjectiveToolTipWidget* ToolTipWidget = GameObjectivesHandler->GetObjectiveToolTipWidget();
+				if (ToolTipWidget)
+				{
+					if (!ToolTipWidget->GetIsHidden())
+						ToolTipWidget->InterruptAndHide();	
+				
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Terminal needs a GameObjectivesHandler!"));
 			}
 			
 			HUDTerminal->SetVisibility(ESlateVisibility::Visible);

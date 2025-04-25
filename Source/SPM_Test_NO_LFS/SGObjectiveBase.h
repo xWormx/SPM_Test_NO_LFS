@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SGObjectiveInterface.h"
 #include "GameFramework/Actor.h"
 #include "SGObjectiveBase.generated.h"
 
@@ -26,9 +27,10 @@ public:
 	virtual bool CheckProgress(){ return false; }
 	virtual void Update(){}
 	virtual FText GetToolTipText();
+	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_InvalidObjectiveType; }
 	UPROPERTY(EditAnywhere)
 	bool bIsActivated = false;
-
+private:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	FString ObjectiveToolTip;
 

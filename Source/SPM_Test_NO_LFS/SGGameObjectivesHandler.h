@@ -6,16 +6,12 @@
 #include "GameFramework/Actor.h"
 #include "SGGameObjectivesHandler.generated.h"
 
+class ASGPickUpObjectiveCollect;
 class USGObjectiveToolTipWidget;
 class ASGObjectiveBase;
 class ASGEnemyCharacter;
 class USGTerminalWidget;
 
-UENUM(BlueprintType)
-enum class EObjectiveType : uint8
-{
-	EOT_KillAllEnemies, EOT_CollectAndPlace, EOT_DefendThePod
-};
 class UButton;
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGGameObjectivesHandler : public AActor
@@ -27,6 +23,7 @@ public:
 	ASGGameObjectivesHandler();
 
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);
+	void RegisterCollectible(ASGPickUpObjectiveCollect* Collectible);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
 	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() {return ObjectiveToolTipWidget;}
 protected:
@@ -48,19 +45,10 @@ private:
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TArray<EObjectiveType> GameObjectiveOrder;
-
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<ASGObjectiveBase*> GameObjectives;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	ASGObjectiveBase* CurrentObjective;
-	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	EObjectiveType CurrentObjectiveEnum;
-
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	EObjectiveType StartObjective;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	int EnemiesKilled = 0;
@@ -79,14 +67,18 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<ASGEnemyCharacter> TargetCharacterClass;
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	TArray<ASGEnemyCharacter*> TargetCharacters;
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TSubclassOf<ASGPickUpObjectiveCollect> TargetCollectibleClass;
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	TArray<ASGPickUpObjectiveCollect*> TargetCollectibles;
 	
 	UFUNCTION()
-	void UpdateCurrentGameObjective(class ASGEnemyCharacter* Actor);
+	void UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor);
 
 	UFUNCTION()
 	void StartMission();
 	
-	void StartNextObjective(EObjectiveType NextObjectiveType);
 };

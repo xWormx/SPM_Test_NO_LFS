@@ -4,23 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "SGObjectiveBase.h"
-#include "SGObjectiveKillEmAll.generated.h"
+#include "SGObjectiveCollectEmAll.generated.h"
 
 /**
  * 
  */
-UCLASS(Blueprintable)
-class SPM_TEST_NO_LFS_API ASGObjectiveKillEmAll : public ASGObjectiveBase
+UCLASS()
+class SPM_TEST_NO_LFS_API ASGObjectiveCollectEmAll : public ASGObjectiveBase
 {
 	GENERATED_BODY()
 public:
 	virtual bool CheckProgress() override;
 	virtual void Update() override;
-	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_KillAllEnemies; }
+	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_Collect; }
 private:
 	UPROPERTY(EditAnywhere, Category=UPROPERTY)
-	unsigned int EnemiesToKill;
+	unsigned int CollectGoal;
 
 	UPROPERTY(EditAnywhere ,Category=UPROPERTY)
-	unsigned int CurrentEnemiesKilled = 0;
+	unsigned int CurrentCollected = 0;
 };

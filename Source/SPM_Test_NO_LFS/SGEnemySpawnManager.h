@@ -8,6 +8,12 @@ class ASGEnemySpawnPoint;
 class ASGEnemyCharacter;
 class ASGPlayerCharacter;
 
+UENUM(BlueprintType)
+enum class ESpawnMode : uint8
+{
+	Everywhere, AtArea, AroundPlayer
+};
+
 USTRUCT(BlueprintType)
 struct FSpawnPointGroup
 {
@@ -25,6 +31,11 @@ class SPM_TEST_NO_LFS_API ASGEnemySpawnManager : public AActor
 public:	
 	ASGEnemySpawnManager();
 	virtual void Tick(float DeltaTime) override;
+	void StartSpawning();
+	void StopSpawning();
+	void SetSpawnMode(ESpawnMode NewMode);
+	void SetSpawnArea(uint32 Index);
+	void SetEnemyCount(uint32 NewEnemyCount);
 	
 	UFUNCTION()
 	void HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy);
@@ -33,24 +44,25 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	void StartIntermissionTimer();
-	void EndIntermissionTimer();
-	void StartNextWave();
+	void StartSpawnLoopTimer();
+	void EndSpawnLoopTimer();
 	void SpawnEnemiesEverywhere();
-	void SpawnEnemiesFromGroup(uint32 GroupNumber);
+	void SpawnEnemiesAtArea();
+	void SpawnEnemiesAroundPlayer();
+	void SpawnEnemies(const TArray<AActor*>& AvailableSpawnPoints);
 	const ASGEnemySpawnPoint* GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const;
 	const TSubclassOf<ASGEnemyCharacter> GetRandomEnemyType() const;
-	
+
+	bool bSpawningIsActive = false;
 	TArray<AActor*> AllEnemySpawnPoints;
 	ASGPlayerCharacter* PlayerCharacter;
-	int32 CurrentWave = 0;
-	int32 EnemiesAlive = 0;
-	FTimerHandle IntermissionTimer;
+	uint32 EnemiesAlive = 0;
+	FTimerHandle SpawnLoopTimer;
+	uint32 SpawnAreaIndex = 0;
+	uint32 EnemyCount = 1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	float TimeBetweenWaves = 9.9f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	float EnemyCountScalingFactor = 1.75f;
+	float TimeBetweenSpawns = 1.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	USoundBase* SpawnSound;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
@@ -58,5 +70,9 @@ private:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	float MinDistanceFromPlayer = 3000.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
+	float SpawnRadiusAroundPlayer = 5500.0f;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	TArray<FSpawnPointGroup> EnemySpawnPointGroups;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
+	ESpawnMode SpawnMode = ESpawnMode::Everywhere;
 };
