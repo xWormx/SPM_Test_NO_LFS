@@ -29,10 +29,8 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Category = "Movement" ,meta = (AllowPrivateAccess = true))
 	float DetectionRadius = 1000.f;
-
-	FVector StartLocation;
-
 	float HoverAmplitude = 50.f;
 	float HoverSpeed = 1.5f;
-	
+	float DesiredDistance = 300.f; 
+
 };
