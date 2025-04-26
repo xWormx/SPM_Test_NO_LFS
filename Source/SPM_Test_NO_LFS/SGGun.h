@@ -12,18 +12,14 @@ class SPM_TEST_NO_LFS_API ASGGun : public AActor
 public:	
 	ASGGun();
 	virtual void Tick(float DeltaTime) override;
-	void Fire();
+	virtual void Fire();
+	void CanFireAgain();
 	float GetFireRate() const;
 
 protected:
 	virtual void BeginPlay() override;
+	AController* GetOwnerController() const;
 
-private:
-	// VisibleAnywhere
-	UPROPERTY(VisibleAnywhere, Category="design")
-	USceneComponent* Root;
-	UPROPERTY(VisibleAnywhere, Category="design")
-	USkeletalMeshComponent* Mesh;
 	// EditAnywhere+BP
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UParticleSystem* ShootParticles;
@@ -40,6 +36,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float FireRate = 0.1f; // 0.1 = 10 skott per sekund
 
-	bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
-	AController* GetOwnerController() const;
+private:
+	// VisibleAnywhere
+	UPROPERTY(VisibleAnywhere, Category="design")
+	USceneComponent* Root;
+	UPROPERTY(VisibleAnywhere, Category="design")
+	USkeletalMeshComponent* Mesh;
+
+	virtual bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
+
+	bool bCanFire;
 };
