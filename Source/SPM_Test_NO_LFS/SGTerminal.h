@@ -6,10 +6,8 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Actor.h"
 #include "SGPlayerCharacter.h"
+#include "SGTerminalWidget.h"
 #include "SGTerminal.generated.h"
-
-
-class USGTerminalWidget;
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGTerminal : public AActor
@@ -66,5 +64,16 @@ private:
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	
+	UFUNCTION()
 	void OnStartMissionButtonClicked();
+	UFUNCTION()
+	void OnCloseTerminalClicked();
+	UFUNCTION()
+	void OpenTerminal();
+	
+	void CloseTerminal();
+	
 };

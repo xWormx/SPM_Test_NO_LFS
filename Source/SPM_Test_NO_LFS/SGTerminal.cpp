@@ -2,7 +2,6 @@
 
 
 #include "SGTerminal.h"
-#include "SGTerminalWidget.h"
 #include "SGPlayerController.h"
 #include "SGObjectiveToolTipWidget.h"
 #include "Components/SphereComponent.h"
@@ -35,65 +34,85 @@ ASGTerminal::ASGTerminal()
 void ASGTerminal::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	InteractSphere->OnComponentHit.AddDynamic(this, &ASGTerminal::OnComponentHit);
 	InteractSphere->OnComponentBeginOverlap.AddDynamic(this, &ASGTerminal::OnOverlapBegin);
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (PlayerController != nullptr)
+	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PlayerController)
+	{
 		HUDTerminal = Cast<USGTerminalWidget>(CreateWidget<UUserWidget>(PlayerController, HUDTerminalClass));
+		PlayerController->OnInteract.AddDynamic(this, &ASGTerminal::OpenTerminal); 
+	}
+		
 	
 	if (HUDTerminal)
 	{
 		HUDTerminal->AddToViewport();
 		HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
+		
 		if (!HUDTerminal->OnStartMission.IsAlreadyBound(this, &ASGTerminal::OnStartMissionButtonClicked))
 			HUDTerminal->OnStartMission.AddDynamic(this, &ASGTerminal::OnStartMissionButtonClicked);
+
+		if (!HUDTerminal->OnCloseTerminal.IsAlreadyBound(this, &ASGTerminal::OnCloseTerminalClicked))
+			HUDTerminal->OnCloseTerminal.AddDynamic(this, &ASGTerminal::OnCloseTerminalClicked);
 	}
 
 }
 
 void ASGTerminal::OnStartMissionButtonClicked()
 {
+	CloseTerminal();
+}
+
+void ASGTerminal::OnCloseTerminalClicked()
+{
+	CloseTerminal();
+}
+
+void ASGTerminal::CloseTerminal()
+{
 	HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
+	LastInteractingPlayerController->EnableInput(LastInteractingPlayerController);
 	LastInteractingPlayerController->SetInputMode(FInputModeGameOnly());
 	LastInteractingPlayerController->SetShowMouseCursor(false);
 	LastInteractingPlayerController->SetWantToInteractWithTerminal(false);
-	LastInteractingPlayerController->EnableInput(LastInteractingPlayerController);
+}
+
+void ASGTerminal::OpenTerminal()
+{
+	if (!LastInteractingPlayerController->GetCanInteractWithTerminal())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Terminal: Player trying to interact with terminal but is not within range!"));
+		return;
+	}
+		
+	
+	UE_LOG(LogTemp, Display, TEXT("Interacting with terminal"));
+	HUDTerminal->SetVisibility(ESlateVisibility::Visible);
+	LastInteractingPlayerController->DisableInput(LastInteractingPlayerController);
+	LastInteractingPlayerController->SetInputMode(FInputModeUIOnly());
+	LastInteractingPlayerController->SetShowMouseCursor(true);
+	
+	if (GameObjectivesHandler)
+	{
+		HUDTerminal->SetObjectiveHandler(GameObjectivesHandler);
+		USGObjectiveToolTipWidget* ToolTipWidget = GameObjectivesHandler->GetObjectiveToolTipWidget();
+		if (ToolTipWidget)
+		{
+			if (!ToolTipWidget->GetIsHidden())
+				ToolTipWidget->InterruptAndHide();	
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Terminal needs a GameObjectivesHandler!"));
+	}
 }
 
 // Called every frame
 void ASGTerminal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (LastInteractingPlayerController != nullptr && LastInteractingPlayerController->GetWantToInteractWithTerminal())
-	{
-		if (HUDTerminal->GetVisibility() == ESlateVisibility::Hidden)
-		{
-			UE_LOG(LogTemp, Display, TEXT("Interacting with terminal"));
-			LastInteractingPlayerController->DisableInput(LastInteractingPlayerController);
-			LastInteractingPlayerController->SetInputMode(FInputModeUIOnly());
-			LastInteractingPlayerController->SetShowMouseCursor(true);
-
-			if (GameObjectivesHandler)
-			{
-				USGObjectiveToolTipWidget* ToolTipWidget = GameObjectivesHandler->GetObjectiveToolTipWidget();
-				if (ToolTipWidget)
-				{
-					if (!ToolTipWidget->GetIsHidden())
-						ToolTipWidget->InterruptAndHide();	
-				
-				}
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("Terminal needs a GameObjectivesHandler!"));
-			}
-			
-			HUDTerminal->SetVisibility(ESlateVisibility::Visible);
-			HUDTerminal->SetObjectiveHandler(GameObjectivesHandler);
-			
-		}
-	}
-	
 }
 
 void ASGTerminal::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
@@ -112,6 +131,25 @@ void ASGTerminal::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 
 		LastInteractingPlayerController = PlayerController;
 		PlayerController->SetCanInteractWithTerminal(true);
+	}
+}
+
+void ASGTerminal::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnComponentHit"));
+	if (OtherActor != nullptr)
+	{
+		ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
+		if (Player == nullptr)
+			return;
+		UE_LOG(LogTemp, Warning, TEXT("Player Overlapped!"));
+		
+		ASGPlayerController* PlayerController = Cast<ASGPlayerController>(Player->GetController());
+		if (PlayerController == nullptr)
+			return;
+
+		LastInteractingPlayerController = PlayerController;
+		PlayerController->SetCanInteractWithTerminal(false);
 	}
 }
 

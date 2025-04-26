@@ -15,6 +15,13 @@ void USGTerminalWidget::NativeConstruct()
 		ButtonStartMission->OnUnhovered.AddDynamic(this, &USGTerminalWidget::OnUnHoverStartMission);
 		//GameObjectivesHandler->RegisterTerminalWidget(this);
 	}
+
+	if (ButtonCloseTerminal)
+	{
+		ButtonCloseTerminal->OnClicked.AddDynamic(this, &USGTerminalWidget::OnClickCloseTerminal);
+		ButtonCloseTerminal->OnHovered.AddDynamic(this, &USGTerminalWidget::OnHoverCloseTerminal);
+		ButtonCloseTerminal->OnUnhovered.AddDynamic(this, &USGTerminalWidget::OnUnHoverCloseTerminal);
+	}
 }
 
 void USGTerminalWidget::SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler)
@@ -25,20 +32,40 @@ void USGTerminalWidget::SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveH
 void USGTerminalWidget::OnClickStartMission()
 {
 	GameObjectivesHandler->RegisterTerminalWidget(this);
-	ButtonStartMission->SetBackgroundColor(FLinearColor::Red);
+	//ButtonStartMission->SetBackgroundColor(FLinearColor::Red);
 	OnStartMission.Broadcast();
-	/*
-	ObjectiveHandler->StartMission();
-	ActivateMission();
-	*/
 }
 
 void USGTerminalWidget::OnHoverStartMission()
 {
-	ButtonStartMission->SetBackgroundColor(FLinearColor::Blue);
+	//ButtonStartMission->SetBackgroundColor(FLinearColor::Green);
+	
 }
 
 void USGTerminalWidget::OnUnHoverStartMission()
 {
-	ButtonStartMission->SetBackgroundColor(FLinearColor::Gray);
+	//ButtonStartMission->SetBackgroundColor(FLinearColor::Blue);
+}
+
+void USGTerminalWidget::EnableStartButton()
+{
+	ButtonStartMission->SetIsEnabled(true);
+}
+
+void USGTerminalWidget::DisableStartButton()
+{
+	ButtonStartMission->SetIsEnabled(false);
+}
+
+void USGTerminalWidget::OnClickCloseTerminal()
+{
+	OnCloseTerminal.Broadcast();
+}
+
+void USGTerminalWidget::OnHoverCloseTerminal()
+{
+}
+
+void USGTerminalWidget::OnUnHoverCloseTerminal()
+{
 }

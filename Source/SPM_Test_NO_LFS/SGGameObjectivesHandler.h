@@ -26,6 +26,7 @@ public:
 	void RegisterCollectible(ASGPickUpObjectiveCollect* Collectible);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
 	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() {return ObjectiveToolTipWidget;}
+	bool GetCurrentObjectiveIsActive() { return CurrentObjective != nullptr; }
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -33,7 +34,6 @@ protected:
 private:
 
 	int ObjectiveCounter = 0;
-	UButton* StartButton;
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* TerminalHUD;
