@@ -43,8 +43,10 @@ private:
 	ASGGrapplingHook* GrapplingHook;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	TSubclassOf<ASGGun> GunClass;
+	TArray<TSubclassOf<ASGGun>> GunClasses;
 	
-	UPROPERTY()
-	ASGGun* Gun;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	TArray<ASGGun*> Guns;
+	
+	uint8 CurrentGunIndex = 1;
 };

@@ -28,13 +28,24 @@ void ASGPlayerCharacter::BeginPlay()
 		GrapplingHook->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
 		GrapplingHook->SetOwner(this);	
 	}
-	
-	Gun = GetWorld()->SpawnActor<ASGGun>(GunClass);
-	if (Gun)
+
+	for (int32 i = 0; i < GunClasses.Num(); ++i)
 	{
-		// WeaponSocket == bone-socket där vapnet ska sitta fast
-		Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-		Gun->SetOwner(this);
+		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
+	}
+	if (Guns.Num() > 0 && Guns.IsValidIndex(CurrentGunIndex))
+	{
+		if (Guns[CurrentGunIndex])
+		{
+			// WeaponSocket == bone-socket där vapnet ska sitta fast
+			Guns[CurrentGunIndex]->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+			Guns[CurrentGunIndex]->SetOwner(this);
+		}
+	}
+	else
+	{
+		// Handle the case where the Guns array is not populated
+		UE_LOG(LogTemp, Error, TEXT("Guns array is empty or index out of bounds!"));
 	}
 }
 
@@ -96,12 +107,12 @@ void ASGPlayerCharacter::FireGrapple()
 
 void ASGPlayerCharacter::FireGun()
 {
-	if (Gun) Gun->Fire();
+	if (Guns[CurrentGunIndex]) Guns[CurrentGunIndex]->Fire();
 }
 
 const ASGGun* ASGPlayerCharacter::GetGunRef() const
 {
-	return Gun;
+	return Guns[CurrentGunIndex];
 }
 
 
