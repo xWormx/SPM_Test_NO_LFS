@@ -8,6 +8,7 @@
 #include "SGTerminalWidget.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartMission);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCloseTerminal);
 /**
  * 
  */
@@ -17,11 +18,16 @@ class SPM_TEST_NO_LFS_API USGTerminalWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	FOnStartMission OnStartMission;
+	FOnCloseTerminal OnCloseTerminal;
 	void SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler);
+	void EnableStartButton();
+	void DisableStartButton();
 protected:
 	UPROPERTY(BluePrintReadWrite, meta = (BindWidget))
 	class UButton* ButtonStartMission;
-	
+
+	UPROPERTY(BluePrintReadWrite, meta = (BindWidget))
+	class UButton* ButtonCloseTerminal;
 	virtual void NativeConstruct() override;
 
 	UFUNCTION()
@@ -30,6 +36,13 @@ protected:
 	void OnHoverStartMission();
 	UFUNCTION()
 	void OnUnHoverStartMission();
+
+	UFUNCTION()
+	void OnClickCloseTerminal();
+	UFUNCTION()
+	void OnHoverCloseTerminal();
+	UFUNCTION()
+	void OnUnHoverCloseTerminal();
 
 	UPROPERTY()
 	class ASGGameObjectivesHandler* GameObjectivesHandler;

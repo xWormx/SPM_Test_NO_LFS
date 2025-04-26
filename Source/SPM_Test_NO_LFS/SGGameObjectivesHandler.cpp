@@ -78,8 +78,8 @@ void ASGGameObjectivesHandler::RegisterTerminalWidget(USGTerminalWidget* Termina
 
 void ASGGameObjectivesHandler::StartMission()
 {
-	if (ObjectiveCounter < GameObjectives.Num())
-		CurrentObjective = GameObjectives[ObjectiveCounter++];
+	if (GameObjectives.Num() > 0)
+		CurrentObjective = GameObjectives[0];
 	
 	if (CurrentObjective == nullptr)
 	{
@@ -89,17 +89,20 @@ void ASGGameObjectivesHandler::StartMission()
 		ObjectiveToolTipWidget->Display(FText::FromString(str));
 		return;
 	}
+	
 	FString str = FString::Printf(TEXT("StartMission: %s"), *CurrentObjective->GetName());
 	UE_LOG(LogTemp, Warning, TEXT("StartMission: %s"), *str);
 	ObjectiveToolTipWidget->Display(CurrentObjective->GetToolTipText());
+	TerminalHUD->DisableStartButton();
 	/*
 	 StartNextObjectiveInPipeline();
 	*/
 }
 
+// TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...
 void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor)
 {
-	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_KillAllEnemies;
+	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_InvalidObjectiveType;
 	if (ASGEnemyCharacter* enemy = Cast<ASGEnemyCharacter>(ObjectiveInterfaceImplementor))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyKilled"));
@@ -127,20 +130,14 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 		FString str = FString::Printf(TEXT("Mission Accomplished: %s"), *CurrentObjective->GetName());
 		ObjectiveToolTipWidget->Display(FText::FromString(str));
 
-		// Om det finns några objectives, ta bort den första i listan (som blev avklarad)
-		// Finns det kvar några obectives så sätt Current till nästa i listan (som nu är på [0]).
+		// Ta bort avklarat objective från Arrayen
 		if (GameObjectives.Num() > 0)
 		{
 			GameObjectives.RemoveAt(0);
-			if (GameObjectives.Num() > 0)
-			{
-				CurrentObjective = GameObjectives[0];
-			}
-			else
-			{
-				CurrentObjective = nullptr;
-			}
+			TerminalHUD->EnableStartButton();
 		}
+		// Borde CurrentObjective vara något annat istället för nullptr när det inte är aktiverat?
+		CurrentObjective = nullptr;		
 	}
 }
 

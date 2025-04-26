@@ -7,6 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "SGPlayerController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
+
 class ASGPlayerCharacter;
 /**
  * 
@@ -17,6 +19,8 @@ class SPM_TEST_NO_LFS_API ASGPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	FOnInteract OnInteract;
+	
 	virtual void SetupInputComponent() override;
 	void SetCanInteractWithTerminal(bool bInteract) { bCanInteractWithTerminal = bInteract; }
 	void SetWantToInteractWithTerminal(bool bInteract) { bWantToInteract = bInteract; }

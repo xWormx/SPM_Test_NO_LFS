@@ -105,11 +105,13 @@ void ASGPlayerController::Interact(const FInputActionValue& Value)
 	if (!bCanInteractWithTerminal)
 		return;
 
-	SetWantToInteractWithTerminal(true);
+	
 	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
 	if (CurrentPlayer == nullptr)
 		return;
-
+	// Denna funktion kanske int ebehövs om vi ändå broadcastar via delegate?
+	SetWantToInteractWithTerminal(true);
+	OnInteract.Broadcast();
 	UE_LOG(LogTemp, Warning, TEXT("Interact: Rage = %f"), CurrentPlayer->GetRage());
 }
 
