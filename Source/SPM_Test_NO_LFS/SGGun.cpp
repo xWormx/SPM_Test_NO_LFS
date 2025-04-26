@@ -19,6 +19,9 @@ void ASGGun::Tick(float DeltaTime)
 
 void ASGGun::Fire()
 {
+	if (!bCanFire) return;
+	//bCanFire = false;
+	
 	if (ShootParticles && Mesh) UGameplayStatics::SpawnEmitterAttached(ShootParticles, Mesh, TEXT("MuzzleFlashSocket"));
 	if (ShootSound && Mesh) UGameplayStatics::SpawnSoundAttached(ShootSound, Mesh, TEXT("MuzzleFlashSocket"));
 
@@ -37,6 +40,12 @@ void ASGGun::Fire()
 			HitActor->TakeDamage(Damage, DamageEvent, GetOwnerController(), this);
 		}
 	}
+
+}
+
+void ASGGun::CanFireAgain()
+{
+	bCanFire = true;
 }
 
 float ASGGun::GetFireRate() const
@@ -48,6 +57,14 @@ float ASGGun::GetFireRate() const
 void ASGGun::BeginPlay()
 {
 	Super::BeginPlay();
+	bCanFire = true;
+}
+
+AController* ASGGun::GetOwnerController() const
+{
+	APawn* MyOwner = Cast<APawn>(GetOwner());
+	if (MyOwner == nullptr) return nullptr;
+	return MyOwner->GetController();
 }
 
 // Private
@@ -68,11 +85,4 @@ bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(GetOwner());
 	return GetWorld()->LineTraceSingleByChannel(OutHitResult, Location, End, ECC_GameTraceChannel2, Params); //ECC_GameTraceChannel2 = Projectile (Blockas av pawns)
-}
-
-AController* ASGGun::GetOwnerController() const
-{
-	APawn* MyOwner = Cast<APawn>(GetOwner());
-	if (MyOwner == nullptr) return nullptr;
-	return MyOwner->GetController();
 }
