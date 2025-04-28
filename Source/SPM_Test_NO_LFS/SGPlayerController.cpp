@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SGPlayerController.h"
 #include "SGPlayerCharacter.h"
 #include "EnhancedInputComponent.h"
@@ -11,22 +8,29 @@
 #include "SGGun.h"
 #include "Blueprint/UserWidget.h"
 
-
 void ASGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr)
+	ThePlayerCharacter = GetValidPlayerCharacter();
+	if (ThePlayerCharacter == nullptr)
 		return;
 	
-	CurrentPlayer->GetCharacterMovement()->AirControl = 1.f;
+	ThePlayerCharacter->GetCharacterMovement()->AirControl = 1.f;
 
 	UUserWidget* CrossHair = CreateWidget<UUserWidget>(this, HUDClass);
 	if (CrossHair)
 	{
 		CrossHair->AddToViewport();
 	}
+
+	bCanFire = true;
+}
+
+void ASGPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	HandleFiring(); // OK att ligga i Tick(), kollar bara 2st bools
 }
 
 void ASGPlayerController::SetupInputComponent()
@@ -34,19 +38,28 @@ void ASGPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(InputComponent);
+
+	// Movement
 	Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Move);
 	Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Jump);
-	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Interact);
 	Input->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::LookAround);
 	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Grapple);
-	Input->BindAction(FireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::StartFiringGun);
-	Input->BindAction(StopFireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::StopFiringGun);
 
-	Input->BindAction(PauseGameAction, ETriggerEvent::Triggered, this, &ASGPlayerController::PauseGame);  //Pause Game
+	// System
+	Input->BindAction(PauseGameAction, ETriggerEvent::Triggered, this, &ASGPlayerController::PauseGame);
+	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Interact);
+
+	// Shooting
+	Input->BindAction(FireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnFireButtonPressed);
+	Input->BindAction(StopFireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnFireButtonReleased);
+	Input->BindAction(SwapWeapon1InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey1Pressed);
+	Input->BindAction(SwapWeapon2InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey2Pressed);
+	//Input->BindAction(SwapWeapon3InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey3Pressed);
+	Input->BindAction(SwapWeaponMouseWheelInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponMouseWheel);
 	
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	
-	if (Player == nullptr)
+	if (LocalPlayer == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("No Local Player"));
 		return;
@@ -135,35 +148,88 @@ void ASGPlayerController::Grapple(const FInputActionValue& Value)
 	CurrentPlayer->FireGrapple();
 }
 
-void ASGPlayerController::StartFiringGun(const FInputActionValue& Value)
+void ASGPlayerController::OnFireButtonPressed(const FInputActionValue& Value)
 {
-	if (bIsFiring) return;
 	bIsFiring = true;
-	FireGun();
-
-	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr) return;
-	
-	const ASGGun* Gun = CurrentPlayer->GetGunRef();
-	float FireRate = Gun->GetFireRate();
-	
-	GetWorld()->GetTimerManager().SetTimer(FireRateTimer, this, &ASGPlayerController::FireGun, FireRate, true);
 }
 
-void ASGPlayerController::StopFiringGun(const FInputActionValue& Value)
+void ASGPlayerController::OnFireButtonReleased(const FInputActionValue& Value)
 {
 	bIsFiring = false;
-	GetWorld()->GetTimerManager().ClearTimer(FireRateTimer);
+}
+
+void ASGPlayerController::HandleFiring()
+{
+	if (!bIsFiring || !bCanFire) return;
+	FireGun();
 }
 
 void ASGPlayerController::FireGun()
 {
 	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr)
-		return;
-	CurrentPlayer->FireGun();
+	if (CurrentPlayer == nullptr) return;
+
+	const ASGGun* Gun = CurrentPlayer->GetGunRef();
+	if (Gun)
+	{
+		bCanFire = false;
+		CurrentPlayer->FireGun();
+		float FireRate = Gun->GetFireRate();
+		GetWorld()->GetTimerManager().SetTimer(CanFireAgainTimer, this, &ASGPlayerController::CanFireAgain, FireRate, false);
+	}
 }
 
+void ASGPlayerController::CanFireAgain()
+{
+	bCanFire = true;
+}
+
+void ASGPlayerController::OnSwapWeaponKey1Pressed(const FInputActionValue& Value)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Pressed Key 1"));
+	if (ThePlayerCharacter == nullptr) return;
+	ThePlayerCharacter->SetCurrentGunIndex(0);
+}
+
+void ASGPlayerController::OnSwapWeaponKey2Pressed(const FInputActionValue& Value)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Pressed Key 2"));
+	if (ThePlayerCharacter == nullptr) return;
+	ThePlayerCharacter->SetCurrentGunIndex(1);
+}
+
+void ASGPlayerController::OnSwapWeaponKey3Pressed(const FInputActionValue& Value)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Pressed Key 3"));
+	if (ThePlayerCharacter == nullptr) return;
+	ThePlayerCharacter->SetCurrentGunIndex(2);
+}
+
+void ASGPlayerController::OnSwapWeaponMouseWheel(const FInputActionValue& Value)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("Mouse Scroll Wheel"));
+	if (ThePlayerCharacter == nullptr) return;
+	
+	uint32 NumberOfGuns = ThePlayerCharacter->GetGuns().Num();
+	uint8 CurrentGunIndex = ThePlayerCharacter->GetCurrentGunIndex();
+
+	float ScrollValue = Value.Get<float>();
+
+	if (FMath::IsNearlyZero(ScrollValue)) return;
+
+	if (ScrollValue > 0.f)
+	{
+		++CurrentGunIndex;
+		if (CurrentGunIndex >= NumberOfGuns) CurrentGunIndex = 0;
+		ThePlayerCharacter->SetCurrentGunIndex(CurrentGunIndex);
+	}
+	else if (ScrollValue < 0.f)
+	{
+		--CurrentGunIndex;
+		if (CurrentGunIndex == 0) CurrentGunIndex = NumberOfGuns-1;
+		ThePlayerCharacter->SetCurrentGunIndex(CurrentGunIndex);
+	}
+}
 
 ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()
 {
