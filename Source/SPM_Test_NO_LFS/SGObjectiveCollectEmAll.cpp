@@ -3,12 +3,12 @@
 
 #include "SGObjectiveCollectEmAll.h"
 
-bool ASGObjectiveCollectEmAll::CheckProgress()
+bool ASGObjectiveCollectEmAll::IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler)
 {
 	return CurrentCollected == CollectGoal;	
 }
 
-void ASGObjectiveCollectEmAll::Update()
+void ASGObjectiveCollectEmAll::Update(ASGGameObjectivesHandler* ObjectivesHandler)
 {
 	CurrentCollected++;
 }

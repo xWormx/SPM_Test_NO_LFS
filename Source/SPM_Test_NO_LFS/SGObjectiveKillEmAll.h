@@ -14,8 +14,8 @@ class SPM_TEST_NO_LFS_API ASGObjectiveKillEmAll : public ASGObjectiveBase
 {
 	GENERATED_BODY()
 public:
-	virtual bool CheckProgress() override;
-	virtual void Update() override;
+	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler) override;
+	virtual void Update(ASGGameObjectivesHandler* ObjectivesHandler) override;
 	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_KillAllEnemies; }
 private:
 	UPROPERTY(EditAnywhere, Category=UPROPERTY)

@@ -30,6 +30,7 @@ void ASGGameObjectivesHandler::BeginPlay()
 		ObjectiveToolTipWidget = Cast<USGObjectiveToolTipWidget>(CreateWidget<USGObjectiveToolTipWidget>(PlayerController, ObjectiveToolTipClass));
 		ObjectiveToolTipWidget->AddToViewport();
 		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::Hidden);
+		ObjectiveToolTipWidget->SetFadeFactor(ObjectiveToolTipFadeFactor);
 	}
 }
 
@@ -83,35 +84,24 @@ void ASGGameObjectivesHandler::StartMission()
 	
 	if (CurrentObjective == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CurrentObjective is nullptr!"))
 		FString str = FString::Printf(TEXT("No more objectives!"));
-		UE_LOG(LogTemp, Warning, TEXT("StartMission: %s"), *str);
 		ObjectiveToolTipWidget->Display(FText::FromString(str));
 		return;
 	}
-	
-	FString str = FString::Printf(TEXT("StartMission: %s"), *CurrentObjective->GetName());
-	UE_LOG(LogTemp, Warning, TEXT("StartMission: %s"), *str);
-	ObjectiveToolTipWidget->Display(CurrentObjective->GetToolTipText());
+
+	CurrentObjective->OnStart(this);
 	TerminalHUD->DisableStartButton();
-	/*
-	 StartNextObjectiveInPipeline();
-	*/
 }
 
 // TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...
 void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor)
 {
 	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_InvalidObjectiveType;
-	if (ASGEnemyCharacter* enemy = Cast<ASGEnemyCharacter>(ObjectiveInterfaceImplementor))
+	ISGObjectiveInterface* Objective = Cast<ISGObjectiveInterface>(ObjectiveInterfaceImplementor);
+	if (Objective)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyKilled"));
-		IncomingObjectiveType = enemy->GetObjectiveType();
-	}
-	else if (ASGPickUpObjectiveCollect* collectible = Cast<ASGPickUpObjectiveCollect>(ObjectiveInterfaceImplementor))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Collectible"));
-		IncomingObjectiveType = collectible->GetObjectiveType();
+		IncomingObjectiveType = Objective->GetObjectiveType();
+		UE_LOG(LogTemp, Warning, TEXT("Incoming ObjectiveType: %d"), IncomingObjectiveType);
 	}
 
 	if (CurrentObjective == nullptr)
@@ -123,23 +113,24 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 	if (CurrentObjective->GetObjectiveType() != IncomingObjectiveType)
 		return;
 	
-	CurrentObjective->Update();
-	if (CurrentObjective->CheckProgress())
+	CurrentObjective->Update(this);
+	if (CurrentObjective->IsCompleted(this))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CurrentObjective Done!"));
-		FString str = FString::Printf(TEXT("Mission Accomplished: %s"), *CurrentObjective->GetName());
-		ObjectiveToolTipWidget->Display(FText::FromString(str));
-
-		// Ta bort avklarat objective från Arrayen
-		if (GameObjectives.Num() > 0)
-		{
-			GameObjectives.RemoveAt(0);
-			TerminalHUD->EnableStartButton();
-		}
-		// Borde CurrentObjective vara något annat istället för nullptr när det inte är aktiverat?
-		CurrentObjective = nullptr;		
+		CurrentObjective->OnCompleted(this);
+		RemoveCurrentObjective();
 	}
 }
 
+void ASGGameObjectivesHandler::RemoveCurrentObjective()
+{
+	// Ta bort avklarat objective från Arrayen
+	if (GameObjectives.Num() > 0)
+	{
+		GameObjectives.RemoveAt(0);
+		TerminalHUD->EnableStartButton();
+	}
+	// Borde CurrentObjective vara något annat istället för nullptr när det inte är aktiverat?
+	CurrentObjective = nullptr;		
+}
 
 

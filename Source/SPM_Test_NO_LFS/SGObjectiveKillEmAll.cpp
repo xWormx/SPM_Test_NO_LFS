@@ -3,12 +3,14 @@
 
 #include "SGObjectiveKillEmAll.h"
 
-bool ASGObjectiveKillEmAll::CheckProgress()
+#include "SGGameObjectivesHandler.h"
+
+bool ASGObjectiveKillEmAll::IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler)
 {
 	return CurrentEnemiesKilled == EnemiesToKill;
 }
 
-void ASGObjectiveKillEmAll::Update()
+void ASGObjectiveKillEmAll::Update(ASGGameObjectivesHandler* ObjectivesHandler)
 {
 	CurrentEnemiesKilled++;
 }

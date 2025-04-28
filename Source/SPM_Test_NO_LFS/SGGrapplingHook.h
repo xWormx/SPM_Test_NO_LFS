@@ -74,6 +74,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float ImpulsAtArrival = 100000;
 
+	/* The speed with which the grapplehead travels towards the target attechment point.*/
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	float HeadTravelSpeed = 10;
+	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float HookCooldown = 3;
 

@@ -27,6 +27,7 @@ public:
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
 	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() {return ObjectiveToolTipWidget;}
 	bool GetCurrentObjectiveIsActive() { return CurrentObjective != nullptr; }
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,7 +43,11 @@ private:
 	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveToolTipClass;
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
+	
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	float ObjectiveToolTipFadeFactor = 1.0f;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<ASGObjectiveBase*> GameObjectives;
@@ -80,5 +85,7 @@ private:
 
 	UFUNCTION()
 	void StartMission();
+
+	void RemoveCurrentObjective();
 	
 };
