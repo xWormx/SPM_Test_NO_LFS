@@ -3,6 +3,7 @@
 
 #include "SGObjectiveToolTipWidget.h"
 
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 
 void USGObjectiveToolTipWidget::NativeConstruct()
@@ -17,9 +18,18 @@ void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 	SetRenderOpacity(1.0f);
 	CurrentOpacity = 1.0f;
 	ToolTip->SetText(NewToolTip);
+	TextTimer->SetText(FText::FromString(""));
+	TextTimer->SetIsEnabled(false);
 	bShouldRender = true;
 	bHasFadedOut = false;
 	bIsHidden = false;
+}
+
+void USGObjectiveToolTipWidget::DisplayTimer(FText NewTimerText)
+{
+	TextTimer->SetText(NewTimerText);
+	TextTimer->SetIsEnabled(true);
+	PlayAnimation(ShrinkAndMoveTimer);
 }
 
 void USGObjectiveToolTipWidget::Render(float InDeltaTime)
@@ -28,7 +38,8 @@ void USGObjectiveToolTipWidget::Render(float InDeltaTime)
 	{
 		if (GetRenderOpacity() > 0.0)
 		{
-			SetRenderOpacity(CurrentOpacity);
+			ToolTipBackground->SetRenderOpacity(CurrentOpacity);
+			ToolTip->SetRenderOpacity(CurrentOpacity);
 			CurrentOpacity -= (FadeFactor * InDeltaTime);
 		}
 		else

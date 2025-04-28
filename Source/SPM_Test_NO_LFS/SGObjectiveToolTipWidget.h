@@ -16,6 +16,8 @@ class SPM_TEST_NO_LFS_API USGObjectiveToolTipWidget : public UUserWidget
 public:
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	void Display(FText NewToolTip);
+	void DisplayTimer(FText NewTimerText);
+	void SetFadeFactor(float NewFadeFactor) { FadeFactor = NewFadeFactor; }
 	bool GetIsHidden() { return bIsHidden; }
 	void InterruptAndHide() { Hide(); }
 
@@ -24,8 +26,15 @@ protected:
 	virtual void NativeConstruct() override;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UImage* ToolTipBackground;
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UTextBlock* ToolTip;
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UTextBlock* TextTimer;
 
+	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* ShrinkAndMoveTimer;
+	
 	UPROPERTY(VisibleAnywhere)
 	bool bIsHidden = true;
 	
@@ -38,7 +47,7 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	float CurrentOpacity = 1.0f;
 	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	float FadeFactor = 0.3f;
 
 private:

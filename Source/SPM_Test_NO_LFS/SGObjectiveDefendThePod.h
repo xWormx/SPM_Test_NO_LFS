@@ -16,10 +16,18 @@ class SPM_TEST_NO_LFS_API ASGObjectiveDefendThePod : public ASGObjectiveBase
 	GENERATED_BODY()
 	
 public:
-	virtual bool CheckProgress(){ return false; }
-	virtual void Update(){}
+	ASGObjectiveDefendThePod();
+	virtual void BeginPlay() override;
+	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler) override;
+	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler) override;
+	virtual void Update(ASGGameObjectivesHandler* ObjectivesHandler) override;
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_InvalidObjectiveType; }
 private:
+
+	UPROPERTY()
+	bool bDefendEventStarted = false;
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	USceneComponent* Root;
 	
 	// Mesh for the Pod (or thing to defend) - OR Should this be a separat class with HP and things, with TSubclassOf<>?
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -36,4 +44,16 @@ private:
 
 	// Timer for the objective
 	FTimerHandle TimerHandle;
+
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	bool bDefendedThePod = false;
+
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	float TimeToDefendPodSeconds = 10.0f;
+	
+	UFUNCTION()
+	void StartMainPhase(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	UFUNCTION()
+	void OnTimeIsOut();
 };
