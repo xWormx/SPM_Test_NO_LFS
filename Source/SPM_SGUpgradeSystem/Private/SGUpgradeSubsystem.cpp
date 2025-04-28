@@ -50,7 +50,7 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FNam
     {
     	//Early return om ägaren inte är aktiv och om uppgraderingen är maxad
     	const bool bOwnerLives = NewAttributeRaw->Owner.IsValid();
-    	const bool bHasHighestUpgrade = NewAttributeRaw->CurrentUpgradeLevel >= AttributeData->Upgrades.Num() - 1;
+    	const bool bHasHighestUpgrade = NewAttributeRaw->CurrentUpgradeLevel >= AttributeData->UpgradeData.Num() - 1;
         if (!bOwnerLives || bHasHighestUpgrade)
         {
 	        return;

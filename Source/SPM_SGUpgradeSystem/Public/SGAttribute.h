@@ -37,11 +37,7 @@ struct FSGAttributeData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Icon = nullptr;
-
-	//TODO: pris per upgrade? Ska fler "typer" av upgrades utanför float stödjas?
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<float> Upgrades;
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FSGUpgradeData> UpgradeData;
 };
