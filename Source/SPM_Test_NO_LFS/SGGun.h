@@ -13,7 +13,6 @@ public:
 	ASGGun();
 	virtual void Tick(float DeltaTime) override;
 	virtual void Fire();
-	void CanFireAgain();
 	float GetFireRate() const;
 
 protected:
@@ -44,6 +43,4 @@ private:
 	USkeletalMeshComponent* Mesh;
 
 	virtual bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
-
-	bool bCanFire;
 };

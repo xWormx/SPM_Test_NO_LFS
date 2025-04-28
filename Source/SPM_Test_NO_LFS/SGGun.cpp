@@ -19,9 +19,6 @@ void ASGGun::Tick(float DeltaTime)
 
 void ASGGun::Fire()
 {
-	if (!bCanFire) return;
-	//bCanFire = false;
-	
 	if (ShootParticles && Mesh) UGameplayStatics::SpawnEmitterAttached(ShootParticles, Mesh, TEXT("MuzzleFlashSocket"));
 	if (ShootSound && Mesh) UGameplayStatics::SpawnSoundAttached(ShootSound, Mesh, TEXT("MuzzleFlashSocket"));
 
@@ -43,11 +40,6 @@ void ASGGun::Fire()
 
 }
 
-void ASGGun::CanFireAgain()
-{
-	bCanFire = true;
-}
-
 float ASGGun::GetFireRate() const
 {
 	return FireRate;
@@ -57,7 +49,6 @@ float ASGGun::GetFireRate() const
 void ASGGun::BeginPlay()
 {
 	Super::BeginPlay();
-	bCanFire = true;
 }
 
 AController* ASGGun::GetOwnerController() const

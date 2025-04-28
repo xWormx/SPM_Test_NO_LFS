@@ -29,9 +29,11 @@ void ASGPlayerCharacter::BeginPlay()
 		GrapplingHook->SetOwner(this);	
 	}
 
+	Guns.SetNum(GunClasses.Num());
 	for (int32 i = 0; i < GunClasses.Num(); ++i)
 	{
 		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
+		if (Guns[i]) Guns[i]->SetOwner(this);
 	}
 	if (Guns.Num() > 0 && Guns.IsValidIndex(CurrentGunIndex))
 	{
@@ -39,7 +41,6 @@ void ASGPlayerCharacter::BeginPlay()
 		{
 			// WeaponSocket == bone-socket där vapnet ska sitta fast
 			Guns[CurrentGunIndex]->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-			Guns[CurrentGunIndex]->SetOwner(this);
 		}
 	}
 	else
@@ -107,6 +108,7 @@ void ASGPlayerCharacter::FireGrapple()
 
 void ASGPlayerCharacter::FireGun()
 {
+	//UE_LOG(LogTemp, Warning, TEXT("Trying to fire gun at index: %d"), CurrentGunIndex);
 	if (Guns[CurrentGunIndex]) Guns[CurrentGunIndex]->Fire();
 }
 
@@ -115,4 +117,17 @@ const ASGGun* ASGPlayerCharacter::GetGunRef() const
 	return Guns[CurrentGunIndex];
 }
 
+void ASGPlayerCharacter::SetCurrentGunIndex(uint8 NewIndex)
+{
+	CurrentGunIndex = NewIndex;
+}
 
+uint8 ASGPlayerCharacter::GetCurrentGunIndex()
+{
+	return CurrentGunIndex;
+}
+
+const TArray<ASGGun*>& ASGPlayerCharacter::GetGuns() const
+{
+	return Guns;
+}
