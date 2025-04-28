@@ -37,16 +37,18 @@ void ASGObjectiveDefendThePod::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (bDefendEventStarted)
 	{
-		float TimeLeft = GetWorldTimerManager().GetTimerRemaining(TimerHandle);
-		if (TimeLeft >= 0)
+		if (GetObjectiveHandler()->GetObjectiveToolTipWidget()->GetTimerAnimationFinished())
 		{
-			int Minutes = TimeLeft / 60;
-			int Seconds = TimeLeft - (Minutes * 60);
-			FString TimeLeftStr = FString::Printf(TEXT("Timer: %02d:%02d"), Minutes, Seconds);
+			float TimeLeft = GetWorldTimerManager().GetTimerRemaining(TimerHandle);
+			if (TimeLeft >= 0)
+			{
+				int Minutes = TimeLeft / 60;
+				int Seconds = TimeLeft - (Minutes * 60);
+				FString TimeLeftStr = FString::Printf(TEXT("%02d : %02d"), Minutes, Seconds);
 		
-			GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString(TimeLeftStr));	
+				GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString(TimeLeftStr));	
+			}
 		}
-		
 	}
 }
 
@@ -83,7 +85,7 @@ void ASGObjectiveDefendThePod::StartMainPhase(UPrimitiveComponent* OverlappedCom
 		if (GetObjectiveHandler() && !bDefendEventStarted)
 		{
 			bDefendEventStarted = true;
-			GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("Timer: 00:00"));
+			GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("00:00"));
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &ASGObjectiveDefendThePod::OnTimeIsOut, TimeToDefendPodSeconds, false);
 		}
 	}
