@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SGObjectiveToolTipWidget.generated.h"
 
+class UScaleBox;
 /**
  * 
  */
@@ -18,19 +19,30 @@ public:
 	void Display(FText NewToolTip);
 	void DisplayTimer(FText NewTimerText);
 	void SetFadeFactor(float NewFadeFactor) { FadeFactor = NewFadeFactor; }
-	bool GetIsHidden() { return bIsHidden; }
+	const bool& GetIsHidden() const { return bIsHidden; }
+	const bool& GetTimerAnimationFinished() const  { return bTimerAnimationFinished; }
 	void InterruptAndHide() { Hide(); }
 
 protected:
 	
 	virtual void NativeConstruct() override;
 
+	// Timer
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UImage* ToolTipBackground;
+	UScaleBox* ScaleBoxTimer;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UTextBlock* ToolTip;
+	class UTextBlock* TextTimer;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	UTextBlock* TextTimer;
+	class UOverlay* TimerOverlay;
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	class UImage* TimerImage;
+	
+	// ToolTp
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UImage* ToolTipBackground;
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UTextBlock* ToolTip;
+
 
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* ShrinkAndMoveTimer;
@@ -51,8 +63,15 @@ protected:
 	float FadeFactor = 0.3f;
 
 private:
+	bool bTimerAnimationFinished = false;
+	FVector2D ScaleBoxTimerFinalPosition;
+	FVector2D ScaleBoxTimerFinalSize;
 	void Render(float InDeltaTime);
 	void SetToolTipText(FText NewToolTip);
 	void Hide();
 
+	UFUNCTION()
+	void SetScaleBoxTransformAfterAnimation();
+	
+	FWidgetAnimationDynamicEvent EndTimerAnimation;
 };
