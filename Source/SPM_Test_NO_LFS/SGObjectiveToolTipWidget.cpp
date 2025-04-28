@@ -3,6 +3,7 @@
 
 #include "SGObjectiveToolTipWidget.h"
 
+#include "Animation/WidgetAnimation.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
@@ -30,6 +31,7 @@ void USGObjectiveToolTipWidget::DisplayTimer(FText NewTimerText)
 	TextTimer->SetText(NewTimerText);
 	TextTimer->SetIsEnabled(true);
 	PlayAnimation(ShrinkAndMoveTimer);
+	//ShrinkAndMoveTimer->BindToAnimationFinished()
 }
 
 void USGObjectiveToolTipWidget::Render(float InDeltaTime)

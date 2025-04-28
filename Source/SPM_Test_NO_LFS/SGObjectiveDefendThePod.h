@@ -18,6 +18,7 @@ class SPM_TEST_NO_LFS_API ASGObjectiveDefendThePod : public ASGObjectiveBase
 public:
 	ASGObjectiveDefendThePod();
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler) override;
 	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler) override;
 	virtual void Update(ASGGameObjectivesHandler* ObjectivesHandler) override;
@@ -48,7 +49,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	bool bDefendedThePod = false;
 
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float TimeToDefendPodSeconds = 10.0f;
 	
 	UFUNCTION()

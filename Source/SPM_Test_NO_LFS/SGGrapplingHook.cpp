@@ -75,7 +75,7 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 			if (DistanceBetweenHeadAndAttachment > 150)
 			{
 				NewHeadPosition = FMath::VInterpTo(Head->GetActorLocation(), AttachmentPoint,
-														DeltaTime, 5);	
+														DeltaTime, HeadTravelSpeed);	
 			}
 			else
 			{

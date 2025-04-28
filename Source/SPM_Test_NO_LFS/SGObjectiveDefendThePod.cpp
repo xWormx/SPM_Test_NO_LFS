@@ -32,6 +32,24 @@ void ASGObjectiveDefendThePod::BeginPlay()
 	SphereRestrictiveArea->OnComponentBeginOverlap.AddDynamic(this, &ASGObjectiveDefendThePod::StartMainPhase);
 }
 
+void ASGObjectiveDefendThePod::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (bDefendEventStarted)
+	{
+		float TimeLeft = GetWorldTimerManager().GetTimerRemaining(TimerHandle);
+		if (TimeLeft >= 0)
+		{
+			int Minutes = TimeLeft / 60;
+			int Seconds = TimeLeft - (Minutes * 60);
+			FString TimeLeftStr = FString::Printf(TEXT("Timer: %02d:%02d"), Minutes, Seconds);
+		
+			GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString(TimeLeftStr));	
+		}
+		
+	}
+}
+
 void ASGObjectiveDefendThePod::OnStart(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	Super::OnStart(ObjectiveHandler);

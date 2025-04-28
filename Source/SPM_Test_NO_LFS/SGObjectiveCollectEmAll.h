@@ -23,4 +23,8 @@ private:
 
 	UPROPERTY(EditAnywhere ,Category=UPROPERTY)
 	unsigned int CurrentCollected = 0;
+
+	/*
+	 TArray<UPickups> PickUps
+	 */
 };
