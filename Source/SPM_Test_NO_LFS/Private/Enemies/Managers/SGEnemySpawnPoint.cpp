@@ -1,6 +1,6 @@
-#include "SGEnemySpawnPoint.h"
-#include "SGEnemyCharacter.h"
-#include "SGGameObjectivesHandler.h"
+#include "Enemies/Managers/SGEnemySpawnPoint.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Objectives/SGGameObjectivesHandler.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BillboardComponent.h"
 

@@ -1,4 +1,4 @@
-#include "SGAIControllerEnemyFlying.h"
+#include "Enemies/AI/SGAIControllerEnemyFlying.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 

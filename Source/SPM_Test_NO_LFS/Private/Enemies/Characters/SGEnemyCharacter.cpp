@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGEnemyCharacter.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
 
-#include "SGEnemyDropManager.h"
-#include "SGHealthComponent.h"
+#include "Enemies/Managers/SGEnemyDropManager.h"
+#include "Components/SGHealthComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values

@@ -1,7 +1,7 @@
-#include "SGEnemySpawnManager.h"
-#include "SGEnemySpawnPoint.h"
-#include "SGEnemyCharacter.h"
-#include "SGPlayerCharacter.h"
+#include "Enemies/Managers/SGEnemySpawnManager.h"
+#include "Enemies/Managers/SGEnemySpawnPoint.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Player/SGPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 // Public

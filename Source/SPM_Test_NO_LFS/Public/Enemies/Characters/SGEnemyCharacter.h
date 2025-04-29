@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SGObjectiveInterface.h"
+#include "Objectives/SGObjectiveInterface.h"
 #include "GameFramework/Character.h"
 #include "SGEnemyCharacter.generated.h"
 

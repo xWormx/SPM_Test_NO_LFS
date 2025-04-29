@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGAIControllerEnemyBig.h"
+#include "Enemies/AI/SGAIControllerEnemyBig.h"
 
 #include "Kismet/GameplayStatics.h"
 

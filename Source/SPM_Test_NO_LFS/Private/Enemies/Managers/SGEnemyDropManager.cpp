@@ -1,8 +1,8 @@
-﻿#include "SGEnemyDropManager.h"
+﻿#include "Enemies/Managers/SGEnemyDropManager.h"
 
-#include "SGEnemyCharacter.h"
-#include "SGPickUp.h"
-#include "SGUtilObjectPoolManager.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Pickups/SGPickUp.h"
+#include "Utils/SGUtilObjectPoolManager.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGEnemyDropManager::ASGEnemyDropManager()
