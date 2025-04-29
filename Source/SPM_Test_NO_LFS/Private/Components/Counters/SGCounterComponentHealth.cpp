@@ -1,7 +1,7 @@
-﻿#include "SGCounterComponentHealth.h"
+﻿#include "Components/Counters/SGCounterComponentHealth.h"
 
-#include "SGHealthComponent.h"
-#include "SGPickUpHealthPack.h"
+#include "Components/SGHealthComponent.h"
+#include "Pickups/SGPickUpHealthPack.h"
 
 //TODO: Potentiellt värt att ändra så att buffert-delen och FTimern i klassen får jobba på eget håll. Ifall den funktionalitet skulle behövas i andra klasser.
 

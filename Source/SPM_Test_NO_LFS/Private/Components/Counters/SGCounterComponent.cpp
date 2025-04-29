@@ -1,11 +1,10 @@
-﻿#include "SGCounterComponent.h"
+﻿#include "Components/Counters/SGCounterComponent.h"
 
 
 USGCounterComponent::USGCounterComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
-
 
 void USGCounterComponent::BeginPlay()
 {

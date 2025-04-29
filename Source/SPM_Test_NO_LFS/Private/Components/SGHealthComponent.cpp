@@ -1,4 +1,4 @@
-﻿#include "SGHealthComponent.h"
+﻿#include "Components/SGHealthComponent.h"
 
 USGHealthComponent::USGHealthComponent(){}
 

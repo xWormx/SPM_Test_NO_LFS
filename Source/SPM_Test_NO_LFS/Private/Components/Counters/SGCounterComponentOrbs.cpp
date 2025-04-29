@@ -1,5 +1,5 @@
-﻿#include "SGCounterComponentOrbs.h"
-#include "SGPickUpOrbs.h"
+﻿#include "Components/Counters/SGCounterComponentOrbs.h"
+#include "Pickups/SGPickUpOrbs.h"
 
 
 USGCounterComponentOrbs::USGCounterComponentOrbs()
