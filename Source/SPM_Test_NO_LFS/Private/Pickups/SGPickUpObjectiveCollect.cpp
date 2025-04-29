@@ -1,6 +1,6 @@
-﻿#include "SGPickUpObjectiveCollect.h"
+﻿#include "Pickups/SGPickUpObjectiveCollect.h"
 
-#include "SGGameObjectivesHandler.h"
+#include "Objectives/SGGameObjectivesHandler.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 

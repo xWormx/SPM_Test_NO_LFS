@@ -1,6 +1,6 @@
-﻿#include "SGPickUp.h"
+﻿#include "Pickups/SGPickUp.h"
 
-#include "SGUtilObjectPoolManager.h"
+#include "Utils/SGUtilObjectPoolManager.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 

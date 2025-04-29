@@ -1,6 +1,6 @@
-﻿#include "SGPickUpOrbs.h"
+﻿#include "Pickups/SGPickUpOrbs.h"
 #include "NiagaraComponent.h"
-#include "SGPlayerCharacter.h"
+#include "Player/SGPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 void ASGPickUpOrbs::BeginPlay()

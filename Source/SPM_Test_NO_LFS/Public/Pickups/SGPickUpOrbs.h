@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "SGPickUp.h"
+#include "Pickups/SGPickUp.h"
 #include "SGPickUpOrbs.generated.h"
 
 UCLASS()

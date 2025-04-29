@@ -1,4 +1,4 @@
-﻿#include "SGPickUpHealthPack.h"
+﻿#include "Pickups/SGPickUpHealthPack.h"
 
 
 ASGPickUpHealthPack::ASGPickUpHealthPack()
