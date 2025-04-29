@@ -18,6 +18,8 @@ protected:
 
 private:
 	USkeletalMeshComponent* PlayerMesh;
+
+	void SpawnProjectile();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TSubclassOf<class ASGExplosiveProjectile> ProjectileClass;
