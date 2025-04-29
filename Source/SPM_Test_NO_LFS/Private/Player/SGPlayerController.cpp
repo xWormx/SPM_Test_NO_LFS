@@ -1,11 +1,11 @@
-#include "SGPlayerController.h"
-#include "SGPlayerCharacter.h"
+#include "Player/SGPlayerController.h"
+#include "Player/SGPlayerCharacter.h"
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "SGGrapplingHook.h"
-#include "SGGun.h"
+#include "Gear/Grapple/SGGrapplingHook.h"
+#include "Gear/Weapons/SGGun.h"
 #include "Blueprint/UserWidget.h"
 
 void ASGPlayerController::BeginPlay()
