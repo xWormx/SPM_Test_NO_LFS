@@ -19,6 +19,11 @@ protected:
 	virtual void BeginPlay() override;
 	AController* GetOwnerController() const;
 
+	// VisibleAnywhere
+	UPROPERTY(VisibleAnywhere, Category="design")
+	USceneComponent* Root;
+	UPROPERTY(VisibleAnywhere, Category="design")
+	USkeletalMeshComponent* Mesh;
 	// EditAnywhere+BP
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UParticleSystem* ShootParticles;
@@ -36,11 +41,5 @@ protected:
 	float FireRate = 0.1f; // 0.1 = 10 skott per sekund
 
 private:
-	// VisibleAnywhere
-	UPROPERTY(VisibleAnywhere, Category="design")
-	USceneComponent* Root;
-	UPROPERTY(VisibleAnywhere, Category="design")
-	USkeletalMeshComponent* Mesh;
-
 	virtual bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
 };
