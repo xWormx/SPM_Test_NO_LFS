@@ -18,4 +18,6 @@ private:
 	TSubclassOf<class ASGExplosiveProjectile> ProjectileClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	USceneComponent* ProjectileSpawnPoint;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	float LaunchSpeed = 2000.f;
 };

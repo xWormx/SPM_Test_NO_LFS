@@ -1,5 +1,4 @@
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
-
 #include "Kismet/GameplayStatics.h"
 
 // Public
@@ -10,6 +9,13 @@ ASGExplosiveProjectile::ASGExplosiveProjectile()
 	RootComponent = Root;
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Root);
+
+	// Physics setup
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
+	Mesh->SetSimulatePhysics(true);
+	Mesh->SetEnableGravity(true);
+	Mesh->SetMassOverrideInKg(NAME_None, ProjectileMass);
 }
 
 void ASGExplosiveProjectile::Tick(float DeltaTime)
@@ -26,6 +32,7 @@ void ASGExplosiveProjectile::SetDamage(float NewDamage)
 void ASGExplosiveProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+	if (Mesh) Mesh->OnComponentHit.AddDynamic(this, &ASGExplosiveProjectile::OnHit);
 }
 
 // Private

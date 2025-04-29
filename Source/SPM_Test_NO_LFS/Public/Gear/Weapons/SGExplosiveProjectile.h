@@ -36,6 +36,8 @@ private:
 	TSubclassOf<class UCameraShakeBase> CameraShakeClass;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	float ExplosionRadius = 500.f;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
+	float ProjectileMass = 100.f;
 
 	UFUNCTION() // Callback function
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
