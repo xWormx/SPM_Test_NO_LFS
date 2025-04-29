@@ -45,9 +45,7 @@ void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 		return;
 	}
 
-	if (CameraShakeClass) GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShakeClass);
-	if (ExplodeSound) UGameplayStatics::PlaySoundAtLocation(this, ExplodeSound, GetActorLocation());
-	if (ExplodeEffect) UGameplayStatics::SpawnEmitterAtLocation(this, ExplodeEffect, GetActorLocation(), GetActorRotation());
+	DoSpecialEffects();
 
 	DrawDebugSphere(
 		GetWorld(),
@@ -58,7 +56,8 @@ void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 		false,
 		3.f
 		);
-	
+
+	/*
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
 		UGameplayStatics::ApplyDamage(
@@ -69,6 +68,15 @@ void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 			UDamageType::StaticClass()
 		);
 
-		Destroy();
 	}
+	*/
+
+	Destroy();
+}
+
+void ASGExplosiveProjectile::DoSpecialEffects()
+{
+	if (CameraShakeClass) GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShakeClass);
+	if (ExplodeSound) UGameplayStatics::PlaySoundAtLocation(this, ExplodeSound, GetActorLocation());
+	if (ExplodeEffect) UGameplayStatics::SpawnEmitterAtLocation(this, ExplodeEffect, GetActorLocation(), GetActorRotation());
 }
