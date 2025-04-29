@@ -35,7 +35,7 @@ public:
 	virtual void DisplayEndToolTip(USGObjectiveToolTipWidget* ToolTipWidget);
 	virtual void DisplayToolTip(USGObjectiveToolTipWidget* ToolTipWidget, const FText& ToolTip);
 	virtual FText GetObjectiveDescriptionToolTip();
-	virtual FText GetObjectiveCompletedToolTip();
+		virtual FText GetObjectiveCompletedToolTip();
 	virtual FText GetCurrentSubToolTip();
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_InvalidObjectiveType; }
 	
