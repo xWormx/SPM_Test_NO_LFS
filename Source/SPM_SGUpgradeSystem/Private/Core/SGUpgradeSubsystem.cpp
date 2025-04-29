@@ -1,5 +1,5 @@
-﻿#include "SGUpgradeSubsystem.h"
-#include "SGUpgradeDeveloperSettings.h"
+﻿#include "Core/SGUpgradeSubsystem.h"
+#include "Util/SGUpgradeDeveloperSettings.h"
 #include "Engine/DataTable.h"
 #include "UObject/UnrealType.h"
 
@@ -161,3 +161,4 @@ void USGUpgradeSubsystem::UnbindAttribute(UObject* Owner, FName PropertyName)
 	    return Ptr.Get() == TargetAttribute;
     });
 }
+

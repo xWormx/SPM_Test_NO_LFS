@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "SGAttribute.h"
+#include "Core/SGAttribute.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SGUpgradeSubsystem.generated.h"
 
@@ -34,7 +34,7 @@ public:
 	/// @param Owner Ägaren av attributen
 	/// @param PropertyName Vad attributen heter
 	void UnbindAttribute(UObject* Owner, FName PropertyName);
-	
+
 protected:
 	
 	const FSGAttribute* GetByKey(UObject* Owner, FProperty* Property) const;
