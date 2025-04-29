@@ -1,5 +1,6 @@
 #include "../../../Public/Gear/Weapons/SGGrenadeLauncher.h"
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
+#include "../../../Public/Player/SGPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 // Public
@@ -38,8 +39,16 @@ void ASGGrenadeLauncher::Fire()
 	USkeletalMeshComponent* ProjectileMesh = Projectile->FindComponentByClass<USkeletalMeshComponent>();
 	if (ProjectileMesh && ProjectileMesh->IsSimulatingPhysics())
 	{
+		if (PlayerMesh) PlayerMesh->IgnoreActorWhenMoving(Projectile, true);
 		ProjectileMesh->IgnoreActorWhenMoving(GetOwner(), true);
 		ProjectileMesh->SetPhysicsLinearVelocity(LaunchDirection * LaunchSpeed, false);
 	}
 }
 
+// Protected
+void ASGGrenadeLauncher::BeginPlay()
+{
+	Super::BeginPlay();
+	ASGPlayerCharacter* MyOwner = Cast<ASGPlayerCharacter>(GetOwner());
+	if (MyOwner) PlayerMesh = MyOwner->GetMesh();
+}
