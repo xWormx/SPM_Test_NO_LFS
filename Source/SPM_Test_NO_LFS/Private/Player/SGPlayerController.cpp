@@ -54,7 +54,7 @@ void ASGPlayerController::SetupInputComponent()
 	Input->BindAction(StopFireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnFireButtonReleased);
 	Input->BindAction(SwapWeapon1InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey1Pressed);
 	Input->BindAction(SwapWeapon2InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey2Pressed);
-	//Input->BindAction(SwapWeapon3InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey3Pressed);
+	Input->BindAction(SwapWeapon3InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey3Pressed);
 	Input->BindAction(SwapWeaponMouseWheelInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponMouseWheel);
 	
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
