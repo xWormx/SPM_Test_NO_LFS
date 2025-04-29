@@ -1,5 +1,4 @@
 #include "SGExplosiveProjectile.h"
-
 #include "Kismet/GameplayStatics.h"
 
 // Public
