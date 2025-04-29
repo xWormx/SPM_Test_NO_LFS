@@ -2,7 +2,6 @@
 
 
 #include "Objectives/SGObjectiveDefendThePod.h"
-
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
 #include "Player/SGPlayerCharacter.h"
@@ -23,7 +22,6 @@ ASGObjectiveDefendThePod::ASGObjectiveDefendThePod()
 
 	SphereRestrictiveArea = CreateDefaultSubobject<USphereComponent>("SphereRestrictiveArea");
 	SphereRestrictiveArea->SetupAttachment(MeshRestrictiveFloor);
-	
 }
 
 void ASGObjectiveDefendThePod::BeginPlay()
@@ -85,6 +83,7 @@ void ASGObjectiveDefendThePod::StartMainPhase(UPrimitiveComponent* OverlappedCom
 		if (GetObjectiveHandler() && !bDefendEventStarted)
 		{
 			bDefendEventStarted = true;
+			OnDefendEventStart.Broadcast();
 			GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("00:00"));
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &ASGObjectiveDefendThePod::OnTimeIsOut, TimeToDefendPodSeconds, false);
 		}
@@ -94,5 +93,6 @@ void ASGObjectiveDefendThePod::StartMainPhase(UPrimitiveComponent* OverlappedCom
 void ASGObjectiveDefendThePod::OnTimeIsOut()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Time is out to defend the pod, success or loss?"));
+	GetObjectiveHandler()->GetObjectiveToolTipWidget()->Display(GetObjectiveCompletedToolTip());
 }
 

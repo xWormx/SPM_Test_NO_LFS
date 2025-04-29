@@ -3,6 +3,7 @@
 
 #include "Objectives/SGTerminalWidget.h"
 #include "Components/Button.h"
+#include "Kismet/GameplayStatics.h"
 #include "Objectives/SGGameObjectivesHandler.h"
 
 void USGTerminalWidget::NativeConstruct()
@@ -13,6 +14,8 @@ void USGTerminalWidget::NativeConstruct()
 		ButtonStartMission->OnClicked.AddDynamic(this, &USGTerminalWidget::OnClickStartMission);
 		ButtonStartMission->OnHovered.AddDynamic(this, &USGTerminalWidget::OnHoverStartMission);
 		ButtonStartMission->OnUnhovered.AddDynamic(this, &USGTerminalWidget::OnUnHoverStartMission);
+		ButtonStartMission->OnPressed.AddDynamic(this, &USGTerminalWidget::OnPressStartMission);
+		ButtonStartMission->OnReleased.AddDynamic(this, &USGTerminalWidget::OnReleaseStartMission);
 		//GameObjectivesHandler->RegisterTerminalWidget(this);
 	}
 
@@ -29,6 +32,16 @@ void USGTerminalWidget::SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveH
 	GameObjectivesHandler = ObjectiveHandler; 
 }
 
+void USGTerminalWidget::OnPressStartMission()
+{
+	UGameplayStatics::PlaySound2D(this, SoundPressButton);
+}
+
+void USGTerminalWidget::OnReleaseStartMission()
+{
+	UGameplayStatics::PlaySound2D(this, SoundReleaseButton);
+}
+
 void USGTerminalWidget::OnClickStartMission()
 {
 	GameObjectivesHandler->RegisterTerminalWidget(this);
@@ -39,6 +52,8 @@ void USGTerminalWidget::OnClickStartMission()
 void USGTerminalWidget::OnHoverStartMission()
 {
 	//ButtonStartMission->SetBackgroundColor(FLinearColor::Green);
+	UE_LOG(LogTemp, Warning, TEXT("Play hover sound"));
+	UGameplayStatics::PlaySound2D(GetWorld(), SoundHoverButton);
 	
 }
 

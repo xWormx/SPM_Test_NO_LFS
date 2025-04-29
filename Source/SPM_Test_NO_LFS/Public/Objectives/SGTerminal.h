@@ -57,6 +57,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class ASGPlayerController* LastInteractingPlayerController;
+
+	
 	UFUNCTION()
 	void OnComponentHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
