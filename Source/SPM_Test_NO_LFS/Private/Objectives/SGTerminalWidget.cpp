@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGTerminalWidget.h"
+#include "Objectives/SGTerminalWidget.h"
 #include "Components/Button.h"
-#include "SGGameObjectivesHandler.h"
+#include "Objectives/SGGameObjectivesHandler.h"
 
 void USGTerminalWidget::NativeConstruct()
 {

@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGObjectiveBase.h"
-#include "SGGameObjectivesHandler.h"
-#include "SGObjectiveToolTipWidget.h"
+#include "Objectives/SGObjectiveBase.h"
+#include "Objectives/SGGameObjectivesHandler.h"
+#include "Objectives/SGObjectiveToolTipWidget.h"
 // Sets default values
 ASGObjectiveBase::ASGObjectiveBase()
 {

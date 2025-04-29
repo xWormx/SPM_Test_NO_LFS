@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGObjectiveDefendThePod.h"
+#include "Objectives/SGObjectiveDefendThePod.h"
 
-#include "SGGameObjectivesHandler.h"
-#include "SGObjectiveToolTipWidget.h"
-#include "SGPlayerCharacter.h"
+#include "Objectives/SGGameObjectivesHandler.h"
+#include "Objectives/SGObjectiveToolTipWidget.h"
+#include "Player/SGPlayerCharacter.h"
 #include "Components/SphereComponent.h"
 
 

@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGGameObjectivesHandler.h"
-#include "SGEnemyCharacter.h"
-#include "SGObjectiveBase.h"
-#include "SGObjectiveToolTipWidget.h"
-#include "SGPickUpObjectiveCollect.h"
-#include "SGPlayerCharacter.h"
-#include "SGPlayerController.h"
-#include "SGTerminalWidget.h"
+#include "Objectives/SGGameObjectivesHandler.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Objectives/SGObjectiveBase.h"
+#include "Objectives/SGObjectiveToolTipWidget.h"
+#include "Pickups/SGPickUpObjectiveCollect.h"
+#include "Player/SGPlayerCharacter.h"
+#include "Player/SGPlayerController.h"
+#include "Objectives/SGTerminalWidget.h"
 #include "Components/Button.h"
 
 // Sets default values

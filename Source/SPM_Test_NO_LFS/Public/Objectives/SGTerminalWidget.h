@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SGGameObjectivesHandler.h"
+#include "Objectives/SGGameObjectivesHandler.h"
 #include "Blueprint/UserWidget.h"
 #include "SGTerminalWidget.generated.h"
 

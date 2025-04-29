@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGObjectiveToolTipWidget.h"
+#include "Objectives/SGObjectiveToolTipWidget.h"
 
 #include "Animation/WidgetAnimation.h"
 #include "Animation/WidgetAnimationEvents.h"

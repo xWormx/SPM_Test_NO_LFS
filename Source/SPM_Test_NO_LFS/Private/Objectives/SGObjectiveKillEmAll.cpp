@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGObjectiveKillEmAll.h"
+#include "Objectives/SGObjectiveKillEmAll.h"
 
-#include "SGGameObjectivesHandler.h"
+#include "Objectives/SGGameObjectivesHandler.h"
 
 bool ASGObjectiveKillEmAll::IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler)
 {

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Actor.h"
-#include "SGPlayerCharacter.h"
+#include "Player/SGPlayerCharacter.h"
 #include "SGTerminalWidget.h"
 #include "SGTerminal.generated.h"
 

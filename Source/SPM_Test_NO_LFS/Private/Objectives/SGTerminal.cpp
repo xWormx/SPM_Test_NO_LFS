@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGTerminal.h"
-#include "SGPlayerController.h"
-#include "SGObjectiveToolTipWidget.h"
+#include "Objectives/SGTerminal.h"
+#include "Player/SGPlayerController.h"
+#include "Objectives/SGObjectiveToolTipWidget.h"
 #include "Components/SphereComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
