@@ -47,7 +47,11 @@ protected:
 	void OnHoverStartMission();
 	UFUNCTION()
 	void OnUnHoverStartMission();
-
+	
+	UFUNCTION()
+	void OnPressCloseMission();
+	UFUNCTION()
+	void OnReleaseCloseMission();
 	UFUNCTION()
 	void OnClickCloseTerminal();
 	UFUNCTION()

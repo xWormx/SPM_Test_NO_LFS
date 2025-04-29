@@ -24,6 +24,8 @@ void USGTerminalWidget::NativeConstruct()
 		ButtonCloseTerminal->OnClicked.AddDynamic(this, &USGTerminalWidget::OnClickCloseTerminal);
 		ButtonCloseTerminal->OnHovered.AddDynamic(this, &USGTerminalWidget::OnHoverCloseTerminal);
 		ButtonCloseTerminal->OnUnhovered.AddDynamic(this, &USGTerminalWidget::OnUnHoverCloseTerminal);
+		ButtonCloseTerminal->OnPressed.AddDynamic(this, &USGTerminalWidget::OnPressCloseMission);
+		ButtonCloseTerminal->OnReleased.AddDynamic(this, &USGTerminalWidget::OnReleaseCloseMission);
 	}
 }
 
@@ -62,6 +64,16 @@ void USGTerminalWidget::OnUnHoverStartMission()
 	//ButtonStartMission->SetBackgroundColor(FLinearColor::Blue);
 }
 
+void USGTerminalWidget::OnPressCloseMission()
+{
+	UGameplayStatics::PlaySound2D(this, SoundPressButton);
+}
+
+void USGTerminalWidget::OnReleaseCloseMission()
+{
+	UGameplayStatics::PlaySound2D(this, SoundReleaseButton);
+}
+
 void USGTerminalWidget::EnableStartButton()
 {
 	ButtonStartMission->SetIsEnabled(true);
@@ -79,6 +91,7 @@ void USGTerminalWidget::OnClickCloseTerminal()
 
 void USGTerminalWidget::OnHoverCloseTerminal()
 {
+	UGameplayStatics::PlaySound2D(GetWorld(), SoundHoverButton);
 }
 
 void USGTerminalWidget::OnUnHoverCloseTerminal()
