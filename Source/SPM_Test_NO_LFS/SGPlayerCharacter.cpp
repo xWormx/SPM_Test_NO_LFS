@@ -34,13 +34,15 @@ void ASGPlayerCharacter::BeginPlay()
 	{
 		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
 		if (Guns[i]) Guns[i]->SetOwner(this);
+		Guns[i]->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	}
 	if (Guns.Num() > 0 && Guns.IsValidIndex(CurrentGunIndex))
 	{
 		if (Guns[CurrentGunIndex])
 		{
+			// Använd senare för att attacha första vapnet vid start, ska sedan byta vapenobjekt vid weapon swap
 			// WeaponSocket == bone-socket där vapnet ska sitta fast
-			Guns[CurrentGunIndex]->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+			//Guns[CurrentGunIndex]->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 		}
 	}
 	else
