@@ -12,7 +12,9 @@ ASGExplosiveProjectile::ASGExplosiveProjectile()
 
 	// Physics setup
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
+	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
+	Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+	Mesh->SetNotifyRigidBodyCollision(true);
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetEnableGravity(true);
 	Mesh->SetMassOverrideInKg(NAME_None, ProjectileMass);
@@ -39,9 +41,8 @@ void ASGExplosiveProjectile::BeginPlay()
 void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	AActor* MyOwner = GetOwner();
-	if (MyOwner == nullptr)
+	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwner->GetOwner())
 	{
-		Destroy();
 		return;
 	}
 
@@ -56,8 +57,7 @@ void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 		false,
 		3.f
 		);
-
-	/*
+	
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
 		UGameplayStatics::ApplyDamage(
@@ -69,7 +69,6 @@ void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 		);
 
 	}
-	*/
 
 	Destroy();
 }

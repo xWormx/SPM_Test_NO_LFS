@@ -30,6 +30,17 @@ protected:
 	class UButton* ButtonCloseTerminal;
 	virtual void NativeConstruct() override;
 
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	USoundBase* SoundHoverButton;
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	USoundBase* SoundPressButton;
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	USoundBase* SoundReleaseButton;
+	
+	UFUNCTION()
+	void OnPressStartMission();
+	UFUNCTION()
+	void OnReleaseStartMission();
 	UFUNCTION()
 	void OnClickStartMission();
 	UFUNCTION()

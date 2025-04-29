@@ -6,6 +6,8 @@
 #include "SGObjectiveBase.h"
 #include "SGObjectiveDefendThePod.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDefendEventStart);
+
 class USphereComponent;
 /**
  * 
@@ -16,6 +18,7 @@ class SPM_TEST_NO_LFS_API ASGObjectiveDefendThePod : public ASGObjectiveBase
 	GENERATED_BODY()
 	
 public:
+	
 	ASGObjectiveDefendThePod();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -23,6 +26,8 @@ public:
 	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler) override;
 	virtual void Update(ASGGameObjectivesHandler* ObjectivesHandler) override;
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_InvalidObjectiveType; }
+
+	FOnDefendEventStart OnDefendEventStart;
 private:
 
 	UPROPERTY()
