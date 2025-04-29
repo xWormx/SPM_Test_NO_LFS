@@ -1,4 +1,4 @@
-#include "SGExplosiveProjectile.h"
+#include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
 
 #include "Kismet/GameplayStatics.h"
 

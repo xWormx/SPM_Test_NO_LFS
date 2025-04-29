@@ -1,6 +1,6 @@
-#include "SGGrenadeLauncher.h"
+#include "../../../Public/Gear/Weapons/SGGrenadeLauncher.h"
 
-#include "SGExplosiveProjectile.h"
+#include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
 #include "Kismet/GameplayStatics.h"
 
 // Public
