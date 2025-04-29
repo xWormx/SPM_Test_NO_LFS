@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGGameModeBase.h"
+#include "Core/SGGameModeBase.h"
 
 void ASGGameModeBase::BeginPlay()
 {
