@@ -1,4 +1,4 @@
-#include "SGShotgun.h"
+#include "Gear/Weapons/SGShotgun.h"
 #include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
 

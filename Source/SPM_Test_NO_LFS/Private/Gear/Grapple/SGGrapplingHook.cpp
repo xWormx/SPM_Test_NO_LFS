@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGGrapplingHook.h"
-#include "SGGrappleHeadBase.h"
+#include "Gear/Grapple/SGGrapplingHook.h"
+#include "Gear/Grapple/SGGrappleHeadBase.h"
 #include "AssetTypeCategories.h"
-#include "SGPlayerController.h"
+#include "Player/SGPlayerController.h"
 #include "LandscapeGizmoActiveActor.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
