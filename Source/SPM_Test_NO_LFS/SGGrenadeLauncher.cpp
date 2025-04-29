@@ -32,4 +32,14 @@ void ASGGrenadeLauncher::Fire()
 
 	ASGExplosiveProjectile* Projectile = GetWorld()->SpawnActor<ASGExplosiveProjectile>(ProjectileClass, Location, Rotation);
 	Projectile->SetOwner(this);
+	
+	FRotator AdjustedRotation = ProjectileSpawnPoint->GetComponentRotation() + FRotator(0, -90.f, 0);
+	FVector LaunchDirection = AdjustedRotation.Vector();
+	
+	USkeletalMeshComponent* ProjectileMesh = Projectile->FindComponentByClass<USkeletalMeshComponent>();
+	if (ProjectileMesh && ProjectileMesh->IsSimulatingPhysics())
+	{
+		ProjectileMesh->IgnoreActorWhenMoving(GetOwner(), true);
+		ProjectileMesh->SetPhysicsLinearVelocity(LaunchDirection * LaunchSpeed, false);
+	}
 }
