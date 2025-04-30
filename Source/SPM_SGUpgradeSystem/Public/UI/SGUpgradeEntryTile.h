@@ -2,10 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Core/SGAttribute.h"
 #include "SGUpgradeEntryTile.generated.h"
 
 class UButton;
-struct FSGUpgradeEntry;
 class UImage;
 class UTextBlock;
 
@@ -27,14 +27,14 @@ private:
 	void HandleClicked();
 
 protected:
-	FName BoundRowName;
-
+	FSGUpgradeEntry BoundEntry;
+	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UImage> Icon; // TODO: ikon för ägare eller attribut?
 	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UTextBlock> UpgradeText;
-
+	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UButton> UpgradeButton;
 };
