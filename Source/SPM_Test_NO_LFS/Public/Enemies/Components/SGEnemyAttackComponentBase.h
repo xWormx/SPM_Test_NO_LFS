@@ -7,7 +7,7 @@
 #include "SGEnemyAttackComponentBase.generated.h"
 
 
-UCLASS( Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( Abstract, Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SPM_TEST_NO_LFS_API USGEnemyAttackComponentBase : public UActorComponent
 {
 	GENERATED_BODY()
