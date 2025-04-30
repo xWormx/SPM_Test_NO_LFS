@@ -8,6 +8,6 @@ public class SPM_SGUpgradeSystem : ModuleRules
 
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "DeveloperSettings" });
 
-        PrivateDependencyModuleNames.AddRange(new string[] { "CoreUObject", "Engine", "Slate", "SlateCore" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "CoreUObject", "Engine", "Slate", "SlateCore", "UMG" });
     }
 }
