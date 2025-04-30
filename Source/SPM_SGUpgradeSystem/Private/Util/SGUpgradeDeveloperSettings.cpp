@@ -1,4 +1,4 @@
-﻿#include "SGUpgradeDeveloperSettings.h"
+﻿#include "Util/SGUpgradeDeveloperSettings.h"
 
 FName USGUpgradeDeveloperSettings::GetCategoryName() const
 {
