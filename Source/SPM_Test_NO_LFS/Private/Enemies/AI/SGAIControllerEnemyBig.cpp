@@ -3,6 +3,8 @@
 
 #include "Enemies/AI/SGAIControllerEnemyBig.h"
 
+#include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Enemies/Components/SGEnemyMeleAttackComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemyBig::ASGAIControllerEnemyBig()
@@ -27,9 +29,17 @@ void ASGAIControllerEnemyBig::HandleMovement()
 		return;
 	}
 
+	ControlledCharacter = Cast<ASGEnemyCharacter>(GetPawn());
+
 	if (CanAttackTarget())
 	{
-		//TODO: Create attack functionality 
+		if (ControlledCharacter)
+		{
+			if (USGEnemyMeleAttackComponent* MeleeComponent = ControlledCharacter->FindComponentByClass<USGEnemyMeleAttackComponent>())
+			{
+				MeleeComponent->StartAttack(AttackTarget);
+			}
+		}
 	}
 	else
 	{

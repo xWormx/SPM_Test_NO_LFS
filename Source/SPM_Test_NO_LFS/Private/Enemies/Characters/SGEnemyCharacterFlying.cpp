@@ -3,6 +3,7 @@
 
 #include "Enemies/Characters/SGEnemyCharacterFlying.h"
 
+#include "Enemies/Components/SGEnemyChargeAttackComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/Core/Analytics/NetStatsUtils.h"
@@ -10,6 +11,8 @@
 ASGEnemyCharacterFlying::ASGEnemyCharacterFlying()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	ChargeAttackComponent = CreateDefaultSubobject<USGEnemyChargeAttackComponent>(TEXT("ChargeAttackComponent"));
 
 	GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;
 	
