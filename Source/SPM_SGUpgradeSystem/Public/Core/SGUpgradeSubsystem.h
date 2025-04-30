@@ -1,9 +1,15 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "SGAttribute.h"
+#include "Core/SGAttribute.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SGUpgradeSubsystem.generated.h"
+
+//TODO: Snygga till. Flera för att undersöka vilka som lär vilja användas för UI osv
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpgradeFull, float, UpgradeLevel, float, UpgradeCost);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpgradeCost, float, UpgradeCost); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpgradeLevel, float, UpgradeLevel);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpgrade);
 
 UCLASS()
 class SPM_SGUPGRADESYSTEM_API USGUpgradeSubsystem : public UGameInstanceSubsystem
@@ -12,6 +18,11 @@ class SPM_SGUPGRADESYSTEM_API USGUpgradeSubsystem : public UGameInstanceSubsyste
 	
 public:
 	USGUpgradeSubsystem(){};
+	
+	FOnUpgradeFull OnUpgradeFull;
+	FOnUpgradeCost OnUpgradeCost;
+	FOnUpgradeLevel OnUpgradeLevel;
+	FOnUpgrade OnUpgrade;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
@@ -34,7 +45,10 @@ public:
 	/// @param Owner Ägaren av attributen
 	/// @param PropertyName Vad attributen heter
 	void UnbindAttribute(UObject* Owner, FName PropertyName);
+
+	void RequestUpgrade(bool bUpgrade, UObject* Owner, FName PropertyName) const;
 	
+	void RequestUpgrade(bool bUpgrade, FName RowName) const;
 protected:
 	
 	const FSGAttribute* GetByKey(UObject* Owner, FProperty* Property) const;

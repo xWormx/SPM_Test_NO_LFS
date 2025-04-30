@@ -1,7 +1,10 @@
-﻿#include "SGUpgradeSubsystem.h"
-#include "SGUpgradeDeveloperSettings.h"
+﻿#include "Core/SGUpgradeSubsystem.h"
+#include "Util/SGUpgradeDeveloperSettings.h"
 #include "Engine/DataTable.h"
 #include "UObject/UnrealType.h"
+
+//TODO: Se över om fler hjälpfunktioner kan öka läsbarhet och minska kodupprepning (gäller framförallt Modify-& RequestUpgrade-funktionerna)... Varför heter inte alla nåt med upgrade ba?
+//TODO: Modify-funktionerna returnerar bool (för återanvändning från RequestUpgrade-funktionerna)?
 
 void USGUpgradeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -160,4 +163,83 @@ void USGUpgradeSubsystem::UnbindAttribute(UObject* Owner, FName PropertyName)
     {
 	    return Ptr.Get() == TargetAttribute;
     });
+}
+
+void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, UObject* Owner, FName PropertyName) const
+{
+	if (!Owner || !bUpgrade)
+	{
+		return;
+	}
+
+	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
+	const FSGAttribute* TargetAttribute = GetByKey(Owner, Prop);
+	if (!TargetAttribute)
+	{
+		return;
+	}
+	
+	const int32 LevelBeforeUpgrade = TargetAttribute->CurrentUpgradeLevel;
+
+	//Anropar lambdan som skapades vid bindandet.
+	TargetAttribute->OnAttributeModified.Broadcast(); 
+
+	// Early return om attributen inte blev uppgraderad
+	if (LevelBeforeUpgrade == TargetAttribute->CurrentUpgradeLevel)	
+	{
+		return;
+	}
+
+	//Hämtar propertyns data (för uppgradering) och gör early return om den inte finns
+	const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(TargetAttribute->RowName, TEXT("RequestUpgrade"));
+	if (!AttributeData)
+	{
+		return;
+	}	
+	
+	//Hämtar uppgraderingsdatan för den nya nivån (har uppdaterats efter Broadcasten).
+	const FSGUpgradeData& UpgradeData = AttributeData->UpgradeData[TargetAttribute->CurrentUpgradeLevel];
+	
+	OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeData.Cost);
+	OnUpgradeCost.Broadcast(UpgradeData.Cost);
+	OnUpgradeLevel.Broadcast(TargetAttribute->CurrentUpgradeLevel);
+	OnUpgrade.Broadcast();	
+}
+
+void USGUpgradeSubsystem::RequestUpgrade(bool bUpgrade, FName RowName) const
+{
+	if (!bUpgrade)
+	{
+		return;
+	}
+
+	//Hämtar data för angiven rad (för uppgradering) och gör early return om den inte finns
+	const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(RowName, TEXT("RequestUpgrade"));
+	if (!AttributeData)
+	{
+		return;
+	}	
+
+	for (const FSGAttribute* TargetAttribute : GetByRow(RowName))
+	{
+		const int32 LevelBeforeUpgrade = TargetAttribute->CurrentUpgradeLevel;
+
+		//Anropar lambdan som skapades vid bindandet.
+		TargetAttribute->OnAttributeModified.Broadcast();
+		
+		// Early return om attributen inte blev uppgraderad
+		if (LevelBeforeUpgrade == TargetAttribute->CurrentUpgradeLevel)	
+		{
+			return;
+		}
+		//Hämtar uppgraderingsdatan för den nya nivån (har uppdaterats efter Broadcasten).
+		const FSGUpgradeData& UpgradeData = AttributeData->UpgradeData[TargetAttribute->CurrentUpgradeLevel];
+	
+		OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeData.Cost);
+		OnUpgradeCost.Broadcast(UpgradeData.Cost);
+		OnUpgradeLevel.Broadcast(TargetAttribute->CurrentUpgradeLevel);
+		OnUpgrade.Broadcast();
+		
+	}
+	
 }
