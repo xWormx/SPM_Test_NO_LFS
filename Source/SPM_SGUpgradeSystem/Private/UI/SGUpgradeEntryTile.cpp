@@ -4,7 +4,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 #include "Core/SGAttribute.h"
-#include "Core/SGUpgradeGuardGameInstance.h"
+#include "Core/SGUpgradeGuardSubsystem.h"
 #include "Core/SGUpgradeSubsystem.h"
 
 void USGUpgradeEntryTile::SetupEntry(const FSGUpgradeEntry& Entry)
@@ -35,16 +35,17 @@ void USGUpgradeEntryTile::NativeConstruct()
 
 void USGUpgradeEntryTile::HandleClicked()
 {
-	USGUpgradeSubsystem* UpgradeSubsystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>();
+	const USGUpgradeSubsystem* UpgradeSubsystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>();
 	if (!UpgradeSubsystem)
 	{
 		return;
 	}
 
-	USGUpgradeGuardGameInstance* UpgradeGuardInstance = GetGameInstance<USGUpgradeGuardGameInstance>();
+	const USGUpgradeGuardSubsystem* UpgradeGuardInstance = GetGameInstance()->GetSubsystem<USGUpgradeGuardSubsystem>();
 	if (!UpgradeGuardInstance)
 	{
 		return;
-	}	
+	}
+	
 	UpgradeSubsystem->RequestUpgrade(UpgradeGuardInstance->CanUpgradeBasedOnCount(BoundEntry.Cost), BoundEntry.RowName);
 }
