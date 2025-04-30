@@ -5,6 +5,7 @@
 
 #include "Enemies/Managers/SGEnemyDropManager.h"
 #include "Components/SGHealthComponent.h"
+#include "Enemies/Components/SGEnemyAttackComponentBase.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -13,7 +14,6 @@ ASGEnemyCharacter::ASGEnemyCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
-
 }
 
 // Called when the game starts or when spawned

@@ -1,0 +1,54 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "SGEnemyAttackComponentBase.generated.h"
+
+
+UCLASS( Abstract, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class SPM_TEST_NO_LFS_API USGEnemyAttackComponentBase : public UActorComponent
+{
+	GENERATED_BODY()
+
+public:	
+	// Sets default values for this component's properties
+	USGEnemyAttackComponentBase();
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
+public:	
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	virtual void StartAttack(AActor* Target);
+
+protected:
+	
+	virtual void PerformAttack(AActor* Target) PURE_VIRTUAL(USGEnemyAttackComponentBase::PerformAttack, );
+
+	virtual void ResetAttackCooldown();
+
+	UPROPERTY(EditAnywhere)
+	float DamageAmount = 10.0f;
+
+	UPROPERTY(EditAnywhere)
+	float AttackCooldown = 2.0f;
+
+	bool bCanAttack = false;
+	
+	struct FTimerHandle CooldownTimerHandle;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UDamageType> DamageTypeClass;
+
+	class ACharacter* OwnerCharacter;
+
+	UPROPERTY(EditAnywhere)
+	float AttackRadius = 10.f;
+
+		
+};
