@@ -49,6 +49,10 @@ public:
 	void RequestUpgrade(bool bUpgrade, UObject* Owner, FName PropertyName) const;
 	
 	void RequestUpgrade(bool bUpgrade, FName RowName) const;
+
+	UFUNCTION(BlueprintCallable, Category="Upgrades")
+	TArray<FSGUpgradeEntry> GetUpgradeEntries() const;
+	
 protected:
 	
 	const FSGAttribute* GetByKey(UObject* Owner, FProperty* Property) const;
