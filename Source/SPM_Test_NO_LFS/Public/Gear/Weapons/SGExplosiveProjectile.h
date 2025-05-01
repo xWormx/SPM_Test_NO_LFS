@@ -19,6 +19,8 @@ protected:
 
 private:
 	float Damage;
+
+	void DoSpecialEffects();
 	
 	// VisibleAnywhere
 	UPROPERTY(VisibleAnywhere, Category="design")

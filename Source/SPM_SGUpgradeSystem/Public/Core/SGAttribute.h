@@ -42,4 +42,15 @@ struct FSGAttributeData : public FTableRowBase
 	TArray<FSGUpgradeData> UpgradeData;
 };
 
+USTRUCT(BlueprintType)
+struct FSGUpgradeEntry : public FSGUpgradeData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName RowName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* Icon = nullptr;
+};
 

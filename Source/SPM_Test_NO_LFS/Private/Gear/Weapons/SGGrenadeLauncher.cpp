@@ -1,5 +1,6 @@
 #include "../../../Public/Gear/Weapons/SGGrenadeLauncher.h"
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
+#include "../../../Public/Player/SGPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 // Public
@@ -16,19 +17,23 @@ void ASGGrenadeLauncher::Fire()
 	if (ShootParticles && Mesh) UGameplayStatics::SpawnEmitterAttached(ShootParticles, Mesh, TEXT("MuzzleFlashSocket"));
 	if (ShootSound && Mesh) UGameplayStatics::SpawnSoundAttached(ShootSound, Mesh, TEXT("MuzzleFlashSocket"));
 
+	SpawnProjectile();
+}
+
+// Protected
+void ASGGrenadeLauncher::BeginPlay()
+{
+	Super::BeginPlay();
+	ASGPlayerCharacter* MyOwner = Cast<ASGPlayerCharacter>(GetOwner());
+	if (MyOwner) PlayerMesh = MyOwner->GetMesh();
+}
+
+// Private
+void ASGGrenadeLauncher::SpawnProjectile()
+{
 	FVector Location = ProjectileSpawnPoint->GetComponentLocation();
 	FRotator Rotation = ProjectileSpawnPoint->GetComponentRotation();
 	
-	DrawDebugSphere(
-		GetWorld(),
-		ProjectileSpawnPoint->GetComponentLocation(),
-		20,
-		12,
-		FColor::Green,
-		false,
-		3.f
-		); 
-
 	ASGExplosiveProjectile* Projectile = GetWorld()->SpawnActor<ASGExplosiveProjectile>(ProjectileClass, Location, Rotation);
 	Projectile->SetOwner(this);
 	
@@ -36,10 +41,16 @@ void ASGGrenadeLauncher::Fire()
 	FVector LaunchDirection = AdjustedRotation.Vector();
 	
 	USkeletalMeshComponent* ProjectileMesh = Projectile->FindComponentByClass<USkeletalMeshComponent>();
-	if (ProjectileMesh && ProjectileMesh->IsSimulatingPhysics())
+	if (ProjectileMesh && ProjectileMesh->IsSimulatingPhysics() && PlayerMesh)
 	{
-		ProjectileMesh->IgnoreActorWhenMoving(GetOwner(), true);
-		ProjectileMesh->SetPhysicsLinearVelocity(LaunchDirection * LaunchSpeed, false);
+		//ProjectileMesh->IgnoreComponentWhenMoving(Cast<UPrimitiveComponent>(PlayerMesh), true);
+		//ProjectileMesh->IgnoreComponentWhenMoving(Cast<UPrimitiveComponent>(Mesh), true);
+		//ProjectileMesh->IgnoreActorWhenMoving(GetOwner(), true);
+		//ProjectileMesh->IgnoreActorWhenMoving(this, true);
+		ProjectileMesh->MoveIgnoreActors.Add(GetOwner());
+		ProjectileMesh->MoveIgnoreActors.Add(this);
+
+		FVector Impulse = LaunchDirection * LaunchSpeed;
+		ProjectileMesh->AddImpulse(Impulse, NAME_None, true);
 	}
 }
-

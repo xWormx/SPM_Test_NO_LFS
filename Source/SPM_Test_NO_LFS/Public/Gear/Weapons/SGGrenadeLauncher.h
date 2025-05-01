@@ -13,7 +13,14 @@ public:
 	ASGGrenadeLauncher();
 	virtual void Fire();
 
+protected:
+	virtual void BeginPlay() override;
+
 private:
+	USkeletalMeshComponent* PlayerMesh;
+
+	void SpawnProjectile();
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TSubclassOf<class ASGExplosiveProjectile> ProjectileClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))

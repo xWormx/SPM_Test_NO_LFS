@@ -21,9 +21,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Counter Component")
 	void RemoveOrbs(float Amount);
 
+	UFUNCTION(BlueprintCallable, Category = "Counter Component")
+	bool CanRemoveOrbs(float Amount) const;
+
 protected:
-	virtual void ProcessPickup(AActor* Pickup) override;
+	virtual void BeginPlay() override;
 	
+	virtual void ProcessPickup(AActor* Pickup) override;
+
 	UPROPERTY(EditAnywhere, Category = "Counter Properties")
 	float OrbCount = 0.0f;
 };

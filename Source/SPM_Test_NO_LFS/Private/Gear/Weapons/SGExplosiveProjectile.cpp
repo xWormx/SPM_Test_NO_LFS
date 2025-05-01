@@ -12,7 +12,9 @@ ASGExplosiveProjectile::ASGExplosiveProjectile()
 
 	// Physics setup
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_PhysicsBody);
+	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
+	Mesh->SetCollisionResponseToAllChannels(ECR_Block);
+	Mesh->SetNotifyRigidBodyCollision(true);
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetEnableGravity(true);
 	Mesh->SetMassOverrideInKg(NAME_None, ProjectileMass);
@@ -39,15 +41,12 @@ void ASGExplosiveProjectile::BeginPlay()
 void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	AActor* MyOwner = GetOwner();
-	if (MyOwner == nullptr)
+	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwner->GetOwner())
 	{
-		Destroy();
 		return;
 	}
 
-	if (CameraShakeClass) GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShakeClass);
-	if (ExplodeSound) UGameplayStatics::PlaySoundAtLocation(this, ExplodeSound, GetActorLocation());
-	if (ExplodeEffect) UGameplayStatics::SpawnEmitterAtLocation(this, ExplodeEffect, GetActorLocation(), GetActorRotation());
+	DoSpecialEffects();
 
 	DrawDebugSphere(
 		GetWorld(),
@@ -69,6 +68,14 @@ void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 			UDamageType::StaticClass()
 		);
 
-		Destroy();
 	}
+
+	Destroy();
+}
+
+void ASGExplosiveProjectile::DoSpecialEffects()
+{
+	if (CameraShakeClass) GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShakeClass);
+	if (ExplodeSound) UGameplayStatics::PlaySoundAtLocation(this, ExplodeSound, GetActorLocation());
+	if (ExplodeEffect) UGameplayStatics::SpawnEmitterAtLocation(this, ExplodeEffect, GetActorLocation(), GetActorRotation());
 }
