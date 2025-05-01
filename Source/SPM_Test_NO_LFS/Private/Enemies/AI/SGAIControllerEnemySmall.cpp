@@ -3,6 +3,7 @@
 
 #include "Enemies/AI/SGAIControllerEnemySmall.h"
 
+#include "Enemies/Components/SGEnemyShootAttackComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
@@ -52,7 +53,13 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 
 	if (CanAttackTarget())
 	{
-		//TODO: Create attack functionality
+		if (ControlledCharacter)
+		{
+			if (USGEnemyShootAttackComponent* ShootAttackComponent = ControlledCharacter->FindComponentByClass<USGEnemyShootAttackComponent>())
+			{
+				ShootAttackComponent->StartAttack(AttackTarget);
+			}
+		}
 	}
 	
 	HandleMovement();
