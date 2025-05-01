@@ -7,7 +7,7 @@
 #include "SGEnemyAttackComponentBase.generated.h"
 
 
-UCLASS( Abstract, Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( Blueprintable, ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SPM_TEST_NO_LFS_API USGEnemyAttackComponentBase : public UActorComponent
 {
 	GENERATED_BODY()
@@ -28,7 +28,7 @@ public:
 
 protected:
 	
-	virtual void PerformAttack(AActor* Target) PURE_VIRTUAL(USGEnemyAttackComponentBase::PerformAttack, );
+	virtual void PerformAttack(AActor* Target);
 
 	virtual void ResetAttackCooldown();
 

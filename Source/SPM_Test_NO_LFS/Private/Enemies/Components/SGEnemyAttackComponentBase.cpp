@@ -53,6 +53,11 @@ void USGEnemyAttackComponentBase::StartAttack(AActor* Target)
 	);
 }
 
+void USGEnemyAttackComponentBase::PerformAttack(AActor* Target)
+{
+	
+}
+
 void USGEnemyAttackComponentBase::ResetAttackCooldown()
 {
 	bCanAttack = true;
