@@ -23,9 +23,12 @@ void ASGAIControllerEnemySmall::HandleMovement()
 		return;
 	}
 
-	if (!LineOfSightTo(AttackTarget))
+	if (!bShouldAlwaysChaseTarget)
 	{
-		return;
+		if (!LineOfSightTo(AttackTarget))
+		{
+			return;
+		}
 	}
 	FVector Location = GetPawn()->GetActorLocation();
 	FVector PlayerLocation = AttackTarget->GetActorLocation();

@@ -24,9 +24,12 @@ void ASGAIControllerEnemyBig::HandleMovement()
 		return;
 	}
 
-	if (!LineOfSightTo(AttackTarget))
+	if (!bShouldAlwaysChaseTarget)
 	{
-		return;
+		if (!LineOfSightTo(AttackTarget))
+		{
+			return;
+		}
 	}
 
 	ControlledCharacter = Cast<ASGEnemyCharacter>(GetPawn());
