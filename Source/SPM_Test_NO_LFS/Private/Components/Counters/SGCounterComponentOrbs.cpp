@@ -1,4 +1,6 @@
 ﻿#include "Components/Counters/SGCounterComponentOrbs.h"
+
+#include "Core/SGUpgradeGuardSubsystem.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Pickups/SGPickUpOrbs.h"
 
@@ -10,38 +12,23 @@ USGCounterComponentOrbs::USGCounterComponentOrbs()
 void USGCounterComponentOrbs::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (USGUpgradeSubsystem* UpgradeSubsystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+
+	UpgradeGuard = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeGuardSubsystem>();
+	USGUpgradeSubsystem* UpgradeSubsystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>();
+	if (!UpgradeGuard.IsValid() || !UpgradeSubsystem)
 	{
-		UpgradeSubsystem->OnUpgradeCost.AddDynamic(this, &USGCounterComponentOrbs::RemoveOrbs);
-	}
-}
-
-float USGCounterComponentOrbs::GetOrbCount() const
-{
-	return OrbCount;
-}
-
-void USGCounterComponentOrbs::AddOrbs(const float Amount)
-{
-	OrbCount += Amount;
-}
-
-void USGCounterComponentOrbs::RemoveOrbs(const float Amount)
-{
-	OrbCount -= Amount;
-}
-
-bool USGCounterComponentOrbs::CanRemoveOrbs(const float Amount) const
-{
-	return OrbCount - Amount >= 0.0f;
+		return;
+	}	
+	UpgradeSubsystem->OnUpgradeCost.AddDynamic(UpgradeGuard.Get(), &USGUpgradeGuardSubsystem::RemoveFromCount);
 }
 
 void USGCounterComponentOrbs::ProcessPickup(AActor* Pickup)
-{	
-	if (ASGPickUpOrbs* Orb = Cast<ASGPickUpOrbs>(Pickup))
+{
+	ASGPickUpOrbs* Orb = Cast<ASGPickUpOrbs>(Pickup);
+	if (!Orb || !UpgradeGuard.IsValid())
 	{
-		AddOrbs(Orb->GetPickupValue());
-		Orb->OnPickup();	
-	}
+		return;
+	}		
+	UpgradeGuard.Get()->AddToCount(Orb->GetPickupValue());
+	Orb->OnPickup();
 }
