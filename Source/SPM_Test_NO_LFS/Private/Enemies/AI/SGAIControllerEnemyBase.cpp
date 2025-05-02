@@ -10,14 +10,15 @@ ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-
-	ControlledCharacter = GetOwner();
+	
 }
 
 void ASGAIControllerEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	ControlledCharacter = GetPawn();	
+	
 }
 
 bool ASGAIControllerEnemyBase::CanAttackTarget() const
