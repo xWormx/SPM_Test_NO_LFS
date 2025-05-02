@@ -1,60 +1,54 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Enemies/Components/SGEnemyMeleAttackComponent.h"
+#include "Enemies/Components/SGEnemyShootAttackComponent.h"
 
 #include "Kismet/GameplayStatics.h"
 
 
 // Sets default values for this component's properties
-USGEnemyMeleAttackComponent::USGEnemyMeleAttackComponent()
+USGEnemyShootAttackComponent::USGEnemyShootAttackComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	bCanAttack = true;
+	// ...
 }
 
 
 // Called when the game starts
-void USGEnemyMeleAttackComponent::BeginPlay()
+void USGEnemyShootAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	// ...
-	
+	bCanAttack = true;
 }
 
 
 // Called every frame
-void USGEnemyMeleAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                                FActorComponentTickFunction* ThisTickFunction)
+void USGEnemyShootAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+                                                 FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
 
-void USGEnemyMeleAttackComponent::StartAttack(AActor* Target)
+void USGEnemyShootAttackComponent::StartAttack(AActor* Target)
 {
 	if (!Target || !bCanAttack || !OwnerCharacter)
 	{
 		return;
 	}
 	Super::StartAttack(Target);
-
 	PerformAttack(Target);
-	
-	
 }
 
-void USGEnemyMeleAttackComponent::PerformAttack(AActor* Target)
+void USGEnemyShootAttackComponent::PerformAttack(AActor* Target)
 {
-	if (!OwnerCharacter)
-	{
-		return;
-	}
+	Super::PerformAttack(Target);
 
 	FVector Start = GetOwner()->GetActorLocation();
 	FVector End = Target->GetActorLocation();
@@ -74,7 +68,6 @@ void USGEnemyMeleAttackComponent::PerformAttack(AActor* Target)
 		FCollisionShape::MakeSphere(AttackRadius),
 		Params
 	);
-
 	if (bHit && Hit.GetActor() == Target)
 	{
 		UGameplayStatics::ApplyDamage(
@@ -84,6 +77,7 @@ void USGEnemyMeleAttackComponent::PerformAttack(AActor* Target)
 			GetOwner(),
 			DamageTypeClass
 			);
+		DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.f);
 		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, AttackRadius, 12, FColor::Red, false, 1.f);
 	}
 	else

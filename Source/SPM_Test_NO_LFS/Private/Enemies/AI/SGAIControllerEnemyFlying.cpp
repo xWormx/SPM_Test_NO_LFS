@@ -21,9 +21,12 @@ void ASGAIControllerEnemyFlying::HandleMovement()
 		return;
 	}
 
-	if (!LineOfSightTo(AttackTarget))
+	if (!bShouldAlwaysChaseTarget)
 	{
-		return;
+		if (!LineOfSightTo(AttackTarget))
+		{
+			return;
+		}
 	}
 	
 	float TargetZ = AttackTarget->GetActorLocation().Z;	
