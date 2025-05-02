@@ -25,6 +25,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
+
 protected:
 	UPROPERTY(EditAnywhere)
 	class USGEnemyChargeAttackComponent* ChargeAttackComponent;

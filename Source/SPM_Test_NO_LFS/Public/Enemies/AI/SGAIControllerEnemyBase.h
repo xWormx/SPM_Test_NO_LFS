@@ -10,7 +10,7 @@
 /**
  * 
  */
-UCLASS(Abstract)
+UCLASS()
 class SPM_TEST_NO_LFS_API ASGAIControllerEnemyBase : public AAIController
 {
 	GENERATED_BODY()
@@ -22,7 +22,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual bool CanAttackTarget() const;
 	
-	virtual void HandleMovement() PURE_VIRTUAL(ASGAIControllerEnemyBase::HandleMovement, );
+	virtual void HandleMovement();
 
 	UFUNCTION(BlueprintCallable)
 	virtual float GetAttackRange() const;
@@ -55,10 +55,10 @@ protected:
 	float AttackRange = 0;
 
 	UPROPERTY(EditAnywhere,  Category= "Combat", meta = (AllowPrivateAccess = true))
-	AActor* AttackTarget = nullptr;
+	AActor* AttackTarget;
 
 	UPROPERTY(EditAnywhere)
-	AActor* ControlledCharacter = nullptr;
+	AActor* ControlledCharacter;
 
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
 	float AcceptanceRadius = 0;

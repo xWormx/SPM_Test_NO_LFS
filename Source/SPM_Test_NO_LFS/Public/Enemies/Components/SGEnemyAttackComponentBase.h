@@ -45,6 +45,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UDamageType> DamageTypeClass;
 
+	UPROPERTY()
 	class ACharacter* OwnerCharacter;
 
 	UPROPERTY(EditAnywhere)

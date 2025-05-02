@@ -3,9 +3,16 @@
 
 #include "Enemies/AI/SGAIControllerEnemyBase.h"
 
+#include "Chaos/PBDSuspensionConstraintData.h"
+#include "Kismet/GameplayStatics.h"
+
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+
+	ControlledCharacter = GetOwner();
 }
 
 void ASGAIControllerEnemyBase::BeginPlay()
@@ -27,6 +34,10 @@ bool ASGAIControllerEnemyBase::CanAttackTarget() const
 	const bool bCanAttackTarget = DistanceToPlayer < AttackRange;
 
 	return bCanAttackTarget;
+}
+
+void ASGAIControllerEnemyBase::HandleMovement()
+{
 }
 
 float ASGAIControllerEnemyBase::GetAttackRange() const

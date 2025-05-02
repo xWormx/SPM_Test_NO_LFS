@@ -1,5 +1,6 @@
 #include "Enemies/AI/SGAIControllerEnemyFlying.h"
 
+#include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyChargeAttackComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -35,6 +36,8 @@ void ASGAIControllerEnemyFlying::HandleMovement()
 	FVector CurrentLocation = GetPawn()->GetActorLocation();
 	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), 2.0f);
 	GetPawn()->SetActorLocation(CurrentLocation, true);
+
+	ControlledCharacter = Cast<ASGEnemyCharacter>(GetPawn());
 		
 	if (CanAttackTarget())
 	{
@@ -42,6 +45,10 @@ void ASGAIControllerEnemyFlying::HandleMovement()
 		{
 			if (USGEnemyChargeAttackComponent* ChargeAttackComponent = ControlledCharacter->FindComponentByClass<USGEnemyChargeAttackComponent>())
 			{
+				if (GEngine)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, TEXT("Ai"));
+				}
 				ChargeAttackComponent->StartAttack(AttackTarget);
 			}
 		}

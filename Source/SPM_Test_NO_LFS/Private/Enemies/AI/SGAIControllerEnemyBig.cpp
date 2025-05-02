@@ -43,6 +43,13 @@ void ASGAIControllerEnemyBig::HandleMovement()
 				MeleeComponent->StartAttack(AttackTarget);
 			}
 		}
+		if (!ControlledCharacter)
+		{
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Yellow, TEXT("No Controlled Character"));
+			}
+		}
 	}
 	else
 	{

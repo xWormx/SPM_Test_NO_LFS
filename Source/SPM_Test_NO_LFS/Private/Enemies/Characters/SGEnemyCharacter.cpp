@@ -5,7 +5,6 @@
 
 #include "Enemies/Managers/SGEnemyDropManager.h"
 #include "Components/SGHealthComponent.h"
-#include "Enemies/Components/SGEnemyAttackComponentBase.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -54,4 +53,5 @@ void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
 

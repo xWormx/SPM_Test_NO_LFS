@@ -12,8 +12,7 @@ USGEnemyShootAttackComponent::USGEnemyShootAttackComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	
 }
 
 
@@ -21,9 +20,7 @@ USGEnemyShootAttackComponent::USGEnemyShootAttackComponent()
 void USGEnemyShootAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	bCanAttack = true;
+	
 }
 
 
@@ -48,8 +45,6 @@ void USGEnemyShootAttackComponent::StartAttack(AActor* Target)
 
 void USGEnemyShootAttackComponent::PerformAttack(AActor* Target)
 {
-	Super::PerformAttack(Target);
-
 	FVector Start = GetOwner()->GetActorLocation();
 	FVector End = Target->GetActorLocation();
 

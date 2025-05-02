@@ -40,7 +40,8 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEnemyDiedObjective OnEnemyDiedObjective;
-private:
+
+protected:
 	UPROPERTY()
 	class USGHealthComponent* HealthComponent;
 

@@ -12,7 +12,7 @@ USGEnemyAttackComponentBase::USGEnemyAttackComponentBase()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
+	bCanAttack = true;
 	OwnerCharacter = Cast<ACharacter>(GetOwner());
 }
 
@@ -37,7 +37,7 @@ void USGEnemyAttackComponentBase::TickComponent(float DeltaTime, ELevelTick Tick
 
 void USGEnemyAttackComponentBase::StartAttack(AActor* Target)
 {
-	if (!Target || !bCanAttack || !GetOwner())
+	if (!Target || !bCanAttack || !OwnerCharacter)
 	{
 		return;
 	}

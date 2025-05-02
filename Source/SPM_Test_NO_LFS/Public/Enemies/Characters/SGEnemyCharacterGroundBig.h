@@ -23,5 +23,5 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
-	class USGEnemyMeleAttackComponent* MeleeComponent;
+	class USGEnemyMeleAttackComponent* MeleeAttackComponent;
 };
