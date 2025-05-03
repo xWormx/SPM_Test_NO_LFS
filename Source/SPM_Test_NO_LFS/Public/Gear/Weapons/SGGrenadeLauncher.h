@@ -23,6 +23,7 @@ private:
 	AController* PlayerController;
 
 	void SpawnProjectile();
+	void EnableOverlapEventsForAllStaticMeshes(UWorld* World);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TSubclassOf<ASGExplosiveProjectile> ProjectileClass;
@@ -30,4 +31,6 @@ private:
 	USceneComponent* ProjectileSpawnPoint;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float LaunchSpeed = 2000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	float PitchOffsetDegrees = 10.f;
 };
