@@ -56,21 +56,6 @@ private:
 	ASGObjectiveBase* CurrentObjective;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	int EnemiesKilled = 0;
-	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	int NumberOfEnemiesToKill;
-
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	int CurrentCollectedAmout = 0;
-	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	int GoalCollectiblesAmount;
-
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	bool bPodDefended = false;
-
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<ASGEnemyCharacter> TargetCharacterClass;
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	TArray<ASGEnemyCharacter*> TargetCharacters;
