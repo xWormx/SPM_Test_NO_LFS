@@ -66,6 +66,8 @@ protected:
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
 	float RetreatDistance = 0;
 
+	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
+	bool bShouldAlwaysChaseTarget = false;
 
 public:
 	virtual void Tick(float DeltaTime) override;

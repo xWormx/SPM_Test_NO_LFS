@@ -3,6 +3,7 @@
 
 #include "Enemies/AI/SGAIControllerEnemySmall.h"
 
+#include "Enemies/Components/SGEnemyShootAttackComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
@@ -22,9 +23,12 @@ void ASGAIControllerEnemySmall::HandleMovement()
 		return;
 	}
 
-	if (!LineOfSightTo(AttackTarget))
+	if (!bShouldAlwaysChaseTarget)
 	{
-		return;
+		if (!LineOfSightTo(AttackTarget))
+		{
+			return;
+		}
 	}
 	FVector Location = GetPawn()->GetActorLocation();
 	FVector PlayerLocation = AttackTarget->GetActorLocation();
@@ -52,7 +56,13 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 
 	if (CanAttackTarget())
 	{
-		//TODO: Create attack functionality
+		if (ControlledCharacter)
+		{
+			if (USGEnemyShootAttackComponent* ShootAttackComponent = ControlledCharacter->FindComponentByClass<USGEnemyShootAttackComponent>())
+			{
+				ShootAttackComponent->StartAttack(AttackTarget);
+			}
+		}
 	}
 	
 	HandleMovement();
