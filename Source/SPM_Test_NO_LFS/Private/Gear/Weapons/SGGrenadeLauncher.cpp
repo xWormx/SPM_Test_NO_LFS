@@ -1,6 +1,7 @@
 #include "../../../Public/Gear/Weapons/SGGrenadeLauncher.h"
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
 #include "../../../Public/Player/SGPlayerCharacter.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Public
@@ -31,26 +32,26 @@ void ASGGrenadeLauncher::BeginPlay()
 // Private
 void ASGGrenadeLauncher::SpawnProjectile()
 {
-	FVector Location = ProjectileSpawnPoint->GetComponentLocation();
-	FRotator Rotation = ProjectileSpawnPoint->GetComponentRotation();
-	
-	ASGExplosiveProjectile* Projectile = GetWorld()->SpawnActor<ASGExplosiveProjectile>(ProjectileClass, Location, Rotation);
-	Projectile->SetOwner(this);
-	
-	FRotator AdjustedRotation = ProjectileSpawnPoint->GetComponentRotation() + FRotator(0, -90.f, 0);
-	FVector LaunchDirection = AdjustedRotation.Vector();
-	
-	USkeletalMeshComponent* ProjectileMesh = Projectile->FindComponentByClass<USkeletalMeshComponent>();
-	if (ProjectileMesh && ProjectileMesh->IsSimulatingPhysics() && PlayerMesh)
-	{
-		//ProjectileMesh->IgnoreComponentWhenMoving(Cast<UPrimitiveComponent>(PlayerMesh), true);
-		//ProjectileMesh->IgnoreComponentWhenMoving(Cast<UPrimitiveComponent>(Mesh), true);
-		//ProjectileMesh->IgnoreActorWhenMoving(GetOwner(), true);
-		//ProjectileMesh->IgnoreActorWhenMoving(this, true);
-		ProjectileMesh->MoveIgnoreActors.Add(GetOwner());
-		ProjectileMesh->MoveIgnoreActors.Add(this);
+	if (!ProjectileClass || !ProjectileSpawnPoint) return;
 
-		FVector Impulse = LaunchDirection * LaunchSpeed;
-		ProjectileMesh->AddImpulse(Impulse, NAME_None, true);
+	FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
+	FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = GetInstigator();
+
+	ASGExplosiveProjectile* Projectile = GetWorld()->SpawnActor<ASGExplosiveProjectile>(
+		ProjectileClass,
+		SpawnLocation,
+		SpawnRotation,
+		SpawnParams
+	);
+
+	if (Projectile)
+	{
+		FVector LaunchDirection = SpawnRotation.Vector();
+		Projectile->GetMovementComponent()->Velocity = LaunchDirection * LaunchSpeed;
+		Projectile->SetDamage(Damage);
 	}
 }
