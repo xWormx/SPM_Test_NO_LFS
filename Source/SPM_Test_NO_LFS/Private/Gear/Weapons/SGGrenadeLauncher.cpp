@@ -1,4 +1,6 @@
 #include "../../../Public/Gear/Weapons/SGGrenadeLauncher.h"
+
+#include "HeadMountedDisplayTypes.h"
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
 #include "../../../Public/Player/SGPlayerCharacter.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -26,7 +28,11 @@ void ASGGrenadeLauncher::BeginPlay()
 {
 	Super::BeginPlay();
 	ASGPlayerCharacter* MyOwner = Cast<ASGPlayerCharacter>(GetOwner());
-	if (MyOwner) PlayerMesh = MyOwner->GetMesh();
+	if (MyOwner)
+	{
+		PlayerMesh = MyOwner->GetMesh();
+		PlayerController = MyOwner->GetController();
+	}
 }
 
 // Private
@@ -35,7 +41,14 @@ void ASGGrenadeLauncher::SpawnProjectile()
 	if (!ProjectileClass || !ProjectileSpawnPoint) return;
 
 	FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
-	FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+	FRotator ViewRotation = ProjectileSpawnPoint->GetComponentRotation(); // Fallback default
+	
+	if (PlayerController)
+	{
+		ViewRotation = PlayerController->GetControlRotation();
+	}
+	
+	ViewRotation.Yaw += 90.f;
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
@@ -44,13 +57,13 @@ void ASGGrenadeLauncher::SpawnProjectile()
 	ASGExplosiveProjectile* Projectile = GetWorld()->SpawnActor<ASGExplosiveProjectile>(
 		ProjectileClass,
 		SpawnLocation,
-		SpawnRotation,
+		ViewRotation,
 		SpawnParams
 	);
 
 	if (Projectile)
 	{
-		FVector LaunchDirection = SpawnRotation.Vector();
+		FVector LaunchDirection = ViewRotation.Vector();
 		Projectile->GetMovementComponent()->Velocity = LaunchDirection * LaunchSpeed;
 		Projectile->SetDamage(Damage);
 	}

@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "SGExplosiveProjectile.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class SPM_TEST_NO_LFS_API ASGExplosiveProjectile : public AActor
 {
 	GENERATED_BODY()
@@ -27,7 +27,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USceneComponent* Root;
 	UPROPERTY(VisibleAnywhere, Category="design")
-	UStaticMeshComponent* Mesh;
+	USkeletalMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, Category="design")
 	UProjectileMovementComponent* ProjectileMovement;
 	// EditAnywhere+BP

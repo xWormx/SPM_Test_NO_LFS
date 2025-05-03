@@ -7,14 +7,19 @@ ASGExplosiveProjectile::ASGExplosiveProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	Mesh->SetupAttachment(RootComponent);
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = Root;
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
+	Mesh->SetupAttachment(Root);
 	Mesh->SetCollisionProfileName("BlockAllDynamic");
-	Mesh->SetSimulatePhysics(false); // Let ProjectileMovement handle movement
+	Mesh->SetSimulatePhysics(false);
 	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+	ProjectileMovement->InitialSpeed = 1000.f;
+	ProjectileMovement->MaxSpeed = 1000.f;
+	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->Bounciness = 0.6f;
+	ProjectileMovement->ProjectileGravityScale = 1.0f;
 }
 
 
