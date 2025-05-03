@@ -30,8 +30,8 @@ public:
 	void FireGrapple();
 	void FireGun();
 	const ASGGun* GetGunRef() const;
-	void SetCurrentGunIndex(uint8 NewIndex);
-	uint8 GetCurrentGunIndex();
+	void SetCurrentGunIndex(int8 NewIndex);
+	int8 GetCurrentGunIndex();
 	const TArray<ASGGun*>& GetGuns() const;
 	
 private:
@@ -51,5 +51,5 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TArray<ASGGun*> Guns;
 	
-	uint8 CurrentGunIndex = 0;
+	int8 CurrentGunIndex = 0;
 };
