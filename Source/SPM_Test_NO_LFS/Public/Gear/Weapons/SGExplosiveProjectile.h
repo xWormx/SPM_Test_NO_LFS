@@ -13,20 +13,23 @@ public:
 	ASGExplosiveProjectile();
 	virtual void Tick(float DeltaTime) override;
 	void SetDamage(float NewDamage);
+	class UProjectileMovementComponent* GetMovementComponent();
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	float Damage;
-
+	
 	void DoSpecialEffects();
 	
 	// VisibleAnywhere
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USceneComponent* Root;
 	UPROPERTY(VisibleAnywhere, Category="design")
-	USkeletalMeshComponent* Mesh;
+	UStaticMeshComponent* Mesh;
+	UPROPERTY(VisibleAnywhere, Category="design")
+	UProjectileMovementComponent* ProjectileMovement;
 	// EditAnywhere+BP
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UParticleSystem* ExplodeEffect;
@@ -38,9 +41,8 @@ private:
 	TSubclassOf<class UCameraShakeBase> CameraShakeClass;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	float ExplosionRadius = 500.f;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
-	float ProjectileMass = 100.f;
 
 	UFUNCTION() // Callback function
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

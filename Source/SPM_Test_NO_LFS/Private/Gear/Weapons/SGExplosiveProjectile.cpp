@@ -1,24 +1,22 @@
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Public
 ASGExplosiveProjectile::ASGExplosiveProjectile()
 {
-	PrimaryActorTick.bCanEverTick = true;
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	RootComponent = Root;
-	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
-	Mesh->SetupAttachment(Root);
-
-	// Physics setup
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
-	Mesh->SetCollisionResponseToAllChannels(ECR_Block);
-	Mesh->SetNotifyRigidBodyCollision(true);
-	Mesh->SetSimulatePhysics(true);
-	Mesh->SetEnableGravity(true);
-	Mesh->SetMassOverrideInKg(NAME_None, ProjectileMass);
+	PrimaryActorTick.bCanEverTick = false;
+	
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetupAttachment(RootComponent);
+	Mesh->SetCollisionProfileName("BlockAllDynamic");
+	Mesh->SetSimulatePhysics(false); // Let ProjectileMovement handle movement
+	
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 }
+
 
 void ASGExplosiveProjectile::Tick(float DeltaTime)
 {
@@ -30,6 +28,11 @@ void ASGExplosiveProjectile::SetDamage(float NewDamage)
 	Damage = NewDamage;
 }
 
+UProjectileMovementComponent* ASGExplosiveProjectile::GetMovementComponent()
+{
+	return ProjectileMovement;
+}
+
 // Protected
 void ASGExplosiveProjectile::BeginPlay()
 {
@@ -38,40 +41,39 @@ void ASGExplosiveProjectile::BeginPlay()
 }
 
 // Private
-void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, 
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	AActor* MyOwner = GetOwner();
 	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwner->GetOwner())
-	{
 		return;
-	}
 
+	// Spawn VFX/SFX
 	DoSpecialEffects();
 
-	DrawDebugSphere(
-		GetWorld(),
-		HitComp->GetComponentLocation(),
-		ExplosionRadius,
-		30,
-		FColor::Red,
-		false,
-		3.f
-		);
-	
-	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
-	{
-		UGameplayStatics::ApplyDamage(
-			OtherActor,
-			Damage,
-			MyOwner->GetInstigatorController(),
-			MyOwner,
-			UDamageType::StaticClass()
-		);
+	// Optional: Debug sphere for explosion radius
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 32, FColor::Orange, false, 2.0f);
 
-	}
+	// Apply radial damage
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+	if (MyOwner) IgnoredActors.Add(MyOwner);
+
+	UGameplayStatics::ApplyRadialDamage(
+		this,
+		Damage,
+		GetActorLocation(),
+		ExplosionRadius,
+		UDamageType::StaticClass(),
+		IgnoredActors,
+		this,
+		GetInstigatorController(),
+		true
+	);
 
 	Destroy();
 }
+
 
 void ASGExplosiveProjectile::DoSpecialEffects()
 {
