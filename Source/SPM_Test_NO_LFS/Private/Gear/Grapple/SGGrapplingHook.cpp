@@ -3,9 +3,7 @@
 
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Grapple/SGGrappleHeadBase.h"
-#include "AssetTypeCategories.h"
 #include "Player/SGPlayerController.h"
-#include "LandscapeGizmoActiveActor.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
