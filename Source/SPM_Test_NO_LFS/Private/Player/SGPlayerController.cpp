@@ -7,6 +7,8 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Blueprint/UserWidget.h"
+#include "Core/SGUpgradeSubsystem.h"
+#include "Util/SGUpgradeCheatManager.h"
 
 void ASGPlayerController::BeginPlay()
 {
@@ -25,6 +27,11 @@ void ASGPlayerController::BeginPlay()
 	}
 
 	bCanFire = true;
+
+	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+	{
+		UpgradeSystem->BindAttribute(this, TEXT("MoveSpeed"), TEXT("MoveSpeed"));		
+	}
 }
 
 void ASGPlayerController::Tick(float DeltaTime)
