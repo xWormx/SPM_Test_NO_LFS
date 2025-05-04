@@ -47,29 +47,31 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FNam
     NewAttribute->Owner = Owner;
     NewAttribute->Property = Prop;
     NewAttribute->RowName = RowName; //Vart man hittar den i datatabellen
+	NewAttribute->InitialValue = CastFieldChecked<FFloatProperty>(Prop)->GetPropertyValue_InContainer(Owner); //Hämtar det initiala värdet från propertyn
 
     FSGAttribute* NewAttributeRaw = NewAttribute.Get(); // För att inte riskera att tappa den i lambdan och behöva mecka 
     NewAttributeRaw->OnAttributeModified.AddLambda([NewAttributeRaw, AttributeData]
     {
-    	//Early return om ägaren inte är aktiv och om uppgraderingen är maxad
-    	const bool bOwnerLives = NewAttributeRaw->Owner.IsValid();
-    	const bool bHasHighestUpgrade = NewAttributeRaw->CurrentUpgradeLevel >= AttributeData->UpgradeData.Num() - 1;
-        if (!bOwnerLives || bHasHighestUpgrade)
+    	//Early return om ägaren inte är aktiv och om uppgraderingen är maxad    	
+        if (!NewAttributeRaw->Owner.IsValid())
         {
 	        return;
-        } 	       
+        }
+    	
+		const FSGUpgradeData& UpgradeData = AttributeData->Data;
+    	if (UpgradeData.MaxNumberOfUpgrades != -1 || UpgradeData.MaxNumberOfUpgrades <= NewAttributeRaw->CurrentUpgradeLevel)
+		{
+			return;
+		}
+    	//Uppdaterar den nuvarande uppgraderingsnivån
+        NewAttributeRaw->CurrentUpgradeLevel++;
 
     	//Hämta float-propertyn 
 		FFloatProperty* FloatProp = CastFieldChecked<FFloatProperty>(NewAttributeRaw->Property);
-		float Current = FloatProp->GetPropertyValue_InContainer(NewAttributeRaw->Owner.Get());
-
-    	//Uppdaterar den nuvarande uppgraderingsnivån
-    	NewAttributeRaw->CurrentUpgradeLevel++;    	
-		// Hämta uppgraderingsdatan för den nya nivån
-    	const FSGUpgradeData& UpgradeData = AttributeData->UpgradeData[NewAttributeRaw->CurrentUpgradeLevel];    	
-    	    	
+		float Current = FloatProp->GetPropertyValue_InContainer(NewAttributeRaw->Owner.Get());   	  	
+    	
     	// Uppdaterar float-propertyn till den nya nivån 
-	    Current += UpgradeData.Multiplier; 
+    	Current += NewAttributeRaw->InitialValue * UpgradeData.Multiplier;
         FloatProp->SetPropertyValue_InContainer(NewAttributeRaw->Owner.Get(), Current);
     });
 
@@ -197,10 +199,10 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, UObject* Owner, FN
 	}	
 	
 	//Hämtar uppgraderingsdatan för den nya nivån (har uppdaterats efter Broadcasten).
-	const FSGUpgradeData& UpgradeData = AttributeData->UpgradeData[TargetAttribute->CurrentUpgradeLevel];
-	
-	OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeData.Cost);
-	OnUpgradeCost.Broadcast(UpgradeData.Cost);
+	const FSGUpgradeData& UpgradeData = AttributeData->Data;
+	const float UpgradeCost = UpgradeData.Cost * TargetAttribute->CurrentUpgradeLevel;
+	OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeCost);
+	OnUpgradeCost.Broadcast(UpgradeCost);
 	OnUpgradeLevel.Broadcast(TargetAttribute->CurrentUpgradeLevel);
 	OnUpgrade.Broadcast();	
 }
@@ -232,7 +234,7 @@ void USGUpgradeSubsystem::RequestUpgrade(bool bUpgrade, FName RowName) const
 			return;
 		}
 		//Hämtar uppgraderingsdatan för den nya nivån (har uppdaterats efter Broadcasten).
-		const FSGUpgradeData& UpgradeData = AttributeData->UpgradeData[TargetAttribute->CurrentUpgradeLevel];
+		const FSGUpgradeData& UpgradeData = AttributeData->Data;
 	
 		OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeData.Cost);
 		OnUpgradeCost.Broadcast(UpgradeData.Cost);
@@ -259,14 +261,14 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 		{
 			continue;
 		}
-
-		const FSGUpgradeData& UpgradeData = AttributeData->UpgradeData[TargetAttribute->CurrentUpgradeLevel];
+		
+		const FSGUpgradeData& UpgradeData = AttributeData->Data;
 		
 		FSGUpgradeEntry Entry;
-		Entry.RowName = TargetAttribute->RowName;
-		Entry.Icon = AttributeData->Icon;
-		Entry.Cost = UpgradeData.Cost;
-		Entry.Multiplier = UpgradeData.Multiplier;
+		Entry.DisplayName = AttributeData->DisplayName;
+		Entry.Icon = AttributeData->Icon.Get();
+		Entry.Cost = UpgradeData.Cost * TargetAttribute->CurrentUpgradeLevel;
+		Entry.Multiplier = UpgradeData.Multiplier * 100;
 		
 		Out.Add(Entry);
 	}

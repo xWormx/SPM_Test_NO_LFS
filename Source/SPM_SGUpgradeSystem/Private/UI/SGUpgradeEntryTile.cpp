@@ -47,5 +47,5 @@ void USGUpgradeEntryTile::HandleClicked()
 		return;
 	}
 	
-	UpgradeSubsystem->RequestUpgrade(UpgradeGuardInstance->CanUpgradeBasedOnCount(BoundEntry.Cost), BoundEntry.RowName);
+	UpgradeSubsystem->RequestUpgrade(UpgradeGuardInstance->CanUpgradeBasedOnCount(BoundEntry.Cost), BoundEntry.DisplayName);
 }
