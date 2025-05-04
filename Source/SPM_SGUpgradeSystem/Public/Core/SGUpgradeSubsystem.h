@@ -10,6 +10,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpgradeFull, float, UpgradeLevel
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpgradeCost, float, UpgradeCost); 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpgradeLevel, float, UpgradeLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUpgrade);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBindAttribute);
 
 UCLASS()
 class SPM_SGUPGRADESYSTEM_API USGUpgradeSubsystem : public UGameInstanceSubsystem
@@ -23,6 +24,7 @@ public:
 	FOnUpgradeCost OnUpgradeCost;
 	FOnUpgradeLevel OnUpgradeLevel;
 	FOnUpgrade OnUpgrade;
+	FOnBindAttribute OnBindAttribute;
 	
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 

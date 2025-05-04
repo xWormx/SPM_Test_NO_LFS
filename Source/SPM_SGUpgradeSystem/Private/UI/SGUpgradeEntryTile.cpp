@@ -10,18 +10,18 @@
 void USGUpgradeEntryTile::SetupEntry(const FSGUpgradeEntry& Entry)
 {
 	BoundEntry = Entry;
-
-	if (Icon && Entry.Icon)
+	if (!Icon || !Entry.Icon|| !UpgradeText)
 	{
-		Icon->SetBrushFromTexture(Entry.Icon);
+		return;
 	}
-
-	if (UpgradeText)
-	{
-		const FText EntryCost = FText::AsNumber(Entry.Cost);
-		const FText EntryMultiplier = FText::AsNumber(Entry.Multiplier);	
-		UpgradeText->SetText(FText::Format(FText::FromString("Cost: {0} Multiplier: {1}"), EntryCost, EntryMultiplier));
-	}	
+	
+	Icon->SetBrushFromTexture(Entry.Icon);
+	
+	const FText EntryCost = FText::AsNumber(Entry.Cost);
+	const FText EntryMultiplier = FText::AsNumber(Entry.Multiplier);
+	const FText EntryName = FText::FromName(Entry.DisplayName);
+	
+	UpgradeText->SetText( FText::Format(FText::FromString("{0} (+{1}%) {2}"), EntryName, EntryMultiplier, EntryCost));
 }
 
 void USGUpgradeEntryTile::NativeConstruct()

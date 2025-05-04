@@ -13,7 +13,7 @@ struct FSGAttribute
 	FProperty* Property = nullptr;
 
 	FName RowName; //Måste vara samma som i "row name" som sätts i själva datatabellen.
-	int32 CurrentUpgradeLevel = 0;
+	int32 CurrentUpgradeLevel = 1;
 	float InitialValue = 0.f; 
 	FOnAttributeModified OnAttributeModified; 
 };

@@ -23,25 +23,26 @@ void USGUpgradeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 
 void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FName RowName)
 {
-    if (!Owner || !UpgradeDataTable)
-    {
+	if (!ensureMsgf(Owner, TEXT("Owner was nullptr")) || !ensureMsgf(UpgradeDataTable, TEXT("UpgradeDataTable was nullptr")))
+	{
 	    return;
-    }
+	}  
 
 	//Hämtar propertyn som ska bindas och gör early return om den inte finns/är giltig
     FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
-    if (!Prop || !Prop->IsA<FFloatProperty>()) // Glöm inte att ändra denna om fler typer än float ska stödjas!
-    {
-		return;	
-    }
+	if (!Prop || !Prop->IsA<FFloatProperty>()) // Glöm inte att ändra denna om fler typer än float ska stödjas!
+	{
+		return;
+	}	
 
 	//Hämtar propertyns data (för uppgradering) och gör early return om den inte finns
     const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(RowName, TEXT("BindAttribute"));
-    if (!AttributeData)
-    {
-	    return;
-    }	
+	if (!ensureMsgf(AttributeData, TEXT("No AttributeData found for RowName: %s"), *RowName.ToString()))
+	{
+		return;
+	}	
 
+	UE_LOG(LogTemp, Warning, TEXT("RowName: %s"), *RowName.ToString());
 	//Unik pekare för att säkerställa att inget blir knas vid eventuell omallokering och förflyttning av alla sparade attribut (vid ex utökning av listan).
     TUniquePtr<FSGAttribute> NewAttribute = MakeUnique<FSGAttribute>();
     NewAttribute->Owner = Owner;
@@ -52,14 +53,14 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FNam
     FSGAttribute* NewAttributeRaw = NewAttribute.Get(); // För att inte riskera att tappa den i lambdan och behöva mecka 
     NewAttributeRaw->OnAttributeModified.AddLambda([NewAttributeRaw, AttributeData]
     {
-    	//Early return om ägaren inte är aktiv och om uppgraderingen är maxad    	
+    	//Early return om ägaren inte är aktiv och om uppgraderingen är maxad	
         if (!NewAttributeRaw->Owner.IsValid())
         {
 	        return;
         }
     	
 		const FSGUpgradeData& UpgradeData = AttributeData->Data;
-    	if (UpgradeData.MaxNumberOfUpgrades != -1 || UpgradeData.MaxNumberOfUpgrades <= NewAttributeRaw->CurrentUpgradeLevel)
+    	if (UpgradeData.MaxNumberOfUpgrades <= NewAttributeRaw->CurrentUpgradeLevel && UpgradeData.MaxNumberOfUpgrades != -1)   	
 		{
 			return;
 		}
@@ -79,6 +80,7 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FNam
     AttributesByRow.FindOrAdd(RowName).Add(NewAttributeRaw);
     AttributesByKey.Add(GetKey(Owner, Prop), NewAttributeRaw);
     RegisteredAttributes.Add(MoveTemp(NewAttribute));
+	OnBindAttribute.Broadcast();
 }
 
 const FSGAttribute* USGUpgradeSubsystem::GetByKey(UObject* Owner, FProperty* Property) const
@@ -113,14 +115,14 @@ uint64 USGUpgradeSubsystem::GetKey(UObject* Owner, FProperty* Property) const
 
 void USGUpgradeSubsystem::ModifyAttribute(UObject* Owner, FName PropertyName) const
 {
-    if (!Owner)
+	if (!ensureMsgf(Owner, TEXT("Owner was nullptr")))
     {
 	    return;
     }
 	
     FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
 	const FSGAttribute* TargetAttribute = GetByKey(Owner, Prop);
-    if (!TargetAttribute)
+	if (!ensureMsgf(TargetAttribute, TEXT("TargetAttribute was nullptr")))
     {
         return;
     }
@@ -140,7 +142,7 @@ void USGUpgradeSubsystem::ModifyAttributeByRow(FName RowName) const
 
 void USGUpgradeSubsystem::UnbindAttribute(UObject* Owner, FName PropertyName)
 {
-    if (!Owner)
+	if (!ensureMsgf(Owner, TEXT("Owner was nullptr")))
     {
 	    return;
     }
@@ -149,7 +151,7 @@ void USGUpgradeSubsystem::UnbindAttribute(UObject* Owner, FName PropertyName)
     FProperty* TargetProperty = Owner->GetClass()->FindPropertyByName(PropertyName);
     uint64 Key = GetKey(Owner, TargetProperty);
 	FSGAttribute* TargetAttribute = AttributesByKey.FindRef(Key);
-    if (!TargetAttribute)
+	if (!ensureMsgf(TargetAttribute, TEXT("TargetAttribute was nullptr")))
     {
        return;
     }
@@ -175,7 +177,7 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, UObject* Owner, FN
 
 	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
 	const FSGAttribute* TargetAttribute = GetByKey(Owner, Prop);
-	if (!TargetAttribute)
+	if (!ensureMsgf(TargetAttribute, TEXT("TargetAttribute was nullptr")))
 	{
 		return;
 	}
@@ -239,8 +241,7 @@ void USGUpgradeSubsystem::RequestUpgrade(bool bUpgrade, FName RowName) const
 		OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeData.Cost);
 		OnUpgradeCost.Broadcast(UpgradeData.Cost);
 		OnUpgradeLevel.Broadcast(TargetAttribute->CurrentUpgradeLevel);
-		OnUpgrade.Broadcast();
-		
+		OnUpgrade.Broadcast();		
 	}
 	
 }
@@ -248,19 +249,19 @@ void USGUpgradeSubsystem::RequestUpgrade(bool bUpgrade, FName RowName) const
 TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 {
 	TArray<FSGUpgradeEntry> Out;
-	if (!UpgradeDataTable)
+	if (!ensureMsgf(UpgradeDataTable, TEXT("UpgradeDataTable was nullptr")))
 	{
 		return Out;
-	}
+	}	
 	
 	for (const TUniquePtr<FSGAttribute>& Ptr : RegisteredAttributes)
 	{
 		const FSGAttribute* TargetAttribute = Ptr.Get();
 		const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(TargetAttribute->RowName, TEXT("GetUpgradeEntries"));
-		if (!AttributeData)
+		if (!ensureMsgf(AttributeData, TEXT("AttributeData was nullptr")))
 		{
 			continue;
-		}
+		}		
 		
 		const FSGUpgradeData& UpgradeData = AttributeData->Data;
 		
