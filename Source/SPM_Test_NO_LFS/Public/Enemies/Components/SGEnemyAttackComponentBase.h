@@ -44,9 +44,10 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UDamageType> DamageTypeClass;
+	
+	TObjectPtr<class ACharacter> OwnerCharacter;
 
-	UPROPERTY()
-	class ACharacter* OwnerCharacter;
+	TObjectPtr<AActor> TargetActor;
 
 	UPROPERTY(EditAnywhere)
 	float AttackRadius = 10.f;

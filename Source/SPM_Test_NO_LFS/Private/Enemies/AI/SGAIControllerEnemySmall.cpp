@@ -18,7 +18,7 @@ void ASGAIControllerEnemySmall::BeginPlay()
 
 void ASGAIControllerEnemySmall::HandleMovement()
 {
-	if (!AttackTarget)
+	if (!AttackTarget || !ControlledEnemy)
 	{
 		return;
 	}
@@ -30,7 +30,7 @@ void ASGAIControllerEnemySmall::HandleMovement()
 			return;
 		}
 	}
-	FVector Location = GetPawn()->GetActorLocation();
+	FVector Location = ControlledEnemy->GetActorLocation();
 	FVector PlayerLocation = AttackTarget->GetActorLocation();
 
 	float DistanceToPlayer = FVector::Dist(PlayerLocation, Location);
@@ -49,24 +49,15 @@ void ASGAIControllerEnemySmall::HandleMovement()
 		MoveToActor(AttackTarget, AcceptanceRadius);
 	}
 
-	ControlledCharacter = Cast<ASGEnemyCharacter>(GetPawn());
-
 	if (CanAttackTarget())
 	{
-		if (ControlledCharacter)
-		{
-			if (USGEnemyShootAttackComponent* ShootAttackComponent = ControlledCharacter->FindComponentByClass<USGEnemyShootAttackComponent>())
-			{
-				ShootAttackComponent->StartAttack(AttackTarget);
-			}
-		}
+		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
 }
 
 void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 	
 	HandleMovement();
 	

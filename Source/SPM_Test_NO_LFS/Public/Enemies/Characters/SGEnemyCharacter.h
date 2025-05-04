@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "SGEnemyCharacter.generated.h"
 
+class USGEnemyAttackComponentBase;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDied, ASGEnemyCharacter*, DeadEnemy);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDiedObjective, UObject*, ObjectiveInterfaceImplementor);
 
@@ -41,8 +42,16 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEnemyDiedObjective OnEnemyDiedObjective;
 
+	UFUNCTION(BlueprintCallable)
+	USGEnemyAttackComponentBase* GetAttackComponent() const;
+
 protected:
 	UPROPERTY()
 	class USGHealthComponent* HealthComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Combat")
+	TObjectPtr<USGEnemyAttackComponentBase> AttackComponent;
+	
+
 };
+

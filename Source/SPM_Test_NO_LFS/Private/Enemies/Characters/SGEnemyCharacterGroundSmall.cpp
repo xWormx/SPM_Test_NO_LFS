@@ -9,7 +9,7 @@ ASGEnemyCharacterGroundSmall::ASGEnemyCharacterGroundSmall()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	ShootAttackComponent = CreateDefaultSubobject<USGEnemyShootAttackComponent>(TEXT("ShootAttackComponent"));
+	AttackComponent = CreateDefaultSubobject<USGEnemyShootAttackComponent>(TEXT("ShootAttackComponent"));
 }
 
 void ASGEnemyCharacterGroundSmall::Tick(float DeltaTime)

@@ -3,21 +3,19 @@
 
 #include "Enemies/AI/SGAIControllerEnemyBase.h"
 
-#include "Chaos/PBDSuspensionConstraintData.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	
 }
 
 void ASGAIControllerEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	ControlledCharacter = GetPawn();	
+	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
 	
 }
 
@@ -27,7 +25,7 @@ bool ASGAIControllerEnemyBase::CanAttackTarget() const
 	{
 		return false;
 	}
-	const FVector Location = GetPawn()->GetActorLocation();
+	const FVector Location = ControlledEnemy->GetActorLocation();
 	const FVector TargetLocation = AttackTarget->GetActorLocation();
 
 	const float DistanceToPlayer = FVector::Dist(TargetLocation, Location);
@@ -61,10 +59,11 @@ void ASGAIControllerEnemyBase::SetAttackTarget(AActor* NewAttackTarget)
 	AttackTarget = NewAttackTarget;
 }
 
-void ASGAIControllerEnemyBase::SetControlledCharacter(AActor* NewControlledEnemy)
+void ASGAIControllerEnemyBase::SetControlledCharacter(ASGEnemyCharacter* NewControlledEnemy)
 {
-	ControlledCharacter = NewControlledEnemy;
+	ControlledEnemy = NewControlledEnemy;
 }
+
 
 float ASGAIControllerEnemyBase::GetAcceptanceRadius() const
 {

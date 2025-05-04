@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Enemies/Components/SGEnemyAttackComponentBase.h"
 #include "SGAIControllerEnemyBase.generated.h"
 
+class ASGEnemyCharacter;
 /**
  * 
  */
@@ -37,7 +37,7 @@ protected:
 	virtual void SetAttackTarget(AActor* NewAttackTarget);
 
 	UFUNCTION(BlueprintCallable)
-	virtual void SetControlledCharacter(AActor* NewControlledEnemy);
+	virtual void SetControlledCharacter(ASGEnemyCharacter* NewControlledEnemy);
 	
 	UFUNCTION(BlueprintCallable)
 	virtual float GetAcceptanceRadius() const;
@@ -55,10 +55,9 @@ protected:
 	float AttackRange = 0;
 
 	UPROPERTY(EditAnywhere,  Category= "Combat", meta = (AllowPrivateAccess = true))
-	AActor* AttackTarget;
-
-	UPROPERTY(EditAnywhere)
-	AActor* ControlledCharacter;
+	TObjectPtr<AActor> AttackTarget;
+	
+	TObjectPtr<ASGEnemyCharacter> ControlledEnemy;
 
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
 	float AcceptanceRadius = 0;

@@ -24,9 +24,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
-
-protected:
-	UPROPERTY(EditAnywhere)
-	class USGEnemyChargeAttackComponent* ChargeAttackComponent;
+	
 };

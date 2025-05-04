@@ -3,7 +3,7 @@
 
 #include "Enemies/Components/SGEnemyAttackComponentBase.h"
 
-#include "GameFramework/Character.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
 
 
 // Sets default values for this component's properties
@@ -13,7 +13,7 @@ USGEnemyAttackComponentBase::USGEnemyAttackComponentBase()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	bCanAttack = true;
-	OwnerCharacter = Cast<ACharacter>(GetOwner());
+	OwnerCharacter = Cast<ASGEnemyCharacter>(GetOwner());
 }
 
 
