@@ -9,7 +9,7 @@ ASGEnemyCharacterGroundBig::ASGEnemyCharacterGroundBig()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	MeleeComponent = CreateDefaultSubobject<USGEnemyMeleAttackComponent>(TEXT("MeleeComponent"));
+	AttackComponent = CreateDefaultSubobject<USGEnemyMeleAttackComponent>(TEXT("MeleeComponent"));
 }
 
 void ASGEnemyCharacterGroundBig::Tick(float DeltaTime)

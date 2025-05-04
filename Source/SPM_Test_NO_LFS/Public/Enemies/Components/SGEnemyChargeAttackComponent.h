@@ -30,7 +30,24 @@ public:
 protected:
 	virtual void PerformAttack(AActor* Target) override;
 
+	virtual void ChargeTowardsTarget(const FVector& TargetLocation);
+
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+			   UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 	UPROPERTY(EditAnywhere)
 	float ChargeSpeed = 1500.f;
+
+	bool bIsCharging = false;
+
+	UPROPERTY()
+	FVector RegisteredTargetLocation;
+
+	UFUNCTION()
+	void BackUpBeforeCharge();
+
+	UFUNCTION()
+	void FaceTarget(AActor* Target);
 
 };

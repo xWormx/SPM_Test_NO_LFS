@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Enemies/Components/SGEnemyAttackComponentBase.h"
 #include "SGAIControllerEnemyBase.generated.h"
 
+class ASGEnemyCharacter;
 /**
  * 
  */
-UCLASS(Abstract)
+UCLASS()
 class SPM_TEST_NO_LFS_API ASGAIControllerEnemyBase : public AAIController
 {
 	GENERATED_BODY()
@@ -22,7 +22,7 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual bool CanAttackTarget() const;
 	
-	virtual void HandleMovement() PURE_VIRTUAL(ASGAIControllerEnemyBase::HandleMovement, );
+	virtual void HandleMovement();
 
 	UFUNCTION(BlueprintCallable)
 	virtual float GetAttackRange() const;
@@ -37,7 +37,7 @@ protected:
 	virtual void SetAttackTarget(AActor* NewAttackTarget);
 
 	UFUNCTION(BlueprintCallable)
-	virtual void SetControlledCharacter(AActor* NewControlledEnemy);
+	virtual void SetControlledCharacter(ASGEnemyCharacter* NewControlledEnemy);
 	
 	UFUNCTION(BlueprintCallable)
 	virtual float GetAcceptanceRadius() const;
@@ -55,10 +55,9 @@ protected:
 	float AttackRange = 0;
 
 	UPROPERTY(EditAnywhere,  Category= "Combat", meta = (AllowPrivateAccess = true))
-	AActor* AttackTarget = nullptr;
-
-	UPROPERTY(EditAnywhere)
-	AActor* ControlledCharacter = nullptr;
+	TObjectPtr<AActor> AttackTarget;
+	
+	TObjectPtr<ASGEnemyCharacter> ControlledEnemy;
 
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
 	float AcceptanceRadius = 0;

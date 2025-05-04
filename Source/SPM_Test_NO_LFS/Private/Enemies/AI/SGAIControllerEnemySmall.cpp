@@ -3,8 +3,8 @@
 
 #include "Enemies/AI/SGAIControllerEnemySmall.h"
 
+#include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyShootAttackComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
 {
@@ -18,7 +18,7 @@ void ASGAIControllerEnemySmall::BeginPlay()
 
 void ASGAIControllerEnemySmall::HandleMovement()
 {
-	if (!AttackTarget)
+	if (!AttackTarget || !ControlledEnemy)
 	{
 		return;
 	}
@@ -30,7 +30,7 @@ void ASGAIControllerEnemySmall::HandleMovement()
 			return;
 		}
 	}
-	FVector Location = GetPawn()->GetActorLocation();
+	FVector Location = ControlledEnemy->GetActorLocation();
 	FVector PlayerLocation = AttackTarget->GetActorLocation();
 
 	float DistanceToPlayer = FVector::Dist(PlayerLocation, Location);
@@ -38,8 +38,8 @@ void ASGAIControllerEnemySmall::HandleMovement()
 
 	if (DistanceToPlayer < AcceptanceRadius)
 	{
-		FVector DirectionAwayFromPlayer = (Location - PlayerLocation).GetSafeNormal(); // Vector pointing away from the player postion
-		FVector MoveAwayLocation = Location + DirectionAwayFromPlayer * RetreatDistance; // Calculate a new location to back up to
+		FVector DirectionAwayFromPlayer = (Location - PlayerLocation).GetSafeNormal();
+		FVector MoveAwayLocation = Location + DirectionAwayFromPlayer * RetreatDistance; 
 		
 		MoveToLocation(MoveAwayLocation);
 	}
@@ -48,22 +48,16 @@ void ASGAIControllerEnemySmall::HandleMovement()
 	{
 		MoveToActor(AttackTarget, AcceptanceRadius);
 	}
+
+	if (CanAttackTarget())
+	{
+		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
+	}
 }
 
 void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (CanAttackTarget())
-	{
-		if (ControlledCharacter)
-		{
-			if (USGEnemyShootAttackComponent* ShootAttackComponent = ControlledCharacter->FindComponentByClass<USGEnemyShootAttackComponent>())
-			{
-				ShootAttackComponent->StartAttack(AttackTarget);
-			}
-		}
-	}
 	
 	HandleMovement();
 	
