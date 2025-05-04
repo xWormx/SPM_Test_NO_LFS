@@ -61,7 +61,7 @@ void ASGGrenadeLauncher::SpawnProjectile()
 
 	if (Projectile)
 	{
-		Projectile->SetDamage(Damage);
+		//Projectile->SetDamage(Damage);
 
 		UProjectileMovementComponent* MovementComp = Projectile->GetMovementComponent();
 		if (MovementComp)
