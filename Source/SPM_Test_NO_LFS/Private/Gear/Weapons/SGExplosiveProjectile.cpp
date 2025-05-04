@@ -54,19 +54,18 @@ void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AActor* MyOwner = GetOwner();
-	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwner->GetOwner())
+	AActor* MyOwnersOwner = GetOwner()->GetOwner();
+	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwnersOwner)
 		return;
-
-	// Spawn VFX/SFX
+	
 	DoSpecialEffects();
-
-	// Optional: Debug sphere for explosion radius
+	
 	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 32, FColor::Orange, false, 2.0f);
-
-	// Apply radial damage
+	
 	TArray<AActor*> IgnoredActors;
 	IgnoredActors.Add(this);
 	if (MyOwner) IgnoredActors.Add(MyOwner);
+	if (MyOwnersOwner) IgnoredActors.Add(MyOwnersOwner);
 
 	UGameplayStatics::ApplyRadialDamage(
 		this,
@@ -89,4 +88,31 @@ void ASGExplosiveProjectile::DoSpecialEffects()
 	if (CameraShakeClass) GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShakeClass);
 	if (ExplodeSound) UGameplayStatics::PlaySoundAtLocation(this, ExplodeSound, GetActorLocation());
 	if (ExplodeEffect) UGameplayStatics::SpawnEmitterAtLocation(this, ExplodeEffect, GetActorLocation(), GetActorRotation());
+	if (ExplosionDecal)
+	{
+		FVector Location = GetActorLocation();
+		FVector Normal = FVector::UpVector;
+		FHitResult Hit;
+
+		FVector Start = Location;
+		FVector End = Start - FVector(0, 0, ExplosionDecalRange);
+
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility))
+		{
+			Normal = Hit.ImpactNormal;
+			
+			float RandomYaw = FMath::FRandRange(0.f, 360.f);
+			FRotator DecalRotation = Normal.Rotation();
+			DecalRotation.Yaw += RandomYaw;
+
+			UGameplayStatics::SpawnDecalAtLocation(
+				GetWorld(),
+				ExplosionDecal,
+				FVector(30.f, ExplosionDecalSize, ExplosionDecalSize),
+				Hit.ImpactPoint,
+				DecalRotation,
+				ExplosionDecalLifetime
+			);
+		}
+	}
 }

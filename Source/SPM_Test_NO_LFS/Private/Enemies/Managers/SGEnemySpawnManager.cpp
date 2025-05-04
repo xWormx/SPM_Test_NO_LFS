@@ -63,18 +63,21 @@ void ASGEnemySpawnManager::EndSpawnLoopTimer()
 	{
 		case ESpawnMode::Everywhere:
 			{
+				if (EnemiesAlive >= MaxEnemiesAtATime) break;
 				SpawnEnemiesEverywhere();
 				break;
 			}
 		
 		case ESpawnMode::AtArea:
 			{
+				if (EnemiesAlive >= MaxEnemiesAtATime) break;
 				SpawnEnemiesAtArea();
 				break;
 			}
 		
 		case ESpawnMode::AroundPlayer:
 			{
+				if (EnemiesAlive >= MaxEnemiesAtATime) break;
 				SpawnEnemiesAroundPlayer();
 				break;
 			}

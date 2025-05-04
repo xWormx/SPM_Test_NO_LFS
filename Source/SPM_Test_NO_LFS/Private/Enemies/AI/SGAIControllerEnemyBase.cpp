@@ -3,6 +3,9 @@
 
 #include "Enemies/AI/SGAIControllerEnemyBase.h"
 
+#include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Kismet/GameplayStatics.h"
+
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -11,6 +14,9 @@ ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 void ASGAIControllerEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
+	
 }
 
 bool ASGAIControllerEnemyBase::CanAttackTarget() const
@@ -19,7 +25,7 @@ bool ASGAIControllerEnemyBase::CanAttackTarget() const
 	{
 		return false;
 	}
-	const FVector Location = GetPawn()->GetActorLocation();
+	const FVector Location = ControlledEnemy->GetActorLocation();
 	const FVector TargetLocation = AttackTarget->GetActorLocation();
 
 	const float DistanceToPlayer = FVector::Dist(TargetLocation, Location);
@@ -27,6 +33,10 @@ bool ASGAIControllerEnemyBase::CanAttackTarget() const
 	const bool bCanAttackTarget = DistanceToPlayer < AttackRange;
 
 	return bCanAttackTarget;
+}
+
+void ASGAIControllerEnemyBase::HandleMovement()
+{
 }
 
 float ASGAIControllerEnemyBase::GetAttackRange() const
@@ -49,10 +59,11 @@ void ASGAIControllerEnemyBase::SetAttackTarget(AActor* NewAttackTarget)
 	AttackTarget = NewAttackTarget;
 }
 
-void ASGAIControllerEnemyBase::SetControlledCharacter(AActor* NewControlledEnemy)
+void ASGAIControllerEnemyBase::SetControlledCharacter(ASGEnemyCharacter* NewControlledEnemy)
 {
-	ControlledCharacter = NewControlledEnemy;
+	ControlledEnemy = NewControlledEnemy;
 }
+
 
 float ASGAIControllerEnemyBase::GetAcceptanceRadius() const
 {

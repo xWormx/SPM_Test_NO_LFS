@@ -61,7 +61,7 @@ void ASGGrenadeLauncher::SpawnProjectile()
 
 	if (Projectile)
 	{
-		Projectile->SetDamage(Damage);
+		//Projectile->SetDamage(Damage);
 
 		UProjectileMovementComponent* MovementComp = Projectile->GetMovementComponent();
 		if (MovementComp)
@@ -85,12 +85,6 @@ void ASGGrenadeLauncher::EnableOverlapEventsForAllStaticMeshes(UWorld* World)
 			if (UStaticMeshComponent* MeshComponent = StaticMeshActor->GetStaticMeshComponent())
 			{
 				MeshComponent->SetGenerateOverlapEvents(true);
-				/*
-				MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-				MeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-				MeshComponent->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Block);
-				MeshComponent->SetNotifyRigidBodyCollision(true);
-				*/
 			}
 		}
 	}

@@ -56,11 +56,13 @@ private:
 	bool bSpawningIsActive = false;
 	TArray<AActor*> AllEnemySpawnPoints;
 	ASGPlayerCharacter* PlayerCharacter;
-	uint32 EnemiesAlive = 0;
+	int32 EnemiesAlive = 0;
 	FTimerHandle SpawnLoopTimer;
 	uint32 SpawnAreaIndex = 0;
 	uint32 EnemyCount = 1;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	int32 MaxEnemiesAtATime = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float TimeBetweenSpawns = 1.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
