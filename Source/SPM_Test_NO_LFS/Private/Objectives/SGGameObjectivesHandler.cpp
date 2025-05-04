@@ -28,7 +28,7 @@ void ASGGameObjectivesHandler::BeginPlay()
 	if (PlayerController)
 	{
 		ObjectiveToolTipWidget = Cast<USGObjectiveToolTipWidget>(CreateWidget<USGObjectiveToolTipWidget>(PlayerController, ObjectiveToolTipClass));
-		ObjectiveToolTipWidget->AddToViewport();
+		ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!
 		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::Hidden);
 		ObjectiveToolTipWidget->SetFadeFactor(ObjectiveToolTipFadeFactor);
 	}
@@ -79,6 +79,11 @@ void ASGGameObjectivesHandler::RegisterTerminalWidget(USGTerminalWidget* Termina
 
 void ASGGameObjectivesHandler::StartMission()
 {
+	/*
+		Tilldela varje objective ett ID här så att det kan lagras i ToolTipWidget's TMap så att
+		progresswindow kan hålla koll på alla texter 
+	 
+	 */
 	if (GameObjectives.Num() > 0)
 		CurrentObjective = GameObjectives[0];
 	
@@ -88,7 +93,7 @@ void ASGGameObjectivesHandler::StartMission()
 		ObjectiveToolTipWidget->Display(FText::FromString(str));
 		return;
 	}
-
+	
 	CurrentObjective->OnStart(this);
 	TerminalHUD->DisableStartButton();
 }
