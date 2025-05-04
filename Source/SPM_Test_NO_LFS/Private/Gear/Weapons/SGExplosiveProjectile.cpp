@@ -54,19 +54,18 @@ void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AActor* MyOwner = GetOwner();
-	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwner->GetOwner())
+	AActor* MyOwnersOwner = GetOwner()->GetOwner();
+	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwnersOwner)
 		return;
-
-	// Spawn VFX/SFX
+	
 	DoSpecialEffects();
-
-	// Optional: Debug sphere for explosion radius
+	
 	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 32, FColor::Orange, false, 2.0f);
-
-	// Apply radial damage
+	
 	TArray<AActor*> IgnoredActors;
 	IgnoredActors.Add(this);
 	if (MyOwner) IgnoredActors.Add(MyOwner);
+	if (MyOwnersOwner) IgnoredActors.Add(MyOwnersOwner);
 
 	UGameplayStatics::ApplyRadialDamage(
 		this,
@@ -109,7 +108,7 @@ void ASGExplosiveProjectile::DoSpecialEffects()
 			UGameplayStatics::SpawnDecalAtLocation(
 				GetWorld(),
 				ExplosionDecal,
-				FVector(30.f, 100.f, 100.f),
+				FVector(30.f, ExplosionDecalSize, ExplosionDecalSize),
 				Hit.ImpactPoint,
 				DecalRotation,
 				ExplosionDecalLifetime
