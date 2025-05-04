@@ -1,6 +1,7 @@
 #include "../../../Public/Gear/Weapons/SGGrenadeLauncher.h"
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
 #include "../../../Public/Player/SGPlayerCharacter.h"
+#include "Engine/StaticMeshActor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -26,7 +27,13 @@ void ASGGrenadeLauncher::BeginPlay()
 {
 	Super::BeginPlay();
 	ASGPlayerCharacter* MyOwner = Cast<ASGPlayerCharacter>(GetOwner());
-	if (MyOwner) PlayerMesh = MyOwner->GetMesh();
+	if (MyOwner)
+	{
+		PlayerMesh = MyOwner->GetMesh();
+		PlayerController = MyOwner->GetController();
+	}
+
+	EnableOverlapEventsForAllStaticMeshes(GetWorld());
 }
 
 // Private
@@ -35,7 +42,11 @@ void ASGGrenadeLauncher::SpawnProjectile()
 	if (!ProjectileClass || !ProjectileSpawnPoint) return;
 
 	FVector SpawnLocation = ProjectileSpawnPoint->GetComponentLocation();
-	FRotator SpawnRotation = ProjectileSpawnPoint->GetComponentRotation();
+	AController* Controller = GetOwner() ? GetOwner()->GetInstigatorController() : nullptr;
+	FRotator SpawnRotation = Controller ? Controller->GetControlRotation() : FRotator::ZeroRotator;
+	SpawnRotation.Pitch += PitchOffsetDegrees;
+
+	FVector LaunchDirection = SpawnRotation.Vector();
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
@@ -50,8 +61,37 @@ void ASGGrenadeLauncher::SpawnProjectile()
 
 	if (Projectile)
 	{
-		FVector LaunchDirection = SpawnRotation.Vector();
-		Projectile->GetMovementComponent()->Velocity = LaunchDirection * LaunchSpeed;
 		Projectile->SetDamage(Damage);
+
+		UProjectileMovementComponent* MovementComp = Projectile->GetMovementComponent();
+		if (MovementComp)
+		{
+			MovementComp->Velocity = LaunchDirection * LaunchSpeed;
+		}
+	}
+}
+
+void ASGGrenadeLauncher::EnableOverlapEventsForAllStaticMeshes(UWorld* World)
+{
+	if (!World) return;
+
+	TArray<AActor*> StaticMeshActors;
+	UGameplayStatics::GetAllActorsOfClass(World, AStaticMeshActor::StaticClass(), StaticMeshActors);
+
+	for (AActor* Actor : StaticMeshActors)
+	{
+		if (AStaticMeshActor* StaticMeshActor = Cast<AStaticMeshActor>(Actor))
+		{
+			if (UStaticMeshComponent* MeshComponent = StaticMeshActor->GetStaticMeshComponent())
+			{
+				MeshComponent->SetGenerateOverlapEvents(true);
+				/*
+				MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				MeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+				MeshComponent->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Block);
+				MeshComponent->SetNotifyRigidBodyCollision(true);
+				*/
+			}
+		}
 	}
 }
