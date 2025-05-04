@@ -37,6 +37,7 @@ void ASGTerminal::BeginPlay()
 	
 	InteractSphere->OnComponentHit.AddDynamic(this, &ASGTerminal::OnComponentHit);
 	InteractSphere->OnComponentBeginOverlap.AddDynamic(this, &ASGTerminal::OnOverlapBegin);
+	InteractSphere->OnComponentEndOverlap.AddDynamic(this, &ASGTerminal::OnOverlapEnd);
 	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PlayerController)
 	{
@@ -134,7 +135,7 @@ void ASGTerminal::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 	}
 }
 
-void ASGTerminal::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void ASGTerminal::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnComponentHit"));
 	if (OtherActor != nullptr)

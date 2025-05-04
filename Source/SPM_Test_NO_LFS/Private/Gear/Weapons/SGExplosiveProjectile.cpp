@@ -1,23 +1,30 @@
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
+#include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Public
 ASGExplosiveProjectile::ASGExplosiveProjectile()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = Root;
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Root);
 
-	// Physics setup
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	Mesh->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
-	Mesh->SetCollisionResponseToAllChannels(ECR_Block);
-	Mesh->SetNotifyRigidBodyCollision(true);
-	Mesh->SetSimulatePhysics(true);
-	Mesh->SetEnableGravity(true);
-	Mesh->SetMassOverrideInKg(NAME_None, ProjectileMass);
+	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollider"));
+	SphereCollider->SetupAttachment(Root);
+	SphereCollider->InitSphereRadius(30.0f);
+	SphereCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	SphereCollider->SetCollisionResponseToAllChannels(ECR_Overlap);
+	
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+	ProjectileMovement->InitialSpeed = 1000.f;
+	ProjectileMovement->MaxSpeed = 5000.f;
+	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->Bounciness = 0.6f;
+	ProjectileMovement->ProjectileGravityScale = 1.0f;
 }
 
 void ASGExplosiveProjectile::Tick(float DeltaTime)
@@ -30,48 +37,52 @@ void ASGExplosiveProjectile::SetDamage(float NewDamage)
 	Damage = NewDamage;
 }
 
+UProjectileMovementComponent* ASGExplosiveProjectile::GetMovementComponent()
+{
+	return ProjectileMovement;
+}
+
 // Protected
 void ASGExplosiveProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	if (Mesh) Mesh->OnComponentHit.AddDynamic(this, &ASGExplosiveProjectile::OnHit);
+	if (SphereCollider) SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &ASGExplosiveProjectile::OnBeginOverlap);
 }
 
 // Private
-void ASGExplosiveProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AActor* MyOwner = GetOwner();
 	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwner->GetOwner())
-	{
 		return;
-	}
 
+	// Spawn VFX/SFX
 	DoSpecialEffects();
 
-	DrawDebugSphere(
-		GetWorld(),
-		HitComp->GetComponentLocation(),
-		ExplosionRadius,
-		30,
-		FColor::Red,
-		false,
-		3.f
-		);
-	
-	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
-	{
-		UGameplayStatics::ApplyDamage(
-			OtherActor,
-			Damage,
-			MyOwner->GetInstigatorController(),
-			MyOwner,
-			UDamageType::StaticClass()
-		);
+	// Optional: Debug sphere for explosion radius
+	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 32, FColor::Orange, false, 2.0f);
 
-	}
+	// Apply radial damage
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(this);
+	if (MyOwner) IgnoredActors.Add(MyOwner);
+
+	UGameplayStatics::ApplyRadialDamage(
+		this,
+		Damage,
+		GetActorLocation(),
+		ExplosionRadius,
+		UDamageType::StaticClass(),
+		IgnoredActors,
+		this,
+		GetInstigatorController(),
+		true
+	);
 
 	Destroy();
 }
+
 
 void ASGExplosiveProjectile::DoSpecialEffects()
 {

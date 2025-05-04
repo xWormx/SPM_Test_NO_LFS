@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "Enemies/Components/SGEnemyAttackComponentBase.h"
 #include "SGAIControllerEnemyBase.generated.h"
 
 /**
@@ -34,6 +35,9 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void SetAttackTarget(AActor* NewAttackTarget);
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SetControlledCharacter(AActor* NewControlledEnemy);
 	
 	UFUNCTION(BlueprintCallable)
 	virtual float GetAcceptanceRadius() const;
@@ -53,12 +57,17 @@ protected:
 	UPROPERTY(EditAnywhere,  Category= "Combat", meta = (AllowPrivateAccess = true))
 	AActor* AttackTarget = nullptr;
 
+	UPROPERTY(EditAnywhere)
+	AActor* ControlledCharacter = nullptr;
+
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
 	float AcceptanceRadius = 0;
 
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
 	float RetreatDistance = 0;
 
+	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
+	bool bShouldAlwaysChaseTarget = false;
 
 public:
 	virtual void Tick(float DeltaTime) override;

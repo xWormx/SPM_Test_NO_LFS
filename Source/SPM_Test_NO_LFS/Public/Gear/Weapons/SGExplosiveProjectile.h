@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "SGExplosiveProjectile.generated.h"
 
-UCLASS()
+UCLASS(Blueprintable)
 class SPM_TEST_NO_LFS_API ASGExplosiveProjectile : public AActor
 {
 	GENERATED_BODY()
@@ -13,13 +13,14 @@ public:
 	ASGExplosiveProjectile();
 	virtual void Tick(float DeltaTime) override;
 	void SetDamage(float NewDamage);
+	class UProjectileMovementComponent* GetMovementComponent();
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	float Damage;
-
+	
 	void DoSpecialEffects();
 	
 	// VisibleAnywhere
@@ -27,6 +28,10 @@ private:
 	USceneComponent* Root;
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USkeletalMeshComponent* Mesh;
+	UPROPERTY(VisibleAnywhere, Category="design")
+	class USphereComponent* SphereCollider;
+	UPROPERTY(VisibleAnywhere, Category="design")
+	UProjectileMovementComponent* ProjectileMovement;
 	// EditAnywhere+BP
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UParticleSystem* ExplodeEffect;
@@ -37,10 +42,9 @@ private:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	TSubclassOf<class UCameraShakeBase> CameraShakeClass;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
-	float ExplosionRadius = 500.f;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
-	float ProjectileMass = 100.f;
+	float ExplosionRadius = 250.f;
 
 	UFUNCTION() // Callback function
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

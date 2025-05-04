@@ -49,6 +49,11 @@ void ASGAIControllerEnemyBase::SetAttackTarget(AActor* NewAttackTarget)
 	AttackTarget = NewAttackTarget;
 }
 
+void ASGAIControllerEnemyBase::SetControlledCharacter(AActor* NewControlledEnemy)
+{
+	ControlledCharacter = NewControlledEnemy;
+}
+
 float ASGAIControllerEnemyBase::GetAcceptanceRadius() const
 {
 	return AcceptanceRadius;

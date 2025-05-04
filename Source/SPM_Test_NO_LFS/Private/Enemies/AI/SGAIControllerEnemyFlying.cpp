@@ -1,4 +1,6 @@
 #include "Enemies/AI/SGAIControllerEnemyFlying.h"
+
+#include "Enemies/Components/SGEnemyChargeAttackComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -19,9 +21,12 @@ void ASGAIControllerEnemyFlying::HandleMovement()
 		return;
 	}
 
-	if (!LineOfSightTo(AttackTarget))
+	if (!bShouldAlwaysChaseTarget)
 	{
-		return;
+		if (!LineOfSightTo(AttackTarget))
+		{
+			return;
+		}
 	}
 	
 	float TargetZ = AttackTarget->GetActorLocation().Z;	
@@ -31,7 +36,20 @@ void ASGAIControllerEnemyFlying::HandleMovement()
 	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), 2.0f);
 	GetPawn()->SetActorLocation(CurrentLocation, true);
 		
-	FlyTowardsTarget();	
+	if (CanAttackTarget())
+	{
+		if (ControlledCharacter)
+		{
+			if (USGEnemyChargeAttackComponent* ChargeAttackComponent = ControlledCharacter->FindComponentByClass<USGEnemyChargeAttackComponent>())
+			{
+				ChargeAttackComponent->StartAttack(AttackTarget);
+			}
+		}
+	}
+	else
+	{
+		FlyTowardsTarget();
+	}
 }
 
 void ASGAIControllerEnemyFlying::FlyTowardsTarget()
