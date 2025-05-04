@@ -6,10 +6,21 @@
 #include "Blueprint/UserWidget.h"
 #include "SGObjectiveToolTipWidget.generated.h"
 
+class ASGObjectiveBase;
 class UScaleBox;
 /**
  * 
  */
+
+USTRUCT(BlueprintType)
+struct FProgressText
+{
+	GENERATED_BODY();
+	
+	UPROPERTY(EditAnywhere)
+	TArray<FString> SubText;	
+};
+
 UCLASS()
 class SPM_TEST_NO_LFS_API USGObjectiveToolTipWidget : public UUserWidget
 {
@@ -22,7 +33,7 @@ public:
 	const bool& GetIsHidden() const { return bIsHidden; }
 	const bool& GetTimerAnimationFinished() const  { return bTimerAnimationFinished; }
 	void InterruptAndHide() { Hide(); }
-
+	void SetProgressWindowText(ASGObjectiveBase* Objective);
 protected:
 	
 	virtual void NativeConstruct() override;
@@ -36,16 +47,30 @@ protected:
 	class UOverlay* TimerOverlay;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UImage* TimerImage;
+
 	
-	// ToolTp
+	// ToolTip
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UScaleBox* ScaleBoxToolTip;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UImage* ToolTipBackground;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UTextBlock* ToolTip;
 
-
+	// ProgressWindow
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UScaleBox* ScaleBoxMission;
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UTextBlock* TextBlockMissionProgress;
+	UPROPERTY(EditAnywhere)
+	TMap<int32, FProgressText> ProgressTextMap; 
+	
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* ShrinkAndMoveTimer;
+	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* MoveToolTipToProgressWindow;
+	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* AnimationHideToolTip;
 	
 	UPROPERTY(VisibleAnywhere)
 	bool bIsHidden = true;
@@ -67,11 +92,18 @@ private:
 	FVector2D ScaleBoxTimerFinalPosition;
 	FVector2D ScaleBoxTimerFinalSize;
 	void Render(float InDeltaTime);
-	void SetToolTipText(FText NewToolTip);
 	void Hide();
+	void SetToolTipText(FText NewToolTip);
+	
 
 	UFUNCTION()
-	void SetScaleBoxTransformAfterAnimation();
+	void SetScaleBoxTransformAfterAnimation();	
+	UFUNCTION()
+	void OnEndMoveToolTipAnimation();
+	UFUNCTION()
+	void OnEndHideToolTipAnimation();
 	
 	FWidgetAnimationDynamicEvent EndTimerAnimation;
+	FWidgetAnimationDynamicEvent EndMoveToolTipToProgressWindowAnimation;
+	FWidgetAnimationDynamicEvent EndHideToolTipAnimation;
 };

@@ -48,7 +48,7 @@ void ASGTerminal::BeginPlay()
 	
 	if (HUDTerminal)
 	{
-		HUDTerminal->AddToViewport();
+		HUDTerminal->AddToViewport(10); // Should be higher then ToolTipWidget! highest render on top.
 		HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
 		
 		if (!HUDTerminal->OnStartMission.IsAlreadyBound(this, &ASGTerminal::OnStartMissionButtonClicked))
@@ -57,7 +57,6 @@ void ASGTerminal::BeginPlay()
 		if (!HUDTerminal->OnCloseTerminal.IsAlreadyBound(this, &ASGTerminal::OnCloseTerminalClicked))
 			HUDTerminal->OnCloseTerminal.AddDynamic(this, &ASGTerminal::OnCloseTerminalClicked);
 	}
-
 }
 
 void ASGTerminal::OnStartMissionButtonClicked()
@@ -77,6 +76,9 @@ void ASGTerminal::CloseTerminal()
 	LastInteractingPlayerController->SetInputMode(FInputModeGameOnly());
 	LastInteractingPlayerController->SetShowMouseCursor(false);
 	LastInteractingPlayerController->SetWantToInteractWithTerminal(false);
+	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PlayerController)
+		PlayerController->SetPause(false);
 }
 
 void ASGTerminal::OpenTerminal()
@@ -108,6 +110,10 @@ void ASGTerminal::OpenTerminal()
 	{
 		UE_LOG(LogTemp, Error, TEXT("Terminal needs a GameObjectivesHandler!"));
 	}
+
+	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PlayerController)
+		PlayerController->SetPause(true);
 }
 
 // Called every frame

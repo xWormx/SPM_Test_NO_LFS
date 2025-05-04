@@ -10,6 +10,7 @@
 #include "Components/Overlay.h"
 #include "Components/ScaleBox.h"
 #include "Components/TextBlock.h"
+#include "Objectives/SGObjectiveBase.h"
 
 void USGObjectiveToolTipWidget::NativeConstruct()
 {
@@ -19,20 +20,34 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 	{
 		BindToAnimationFinished(ShrinkAndMoveTimer, EndTimerAnimation);	
 	}
+	EndMoveToolTipToProgressWindowAnimation.BindDynamic(this, &USGObjectiveToolTipWidget::OnEndMoveToolTipAnimation);
+	if (MoveToolTipToProgressWindow)
+	{
+		BindToAnimationFinished(MoveToolTipToProgressWindow, EndMoveToolTipToProgressWindowAnimation);
+	}
+	EndHideToolTipAnimation.BindDynamic(this, &USGObjectiveToolTipWidget::OnEndHideToolTipAnimation);
+	if (AnimationHideToolTip)
+	{
+		BindToAnimationFinished(AnimationHideToolTip, EndHideToolTipAnimation);
+	}
 	if (ScaleBoxTimer)
 	{
 		ScaleBoxTimer->SetVisibility(ESlateVisibility::Hidden);
 	}
+	if (ScaleBoxMission)
+	{
+		ScaleBoxMission->SetVisibility(ESlateVisibility::Hidden);
+	}
+	
 }
 
 void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 {
 	SetVisibility(ESlateVisibility::HitTestInvisible);
 	SetRenderOpacity(1.0f);
-	CurrentOpacity = 1.0f;
+	ScaleBoxToolTip->SetVisibility(ESlateVisibility::HitTestInvisible);
+	PlayAnimation(MoveToolTipToProgressWindow, 0, 1);
 	ToolTip->SetText(NewToolTip);
-	bShouldRender = true;
-	bHasFadedOut = false;
 	bIsHidden = false;
 }
 
@@ -50,7 +65,7 @@ void USGObjectiveToolTipWidget::DisplayTimer(FText NewTimerText)
 		}
 	}
 	if (!bTimerAnimationFinished)
-		PlayAnimation(ShrinkAndMoveTimer);
+		PlayAnimation(ShrinkAndMoveTimer, 0 ,1);
 	
 	if (IsAnimationPlaying(ShrinkAndMoveTimer))
 	{
@@ -65,24 +80,39 @@ void USGObjectiveToolTipWidget::DisplayTimer(FText NewTimerText)
 
 void USGObjectiveToolTipWidget::Render(float InDeltaTime)
 {
-	if (!bHasFadedOut && bShouldRender)
-	{
-		if (CurrentOpacity > 0.0)
-		{
-			ToolTipBackground->SetRenderOpacity(CurrentOpacity);
-			ToolTip->SetRenderOpacity(CurrentOpacity);
-			CurrentOpacity -= (FadeFactor * InDeltaTime);
-		}
-		else
-		{
-			Hide();
-		}
-	}
 }
 
 void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
 {
 	ToolTip->SetText(NewToolTip);
+}
+
+void USGObjectiveToolTipWidget::SetProgressWindowText(ASGObjectiveBase* Objective)
+{
+	if (!Objective->GetProgressText().SubText.IsEmpty())
+	{
+		if (!ProgressTextMap.Contains(Objective->GetObjectiveID()))
+		{
+			ProgressTextMap.Add(Objective->GetObjectiveID(), Objective->GetProgressText());
+		}
+		for (int i = 0; i < Objective->GetCurrentProgressStep(); i++)
+		{
+			if (i >= Objective->GetProgressText().SubText.Num())
+			{
+				UE_LOG(LogTemp, Error, TEXT("ProgressStep was larger than number of ProgressTexts"));
+				break;
+			}
+			if (i == 0)
+			{
+				TextBlockMissionProgress->SetText(FText::FromString(TEXT("- ") + Objective->GetProgressText().SubText[i]));
+				continue;
+				
+			}
+			FString CurrentProgressText = TextBlockMissionProgress->GetText().ToString();
+			TextBlockMissionProgress->SetText(FText::FromString(CurrentProgressText + ("\n\t- ") + Objective->GetProgressText().SubText[i]));
+		}
+		
+	}
 }
 
 void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -93,9 +123,7 @@ void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float In
 
 void USGObjectiveToolTipWidget::Hide()
 {
-	//SetVisibility(ESlateVisibility::Hidden);
-	ToolTipBackground->SetRenderOpacity(0.0f);
-	ToolTip->SetRenderOpacity(0.0f);
+	
 	CurrentOpacity = 1.0f;
 	bHasFadedOut = true;
 	bShouldRender = false;
@@ -113,6 +141,20 @@ void USGObjectiveToolTipWidget::SetScaleBoxTransformAfterAnimation()
 		ScaleBoxSlot->SetSize(ScaleBoxTimerFinalSize);
 	}
 	StopAnimation(ShrinkAndMoveTimer);
+}
+
+void USGObjectiveToolTipWidget::OnEndMoveToolTipAnimation()
+{
+	StopAnimation(MoveToolTipToProgressWindow);
+	PlayAnimation(AnimationHideToolTip, 0, 1);
+}
+
+void USGObjectiveToolTipWidget::OnEndHideToolTipAnimation()
+{
+	StopAnimation(AnimationHideToolTip);
+	ScaleBoxToolTip->SetRenderTranslation(FVector2D(0.0f, 0.0f));
+	ScaleBoxToolTip->SetVisibility(ESlateVisibility::Hidden);
+	ScaleBoxMission->SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 
 
