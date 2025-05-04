@@ -89,4 +89,31 @@ void ASGExplosiveProjectile::DoSpecialEffects()
 	if (CameraShakeClass) GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShakeClass);
 	if (ExplodeSound) UGameplayStatics::PlaySoundAtLocation(this, ExplodeSound, GetActorLocation());
 	if (ExplodeEffect) UGameplayStatics::SpawnEmitterAtLocation(this, ExplodeEffect, GetActorLocation(), GetActorRotation());
+	if (ExplosionDecal)
+	{
+		FVector Location = GetActorLocation();
+		FVector Normal = FVector::UpVector;
+		FHitResult Hit;
+
+		FVector Start = Location;
+		FVector End = Start - FVector(0, 0, ExplosionDecalRange);
+
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility))
+		{
+			Normal = Hit.ImpactNormal;
+			
+			float RandomYaw = FMath::FRandRange(0.f, 360.f);
+			FRotator DecalRotation = Normal.Rotation();
+			DecalRotation.Yaw += RandomYaw;
+
+			UGameplayStatics::SpawnDecalAtLocation(
+				GetWorld(),
+				ExplosionDecal,
+				FVector(30.f, 100.f, 100.f),
+				Hit.ImpactPoint,
+				DecalRotation,
+				ExplosionDecalLifetime
+			);
+		}
+	}
 }
