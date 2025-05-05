@@ -36,14 +36,18 @@ void ASGAIControllerEnemyFlying::HandleMovement()
 	FVector CurrentLocation = ControlledEnemy->GetActorLocation();
 	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), 2.0f);
 	ControlledEnemy->SetActorLocation(CurrentLocation, true);
-
-	USGEnemyChargeAttackComponent* ChargeAttackComponent = Cast<USGEnemyChargeAttackComponent>(ControlledEnemy->GetAttackComponent());
 	
 	if (CanAttackTarget())
 	{
+		bIsAttacking = true;
 		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
 	else
+	{
+		bIsAttacking = false;
+	}
+
+	if (!bIsAttacking)
 	{
 		FlyTowardsTarget();
 	}
@@ -55,24 +59,19 @@ void ASGAIControllerEnemyFlying::FlyTowardsTarget()
 	{
 		return;
 	}
+	
 	FVector ToPlayer = AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation();
-	float Distance = ToPlayer.Size();
-	
-	
-	if (Distance > DesiredDistance)
-	{
-		FVector Direction = ToPlayer.GetSafeNormal();
-		
-		FVector NewVelocity = Direction * ControlledEnemy->GetCharacterMovement()->MaxFlySpeed;
-		ControlledEnemy->GetCharacterMovement()->Velocity = NewVelocity;
 
-		FRotator LookRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
-		ControlledEnemy->SetActorRotation(LookRotation);
-	}
-	else
-	{
-		ControlledEnemy->GetCharacterMovement()->Velocity = FVector::ZeroVector;
-	}
+	FVector Direction = ToPlayer.GetSafeNormal();
+		
+	FVector NewVelocity = Direction * ControlledEnemy->GetCharacterMovement()->MaxFlySpeed;
+	
+	ControlledEnemy->GetCharacterMovement()->Velocity = NewVelocity;
+
+	FRotator LookRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
+	
+	ControlledEnemy->SetActorRotation(LookRotation);
+	
 }
 
 void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
