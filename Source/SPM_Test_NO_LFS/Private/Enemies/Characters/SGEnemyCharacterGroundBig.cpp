@@ -3,9 +3,13 @@
 
 #include "Enemies/Characters/SGEnemyCharacterGroundBig.h"
 
+#include "Enemies/Components/SGEnemyMeleAttackComponent.h"
+
 ASGEnemyCharacterGroundBig::ASGEnemyCharacterGroundBig()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	AttackComponent = CreateDefaultSubobject<USGEnemyMeleAttackComponent>(TEXT("MeleeComponent"));
 }
 
 void ASGEnemyCharacterGroundBig::Tick(float DeltaTime)

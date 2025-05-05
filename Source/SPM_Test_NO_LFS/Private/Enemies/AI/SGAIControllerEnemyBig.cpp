@@ -3,6 +3,8 @@
 
 #include "Enemies/AI/SGAIControllerEnemyBig.h"
 
+#include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Enemies/Components/SGEnemyMeleAttackComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemyBig::ASGAIControllerEnemyBig()
@@ -17,19 +19,22 @@ void ASGAIControllerEnemyBig::BeginPlay()
 
 void ASGAIControllerEnemyBig::HandleMovement()
 {
-	if (!AttackTarget)
+	if (!AttackTarget || !ControlledEnemy)
 	{
 		return;
 	}
 
-	if (!LineOfSightTo(AttackTarget))
+	if (!bShouldAlwaysChaseTarget)
 	{
-		return;
+		if (!LineOfSightTo(AttackTarget))
+		{
+			return;
+		}
 	}
-
+	
 	if (CanAttackTarget())
 	{
-		//TODO: Create attack functionality 
+		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
 	else
 	{

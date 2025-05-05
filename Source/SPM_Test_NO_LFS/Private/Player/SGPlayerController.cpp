@@ -7,6 +7,9 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Blueprint/UserWidget.h"
+#include "Core/SGGameInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "Objectives/SGTerminalWidget.h"
 
 void ASGPlayerController::BeginPlay()
 {
@@ -23,7 +26,9 @@ void ASGPlayerController::BeginPlay()
 	{
 		CrossHair->AddToViewport();
 	}
-
+	HUDTerminal = Cast<USGTerminalWidget>(CreateWidget<UUserWidget>(this, HUDTerminalClass));
+	if (HUDTerminal)
+		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetTerminalWidget(HUDTerminal);
 	bCanFire = true;
 }
 
@@ -209,26 +214,26 @@ void ASGPlayerController::OnSwapWeaponMouseWheel(const FInputActionValue& Value)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Mouse Scroll Wheel"));
 	if (ThePlayerCharacter == nullptr) return;
-	
-	uint32 NumberOfGuns = ThePlayerCharacter->GetGuns().Num();
-	uint8 CurrentGunIndex = ThePlayerCharacter->GetCurrentGunIndex();
 
+	const TArray<ASGGun*>& Guns = ThePlayerCharacter->GetGuns();
+	int32 NumberOfGuns = Guns.Num();
+	if (NumberOfGuns == 0) return;
+
+	int32 CurrentGunIndex = ThePlayerCharacter->GetCurrentGunIndex();
 	float ScrollValue = Value.Get<float>();
 
 	if (FMath::IsNearlyZero(ScrollValue)) return;
 
 	if (ScrollValue > 0.f)
 	{
-		++CurrentGunIndex;
-		if (CurrentGunIndex >= NumberOfGuns) CurrentGunIndex = 0;
-		ThePlayerCharacter->SetCurrentGunIndex(CurrentGunIndex);
+		CurrentGunIndex = (CurrentGunIndex + 1) % NumberOfGuns;
 	}
 	else if (ScrollValue < 0.f)
 	{
-		--CurrentGunIndex;
-		if (CurrentGunIndex == 0) CurrentGunIndex = NumberOfGuns-1;
-		ThePlayerCharacter->SetCurrentGunIndex(CurrentGunIndex);
+		CurrentGunIndex = (CurrentGunIndex - 1 + NumberOfGuns) % NumberOfGuns;
 	}
+
+	ThePlayerCharacter->SetCurrentGunIndex(CurrentGunIndex);
 }
 
 ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()

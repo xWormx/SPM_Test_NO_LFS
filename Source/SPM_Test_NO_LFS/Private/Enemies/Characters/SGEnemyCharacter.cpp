@@ -2,7 +2,6 @@
 
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
-
 #include "Enemies/Managers/SGEnemyDropManager.h"
 #include "Components/SGHealthComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -14,6 +13,7 @@ ASGEnemyCharacter::ASGEnemyCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
 
+	Tags.Add("Enemy");
 }
 
 // Called when the game starts or when spawned
@@ -21,7 +21,10 @@ void ASGEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HealthComponent) HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
+	if (HealthComponent)
+	{
+		HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
+	}
 }
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
@@ -54,4 +57,10 @@ void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent() const
+{
+	return AttackComponent;
+}
+
 

@@ -43,7 +43,6 @@ private:
 	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveToolTipClass;
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -54,21 +53,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	ASGObjectiveBase* CurrentObjective;
-
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	int EnemiesKilled = 0;
-	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	int NumberOfEnemiesToKill;
-
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	int CurrentCollectedAmout = 0;
-	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	int GoalCollectiblesAmount;
-
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	bool bPodDefended = false;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<ASGEnemyCharacter> TargetCharacterClass;

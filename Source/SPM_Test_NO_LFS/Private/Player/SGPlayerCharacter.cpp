@@ -119,12 +119,12 @@ const ASGGun* ASGPlayerCharacter::GetGunRef() const
 	return Guns[CurrentGunIndex];
 }
 
-void ASGPlayerCharacter::SetCurrentGunIndex(uint8 NewIndex)
+void ASGPlayerCharacter::SetCurrentGunIndex(int8 NewIndex)
 {
 	CurrentGunIndex = NewIndex;
 }
 
-uint8 ASGPlayerCharacter::GetCurrentGunIndex()
+int8 ASGPlayerCharacter::GetCurrentGunIndex()
 {
 	return CurrentGunIndex;
 }

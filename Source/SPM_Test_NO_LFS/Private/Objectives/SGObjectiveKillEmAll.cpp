@@ -13,4 +13,7 @@ bool ASGObjectiveKillEmAll::IsCompleted(ASGGameObjectivesHandler* ObjectivesHand
 void ASGObjectiveKillEmAll::Update(ASGGameObjectivesHandler* ObjectivesHandler)
 {
 	CurrentEnemiesKilled++;
+	FString StrEnemiesKilled = FString::Printf(TEXT("ENEMIES KILLED: %d/%d"), CurrentEnemiesKilled, EnemiesToKill);
+	SetCurrentProgressText(StrEnemiesKilled);
+
 }

@@ -1,4 +1,7 @@
 #include "Enemies/AI/SGAIControllerEnemyFlying.h"
+
+#include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Enemies/Components/SGEnemyChargeAttackComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -14,24 +17,36 @@ void ASGAIControllerEnemyFlying::BeginPlay()
 
 void ASGAIControllerEnemyFlying::HandleMovement()
 {
-	if (!AttackTarget)
+	if (!AttackTarget || !ControlledEnemy)
 	{
 		return;
 	}
 
-	if (!LineOfSightTo(AttackTarget))
+	if (!bShouldAlwaysChaseTarget)
 	{
-		return;
+		if (!LineOfSightTo(AttackTarget))
+		{
+			return;
+		}
 	}
 	
 	float TargetZ = AttackTarget->GetActorLocation().Z;	
 	float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
 	
-	FVector CurrentLocation = GetPawn()->GetActorLocation();
+	FVector CurrentLocation = ControlledEnemy->GetActorLocation();
 	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), 2.0f);
-	GetPawn()->SetActorLocation(CurrentLocation, true);
-		
-	FlyTowardsTarget();	
+	ControlledEnemy->SetActorLocation(CurrentLocation, true);
+
+	USGEnemyChargeAttackComponent* ChargeAttackComponent = Cast<USGEnemyChargeAttackComponent>(ControlledEnemy->GetAttackComponent());
+	
+	if (CanAttackTarget())
+	{
+		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
+	}
+	else
+	{
+		FlyTowardsTarget();
+	}
 }
 
 void ASGAIControllerEnemyFlying::FlyTowardsTarget()
@@ -40,24 +55,23 @@ void ASGAIControllerEnemyFlying::FlyTowardsTarget()
 	{
 		return;
 	}
-	FVector ToPlayer = AttackTarget->GetActorLocation() - GetPawn()->GetActorLocation();
+	FVector ToPlayer = AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation();
 	float Distance = ToPlayer.Size();
-
-	ACharacter* AIOwner = Cast<ACharacter>(GetPawn());
+	
 	
 	if (Distance > DesiredDistance)
 	{
 		FVector Direction = ToPlayer.GetSafeNormal();
 		
-		FVector NewVelocity = Direction * AIOwner->GetCharacterMovement()->MaxFlySpeed;
-		AIOwner->GetCharacterMovement()->Velocity = NewVelocity;
+		FVector NewVelocity = Direction * ControlledEnemy->GetCharacterMovement()->MaxFlySpeed;
+		ControlledEnemy->GetCharacterMovement()->Velocity = NewVelocity;
 
 		FRotator LookRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
-		AIOwner->SetActorRotation(LookRotation);
+		ControlledEnemy->SetActorRotation(LookRotation);
 	}
 	else
 	{
-		AIOwner->GetCharacterMovement()->Velocity = FVector::ZeroVector;
+		ControlledEnemy->GetCharacterMovement()->Velocity = FVector::ZeroVector;
 	}
 }
 

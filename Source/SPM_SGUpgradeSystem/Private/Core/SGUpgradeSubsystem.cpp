@@ -59,16 +59,15 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FNam
 	        return;
         } 	       
 
-    	//Uppdaterar den nuvarande uppgraderingsnivån
-    	NewAttributeRaw->CurrentUpgradeLevel++;    	    	
-
-    	// Hämta uppgraderingsdatan för den nya nivån
-    	const FSGUpgradeData& UpgradeData = AttributeData->UpgradeData[NewAttributeRaw->CurrentUpgradeLevel];
-    	
     	//Hämta float-propertyn 
 		FFloatProperty* FloatProp = CastFieldChecked<FFloatProperty>(NewAttributeRaw->Property);
 		float Current = FloatProp->GetPropertyValue_InContainer(NewAttributeRaw->Owner.Get());
-    	
+
+    	//Uppdaterar den nuvarande uppgraderingsnivån
+    	NewAttributeRaw->CurrentUpgradeLevel++;    	
+		// Hämta uppgraderingsdatan för den nya nivån
+    	const FSGUpgradeData& UpgradeData = AttributeData->UpgradeData[NewAttributeRaw->CurrentUpgradeLevel];    	
+    	    	
     	// Uppdaterar float-propertyn till den nya nivån 
 	    Current += UpgradeData.Multiplier; 
         FloatProp->SetPropertyValue_InContainer(NewAttributeRaw->Owner.Get(), Current);
@@ -242,4 +241,35 @@ void USGUpgradeSubsystem::RequestUpgrade(bool bUpgrade, FName RowName) const
 		
 	}
 	
+}
+
+TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
+{
+	TArray<FSGUpgradeEntry> Out;
+	if (!UpgradeDataTable)
+	{
+		return Out;
+	}
+	
+	for (const TUniquePtr<FSGAttribute>& Ptr : RegisteredAttributes)
+	{
+		const FSGAttribute* TargetAttribute = Ptr.Get();
+		const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(TargetAttribute->RowName, TEXT("GetUpgradeEntries"));
+		if (!AttributeData)
+		{
+			continue;
+		}
+
+		const FSGUpgradeData& UpgradeData = AttributeData->UpgradeData[TargetAttribute->CurrentUpgradeLevel];
+		
+		FSGUpgradeEntry Entry;
+		Entry.RowName = TargetAttribute->RowName;
+		Entry.Icon = AttributeData->Icon;
+		Entry.Cost = UpgradeData.Cost;
+		Entry.Multiplier = UpgradeData.Multiplier;
+		
+		Out.Add(Entry);
+	}
+
+	return Out;
 }
