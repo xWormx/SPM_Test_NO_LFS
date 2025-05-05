@@ -53,6 +53,7 @@ void ASGObjectiveDefendThePod::Tick(float DeltaTime)
 void ASGObjectiveDefendThePod::OnStart(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	Super::OnStart(ObjectiveHandler);
+	ObjectiveHandler->RegisterDefendThePod(this);
 }
   
 bool ASGObjectiveDefendThePod::IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler)
@@ -95,5 +96,6 @@ void ASGObjectiveDefendThePod::OnTimeIsOut()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Time is out to defend the pod, success or loss?"));
 	GetObjectiveHandler()->GetObjectiveToolTipWidget()->Display(GetObjectiveCompletedToolTip());
+	bDefendedThePod = true;
+	OnDefendEventEnd.Broadcast(this);
 }
-

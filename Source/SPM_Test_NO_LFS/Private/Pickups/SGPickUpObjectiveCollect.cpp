@@ -35,7 +35,7 @@ void ASGPickUpObjectiveCollect::BeginPlay()
 //TODO: Se över hantering av collectables. Kompakt lösning för enkelheten just nu.
 void ASGPickUpObjectiveCollect::HandleOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (!OtherActor || OtherActor == GetOwner() || OtherActor == UGameplayStatics::GetPlayerPawn(GetWorld(), 0)) 
+	if (!OtherActor || OtherActor == GetOwner() || OtherActor != UGameplayStatics::GetPlayerPawn(GetWorld(), 0)) 
 	{
 		return;
 	}	
@@ -44,7 +44,8 @@ void ASGPickUpObjectiveCollect::HandleOverlap(AActor* OverlappedActor, AActor* O
 
 void ASGPickUpObjectiveCollect::OnPickup_Implementation()
 {	
-	Super::OnPickup_Implementation(); // TODO: Implementera i en pool? Just nu släcks bara objektet 
+	Super::OnPickup_Implementation(); // TODO: Implementera i en pool? Just nu släcks bara objektet
+	UGameplayStatics::PlaySound2D(this, PickUpSound);
 	OnCollected.Broadcast(this);	
 }
 

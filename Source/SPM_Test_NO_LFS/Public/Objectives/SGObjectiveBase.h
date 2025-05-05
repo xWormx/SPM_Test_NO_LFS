@@ -55,6 +55,7 @@ protected:
 	void SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler) { ObjectiveHandlerPersistent = ObjectiveHandler; }
 	
 private:
+
 	UPROPERTY(VisibleAnywhere)
 	int32 CurrentSubObjectiveStep;
 	UPROPERTY(VisibleAnywhere)

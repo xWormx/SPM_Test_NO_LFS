@@ -10,6 +10,8 @@
 #include "Player/SGPlayerController.h"
 #include "Objectives/SGTerminalWidget.h"
 #include "Components/Button.h"
+#include "Kismet/GameplayStatics.h"
+#include "Objectives/SGObjectiveDefendThePod.h"
 
 // Sets default values
 ASGGameObjectivesHandler::ASGGameObjectivesHandler()
@@ -77,6 +79,18 @@ void ASGGameObjectivesHandler::RegisterTerminalWidget(USGTerminalWidget* Termina
 		TerminalHUD->OnStartMission.AddDynamic(this, &ASGGameObjectivesHandler::StartMission);
 }
 
+void ASGGameObjectivesHandler::RegisterDefendThePod(ASGObjectiveDefendThePod* DefendThePod)
+{
+	if (DefendThePod == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ObjectiveHandler: DefendThePod was nullptr!"));
+		return;
+	}
+
+	DefendThePod->OnDefendEventEnd.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
+		
+}
+
 void ASGGameObjectivesHandler::StartMission()
 {
 	/*
@@ -96,6 +110,7 @@ void ASGGameObjectivesHandler::StartMission()
 	
 	CurrentObjective->OnStart(this);
 	TerminalHUD->DisableStartButton();
+	UGameplayStatics::PlaySound2D(this, MissionStartedSound);
 }
 
 // TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...
@@ -122,6 +137,7 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 	if (CurrentObjective->IsCompleted(this))
 	{
 		CurrentObjective->OnCompleted(this);
+		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
 		RemoveCurrentObjective();
 	}
 }

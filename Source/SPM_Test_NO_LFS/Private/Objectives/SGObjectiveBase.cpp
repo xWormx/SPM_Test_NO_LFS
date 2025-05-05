@@ -2,6 +2,8 @@
 
 
 #include "Objectives/SGObjectiveBase.h"
+
+#include "Kismet/GameplayStatics.h"
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
 // Sets default values
@@ -42,11 +44,13 @@ void ASGObjectiveBase::OnStart(ASGGameObjectivesHandler* ObjectivesHandler)
 	DisplayStartToolTip(ObjectivesHandler->GetObjectiveToolTipWidget());
 	CurrentSubObjectiveStep = 1;
 	ObjectivesHandler->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
+	
 }
 
 void ASGObjectiveBase::OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	DisplayEndToolTip(ObjectiveHandler->GetObjectiveToolTipWidget());
+	
 }
 
 void ASGObjectiveBase::DisplayStartToolTip(USGObjectiveToolTipWidget* ToolTipWidget)
@@ -71,6 +75,11 @@ FText ASGObjectiveBase::GetCurrentSubToolTip()
 
 void ASGObjectiveBase::SetCurrentProgressText(FString NewCurrentProgressText)
 {
+	if (ProgressText.SubText[GetCurrentProgressStep() - 1].IsEmpty())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Progress SubText was empty in Objective: %s"), *GetActorLabel())
+		return;
+	}
 	ProgressText.SubText[GetCurrentProgressStep() - 1] = NewCurrentProgressText;
 	GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
 }
