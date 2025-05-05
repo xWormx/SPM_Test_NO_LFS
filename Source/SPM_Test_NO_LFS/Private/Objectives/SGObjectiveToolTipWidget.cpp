@@ -123,7 +123,6 @@ void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float In
 
 void USGObjectiveToolTipWidget::Hide()
 {
-	
 	CurrentOpacity = 1.0f;
 	bHasFadedOut = true;
 	bShouldRender = false;
