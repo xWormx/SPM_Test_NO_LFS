@@ -6,6 +6,7 @@
 #include "Objectives/SGObjectiveToolTipWidget.h"
 #include "Components/SphereComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Core/SGGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -41,11 +42,18 @@ void ASGTerminal::BeginPlay()
 	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PlayerController)
 	{
-		HUDTerminal = Cast<USGTerminalWidget>(CreateWidget<UUserWidget>(PlayerController, HUDTerminalClass));
-		PlayerController->OnInteract.AddDynamic(this, &ASGTerminal::OpenTerminal); 
+		//HUDTerminal = Cast<USGTerminalWidget>(CreateWidget<UUserWidget>(PlayerController, HUDTerminalClass));
+		USGGameInstance* GameInstance = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
+		if (!GameInstance)
+		{
+			UE_LOG(LogTemp, Error, TEXT("ASGTerminal: Couldn't find a GameInstance!"));
+			return;
+		}
+
+		HUDTerminal = GameInstance->GetTerminalWidget();
+		PlayerController->OnInteract.AddDynamic(this, &ASGTerminal::OpenTerminal);	
 	}
 		
-	
 	if (HUDTerminal)
 	{
 		HUDTerminal->AddToViewport(10); // Should be higher then ToolTipWidget! highest render on top.
@@ -71,6 +79,16 @@ void ASGTerminal::OnCloseTerminalClicked()
 
 void ASGTerminal::CloseTerminal()
 {
+	if (HUDTerminal == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ASGTerminal - CloseTerminal(): HUDTerminal was nullptr"))
+		return;
+	}
+	if (LastInteractingPlayerController == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LastInteractingPlayerController was nullptr from: %s"), *GetName());
+		return;
+	}
 	HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
 	LastInteractingPlayerController->EnableInput(LastInteractingPlayerController);
 	LastInteractingPlayerController->SetInputMode(FInputModeGameOnly());
@@ -83,12 +101,23 @@ void ASGTerminal::CloseTerminal()
 
 void ASGTerminal::OpenTerminal()
 {
+	if (HUDTerminal == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ASGTerminal - OpenTerminal(): HUDTerminal was nullptr"))
+		return;
+	}
+	
+	if (LastInteractingPlayerController == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LastInteractingPlayerController was nullptr from: %s"), *GetName());
+		return;
+	}
+		
 	if (!LastInteractingPlayerController->GetCanInteractWithTerminal())
 	{
 		UE_LOG(LogTemp, Error, TEXT("Terminal: Player trying to interact with terminal but is not within range!"));
 		return;
 	}
-		
 	
 	UE_LOG(LogTemp, Display, TEXT("Interacting with terminal"));
 	HUDTerminal->SetVisibility(ESlateVisibility::Visible);
@@ -105,6 +134,7 @@ void ASGTerminal::OpenTerminal()
 			if (!ToolTipWidget->GetIsHidden())
 				ToolTipWidget->InterruptAndHide();	
 		}
+		OnTerminalOpen.Broadcast();
 	}
 	else
 	{
@@ -124,7 +154,7 @@ void ASGTerminal::Tick(float DeltaTime)
 
 void ASGTerminal::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnComponentHit"));
+	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnOverlapBegin"));
 	if (OtherActor != nullptr)
 	{
 		ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
@@ -143,19 +173,19 @@ void ASGTerminal::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 
 void ASGTerminal::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnComponentHit"));
+	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnOverlapEnd"));
 	if (OtherActor != nullptr)
 	{
 		ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
 		if (Player == nullptr)
 			return;
-		UE_LOG(LogTemp, Warning, TEXT("Player Overlapped!"));
+		UE_LOG(LogTemp, Warning, TEXT("Player Overlapped Ended!"));
 		
 		ASGPlayerController* PlayerController = Cast<ASGPlayerController>(Player->GetController());
 		if (PlayerController == nullptr)
 			return;
 
-		LastInteractingPlayerController = PlayerController;
+		LastInteractingPlayerController = nullptr;
 		PlayerController->SetCanInteractWithTerminal(false);
 	}
 }
