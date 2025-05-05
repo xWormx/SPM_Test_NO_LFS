@@ -9,6 +9,7 @@
 #include "SGTerminalWidget.h"
 #include "SGTerminal.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnTerminalOpen);
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGTerminal : public AActor
 {
@@ -25,6 +26,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	FOnTerminalOpen OnTerminalOpen;
 	
 private:
 

@@ -1,11 +1,15 @@
 #include "Player/SGPlayerController.h"
 #include "Player/SGPlayerCharacter.h"
 #include "EnhancedInputComponent.h"
+#include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Blueprint/UserWidget.h"
-#include "Core/SGUpgradeSubsystem.h"
+#include "Core/SGGameInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "Objectives/SGTerminalWidget.h"
 
 void ASGPlayerController::BeginPlay()
 {
@@ -22,16 +26,10 @@ void ASGPlayerController::BeginPlay()
 	{
 		CrossHair->AddToViewport();
 	}
-
+	HUDTerminal = Cast<USGTerminalWidget>(CreateWidget<UUserWidget>(this, HUDTerminalClass));
+	if (HUDTerminal)
+		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetTerminalWidget(HUDTerminal);
 	bCanFire = true;
-
-	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
-	{
-		FName PropertyName = TEXT("MoveSpeed");
-		FName RowName = TEXT("MoveSpeed");
-		FName Category = TEXT("Player");
-		UpgradeSystem->BindAttribute(this, PropertyName, RowName, Category);		
-	}
 }
 
 void ASGPlayerController::Tick(float DeltaTime)

@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "SGPlayerController.generated.h"
 
+class USGTerminalWidget;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
 class ASGPlayerCharacter;
@@ -103,6 +104,12 @@ private:
 	//Added by Basir
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	class UUserWidget* PauseMenu;
-	
+
+	// Added by Calle
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
+	// Added by Calle
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	USGTerminalWidget* HUDTerminal;
 	
 };
