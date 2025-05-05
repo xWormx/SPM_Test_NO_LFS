@@ -1,14 +1,11 @@
 #include "Player/SGPlayerController.h"
 #include "Player/SGPlayerCharacter.h"
 #include "EnhancedInputComponent.h"
-#include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/SGUpgradeSubsystem.h"
-#include "Util/SGUpgradeCheatManager.h"
 
 void ASGPlayerController::BeginPlay()
 {
@@ -30,7 +27,10 @@ void ASGPlayerController::BeginPlay()
 
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
-		UpgradeSystem->BindAttribute(this, TEXT("MoveSpeed"), TEXT("MoveSpeed"));		
+		FName PropertyName = TEXT("MoveSpeed");
+		FName RowName = TEXT("MoveSpeed");
+		FName Category = TEXT("Player");
+		UpgradeSystem->BindAttribute(this, PropertyName, RowName, Category);		
 	}
 }
 
