@@ -89,4 +89,14 @@ void ASGAIControllerEnemyBase::SetRetreatDistance(const float NewRetreatDistance
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (!AttackRange)
+	{
+		AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	}
+
+	if (!ControlledEnemy)
+	{
+		ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
+	}
 }
