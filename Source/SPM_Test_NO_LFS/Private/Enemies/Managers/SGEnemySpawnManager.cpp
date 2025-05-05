@@ -96,6 +96,11 @@ void ASGEnemySpawnManager::SetEnemyCount(uint32 NewEnemyCount)
 	EnemyCount = NewEnemyCount;
 }
 
+void ASGEnemySpawnManager::SetMaxEnemiesAtATime(int32 NewMaxEnemiesAtATime)
+{
+	MaxEnemiesAtATime = NewMaxEnemiesAtATime;
+}
+
 void ASGEnemySpawnManager::SpawnEnemiesEverywhere()
 {
 	if (AllEnemySpawnPoints.Num() <= 0) return;
