@@ -2,9 +2,9 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "MaterialHLSLTree.h"
-#include "Components/SGHealthComponent.h"
-#include "Core/SGUpgradeSubsystem.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/InputSettings.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -12,6 +12,16 @@ ASGPlayerCharacter::ASGPlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	
+	if (WeaponMesh && CameraComponent)
+	{
+		CameraComponent->SetupAttachment(RootComponent);
+		WeaponMesh->SetupAttachment(CameraComponent);
+	}
+	
 	GrapplingHookPosition = CreateDefaultSubobject<USceneComponent>(TEXT("GrapplingHookPosition"));
 	GrapplingHookPosition->SetupAttachment(GetRootComponent());
 }
@@ -20,6 +30,7 @@ ASGPlayerCharacter::ASGPlayerCharacter()
 void ASGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
 	if (GrapplingHook)
 	{
@@ -36,7 +47,7 @@ void ASGPlayerCharacter::BeginPlay()
 	{
 		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
 		if (Guns[i]) Guns[i]->SetOwner(this);
-		Guns[i]->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+		if (WeaponMesh) Guns[i]->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 	if (Guns.Num() > 0 && Guns.IsValidIndex(CurrentGunIndex))
 	{
@@ -51,12 +62,6 @@ void ASGPlayerCharacter::BeginPlay()
 	{
 		// Handle the case where the Guns array is not populated
 		UE_LOG(LogTemp, Error, TEXT("Guns array is empty or index out of bounds!"));
-	}
-
- 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
-	{
-		FName Category = TEXT("Player");
-		UpgradeSystem->BindAttribute(GetCharacterMovement(), TEXT("JumpZVelocity"), TEXT("JumpHeight"), Category);
 	}
 }
 

@@ -8,10 +8,11 @@
 ASGGun::ASGGun()
 {
  	PrimaryActorTick.bCanEverTick = true;
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	RootComponent = Root;
+	//Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	//RootComponent = Root;
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
-	Mesh->SetupAttachment(Root);
+	//Mesh->SetupAttachment(Root);
+	SetRootComponent(Mesh);
 }
 
 void ASGGun::Tick(float DeltaTime)
