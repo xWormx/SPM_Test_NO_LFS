@@ -7,6 +7,9 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Blueprint/UserWidget.h"
+#include "Core/SGGameInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "Objectives/SGTerminalWidget.h"
 
 void ASGPlayerController::BeginPlay()
 {
@@ -23,7 +26,9 @@ void ASGPlayerController::BeginPlay()
 	{
 		CrossHair->AddToViewport();
 	}
-
+	HUDTerminal = Cast<USGTerminalWidget>(CreateWidget<UUserWidget>(this, HUDTerminalClass));
+	if (HUDTerminal)
+		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetTerminalWidget(HUDTerminal);
 	bCanFire = true;
 }
 
