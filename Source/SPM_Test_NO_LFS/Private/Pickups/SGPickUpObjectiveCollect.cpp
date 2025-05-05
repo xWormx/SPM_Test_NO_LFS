@@ -35,7 +35,7 @@ void ASGPickUpObjectiveCollect::BeginPlay()
 //TODO: Se över hantering av collectables. Kompakt lösning för enkelheten just nu.
 void ASGPickUpObjectiveCollect::HandleOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (!OtherActor || OtherActor == GetOwner() || OtherActor == UGameplayStatics::GetPlayerPawn(GetWorld(), 0)) 
+	if (!OtherActor || OtherActor == GetOwner() || OtherActor != UGameplayStatics::GetPlayerPawn(GetWorld(), 0)) 
 	{
 		return;
 	}	

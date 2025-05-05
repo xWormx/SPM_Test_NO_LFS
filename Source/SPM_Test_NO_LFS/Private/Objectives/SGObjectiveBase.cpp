@@ -71,6 +71,11 @@ FText ASGObjectiveBase::GetCurrentSubToolTip()
 
 void ASGObjectiveBase::SetCurrentProgressText(FString NewCurrentProgressText)
 {
+	if (ProgressText.SubText[GetCurrentProgressStep() - 1].IsEmpty())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Progress SubText was empty in Objective: %s"), *GetActorLabel())
+		return;
+	}
 	ProgressText.SubText[GetCurrentProgressStep() - 1] = NewCurrentProgressText;
 	GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
 }

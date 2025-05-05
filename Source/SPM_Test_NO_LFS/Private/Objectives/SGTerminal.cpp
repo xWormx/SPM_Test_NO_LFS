@@ -42,28 +42,7 @@ void ASGTerminal::BeginPlay()
 	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (PlayerController)
 	{
-		//HUDTerminal = Cast<USGTerminalWidget>(CreateWidget<UUserWidget>(PlayerController, HUDTerminalClass));
-		USGGameInstance* GameInstance = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
-		if (!GameInstance)
-		{
-			UE_LOG(LogTemp, Error, TEXT("ASGTerminal: Couldn't find a GameInstance!"));
-			return;
-		}
-
-		HUDTerminal = GameInstance->GetTerminalWidget();
 		PlayerController->OnInteract.AddDynamic(this, &ASGTerminal::OpenTerminal);	
-	}
-		
-	if (HUDTerminal)
-	{
-		HUDTerminal->AddToViewport(10); // Should be higher then ToolTipWidget! highest render on top.
-		HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
-		
-		if (!HUDTerminal->OnStartMission.IsAlreadyBound(this, &ASGTerminal::OnStartMissionButtonClicked))
-			HUDTerminal->OnStartMission.AddDynamic(this, &ASGTerminal::OnStartMissionButtonClicked);
-
-		if (!HUDTerminal->OnCloseTerminal.IsAlreadyBound(this, &ASGTerminal::OnCloseTerminalClicked))
-			HUDTerminal->OnCloseTerminal.AddDynamic(this, &ASGTerminal::OnCloseTerminalClicked);
 	}
 }
 
@@ -101,6 +80,7 @@ void ASGTerminal::CloseTerminal()
 
 void ASGTerminal::OpenTerminal()
 {
+	InitializeHUD();
 	if (HUDTerminal == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ASGTerminal - OpenTerminal(): HUDTerminal was nullptr"))
@@ -187,6 +167,29 @@ void ASGTerminal::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor*
 
 		LastInteractingPlayerController = nullptr;
 		PlayerController->SetCanInteractWithTerminal(false);
+	}
+}
+
+void ASGTerminal::InitializeHUD()
+{
+	USGGameInstance* GameInstance = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
+	if (!GameInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ASGTerminal: Couldn't find a GameInstance!"));
+		return;
+	}
+
+	HUDTerminal = GameInstance->GetTerminalWidget();
+	if (HUDTerminal)
+	{
+		HUDTerminal->AddToViewport(10); // Should be higher then ToolTipWidget! highest render on top.
+		HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
+		
+		if (!HUDTerminal->OnStartMission.IsAlreadyBound(this, &ASGTerminal::OnStartMissionButtonClicked))
+			HUDTerminal->OnStartMission.AddDynamic(this, &ASGTerminal::OnStartMissionButtonClicked);
+
+		if (!HUDTerminal->OnCloseTerminal.IsAlreadyBound(this, &ASGTerminal::OnCloseTerminalClicked))
+			HUDTerminal->OnCloseTerminal.AddDynamic(this, &ASGTerminal::OnCloseTerminalClicked);
 	}
 }
 
