@@ -42,6 +42,12 @@ public:
 	
 private:
 
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
+	USoundBase* GrappleFireSound;
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
+	USoundBase* GrappleAttachmentSound;
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
+	UParticleSystem* GrappleAttachmentParticles;
 	
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;

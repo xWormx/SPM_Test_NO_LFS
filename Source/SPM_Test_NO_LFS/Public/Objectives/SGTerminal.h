@@ -30,6 +30,8 @@ public:
 	
 private:
 
+	bool bHUDInitialized = false;
+	
 	UPROPERTY(EditAnywhere)
 	USceneComponent* Root;
 

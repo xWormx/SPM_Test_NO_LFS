@@ -172,6 +172,10 @@ void ASGTerminal::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor*
 
 void ASGTerminal::InitializeHUD()
 {
+	if (bHUDInitialized)
+		return;
+	
+	bHUDInitialized = true;
 	USGGameInstance* GameInstance = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
 	if (!GameInstance)
 	{
@@ -182,9 +186,12 @@ void ASGTerminal::InitializeHUD()
 	HUDTerminal = GameInstance->GetTerminalWidget();
 	if (HUDTerminal)
 	{
-		HUDTerminal->AddToViewport(10); // Should be higher then ToolTipWidget! highest render on top.
-		HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
-		
+		if(!HUDTerminal->IsInViewport())
+		{
+			HUDTerminal->AddToViewport(10); // Should be higher then ToolTipWidget! highest render on top.
+			HUDTerminal->SetVisibility(ESlateVisibility::Hidden);
+		}
+			
 		if (!HUDTerminal->OnStartMission.IsAlreadyBound(this, &ASGTerminal::OnStartMissionButtonClicked))
 			HUDTerminal->OnStartMission.AddDynamic(this, &ASGTerminal::OnStartMissionButtonClicked);
 

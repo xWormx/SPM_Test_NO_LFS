@@ -44,7 +44,8 @@ void ASGPickUpObjectiveCollect::HandleOverlap(AActor* OverlappedActor, AActor* O
 
 void ASGPickUpObjectiveCollect::OnPickup_Implementation()
 {	
-	Super::OnPickup_Implementation(); // TODO: Implementera i en pool? Just nu släcks bara objektet 
+	Super::OnPickup_Implementation(); // TODO: Implementera i en pool? Just nu släcks bara objektet
+	UGameplayStatics::PlaySound2D(this, PickUpSound);
 	OnCollected.Broadcast(this);	
 }
 

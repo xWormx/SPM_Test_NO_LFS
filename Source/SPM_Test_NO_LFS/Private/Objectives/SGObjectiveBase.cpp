@@ -2,6 +2,8 @@
 
 
 #include "Objectives/SGObjectiveBase.h"
+
+#include "Kismet/GameplayStatics.h"
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
 // Sets default values
@@ -42,11 +44,13 @@ void ASGObjectiveBase::OnStart(ASGGameObjectivesHandler* ObjectivesHandler)
 	DisplayStartToolTip(ObjectivesHandler->GetObjectiveToolTipWidget());
 	CurrentSubObjectiveStep = 1;
 	ObjectivesHandler->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
+	
 }
 
 void ASGObjectiveBase::OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	DisplayEndToolTip(ObjectiveHandler->GetObjectiveToolTipWidget());
+	
 }
 
 void ASGObjectiveBase::DisplayStartToolTip(USGObjectiveToolTipWidget* ToolTipWidget)

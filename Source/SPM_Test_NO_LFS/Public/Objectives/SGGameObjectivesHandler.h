@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "SGGameObjectivesHandler.generated.h"
 
+class ASGObjectiveDefendThePod;
 class ASGPickUpObjectiveCollect;
 class USGObjectiveToolTipWidget;
 class ASGObjectiveBase;
@@ -25,6 +26,7 @@ public:
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);
 	void RegisterCollectible(ASGPickUpObjectiveCollect* Collectible);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
+	void RegisterDefendThePod(ASGObjectiveDefendThePod* DefendThePod);
 	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() {return ObjectiveToolTipWidget;}
 	bool GetCurrentObjectiveIsActive() { return CurrentObjective != nullptr; }
 	
@@ -35,6 +37,11 @@ protected:
 private:
 
 	int ObjectiveCounter = 0;
+
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* MissionStartedSound;
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* MissionCompletedSound;
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* TerminalHUD;

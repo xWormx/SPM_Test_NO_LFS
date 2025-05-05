@@ -7,13 +7,14 @@
 #include "SGObjectiveDefendThePod.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDefendEventStart);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDefendEventEnd, UObject*, ObjectiveInterfaceImplementor);
 
 class USphereComponent;
 /**
  * 
  */
 UCLASS()
-class SPM_TEST_NO_LFS_API ASGObjectiveDefendThePod : public ASGObjectiveBase
+class SPM_TEST_NO_LFS_API ASGObjectiveDefendThePod : public ASGObjectiveBase, public ISGObjectiveInterface
 {
 	GENERATED_BODY()
 	
@@ -25,9 +26,10 @@ public:
 	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler) override;
 	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler) override;
 	virtual void Update(ASGGameObjectivesHandler* ObjectivesHandler) override;
-	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_InvalidObjectiveType; }
+	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_DefendThePod; }
 
 	FOnDefendEventStart OnDefendEventStart;
+	FOnDefendEventEnd OnDefendEventEnd;
 private:
 
 	UPROPERTY()
