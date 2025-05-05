@@ -4,6 +4,7 @@
 #include "Enemies/AI/SGAIControllerEnemyBase.h"
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
@@ -85,6 +86,48 @@ void ASGAIControllerEnemyBase::SetRetreatDistance(const float NewRetreatDistance
 	RetreatDistance = NewRetreatDistance;
 }
 
+
+bool ASGAIControllerEnemyBase::IsFacingTarget() const
+{
+	if (!ControlledEnemy || !AttackTarget)
+	{
+		return false;
+	}
+	float ToleranceDegree = 30.f;
+	
+	FVector ControlledEnemyDirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
+	FVector AttackTargetDirectionToEnemy = -ControlledEnemyDirectionToTarget;
+
+	FVector ForwardControlledEnemy = ControlledEnemy->GetActorForwardVector();
+	FVector ForwardAttackTarget = AttackTarget->GetActorForwardVector();
+
+	float DotControlledEnemy = FVector::DotProduct(ForwardControlledEnemy, ControlledEnemyDirectionToTarget);
+	float DotAttackTarget = FVector::DotProduct(ForwardAttackTarget, AttackTargetDirectionToEnemy);
+
+	float DotTolerance = FMath::Cos(FMath::DegreesToRadians(ToleranceDegree));
+	
+	return (DotControlledEnemy >= DotTolerance && DotAttackTarget >= DotTolerance);
+}
+
+void ASGAIControllerEnemyBase::RotateTowardsTargetWhileNotMoving()
+{
+	if (!ControlledEnemy)
+	{
+		return;
+	}
+
+	if (ControlledEnemy->GetMovementComponent()->Velocity != FVector::ZeroVector)
+	{
+		return;
+	}
+	
+	FVector Direction = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
+	FRotator NewRotation = Direction.Rotation();
+	NewRotation.Pitch = 0.f;
+	NewRotation.Roll = 0.f;
+
+	ControlledEnemy->SetActorRotation(NewRotation);
+}
 
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 {

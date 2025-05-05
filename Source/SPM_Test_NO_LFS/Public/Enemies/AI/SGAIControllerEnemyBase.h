@@ -68,6 +68,12 @@ protected:
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
 	bool bShouldAlwaysChaseTarget = false;
 
+	bool bIsAttacking = false;
+
+	virtual bool IsFacingTarget() const;
+
+	virtual void RotateTowardsTargetWhileNotMoving();
+
 public:
 	virtual void Tick(float DeltaTime) override;
 	

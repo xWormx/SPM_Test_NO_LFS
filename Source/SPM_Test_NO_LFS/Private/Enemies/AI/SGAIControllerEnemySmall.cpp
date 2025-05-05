@@ -5,6 +5,7 @@
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyShootAttackComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
 {
@@ -49,16 +50,18 @@ void ASGAIControllerEnemySmall::HandleMovement()
 		MoveToActor(AttackTarget, AcceptanceRadius);
 	}
 
-	if (CanAttackTarget())
+	if (CanAttackTarget() && IsFacingTarget())
 	{
 		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
 }
+
 
 void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
 	HandleMovement();
+	RotateTowardsTargetWhileNotMoving();
 	
 }

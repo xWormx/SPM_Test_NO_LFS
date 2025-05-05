@@ -27,6 +27,9 @@ public:
 
 	virtual void StartAttack(AActor* Target) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ASGEnemyProjectile> ProjectileClass;
+
 protected:
 	virtual void PerformAttack(AActor* Target) override;
 

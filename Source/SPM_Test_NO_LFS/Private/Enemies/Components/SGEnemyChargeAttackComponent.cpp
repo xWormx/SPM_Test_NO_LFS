@@ -69,45 +69,7 @@ void USGEnemyChargeAttackComponent::PerformAttack(AActor* Target)
 		return;
 	}
 
-	BackUpBeforeCharge();
-
 	ChargeTowardsTarget(RegisteredTargetLocation);
-
-	/*FVector Start = GetOwner()->GetActorLocation();
-	FVector End = Target->GetActorLocation();*/
-
-	/*FHitResult Hit;
-
-	FCollisionQueryParams Params;
-
-	Params.AddIgnoredActor(OwnerCharacter);
-
-	bool bHit = GetWorld()->SweepSingleByChannel(
-		Hit,
-		Start,
-		End,
-		FQuat::Identity,
-		ECC_Pawn,
-		FCollisionShape::MakeSphere(AttackRadius),
-		Params
-	);
-
-	if (bHit && Hit.GetActor() == Target)
-	{
-		UGameplayStatics::ApplyDamage(
-			Target,
-			DamageAmount,
-			GetOwner()->GetInstigatorController(),
-			GetOwner(),
-			DamageTypeClass
-			);
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, AttackRadius, 12, FColor::Red, false, 1.f);
-	}
-	else
-	{
-		DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 1.f);
-		DrawDebugSphere(GetWorld(), End, AttackRadius, 12, FColor::Blue, false, 1.f);
-	}*/
 	
 }
 
@@ -119,8 +81,10 @@ void USGEnemyChargeAttackComponent::ChargeTowardsTarget(const FVector& TargetLoc
 	}
 
 	bIsCharging = true;
+	
 	FVector Direction = (TargetLocation - OwnerCharacter->GetActorLocation()).GetSafeNormal();
 	FRotator NewRotation = Direction.Rotation();
+	
 	OwnerCharacter->SetActorRotation(NewRotation);
 	OwnerCharacter->GetCharacterMovement()->Velocity = Direction * ChargeSpeed;
 }
@@ -138,8 +102,6 @@ void USGEnemyChargeAttackComponent::OnHit(UPrimitiveComponent* HitComponent, AAc
 		return;
 	}
 
-
-
 	if (OtherActor == TargetActor)
 	{
 		float DamageApplied = UGameplayStatics::ApplyDamage(
@@ -149,39 +111,17 @@ void USGEnemyChargeAttackComponent::OnHit(UPrimitiveComponent* HitComponent, AAc
 			GetOwner(),
 			DamageTypeClass
 		);
-
-		if (DamageApplied > 0)
-		{
-			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, AttackRadius, 12, FColor::Red, false, 3.f);
-		}
-		if (DamageApplied < 1)
-		{
-			DrawDebugSphere(GetWorld(), Hit.ImpactPoint, AttackRadius, 12, FColor::Blue, false, 3.f);
-		}
 	}
+	
 	bIsCharging = false;
 
 	OwnerCharacter->GetCharacterMovement()->StopMovementImmediately();
 	
 	FaceTarget(TargetActor);
-
-	
 }
 
-void USGEnemyChargeAttackComponent::BackUpBeforeCharge()
-{
-	if (!OwnerCharacter)
-	{
-		return;
-	}
-	
-	FVector Forward = OwnerCharacter->GetActorForwardVector();
-	FVector NewLocation = OwnerCharacter->GetActorLocation() - Forward * 50.f;
 
-	OwnerCharacter->SetActorLocation(NewLocation);
-}
-
-void USGEnemyChargeAttackComponent::FaceTarget(AActor* Target)
+void USGEnemyChargeAttackComponent::FaceTarget(AActor* Target) const
 {
 	if (!OwnerCharacter || !Target)
 	{

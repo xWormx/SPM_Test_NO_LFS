@@ -3,7 +3,9 @@
 
 #include "Enemies/Components/SGEnemyShootAttackComponent.h"
 
-#include "Kismet/GameplayStatics.h"
+#include "Enemies/Components/SGEnemyProjectile.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 
 // Sets default values for this component's properties
@@ -12,7 +14,6 @@ USGEnemyShootAttackComponent::USGEnemyShootAttackComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	
 }
 
 
@@ -45,40 +46,22 @@ void USGEnemyShootAttackComponent::StartAttack(AActor* Target)
 
 void USGEnemyShootAttackComponent::PerformAttack(AActor* Target)
 {
-	FVector Start = GetOwner()->GetActorLocation();
-	FVector End = Target->GetActorLocation();
 
-	FHitResult Hit;
-
-	FCollisionQueryParams Params;
-
-	Params.AddIgnoredActor(GetOwner());
-
-	bool bHit = GetWorld()->SweepSingleByChannel(
-		Hit,
-		Start,
-		End,
-		FQuat::Identity,
-		ECC_Pawn,
-		FCollisionShape::MakeSphere(AttackRadius),
-		Params
-	);
-	if (bHit && Hit.GetActor() == Target)
+	if (!ProjectileClass)
 	{
-		UGameplayStatics::ApplyDamage(
-			Target,
-			DamageAmount,
-			GetOwner()->GetInstigatorController(),
-			GetOwner(),
-			DamageTypeClass
-			);
-		DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 1.f);
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, AttackRadius, 12, FColor::Red, false, 1.f);
+		return;
 	}
-	else
-	{
-		DrawDebugLine(GetWorld(), Start, End, FColor::Blue, false, 1.f);
-		DrawDebugSphere(GetWorld(), End, AttackRadius, 12, FColor::Blue, false, 1.f);
-	}
+
+    FVector SpawnLocation = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector() * 20.f;
+	
+    FVector Direction = (Target->GetActorLocation() - SpawnLocation).GetSafeNormal();
+    FRotator SpawnRotation = Direction.Rotation();
+
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.Owner = OwnerCharacter;
+    SpawnParams.Instigator = OwnerCharacter;
+	
+    GetWorld()->SpawnActor<ASGEnemyProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
+	
 }
 

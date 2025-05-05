@@ -45,9 +45,6 @@ protected:
 	FVector RegisteredTargetLocation;
 
 	UFUNCTION()
-	void BackUpBeforeCharge();
-
-	UFUNCTION()
-	void FaceTarget(AActor* Target);
+	void FaceTarget(AActor* Target) const;
 
 };
