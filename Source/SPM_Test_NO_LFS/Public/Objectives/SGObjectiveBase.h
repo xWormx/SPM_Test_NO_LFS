@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "SGObjectiveInterface.h"
+#include "SGObjectiveToolTipWidget.h"
 #include "GameFramework/Actor.h"
 #include "SGObjectiveBase.generated.h"
 
@@ -35,9 +35,18 @@ public:
 	virtual void DisplayEndToolTip(USGObjectiveToolTipWidget* ToolTipWidget);
 	virtual void DisplayToolTip(USGObjectiveToolTipWidget* ToolTipWidget, const FText& ToolTip);
 	virtual FText GetObjectiveDescriptionToolTip();
-		virtual FText GetObjectiveCompletedToolTip();
+	virtual FText GetObjectiveCompletedToolTip();
 	virtual FText GetCurrentSubToolTip();
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_InvalidObjectiveType; }
+
+
+	void SetObjectiveID(int32 NewObjectiveID) {	ObjectiveID = NewObjectiveID; }
+	void SetCurrentProgressText(FString NewCurrentProgressText);
+	FString GetCurrentProgressSubText() { return ProgressText.SubText[GetCurrentProgressStep() - 1]; } // för att kunna loopa över första elementet när vi progress step = 1.
+	void AdvanceCurrentObjectiveStep() { CurrentSubObjectiveStep++; }
+	const int32& GetCurrentProgressStep() const { return CurrentSubObjectiveStep; }
+	const int32& GetObjectiveID() const { return ObjectiveID; }
+	FProgressText GetProgressText() { return ProgressText; }
 	
 	UPROPERTY(EditAnywhere)
 	bool bIsActivated = false;
@@ -46,6 +55,13 @@ protected:
 	void SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler) { ObjectiveHandlerPersistent = ObjectiveHandler; }
 	
 private:
+	UPROPERTY(VisibleAnywhere)
+	int32 CurrentSubObjectiveStep;
+	UPROPERTY(VisibleAnywhere)
+	int32 ObjectiveID;
+	UPROPERTY(EditAnywhere)
+	FProgressText ProgressText;
+	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	ASGGameObjectivesHandler* ObjectiveHandlerPersistent;
 	

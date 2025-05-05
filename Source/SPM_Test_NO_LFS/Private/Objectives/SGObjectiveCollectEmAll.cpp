@@ -11,4 +11,6 @@ bool ASGObjectiveCollectEmAll::IsCompleted(ASGGameObjectivesHandler* ObjectivesH
 void ASGObjectiveCollectEmAll::Update(ASGGameObjectivesHandler* ObjectivesHandler)
 {
 	CurrentCollected++;
+	FString StrCollected = FString::Printf(TEXT("FUELRODS: %d/%d"), CurrentCollected, CollectGoal);
+	SetCurrentProgressText(StrCollected);
 }

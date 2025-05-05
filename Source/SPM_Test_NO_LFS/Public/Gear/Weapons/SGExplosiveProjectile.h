@@ -19,8 +19,6 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	float Damage;
-	
 	void DoSpecialEffects();
 	
 	// VisibleAnywhere
@@ -33,6 +31,16 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="design")
 	UProjectileMovementComponent* ProjectileMovement;
 	// EditAnywhere+BP
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	float Damage = 1000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	UMaterialInterface* ExplosionDecal;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	float ExplosionDecalRange = 200.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	float ExplosionDecalSize = 200.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	float ExplosionDecalLifetime = 10.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UParticleSystem* ExplodeEffect;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))

@@ -30,9 +30,18 @@ void ASGObjectiveBase::ActivateObjective()
 
 void ASGObjectiveBase::OnStart(ASGGameObjectivesHandler* ObjectivesHandler)
 {
+	if (ObjectivesHandler == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ASGObjectiveBase::OnStart - ObjectivesHandler was nullptr!"));
+		return;
+	}
+	
+	SetObjectiveHandler(ObjectivesHandler);
 	if (!ObjectiveSubToolTips.IsEmpty())
 		CurrentSubToolTip = ObjectiveSubToolTips[0];
 	DisplayStartToolTip(ObjectivesHandler->GetObjectiveToolTipWidget());
+	CurrentSubObjectiveStep = 1;
+	ObjectivesHandler->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
 }
 
 void ASGObjectiveBase::OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
@@ -58,6 +67,12 @@ void ASGObjectiveBase::DisplayToolTip(USGObjectiveToolTipWidget* ToolTipWidget, 
 FText ASGObjectiveBase::GetCurrentSubToolTip()
 {
 	return FText::FromString(CurrentSubToolTip);
+}
+
+void ASGObjectiveBase::SetCurrentProgressText(FString NewCurrentProgressText)
+{
+	ProgressText.SubText[GetCurrentProgressStep() - 1] = NewCurrentProgressText;
+	GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
 }
 
 FText ASGObjectiveBase::GetObjectiveDescriptionToolTip()

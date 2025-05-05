@@ -53,8 +53,6 @@ void ASGObjectiveDefendThePod::Tick(float DeltaTime)
 void ASGObjectiveDefendThePod::OnStart(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	Super::OnStart(ObjectiveHandler);
-	SetObjectiveHandler(ObjectiveHandler);
-	// CurrentPhase = Phases[0];
 }
   
 bool ASGObjectiveDefendThePod::IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler)
@@ -85,7 +83,10 @@ void ASGObjectiveDefendThePod::StartMainPhase(UPrimitiveComponent* OverlappedCom
 			bDefendEventStarted = true;
 			OnDefendEventStart.Broadcast();
 			GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("00:00"));
+			GetObjectiveHandler()->GetObjectiveToolTipWidget()->Display(GetCurrentSubToolTip());
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &ASGObjectiveDefendThePod::OnTimeIsOut, TimeToDefendPodSeconds, false);
+			AdvanceCurrentObjectiveStep();
+			GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
 		}
 	}
 }

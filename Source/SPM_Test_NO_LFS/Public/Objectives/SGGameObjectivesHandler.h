@@ -43,7 +43,6 @@ private:
 	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveToolTipClass;
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)

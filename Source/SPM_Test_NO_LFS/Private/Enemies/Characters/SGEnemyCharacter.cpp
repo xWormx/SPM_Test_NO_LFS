@@ -2,10 +2,8 @@
 
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
-
 #include "Enemies/Managers/SGEnemyDropManager.h"
 #include "Components/SGHealthComponent.h"
-#include "Enemies/Components/SGEnemyAttackComponentBase.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -14,6 +12,8 @@ ASGEnemyCharacter::ASGEnemyCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
+
+	Tags.Add("Enemy");
 }
 
 // Called when the game starts or when spawned
@@ -21,7 +21,10 @@ void ASGEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HealthComponent) HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
+	if (HealthComponent)
+	{
+		HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
+	}
 }
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
@@ -54,4 +57,10 @@ void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent() const
+{
+	return AttackComponent;
+}
+
 

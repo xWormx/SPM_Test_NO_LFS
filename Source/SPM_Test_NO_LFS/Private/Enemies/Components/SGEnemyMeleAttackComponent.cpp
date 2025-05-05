@@ -12,8 +12,6 @@ USGEnemyMeleAttackComponent::USGEnemyMeleAttackComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	bCanAttack = true;
 }
 
 
@@ -51,11 +49,6 @@ void USGEnemyMeleAttackComponent::StartAttack(AActor* Target)
 
 void USGEnemyMeleAttackComponent::PerformAttack(AActor* Target)
 {
-	if (!OwnerCharacter)
-	{
-		return;
-	}
-
 	FVector Start = GetOwner()->GetActorLocation();
 	FVector End = Target->GetActorLocation();
 

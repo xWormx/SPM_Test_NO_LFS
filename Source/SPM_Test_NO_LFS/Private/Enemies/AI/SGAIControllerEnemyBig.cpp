@@ -19,7 +19,7 @@ void ASGAIControllerEnemyBig::BeginPlay()
 
 void ASGAIControllerEnemyBig::HandleMovement()
 {
-	if (!AttackTarget)
+	if (!AttackTarget || !ControlledEnemy)
 	{
 		return;
 	}
@@ -31,18 +31,10 @@ void ASGAIControllerEnemyBig::HandleMovement()
 			return;
 		}
 	}
-
-	ControlledCharacter = Cast<ASGEnemyCharacter>(GetPawn());
-
+	
 	if (CanAttackTarget())
 	{
-		if (ControlledCharacter)
-		{
-			if (USGEnemyMeleAttackComponent* MeleeComponent = ControlledCharacter->FindComponentByClass<USGEnemyMeleAttackComponent>())
-			{
-				MeleeComponent->StartAttack(AttackTarget);
-			}
-		}
+		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
 	else
 	{
