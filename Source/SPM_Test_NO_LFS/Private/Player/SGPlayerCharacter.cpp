@@ -2,7 +2,9 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "MaterialHLSLTree.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/InputSettings.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -10,6 +12,16 @@ ASGPlayerCharacter::ASGPlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
+	
+	if (WeaponMesh && CameraComponent)
+	{
+		CameraComponent->SetupAttachment(RootComponent);
+		WeaponMesh->SetupAttachment(CameraComponent);
+	}
+	
 	GrapplingHookPosition = CreateDefaultSubobject<USceneComponent>(TEXT("GrapplingHookPosition"));
 	GrapplingHookPosition->SetupAttachment(GetRootComponent());
 }
@@ -18,6 +30,7 @@ ASGPlayerCharacter::ASGPlayerCharacter()
 void ASGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
 	if (GrapplingHook)
 	{
@@ -34,7 +47,7 @@ void ASGPlayerCharacter::BeginPlay()
 	{
 		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
 		if (Guns[i]) Guns[i]->SetOwner(this);
-		Guns[i]->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+		if (WeaponMesh) Guns[i]->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 	if (Guns.Num() > 0 && Guns.IsValidIndex(CurrentGunIndex))
 	{
