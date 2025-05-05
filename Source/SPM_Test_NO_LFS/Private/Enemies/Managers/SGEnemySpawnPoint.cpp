@@ -28,11 +28,28 @@ void ASGEnemySpawnPoint::Tick(float DeltaTime)
 ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyCharacter> EnemyClass) const
 {
 	if (EnemyClass == nullptr) return nullptr;
-	ASGEnemyCharacter* SpawnedEnemyPtr = GetWorld()->SpawnActor<ASGEnemyCharacter>(EnemyClass, GetActorLocation(), GetActorRotation());
-	if (ObjectiveHandler)
-		ObjectiveHandler->RegisterEnemy(SpawnedEnemyPtr);
+
+	ASGEnemyCharacter* SpawnedEnemyPtr;
+	if (SpawnPointSpecificEnemyType)
+	{
+		SpawnedEnemyPtr = GetWorld()->SpawnActor<ASGEnemyCharacter>(
+			SpawnPointSpecificEnemyType, GetActorLocation(), GetActorRotation());
+	}
 	else
+	{
+		SpawnedEnemyPtr = GetWorld()->SpawnActor<ASGEnemyCharacter>(
+			EnemyClass, GetActorLocation(), GetActorRotation());
+	}
+	
+	if (ObjectiveHandler)
+	{
+		ObjectiveHandler->RegisterEnemy(SpawnedEnemyPtr);
+	}
+	else
+	{
 		UE_LOG(LogTemp, Error, TEXT("EnemySpawnPoint: Must Assign ObjectiveHandler"));
+	}
+		
 	return SpawnedEnemyPtr;
 }
 

@@ -20,5 +20,8 @@ public:
 	class ASGGameObjectivesHandler* ObjectiveHandler;
 protected:
 	virtual void BeginPlay() override;
-
+	
+private:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
+	TSubclassOf<ASGEnemyCharacter> SpawnPointSpecificEnemyType;
 };
