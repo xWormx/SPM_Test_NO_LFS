@@ -2,6 +2,8 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "MaterialHLSLTree.h"
+#include "Components/SGHealthComponent.h"
+#include "Core/SGUpgradeSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -49,6 +51,12 @@ void ASGPlayerCharacter::BeginPlay()
 	{
 		// Handle the case where the Guns array is not populated
 		UE_LOG(LogTemp, Error, TEXT("Guns array is empty or index out of bounds!"));
+	}
+
+ 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+	{
+		FName Category = TEXT("Player");
+		UpgradeSystem->BindAttribute(GetCharacterMovement(), TEXT("JumpZVelocity"), TEXT("JumpHeight"), Category);
 	}
 }
 
