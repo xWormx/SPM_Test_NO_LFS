@@ -36,6 +36,7 @@ public:
 	void SetSpawnMode(ESpawnMode NewMode);
 	void SetSpawnArea(uint32 Index);
 	void SetEnemyCount(uint32 NewEnemyCount);
+	void SetMaxEnemiesAtATime(int32 NewMaxEnemiesAtATime);
 	
 	UFUNCTION()
 	void HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy);
