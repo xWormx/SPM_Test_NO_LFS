@@ -26,15 +26,22 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FNam
 	if (!ensureMsgf(Owner, TEXT("Owner was nullptr")) || !ensureMsgf(UpgradeDataTable, TEXT("UpgradeDataTable was nullptr")))
 	{
 	    return;
-	}  
-
+	}
+ 
 	//Hämtar propertyn som ska bindas och gör early return om den inte finns/är giltig
     FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
 	if (!Prop || !Prop->IsA<FFloatProperty>()) // Glöm inte att ändra denna om fler typer än float ska stödjas!
 	{
+		UE_LOG(LogTemp, Error, TEXT("Property %s not found or not a float property"), *PropertyName.ToString());
 		return;
-	}	
+	}
 
+	if (const uint64 Key = GetKey(Owner, Prop); Key != 0U)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Attribute %s already bound to %s, key: %llu. Previous attribute will be overridden."), *PropertyName.ToString(), *Owner->GetName(), Key);
+		UnbindAttribute(Owner, PropertyName);
+	}
+	
 	//Hämtar propertyns data (för uppgradering) och gör early return om den inte finns
     const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(RowName, TEXT("BindAttribute"));
 	if (!ensureMsgf(AttributeData, TEXT("No AttributeData found for RowName: %s"), *RowName.ToString()))
@@ -42,14 +49,83 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FNam
 		return;
 	}	
 
-	UE_LOG(LogTemp, Warning, TEXT("RowName: %s"), *RowName.ToString());
 	//Unik pekare för att säkerställa att inget blir knas vid eventuell omallokering och förflyttning av alla sparade attribut (vid ex utökning av listan).
     TUniquePtr<FSGAttribute> NewAttribute = MakeUnique<FSGAttribute>();
     NewAttribute->Owner = Owner;
     NewAttribute->Property = Prop;
     NewAttribute->RowName = RowName; //Vart man hittar den i datatabellen
 	NewAttribute->InitialValue = CastFieldChecked<FFloatProperty>(Prop)->GetPropertyValue_InContainer(Owner); //Hämtar det initiala värdet från propertyn
+	NewAttribute->Category = "Player";
+	
+    FSGAttribute* NewAttributeRaw = NewAttribute.Get(); // För att inte riskera att tappa den i lambdan och behöva mecka 
+    NewAttributeRaw->OnAttributeModified.AddLambda([NewAttributeRaw, AttributeData]
+    {
+    	//Early return om ägaren inte är aktiv och om uppgraderingen är maxad	
+        if (!NewAttributeRaw->Owner.IsValid())
+        {
+	        return;
+        }
+    	
+		const FSGUpgradeData& UpgradeData = AttributeData->Data;
+    	if (UpgradeData.MaxNumberOfUpgrades <= NewAttributeRaw->CurrentUpgradeLevel && UpgradeData.MaxNumberOfUpgrades != -1)   	
+		{
+			return;
+		}
+    	//Uppdaterar den nuvarande uppgraderingsnivån
+        NewAttributeRaw->CurrentUpgradeLevel++;
 
+    	//Hämta float-propertyn 
+		FFloatProperty* FloatProp = CastFieldChecked<FFloatProperty>(NewAttributeRaw->Property);
+		float Current = FloatProp->GetPropertyValue_InContainer(NewAttributeRaw->Owner.Get());   	  	
+    	
+    	// Uppdaterar float-propertyn till den nya nivån 
+    	Current += NewAttributeRaw->InitialValue * UpgradeData.Multiplier;
+        FloatProp->SetPropertyValue_InContainer(NewAttributeRaw->Owner.Get(), Current);
+    });
+
+	// Lägg till i alla listor/loop-ups
+    AttributesByRow.FindOrAdd(RowName).Add(NewAttributeRaw);
+    AttributesByKey.Add(GetKey(Owner, Prop), NewAttributeRaw);
+    RegisteredAttributes.Add(MoveTemp(NewAttribute));
+	OnBindAttribute.Broadcast();
+}
+
+void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category)
+{
+	if (!ensureMsgf(Owner, TEXT("Owner was nullptr")) || !ensureMsgf(UpgradeDataTable, TEXT("UpgradeDataTable was nullptr")))
+	{
+	    return;
+	}  
+
+	//Hämtar propertyn som ska bindas och gör early return om den inte finns/är giltig
+    FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
+	if (!Prop || !Prop->IsA<FFloatProperty>()) // Glöm inte att ändra denna om fler typer än float ska stödjas!
+	{
+		UE_LOG(LogTemp, Error, TEXT("Property %s not found or not a float property"), *PropertyName.ToString());
+		return;
+	}	
+
+	if (const uint64 Key = GetKey(Owner, Prop); Key != 0U)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Attribute %s already bound to %s, key: %llu. Previous attribute will be overridden."), *PropertyName.ToString(), *Owner->GetName(), Key);
+		UnbindAttribute(Owner, PropertyName);
+	}
+ 	
+	//Hämtar propertyns data (för uppgradering) och gör early return om den inte finns
+    const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(RowName, TEXT("BindAttribute"));
+	if (!ensureMsgf(AttributeData, TEXT("No AttributeData found for RowName: %s"), *RowName.ToString()))
+	{
+		return;
+	}
+	
+	//Unik pekare för att säkerställa att inget blir knas vid eventuell omallokering och förflyttning av alla sparade attribut (vid ex utökning av listan).
+    TUniquePtr<FSGAttribute> NewAttribute = MakeUnique<FSGAttribute>();
+    NewAttribute->Owner = Owner;
+    NewAttribute->Property = Prop;
+    NewAttribute->RowName = RowName; //Vart man hittar den i datatabellen
+	NewAttribute->InitialValue = CastFieldChecked<FFloatProperty>(Prop)->GetPropertyValue_InContainer(Owner); //Hämtar det initiala värdet från propertyn
+	NewAttribute->Category = Category;
+	
     FSGAttribute* NewAttributeRaw = NewAttribute.Get(); // För att inte riskera att tappa den i lambdan och behöva mecka 
     NewAttributeRaw->OnAttributeModified.AddLambda([NewAttributeRaw, AttributeData]
     {
@@ -253,7 +329,7 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 	{
 		return Out;
 	}	
-	
+
 	for (const TUniquePtr<FSGAttribute>& Ptr : RegisteredAttributes)
 	{
 		const FSGAttribute* TargetAttribute = Ptr.Get();
@@ -264,13 +340,13 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 		}		
 		
 		const FSGUpgradeData& UpgradeData = AttributeData->Data;
-		
+ 
 		FSGUpgradeEntry Entry;
 		Entry.DisplayName = AttributeData->DisplayName;
 		Entry.Icon = AttributeData->Icon.Get();
 		Entry.Cost = UpgradeData.Cost * TargetAttribute->CurrentUpgradeLevel;
 		Entry.Multiplier = UpgradeData.Multiplier * 100;
-		
+		Entry.Category = TargetAttribute->Category;
 		Out.Add(Entry);
 	}
 

@@ -34,6 +34,13 @@ public:
 	/// @param RowName Raden i datatabellen som ska användas för uppgraderingarna
 	void BindAttribute(UObject* Owner, FName PropertyName, FName RowName);
 
+	/// @brief Registrera ett attribut som ska kunna uppgraderas
+	/// @param Owner Ägaren av attributen (annars hittas den inte)
+	/// @param PropertyName Vad attributen heter (måste just nu vara en float)
+	/// @param RowName Raden i datatabellen som ska användas för uppgraderingarna
+	/// @param Category Kategori för attributen (ex. "Player", "Enemy" osv)
+	void BindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category);
+
 	/// @brief Kalla på denna om endast en unik attribut ska uppgraderas
 	/// @param Owner Ägaren av attributen
 	/// @param PropertyName Vad attributen heter 

@@ -15,7 +15,9 @@ struct FSGAttribute
 	FName RowName; //Måste vara samma som i "row name" som sätts i själva datatabellen.
 	int32 CurrentUpgradeLevel = 1;
 	float InitialValue = 0.f; 
-	FOnAttributeModified OnAttributeModified; 
+	FOnAttributeModified OnAttributeModified;
+
+	FName Category;
 };
 
 USTRUCT(BlueprintType)
@@ -55,6 +57,8 @@ struct FSGUpgradeEntry : public FSGUpgradeData
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName DisplayName;
+
+	FName Category;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Icon = nullptr;
