@@ -16,8 +16,7 @@ struct FSGAttribute
 	int32 CurrentUpgradeLevel = 1;
 	float InitialValue = 0.f; 
 	FOnAttributeModified OnAttributeModified;
-
-	FName Category;
+	mutable FName Category; // mutable för att tillåta ändring om dubblett hittas. Se BindAttribute
 };
 
 USTRUCT(BlueprintType)
@@ -58,9 +57,10 @@ struct FSGUpgradeEntry : public FSGUpgradeData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName DisplayName;
 
-	FName Category;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Icon = nullptr;
+
+	FName Category;
+	FName RowName;
 };
 
