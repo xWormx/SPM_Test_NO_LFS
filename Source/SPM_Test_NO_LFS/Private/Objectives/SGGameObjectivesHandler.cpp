@@ -111,6 +111,7 @@ void ASGGameObjectivesHandler::StartMission()
 	CurrentObjective->OnStart(this);
 	TerminalHUD->DisableStartButton();
 	UGameplayStatics::PlaySound2D(this, MissionStartedSound);
+	OnObjectiveStarted.Broadcast();
 }
 
 // TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...
@@ -139,6 +140,7 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 		CurrentObjective->OnCompleted(this);
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
 		RemoveCurrentObjective();
+		OnObjectiveCompleted.Broadcast();
 	}
 }
 
