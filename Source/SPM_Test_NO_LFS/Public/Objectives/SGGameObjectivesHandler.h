@@ -35,6 +35,8 @@ public:
 	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() const {return ObjectiveToolTipWidget;}
 	bool GetCurrentObjectiveIsActive() const { return CurrentObjective != nullptr; }
 	EObjectiveType GetCurrentObjectiveType() const { return CurrentObjective->GetObjectiveType(); }
+	ASGObjectiveBase* GetCurrentObjective() const { return CurrentObjective; }
+	TArray<ASGObjectiveBase*> GetAllObjectives() const { return GameObjectives; }
 	FOnObjectiveStarted OnObjectiveStarted;
 	FOnObjectiveCompleted OnObjectiveCompleted;
 protected:
