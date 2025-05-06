@@ -22,9 +22,13 @@ public:
 	
 private:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	UFUNCTION()
 	void HandleClicked();
+public:
+	UFUNCTION()
+	void HandleButtonState();
 
 protected:
 	FSGUpgradeEntry BoundEntry;
@@ -34,6 +38,12 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UTextBlock> UpgradeText;
+
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	TObjectPtr<UTextBlock> UpgradeMultiplierText;
+
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	TObjectPtr<UTextBlock> UpgradeCostText;
 	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UButton> UpgradeButton;
