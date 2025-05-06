@@ -55,7 +55,7 @@ void ASGGun::BeginPlay()
 
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
-		FName Category = TEXT("AR");
+		FName Category = TEXT("Assault Rifle");
 		UpgradeSystem->BindAttribute(this, TEXT("Damage"), TEXT("GunDamage"), Category);
 		UpgradeSystem->BindAttribute(this, TEXT("FireRate"), TEXT("GunFireRate"), Category);
 	}
