@@ -3,9 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SGObjectiveBase.h"
 #include "GameFramework/Actor.h"
 #include "SGGameObjectivesHandler.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnObjectiveStarted);
+DECLARE_MULTICAST_DELEGATE(FOnObjectiveCompleted);
+
+enum class EObjectiveType : uint8;
 class ASGObjectiveDefendThePod;
 class ASGPickUpObjectiveCollect;
 class USGObjectiveToolTipWidget;
@@ -27,9 +32,13 @@ public:
 	void RegisterCollectible(ASGPickUpObjectiveCollect* Collectible);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
 	void RegisterDefendThePod(ASGObjectiveDefendThePod* DefendThePod);
-	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() {return ObjectiveToolTipWidget;}
-	bool GetCurrentObjectiveIsActive() { return CurrentObjective != nullptr; }
-	
+	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() const {return ObjectiveToolTipWidget;}
+	bool GetCurrentObjectiveIsActive() const { return CurrentObjective != nullptr; }
+	EObjectiveType GetCurrentObjectiveType() const { return CurrentObjective->GetObjectiveType(); }
+	ASGObjectiveBase* GetCurrentObjective() const { return CurrentObjective; }
+	TArray<ASGObjectiveBase*> GetAllObjectives() const { return GameObjectives; }
+	FOnObjectiveStarted OnObjectiveStarted;
+	FOnObjectiveCompleted OnObjectiveCompleted;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

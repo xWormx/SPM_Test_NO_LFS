@@ -61,6 +61,7 @@ private:
 	FTimerHandle SpawnLoopTimer;
 	uint32 SpawnAreaIndex = 0;
 	uint32 EnemyCount = 1;
+	ESpawnMode DefaultSpawnMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	int32 MaxEnemiesAtATime = 5;
@@ -78,4 +79,12 @@ private:
 	TArray<FSpawnPointGroup> EnemySpawnPointGroups;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
 	ESpawnMode SpawnMode = ESpawnMode::Everywhere;
+
+	// Delegate handling
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	class ASGObjectiveDefendThePod* ObjectiveDefendThePod;
+	UFUNCTION()
+	void HandleDefendEventStart();
+	UFUNCTION()
+	void HandleDefendEventEnd(UObject* ObjectiveInterfaceImplementor);
 };
