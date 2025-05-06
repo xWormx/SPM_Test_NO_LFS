@@ -33,12 +33,9 @@ void USGCounterComponentHealth::BeginPlay()
 
 	if (USGUpgradeSubsystem* UpgradeSystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
-		FName PropertyName = TEXT("HealthBufferCapacity");
-		FName RowName = TEXT("MaxHealthBufferCapacity");
 		FName Category = TEXT("Player");
-		UpgradeSystem->BindAttribute(this, TEXT("HealthBufferCapacity"), TEXT("MaxHealthBufferCapacity"), Category);
 		UpgradeSystem->BindAttribute(HealthComponent, TEXT("MaxHealth"), TEXT("MaxHealth"), Category);
-
+		UpgradeSystem->BindAttribute(this, TEXT("HealthBufferCapacity"), TEXT("MaxHealthBufferCapacity"), Category);
 	}
 }
 
