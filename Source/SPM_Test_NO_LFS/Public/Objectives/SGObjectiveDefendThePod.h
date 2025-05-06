@@ -8,6 +8,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDefendEventStart);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDefendEventEnd, UObject*, ObjectiveInterfaceImplementor);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDefendEventPaused);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDefendEventUnPaused);
 
 class USphereComponent;
 /**
@@ -30,8 +32,13 @@ public:
 
 	FOnDefendEventStart OnDefendEventStart;
 	FOnDefendEventEnd OnDefendEventEnd;
+	FOnDefendEventPaused OnDefendEventPaused;
+	FOnDefendEventUnPaused OnDefendEventUnPaused;
 private:
 
+	UPROPERTY()
+	bool bDefendEventPaused = true;
+	
 	UPROPERTY()
 	bool bDefendEventStarted = false;
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -45,11 +52,15 @@ private:
 	// Mesh for the Pod (or thing to defend)
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	UStaticMeshComponent* MeshRestrictiveFloor;
-	
-	// Sphere for the area in which the player must be standing for the quest to active
+
+	// If Player goes outside this area the objective will Pause
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	USphereComponent* SphereRestrictiveArea;
-
+	
+	// Sphere for the area in which the player must be standing for the quest to activate
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	USphereComponent* SphereInteractArea;
+	
 	// Timer for the objective
 	FTimerHandle TimerHandle;
 
@@ -64,4 +75,9 @@ private:
 
 	UFUNCTION()
 	void OnTimeIsOut();
+
+	UFUNCTION()
+	void PauseMainPhase(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	UFUNCTION()
+	void UnPauseMainPhase(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 };
