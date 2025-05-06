@@ -29,7 +29,6 @@ void ASGEnemyCharacter::BeginPlay()
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
 {
-
 	//TODO: Ska ändras - temporär lösning
 	if (AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), ASGEnemyDropManager::StaticClass()))
 	{
@@ -41,7 +40,10 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 	
 	OnEnemyDied.Broadcast(this);
 	OnEnemyDiedObjective.Broadcast(this);
-	Destroy();
+
+	//Destroy();
+	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth()); // EnemySpawnManager hanterar destroy/poolning
+	UE_LOG(LogTemp, Error, TEXT("OBS INGEN BUGG!! ️⚠️Inväntar POOL⚠️ OM FIENDEN INTE DÖR: //Destroy(); "));
 }
 
 // Called every frame
