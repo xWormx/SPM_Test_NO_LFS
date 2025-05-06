@@ -3,8 +3,9 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Player/SGPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Objectives/SGObjectiveDefendThePod.h"
 
-// Public
+// Public functions
 ASGEnemySpawnManager::ASGEnemySpawnManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -37,18 +38,25 @@ void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 	//UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), EnemiesAlive);
 }
 
-// Protected
+// Protected functions
 void ASGEnemySpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
+	DefaultSpawnMode = SpawnMode;
 	PlayerCharacter = Cast<ASGPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("EnemySpawnPoint"), AllEnemySpawnPoints);
 	//UE_LOG(LogTemp, Warning, TEXT("EnemySpawnPoints found: %i"), AllEnemySpawnPoints.Num());
 	
+	if (ObjectiveDefendThePod)
+	{
+		ObjectiveDefendThePod->OnDefendEventStart.AddDynamic(this, &ASGEnemySpawnManager::HandleDefendEventStart);
+		ObjectiveDefendThePod->OnDefendEventEnd.AddDynamic(this, &ASGEnemySpawnManager::HandleDefendEventEnd);
+	}
+	
 	StartSpawning();
 }
 
-// Private
+// Private functions
 void ASGEnemySpawnManager::StartSpawnLoopTimer()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Intermission timer started! %f seconds to next wave..."), TimeBetweenSpawns);
@@ -179,4 +187,18 @@ const ASGEnemySpawnPoint* ASGEnemySpawnManager::GetRandomSpawnPoint(TArray<AActo
 const TSubclassOf<ASGEnemyCharacter> ASGEnemySpawnManager::GetRandomEnemyType() const
 {
 	return EnemyTypes[FMath::RandRange(0, EnemyTypes.Num() - 1)];
+}
+
+// Delegate handlers
+void ASGEnemySpawnManager::HandleDefendEventStart()
+{
+	if (EnemySpawnPointGroups.Num() <= 0) return;
+	
+	SpawnMode = ESpawnMode::AtArea;
+	SpawnAreaIndex = 0;
+}
+
+void ASGEnemySpawnManager::HandleDefendEventEnd(UObject* ObjectiveInterfaceImplementor)
+{
+	SpawnMode = DefaultSpawnMode;
 }
