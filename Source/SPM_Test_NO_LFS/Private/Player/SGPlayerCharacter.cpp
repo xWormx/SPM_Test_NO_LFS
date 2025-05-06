@@ -1,11 +1,7 @@
 #include "Player/SGPlayerCharacter.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
-#include "MaterialHLSLTree.h"
 #include "Camera/CameraComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/InputSettings.h"
-#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASGPlayerCharacter::ASGPlayerCharacter()
