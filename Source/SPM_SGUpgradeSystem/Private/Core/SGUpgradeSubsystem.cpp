@@ -105,16 +105,17 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, FName PropertyName, FNam
 		return;
 	}	
 
-	if (const uint64 Key = GetKey(Owner, Prop); Key != 0U)
+	if (GetByKey(Owner, Prop))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Attribute %s already bound to %s, key: %llu. Previous attribute will be overridden."), *PropertyName.ToString(), *Owner->GetName(), Key);
+		//UE_LOG(LogTemp, Warning, TEXT("Attribute %s already bound to %s, key: %llu. Previous attribute will be overridden."), *PropertyName.ToString(), *Owner->GetName(), Key);
 		UnbindAttribute(Owner, PropertyName);
 	}
  	
 	//Hämtar propertyns data (för uppgradering) och gör early return om den inte finns
     const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(RowName, TEXT("BindAttribute"));
-	if (!ensureMsgf(AttributeData, TEXT("No AttributeData found for RowName: %s"), *RowName.ToString()))
+	if (!AttributeData)
 	{
+	//	UE_LOG(LogTemp, Error, TEXT("No AttributeData found for RowName: %s"), *RowName.ToString());
 		return;
 	}
 	
