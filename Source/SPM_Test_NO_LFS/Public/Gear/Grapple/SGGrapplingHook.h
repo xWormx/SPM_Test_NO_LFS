@@ -30,6 +30,8 @@ public:
 	void ResetGrapple();
 	void SetGrappleVisibility(bool bVisibility);
 	void SetHeadConstraint(AActor* OtherActor);
+	void SetMaxHookRange(float NewMaxHookRange) {	MaxHookRange = NewMaxHookRange; }
+	void SetCoolDown(float NewCoolDown) { HookCooldown = NewCoolDown; }
 	void EnableGrappling();
 	void DisableGrappling();
 	bool CanGrapple() const { return bCanGrapple; }
@@ -42,6 +44,12 @@ public:
 	
 private:
 
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
+	USoundBase* GrappleFireSound;
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
+	USoundBase* GrappleAttachmentSound;
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
+	UParticleSystem* GrappleAttachmentParticles;
 	
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;

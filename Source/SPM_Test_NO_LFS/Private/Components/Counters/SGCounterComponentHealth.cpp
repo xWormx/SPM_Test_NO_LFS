@@ -1,6 +1,7 @@
 ﻿#include "Components/Counters/SGCounterComponentHealth.h"
 
 #include "Components/SGHealthComponent.h"
+#include "Core/SGUpgradeSubsystem.h"
 #include "Pickups/SGPickUpHealthPack.h"
 
 //TODO: Potentiellt värt att ändra så att buffert-delen och FTimern i klassen får jobba på eget håll. Ifall den funktionalitet skulle behövas i andra klasser.
@@ -28,6 +29,13 @@ void USGCounterComponentHealth::BeginPlay()
 	if (HealthComponent)
 	{
 		HealthComponent->OnNoHealth.AddDynamic(this, &USGCounterComponentHealth::UseHealthBuffer);
+	}
+
+	if (USGUpgradeSubsystem* UpgradeSystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+	{
+		FName Category = TEXT("Player");
+		UpgradeSystem->BindAttribute(HealthComponent, TEXT("MaxHealth"), TEXT("MaxHealth"), Category);
+		UpgradeSystem->BindAttribute(this, TEXT("HealthBufferCapacity"), TEXT("MaxHealthBufferCapacity"), Category);
 	}
 }
 

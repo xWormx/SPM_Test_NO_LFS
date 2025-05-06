@@ -36,7 +36,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category = "Health Component")
+	UPROPERTY(EditAnywhere, Category = "Health Component", meta = (AllowPrivateAccess = "true"))
 	float MaxHealth = 100.f;
 
 	UPROPERTY(EditAnywhere, Category = "Health Component")

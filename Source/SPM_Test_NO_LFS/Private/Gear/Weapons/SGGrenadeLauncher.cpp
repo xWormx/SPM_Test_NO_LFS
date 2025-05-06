@@ -1,6 +1,7 @@
 #include "../../../Public/Gear/Weapons/SGGrenadeLauncher.h"
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
 #include "../../../Public/Player/SGPlayerCharacter.h"
+#include "Core/SGUpgradeSubsystem.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -34,6 +35,14 @@ void ASGGrenadeLauncher::BeginPlay()
 	}
 
 	EnableOverlapEventsForAllStaticMeshes(GetWorld());
+
+	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+	{
+		FName Category = TEXT("Grenade Launcher");
+		UpgradeSystem->BindAttribute(this, TEXT("Damage"), TEXT("GunDamage"), Category);
+		UpgradeSystem->BindAttribute(this, TEXT("FireRate"), TEXT("GunFireRate"), Category);
+	}
+	
 }
 
 // Private

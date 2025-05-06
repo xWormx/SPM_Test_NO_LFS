@@ -27,4 +27,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
 	class UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
+	USoundBase* PickUpSound;
 };

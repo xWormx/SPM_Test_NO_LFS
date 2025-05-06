@@ -55,7 +55,6 @@ void USGObjectiveToolTipWidget::DisplayTimer(FText NewTimerText)
 {
 	ScaleBoxTimer->SetVisibility(ESlateVisibility::HitTestInvisible);
 	TextTimer->SetText(NewTimerText);
-	UE_LOG(LogTemp, Warning, TEXT("ScaleBox opacity: %f, RenderOpacity: %f, Visibility: %d"), ScaleBoxTimer->GetRenderOpacity(), GetRenderOpacity(), GetIsHidden());
 	if (UCanvasPanelSlot* ScaleBoxSlot = Cast<UCanvasPanelSlot>(ScaleBoxTimer->Slot))
 	{
 		if (!bTimerAnimationFinished)

@@ -17,6 +17,9 @@ ASGObjectiveDefendThePod::ASGObjectiveDefendThePod()
 	MeshToDefend = CreateDefaultSubobject<UStaticMeshComponent>("MeshToDefend");
 	MeshToDefend->SetupAttachment(Root);
 
+	SphereInteractArea = CreateDefaultSubobject<USphereComponent>("SphereInteractAArea");
+	SphereInteractArea->SetupAttachment(MeshToDefend);
+	
 	MeshRestrictiveFloor = CreateDefaultSubobject<UStaticMeshComponent>("MeshRestrictiveFloor");
 	MeshRestrictiveFloor->SetupAttachment(MeshToDefend);
 
@@ -27,13 +30,15 @@ ASGObjectiveDefendThePod::ASGObjectiveDefendThePod()
 void ASGObjectiveDefendThePod::BeginPlay()
 {
 	Super::BeginPlay();
-	SphereRestrictiveArea->OnComponentBeginOverlap.AddDynamic(this, &ASGObjectiveDefendThePod::StartMainPhase);
+	SphereInteractArea->OnComponentBeginOverlap.AddDynamic(this, &ASGObjectiveDefendThePod::StartMainPhase);
+	SphereRestrictiveArea->OnComponentBeginOverlap.AddDynamic(this, &ASGObjectiveDefendThePod::UnPauseMainPhase);
+	SphereRestrictiveArea->OnComponentEndOverlap.AddDynamic(this, &ASGObjectiveDefendThePod::PauseMainPhase);
 }
 
 void ASGObjectiveDefendThePod::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (bDefendEventStarted)
+	if (bDefendEventStarted && !bDefendEventPaused)
 	{
 		if (GetObjectiveHandler()->GetObjectiveToolTipWidget()->GetTimerAnimationFinished())
 		{
@@ -53,6 +58,7 @@ void ASGObjectiveDefendThePod::Tick(float DeltaTime)
 void ASGObjectiveDefendThePod::OnStart(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	Super::OnStart(ObjectiveHandler);
+	ObjectiveHandler->RegisterDefendThePod(this);
 }
   
 bool ASGObjectiveDefendThePod::IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler)
@@ -81,12 +87,14 @@ void ASGObjectiveDefendThePod::StartMainPhase(UPrimitiveComponent* OverlappedCom
 		if (GetObjectiveHandler() && !bDefendEventStarted)
 		{
 			bDefendEventStarted = true;
-			OnDefendEventStart.Broadcast();
+			bDefendEventPaused = false;
 			GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("00:00"));
 			GetObjectiveHandler()->GetObjectiveToolTipWidget()->Display(GetCurrentSubToolTip());
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &ASGObjectiveDefendThePod::OnTimeIsOut, TimeToDefendPodSeconds, false);
 			AdvanceCurrentObjectiveStep();
 			GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
+
+			OnDefendEventStart.Broadcast();
 		}
 	}
 }
@@ -95,5 +103,44 @@ void ASGObjectiveDefendThePod::OnTimeIsOut()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Time is out to defend the pod, success or loss?"));
 	GetObjectiveHandler()->GetObjectiveToolTipWidget()->Display(GetObjectiveCompletedToolTip());
+	bDefendedThePod = true;
+	OnDefendEventEnd.Broadcast(this);
 }
 
+void ASGObjectiveDefendThePod::PauseMainPhase(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
+	if (Player == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s (Pause): Wasn't not the Player!"), *GetActorLabel());
+		return;
+	}
+		
+	if (bDefendEventStarted)
+	{
+		bDefendEventPaused = true;
+		GetWorldTimerManager().PauseTimer(TimerHandle);
+		GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("PAUSED"));
+		OnDefendEventPaused.Broadcast();
+		UE_LOG(LogTemp, Warning, TEXT("DEFEND THE POD PAUSED!"));
+	}
+		
+}
+
+void ASGObjectiveDefendThePod::UnPauseMainPhase(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
+	if (Player == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s (UnPause): Wasn't not the Player!"), *GetActorLabel());
+		return;
+	}
+	
+	if (bDefendEventStarted)
+	{
+		bDefendEventPaused = false;
+		GetWorldTimerManager().UnPauseTimer(TimerHandle);
+		OnDefendEventUnPaused.Broadcast();
+		UE_LOG(LogTemp, Warning, TEXT("DEFEND THE POD UNPAUSED!"));
+	}
+}

@@ -25,5 +25,5 @@ public:
 	float GetCount() const;
 private:
 	UPROPERTY()
-	float Count = 1.0f;
+	float Count = 200.0f;
 };

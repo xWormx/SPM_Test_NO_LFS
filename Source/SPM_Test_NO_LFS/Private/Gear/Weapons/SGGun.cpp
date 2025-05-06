@@ -1,4 +1,6 @@
 #include "Gear/Weapons/SGGun.h"
+
+#include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
 
@@ -6,10 +8,11 @@
 ASGGun::ASGGun()
 {
  	PrimaryActorTick.bCanEverTick = true;
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	RootComponent = Root;
+	//Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	//RootComponent = Root;
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
-	Mesh->SetupAttachment(Root);
+	//Mesh->SetupAttachment(Root);
+	SetRootComponent(Mesh);
 }
 
 void ASGGun::Tick(float DeltaTime)
@@ -49,6 +52,13 @@ float ASGGun::GetFireRate() const
 void ASGGun::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+	{
+		FName Category = TEXT("Assault Rifle");
+		UpgradeSystem->BindAttribute(this, TEXT("Damage"), TEXT("GunDamage"), Category);
+		UpgradeSystem->BindAttribute(this, TEXT("FireRate"), TEXT("GunFireRate"), Category);
+	}
 }
 
 AController* ASGGun::GetOwnerController() const

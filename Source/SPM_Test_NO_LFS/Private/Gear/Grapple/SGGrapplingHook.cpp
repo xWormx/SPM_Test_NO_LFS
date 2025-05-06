@@ -65,6 +65,8 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 		{
 			bHeadAttached = true;
 			bDidGrapple = false;
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), GrappleAttachmentSound, Head->GetActorLocation(), 0.6);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), GrappleAttachmentParticles, Head->GetActorLocation());
 		}
 		else
 		{
@@ -262,6 +264,7 @@ bool ASGGrapplingHook::AttachGrapple(AController* Controller, FHitResult& HitRes
 
 void ASGGrapplingHook::TravelDirectly(ACharacter* Character, FHitResult& HitResult)
 {
+	UGameplayStatics::PlaySound2D(this, GrappleFireSound);
 	DisableGrappling();
 	GetWorldTimerManager().SetTimer(GrappleTimerHandle, this, &ASGGrapplingHook::EnableGrappling, HookCooldown);
 	StartCharacterLaunch(Character);

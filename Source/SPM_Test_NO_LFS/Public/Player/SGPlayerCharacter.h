@@ -47,9 +47,11 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TArray<TSubclassOf<ASGGun>> GunClasses;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TArray<ASGGun*> Guns;
-	
 	int8 CurrentGunIndex = 0;
+	UPROPERTY(VisibleAnywhere, Category="design")
+	class UCameraComponent* CameraComponent;
+	UPROPERTY(VisibleAnywhere, Category="design")
+	USkeletalMeshComponent* WeaponMesh;
 };

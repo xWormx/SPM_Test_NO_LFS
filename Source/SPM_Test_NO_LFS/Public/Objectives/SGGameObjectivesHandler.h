@@ -3,9 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SGObjectiveBase.h"
 #include "GameFramework/Actor.h"
 #include "SGGameObjectivesHandler.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnObjectiveStarted);
+DECLARE_MULTICAST_DELEGATE(FOnObjectiveCompleted);
+
+enum class EObjectiveType : uint8;
+class ASGObjectiveDefendThePod;
 class ASGPickUpObjectiveCollect;
 class USGObjectiveToolTipWidget;
 class ASGObjectiveBase;
@@ -25,9 +31,14 @@ public:
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);
 	void RegisterCollectible(ASGPickUpObjectiveCollect* Collectible);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
-	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() {return ObjectiveToolTipWidget;}
-	bool GetCurrentObjectiveIsActive() { return CurrentObjective != nullptr; }
-	
+	void RegisterDefendThePod(ASGObjectiveDefendThePod* DefendThePod);
+	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() const {return ObjectiveToolTipWidget;}
+	bool GetCurrentObjectiveIsActive() const { return CurrentObjective != nullptr; }
+	EObjectiveType GetCurrentObjectiveType() const { return CurrentObjective->GetObjectiveType(); }
+	ASGObjectiveBase* GetCurrentObjective() const { return CurrentObjective; }
+	TArray<ASGObjectiveBase*> GetAllObjectives() const { return GameObjectives; }
+	FOnObjectiveStarted OnObjectiveStarted;
+	FOnObjectiveCompleted OnObjectiveCompleted;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -35,6 +46,11 @@ protected:
 private:
 
 	int ObjectiveCounter = 0;
+
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* MissionStartedSound;
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* MissionCompletedSound;
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* TerminalHUD;
