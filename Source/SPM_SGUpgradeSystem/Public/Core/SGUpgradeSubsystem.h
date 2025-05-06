@@ -32,12 +32,6 @@ public:
 	/// @param Owner Ägaren av attributen (annars hittas den inte)
 	/// @param PropertyName Vad attributen heter (måste just nu vara en float)
 	/// @param RowName Raden i datatabellen som ska användas för uppgraderingarna
-	void BindAttribute(UObject* Owner, FName PropertyName, FName RowName);
-
-	/// @brief Registrera ett attribut som ska kunna uppgraderas
-	/// @param Owner Ägaren av attributen (annars hittas den inte)
-	/// @param PropertyName Vad attributen heter (måste just nu vara en float)
-	/// @param RowName Raden i datatabellen som ska användas för uppgraderingarna
 	/// @param Category Kategori för attributen (ex. "Player", "Enemy" osv)
 	void BindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category);
 
@@ -59,16 +53,20 @@ public:
 	
 	void RequestUpgrade(bool bUpgrade, FName RowName) const;
 
+	void RequestUpgrade(bool bUpgrade, const FName RowName, const FName Category) const;
+
 	UFUNCTION(BlueprintCallable, Category="Upgrades")
 	TArray<FSGUpgradeEntry> GetUpgradeEntries() const;
-	
+
 protected:
 	
 	const FSGAttribute* GetByKey(UObject* Owner, FProperty* Property) const;
-	
+
+	const FSGAttribute* GetByCategory(FName Category, FName RowName) const;
+
 	TArray<const FSGAttribute*> GetByRow(FName RowName) const;
 
-	uint64 GetKey(UObject* Owner, FProperty* Property) const;
+	static uint64 GetKey(UObject* Owner, FProperty* Property);
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Upgrades")
@@ -82,4 +80,7 @@ private:
 
 	//För uppgradering av enstaka attribut
 	TMap<uint64, FSGAttribute*> AttributesByKey;
+
+	//För uppgradering av enstaka attribut
+	TMap<FName, TArray<FSGAttribute*>> AttributesByCategory;
 };
