@@ -1,4 +1,6 @@
 #include "Gear/Weapons/SGGun.h"
+
+#include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
 
@@ -50,6 +52,13 @@ float ASGGun::GetFireRate() const
 void ASGGun::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+	{
+		FName Category = TEXT("Assault Rifle");
+		UpgradeSystem->BindAttribute(this, TEXT("Damage"), TEXT("GunDamage"), Category);
+		UpgradeSystem->BindAttribute(this, TEXT("FireRate"), TEXT("GunFireRate"), Category);
+	}
 }
 
 AController* ASGGun::GetOwnerController() const

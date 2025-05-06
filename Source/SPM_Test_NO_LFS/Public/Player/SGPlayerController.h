@@ -61,8 +61,10 @@ private:
 	ASGPlayerCharacter* GetValidPlayerCharacter();
 	ASGPlayerCharacter* ThePlayerCharacter;
 
+public:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float MoveSpeed = 5;
+private:
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class UInputMappingContext* InputMapping;

@@ -36,10 +36,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties")
 	USGHealthComponent* HealthComponent;
 	
-	// TODO: Implementera Timer
 	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties")
 	float HealthBuffer = 0.0f;
 
+	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties", meta = (AllowPrivateAccess = "true"))
+	float HealthBufferCapacity = 100.0f; 
 private:
 	
 	FTimerHandle HealthBufferTimerHandle;
