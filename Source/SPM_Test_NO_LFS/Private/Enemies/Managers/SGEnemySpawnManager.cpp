@@ -1,4 +1,5 @@
 #include "Enemies/Managers/SGEnemySpawnManager.h"
+#include "Components/SphereComponent.h"
 #include "Enemies/Managers/SGEnemySpawnPoint.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Player/SGPlayerCharacter.h"
@@ -9,11 +10,46 @@
 ASGEnemySpawnManager::ASGEnemySpawnManager()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	DespawnTriggerSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DespawnTriggerSphere"));
+	DespawnTriggerSphere->SetupAttachment(RootComponent);
+	DespawnTriggerSphere->SetSphereRadius(DespawnTriggerRadius);
+	DespawnTriggerSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	DespawnTriggerSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
+	DespawnTriggerSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	DespawnTriggerSphere->SetGenerateOverlapEvents(true);
+	DespawnTriggerSphere->SetHiddenInGame(false);
+	DespawnTriggerSphere->bDrawOnlyIfSelected = false;
+	DespawnTriggerSphere->SetVisibility(true);
+	DespawnTriggerSphere->ShapeColor = FColor::Green;
 }
 
 void ASGEnemySpawnManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	for (int32 i = DespawnCandidates.Num() - 1; i >= 0; --i)
+	{
+		FDespawnCandidate& Candidate = DespawnCandidates[i];
+		
+		if (!IsValid(Candidate.Enemy))
+		{
+			DespawnCandidates.RemoveAt(i);
+			continue;
+		}
+
+		Candidate.TimeOutOfRange += DeltaTime;
+
+		if (Candidate.TimeOutOfRange >= DespawnGracePeriod)
+		{
+			Candidate.Enemy->Destroy();
+			EnemiesAlive--;
+			DespawnCandidates.RemoveAt(i);
+			
+			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::An enemy has been culled by the despawn checker!"));
+			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAtATime);
+		}
+	}
 }
 
 void ASGEnemySpawnManager::StartSpawning()
@@ -35,7 +71,7 @@ void ASGEnemySpawnManager::SetSpawnMode(ESpawnMode NewMode)
 void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
 	--EnemiesAlive;
-	//UE_LOG(LogTemp, Warning, TEXT("Enemies left: %i"), EnemiesAlive);
+	UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAtATime);
 }
 
 // Protected functions
@@ -46,6 +82,9 @@ void ASGEnemySpawnManager::BeginPlay()
 	PlayerCharacter = Cast<ASGPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("EnemySpawnPoint"), AllEnemySpawnPoints);
 	//UE_LOG(LogTemp, Warning, TEXT("EnemySpawnPoints found: %i"), AllEnemySpawnPoints.Num());
+
+	DespawnTriggerSphere->OnComponentBeginOverlap.AddDynamic(this, &ASGEnemySpawnManager::HandleBeginOverlap);
+	DespawnTriggerSphere->OnComponentEndOverlap.AddDynamic(this, &ASGEnemySpawnManager::HandleEndOverlap);
 	
 	if (ObjectiveDefendThePod)
 	{
@@ -61,6 +100,12 @@ void ASGEnemySpawnManager::StartSpawnLoopTimer()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Intermission timer started! %f seconds to next wave..."), TimeBetweenSpawns);
 	GetWorldTimerManager().SetTimer(SpawnLoopTimer, this, &ASGEnemySpawnManager::EndSpawnLoopTimer, TimeBetweenSpawns, false);
+	
+	if (PlayerCharacter && DespawnTriggerSphere)
+	{
+		DespawnTriggerSphere->SetSphereRadius(DespawnTriggerRadius);
+		DespawnTriggerSphere->SetWorldLocation(PlayerCharacter->GetActorLocation());
+	}
 }
 
 void ASGEnemySpawnManager::EndSpawnLoopTimer()
@@ -173,11 +218,12 @@ void ASGEnemySpawnManager::SpawnEnemies(const TArray<AActor*>& AvailableSpawnPoi
 		{
 			++EnemiesAlive;
 			SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
+			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAtATime);
 			if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, SpawnedEnemyPtr->GetActorLocation());
+			CheckIfDespawnCandidate(SpawnedEnemyPtr);
 		}
 	}
 }
-
 
 const ASGEnemySpawnPoint* ASGEnemySpawnManager::GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const
 {
@@ -189,7 +235,53 @@ const TSubclassOf<ASGEnemyCharacter> ASGEnemySpawnManager::GetRandomEnemyType() 
 	return EnemyTypes[FMath::RandRange(0, EnemyTypes.Num() - 1)];
 }
 
-// Delegate handlers
+void ASGEnemySpawnManager::CheckIfDespawnCandidate(ASGEnemyCharacter* Enemy)
+{
+	if (!IsValid(Enemy) || !DespawnTriggerSphere) return;
+	
+	if (!DespawnTriggerSphere->IsOverlappingActor(Enemy))
+	{
+		bool bAlreadyTracked = DespawnCandidates.ContainsByPredicate([Enemy](const FDespawnCandidate& Candidate)
+		{
+			return Candidate.Enemy == Enemy;
+		});
+
+		if (!bAlreadyTracked)
+		{
+			FDespawnCandidate Candidate;
+			Candidate.Enemy = Enemy;
+			Candidate.TimeOutOfRange = 0.f;
+			DespawnCandidates.Add(Candidate);
+
+			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::[%s] has spawned outside the despawn checker area!"), *Enemy->GetName());
+		}
+	}
+}
+
+void ASGEnemySpawnManager::HandleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (ASGEnemyCharacter* Enemy = Cast<ASGEnemyCharacter>(OtherActor))
+	{
+		DespawnCandidates.RemoveAll([Enemy](const FDespawnCandidate& Candidate)
+		{
+			return Candidate.Enemy == Enemy;
+		});
+	}
+}
+
+void ASGEnemySpawnManager::HandleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (ASGEnemyCharacter* Enemy = Cast<ASGEnemyCharacter>(OtherActor))
+	{
+		FDespawnCandidate Candidate;
+		Candidate.Enemy = Enemy;
+		Candidate.TimeOutOfRange = 0.f;
+		DespawnCandidates.Add(Candidate);
+	}
+}
+
 void ASGEnemySpawnManager::HandleDefendEventStart()
 {
 	if (EnemySpawnPointGroups.Num() <= 0) return;
