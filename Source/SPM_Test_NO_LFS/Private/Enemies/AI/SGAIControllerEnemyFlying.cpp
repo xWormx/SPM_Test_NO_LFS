@@ -49,6 +49,8 @@ void ASGAIControllerEnemyFlying::HandleMovement()
 
 	if (!bIsAttacking)
 	{
+		//MoveToActor(AttackTarget);
+
 		FlyTowardsTarget();
 	}
 }
