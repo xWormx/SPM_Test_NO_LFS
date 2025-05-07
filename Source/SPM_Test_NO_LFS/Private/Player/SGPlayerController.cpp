@@ -261,3 +261,27 @@ void ASGPlayerController::PauseGame()
 	bShowMouseCursor = true;
 	SetInputMode(FInputModeUIOnly());
 }
+
+void ASGPlayerController::RestartGame()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+
+	FString CurrentLevel = GetWorld()->GetMapName();
+	CurrentLevel.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+
+	UGameplayStatics::OpenLevel(this, FName(*CurrentLevel));
+}
+
+void ASGPlayerController::EnableGameOver()
+{
+	SetPause(true);
+
+	if (!GameOverMenu)
+	{
+		return;
+	}
+
+	GameOverMenu->AddToViewport();
+	bShowMouseCursor = true;
+	SetInputMode(FInputModeGameOnly());
+}
