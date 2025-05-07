@@ -50,6 +50,14 @@ private:
 
 	//Added by Basir
 	void PauseGame();
+
+	//Added by Basir
+	UFUNCTION(BlueprintCallable)
+	void RestartGame();
+
+	//Added by Basir
+	UFUNCTION(BlueprintCallable)
+	void EnableGameOver();
 	
 	FTimerHandle CanFireAgainTimer;
 	bool bIsFiring = false;
@@ -104,6 +112,10 @@ private:
 	//Added by Basir
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	class UUserWidget* PauseMenu;
+
+	//Added by Basir
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	class UUserWidget* GameOverMenu;
 
 	// Added by Calle
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
