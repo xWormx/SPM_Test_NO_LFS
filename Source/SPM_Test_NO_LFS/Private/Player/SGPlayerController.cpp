@@ -30,6 +30,13 @@ void ASGPlayerController::BeginPlay()
 	if (HUDTerminal)
 		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetTerminalWidget(HUDTerminal);
 	bCanFire = true;
+
+	HUDGrapple = CreateWidget<USGHUDGrapple>(this, HUDGrappleClass);
+	if (HUDGrapple)
+	{
+		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetHUDGrapple(HUDGrapple);
+		HUDGrapple->AddToViewport();
+	}
 }
 
 void ASGPlayerController::Tick(float DeltaTime)

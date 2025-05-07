@@ -58,7 +58,7 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* HUDTerminal;
-
+	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class ASGPlayerController* LastInteractingPlayerController;
 
