@@ -1,4 +1,5 @@
 #include "../../../Public/Gear/Weapons/SGGrenadeLauncher.h"
+#include "NiagaraFunctionLibrary.h"
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
 #include "../../../Public/Player/SGPlayerCharacter.h"
 #include "Core/SGUpgradeSubsystem.h"
@@ -17,7 +18,20 @@ void ASGGrenadeLauncher::Fire()
 {
 	if (!ProjectileSpawnPoint || !ProjectileClass) return;
 	
-	if (ShootParticles && Mesh) UGameplayStatics::SpawnEmitterAttached(ShootParticles, Mesh, TEXT("MuzzleFlashSocket"));
+	if (ShootParticles && ShootParticlesPoint)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAttached(
+			ShootParticles,
+			ShootParticlesPoint,
+			NAME_None,    
+			FVector::ZeroVector,
+			FRotator::ZeroRotator,
+			EAttachLocation::KeepRelativeOffset,
+			true
+			);
+	} //if (ShootParticles && Mesh) UGameplayStatics::SpawnEmitterAttached(ShootParticles, Mesh, TEXT("MuzzleFlashSocket"));
+
+	
 	if (ShootSound && Mesh) UGameplayStatics::SpawnSoundAttached(ShootSound, Mesh, TEXT("MuzzleFlashSocket"));
 
 	SpawnProjectile();

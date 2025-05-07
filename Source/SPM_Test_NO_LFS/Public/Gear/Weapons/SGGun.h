@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "SGGun.generated.h"
 
+class UNiagaraSystem;
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGGun : public AActor
 {
@@ -24,13 +26,15 @@ protected:
 	USceneComponent* Root;
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USkeletalMeshComponent* Mesh;
+	UPROPERTY(VisibleAnywhere, Category="design")
+	USceneComponent* ShootParticlesPoint;
 	// EditAnywhere+BP
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	UParticleSystem* ShootParticles;
+	UNiagaraSystem* ShootParticles;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	USoundBase* ShootSound;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	UParticleSystem* HitParticles;
+	UNiagaraSystem* HitParticles;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	USoundBase* HitSound;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
@@ -39,6 +43,10 @@ protected:
 	float Damage = 100.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float FireRate = 0.1f; // 0.1 = 10 skott per sekund
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	int NumberOfPellets = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	float PelletSpreadAngle = 3.f;
 
 private:
 	virtual bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
