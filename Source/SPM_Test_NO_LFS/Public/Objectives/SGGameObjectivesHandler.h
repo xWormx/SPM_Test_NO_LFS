@@ -69,9 +69,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<ASGObjectiveBase*> GameObjectives;
 
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	ASGObjectiveBase* CurrentObjective;
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	ASGObjectiveBase* LastCompletedObjective;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
