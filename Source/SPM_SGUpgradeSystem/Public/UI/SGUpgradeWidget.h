@@ -19,11 +19,12 @@ public:
 	virtual void NativeConstruct() override;
 
 protected:
-	/** Container in your UMG (e.g. VerticalBox or GridPanel) */
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UVerticalBox> EntriesBox;
 
-	/** The widget class for each entry tile */
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	TObjectPtr<UVerticalBox> MiscEntriesBox;
+
 	UPROPERTY(EditAnywhere, Category="Upgrades")
 	TSubclassOf<USGUpgradeEntryTile> EntryTileClass;
 
