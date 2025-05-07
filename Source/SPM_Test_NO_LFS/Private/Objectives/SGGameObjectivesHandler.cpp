@@ -137,6 +137,7 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 	CurrentObjective->Update(this);
 	if (CurrentObjective->IsCompleted(this))
 	{
+		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted(this);
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
 		RemoveCurrentObjective();
