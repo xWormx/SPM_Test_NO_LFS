@@ -60,6 +60,9 @@ struct FSGUpgradeEntry : public FSGUpgradeData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Icon = nullptr;
 
+	int32 CurrentUpgradeLevel = 0;	
+	float CurrentValue = 0.f;
+	
 	FName Category;
 	FName RowName;
 };
