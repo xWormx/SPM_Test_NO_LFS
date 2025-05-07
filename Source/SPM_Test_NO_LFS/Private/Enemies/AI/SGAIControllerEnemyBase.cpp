@@ -6,6 +6,7 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
@@ -121,12 +122,19 @@ void ASGAIControllerEnemyBase::RotateTowardsTargetWhileNotMoving()
 		return;
 	}
 	
-	FVector Direction = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
+	/*FVector Direction = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
 	FRotator NewRotation = Direction.Rotation();
 	NewRotation.Pitch = 0.f;
 	NewRotation.Roll = 0.f;
 
-	ControlledEnemy->SetActorRotation(NewRotation);
+	ControlledEnemy->SetActorRotation(NewRotation);*/
+
+	FVector StartLocation = ControlledEnemy->GetActorLocation();
+	FVector TargetLocation = AttackTarget->GetActorLocation();
+
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
+
+	ControlledEnemy->SetActorRotation(LookAtRotation);
 }
 
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
