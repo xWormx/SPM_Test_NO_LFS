@@ -13,33 +13,40 @@ struct FSGAttribute
 	FProperty* Property = nullptr;
 
 	FName RowName; //Måste vara samma som i "row name" som sätts i själva datatabellen.
-	int32 CurrentUpgradeLevel = 0;
-
-	FOnAttributeModified OnAttributeModified; 
+	int32 CurrentUpgradeLevel = 1;
+	float InitialValue = 0.f; 
+	FOnAttributeModified OnAttributeModified;
+	mutable FName Category; // mutable för att tillåta ändring om dubblett hittas. Se BindAttribute
 };
 
 USTRUCT(BlueprintType)
 struct FSGUpgradeData
 {
 	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ToolTip = "Antalet Orbs"))
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ToolTip = "Antalet Orbs som krävs för att uppgradera. Priset multipliceras"))
 	int32 Cost = 10.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ToolTip = "Används som: value += multiplier"))
-	float Multiplier = 100.0f;	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ToolTip = "-1 = Ingen maxgräns"))
+	int32 MaxNumberOfUpgrades = -1;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ToolTip = "Används som: value += InitialValue * Multiplier"))
+	float Multiplier = 0.1f; // Procenttal ökning av värdet	
 };
 
 USTRUCT(BlueprintType)
 struct FSGAttributeData : public FTableRowBase
 {
-	GENERATED_BODY()	
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UTexture2D* Icon = nullptr;
-	
+	FSGUpgradeData Data;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FSGUpgradeData> UpgradeData;
+	FName DisplayName;
+	
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+    TSoftObjectPtr<UTexture2D> Icon = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(TEXT("/Engine/VREditor/Devices/Vive/UE4_Logo.UE4_Logo")));
 };
 
 USTRUCT(BlueprintType)
@@ -48,9 +55,12 @@ struct FSGUpgradeEntry : public FSGUpgradeData
 	GENERATED_BODY()
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName RowName;
-	
+	FName DisplayName;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D* Icon = nullptr;
+
+	FName Category;
+	FName RowName;
 };
 

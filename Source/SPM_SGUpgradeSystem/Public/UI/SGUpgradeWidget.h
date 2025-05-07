@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SGUpgradeWidget.generated.h"
 
+class USGUpgradeCategoryWidget;
 class USGUpgradeEntryTile;
 class UVerticalBox;
 
@@ -26,6 +27,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Upgrades")
 	TSubclassOf<USGUpgradeEntryTile> EntryTileClass;
 
+	UPROPERTY(EditAnywhere, Category="Upgrades")
+	TSubclassOf<USGUpgradeCategoryWidget> CategoryWidgetClass;
+
 	UFUNCTION()
 	void ConstructEntries();
+
+private:
+	TMap<FName, TObjectPtr<USGUpgradeCategoryWidget>> CategoryWidgets;
 };
