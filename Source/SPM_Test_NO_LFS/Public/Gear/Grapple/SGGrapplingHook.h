@@ -9,6 +9,8 @@
 #include "HeadMountedDisplayTypes.h"
 #include "SGGrapplingHook.generated.h"
 
+class USGHUDGrapple;
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGGrapplingHook : public AActor
 {
@@ -34,6 +36,7 @@ public:
 	void SetCoolDown(float NewCoolDown) { HookCooldown = NewCoolDown; }
 	void EnableGrappling();
 	void DisableGrappling();
+	void InitializeHUDGrapple();
 	bool CanGrapple() const { return bCanGrapple; }
 	bool HeadAttached() const { return bHeadAttached; }
 	bool PlayerWantToTravel() const { return bStartTravel; }
@@ -44,6 +47,9 @@ public:
 	
 private:
 
+	UPROPERTY(VisibleAnywhere, Category = "UPROPERTY")
+	USGHUDGrapple* HUDGrapple;
+	
 	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
 	USoundBase* GrappleFireSound;
 	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
@@ -93,6 +99,7 @@ private:
 
 	float CableLengthWhenAttached = 0;
 
+	bool bHUDGrappleInitialized = false;
 	bool bHeadAttached = false;
 	bool bDidGrapple = false;
 	bool bCanGrapple = true;

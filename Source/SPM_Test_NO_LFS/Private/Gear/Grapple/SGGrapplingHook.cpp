@@ -2,6 +2,9 @@
 
 
 #include "Gear/Grapple/SGGrapplingHook.h"
+
+#include "Blueprint/UserWidget.h"
+#include "Core/SGGameInstance.h"
 #include "Gear/Grapple/SGGrappleHeadBase.h"
 #include "Player/SGPlayerController.h"
 #include "GameFramework/Character.h"
@@ -46,6 +49,20 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!bHUDGrappleInitialized)
+		InitializeHUDGrapple();
+
+	FHitResult HitResult;
+	AController* Controller = GetValidController();
+	bool didHit = GrappleTrace(HitResult, Controller);
+	if (!didHit)
+	{
+		if (HUDGrapple)
+		{
+			HUDGrapple->PlayValidTargetAnimation();
+		}
+	}
+	
 	if (!CanGrapple())
 	{
 		int TimeLeft = GetWorldTimerManager().GetTimerRemaining(GrappleTimerHandle);
@@ -98,6 +115,7 @@ void ASGGrapplingHook::FireGrapple()
 {
 	FHitResult HitResult;
 	AController* Controller = GetValidController();
+	
 	bool bDidAttach = AttachGrapple(Controller, HitResult);
 	// What happends if the hook attached to a point?
 	/*
@@ -161,9 +179,19 @@ void ASGGrapplingHook::DisableGrappling()
 	bCanGrapple = false;
 }
 
+void ASGGrapplingHook::InitializeHUDGrapple()
+{
+	bHUDGrappleInitialized = true;
+	HUDGrapple = Cast<USGGameInstance>(GetWorld()->GetGameInstance())->GetHUDGrapple();
+	if (HUDGrapple == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ASGGrapplingHook: Couldn't initialize HUDGrapple!"));
+	}
+}
+
 AController* ASGGrapplingHook::GetValidController() const
 {
-	DrawDebugCamera(GetWorld(), GetActorLocation(), GetActorRotation(), 90, 2, FColor::Blue, false, 8);
+	//DrawDebugCamera(GetWorld(), GetActorLocation(), GetActorRotation(), 90, 2, FColor::Blue, false, 8);
 	APawn* GrappleOwner = Cast<APawn>(GetOwner());
 	if (GrappleOwner == nullptr)
 	{
@@ -189,7 +217,7 @@ bool ASGGrapplingHook::GrappleTrace(FHitResult& OutHitResult, AController* Contr
 	GrappleDirection = TraceEnd - ViewLocation;
 	GrappleDirection.Normalize();
 	Head->SetActorRotation(ViewRotation);
-	DrawDebugPoint(GetWorld(), TraceEnd, 25, FColor::Red, false, 8);
+	//DrawDebugPoint(GetWorld(), TraceEnd, 25, FColor::Red, false, 8);
 	// Detta är basically SphereTraceByChannel
 	return GetWorld()->SweepSingleByChannel(OutHitResult, ViewLocation, TraceEnd,
 												FQuat::Identity, ECC_GameTraceChannel1,
