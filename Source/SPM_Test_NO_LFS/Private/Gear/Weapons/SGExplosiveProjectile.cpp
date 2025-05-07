@@ -7,7 +7,7 @@
 ASGExplosiveProjectile::ASGExplosiveProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
-	
+
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = Root;
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
@@ -18,7 +18,7 @@ ASGExplosiveProjectile::ASGExplosiveProjectile()
 	SphereCollider->InitSphereRadius(30.0f);
 	SphereCollider->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SphereCollider->SetCollisionResponseToAllChannels(ECR_Overlap);
-	
+
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->InitialSpeed = 1000.f;
 	ProjectileMovement->MaxSpeed = 5000.f;
@@ -57,11 +57,13 @@ void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	AActor* MyOwnersOwner = GetOwner()->GetOwner();
 	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwnersOwner)
 		return;
+
+	SphereCollider->OnComponentBeginOverlap.RemoveDynamic(this, &ASGExplosiveProjectile::OnBeginOverlap);
 	
 	DoSpecialEffects();
-	
+
 	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 32, FColor::Orange, false, 2.0f);
-	
+
 	TArray<AActor*> IgnoredActors;
 	IgnoredActors.Add(this);
 	if (MyOwner) IgnoredActors.Add(MyOwner);
@@ -100,7 +102,7 @@ void ASGExplosiveProjectile::DoSpecialEffects()
 		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility))
 		{
 			Normal = Hit.ImpactNormal;
-			
+
 			float RandomYaw = FMath::FRandRange(0.f, 360.f);
 			FRotator DecalRotation = Normal.Rotation();
 			DecalRotation.Yaw += RandomYaw;
