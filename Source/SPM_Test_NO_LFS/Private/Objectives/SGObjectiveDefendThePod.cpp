@@ -112,7 +112,7 @@ void ASGObjectiveDefendThePod::PauseMainPhase(UPrimitiveComponent* OverlappedCom
 	ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
 	if (Player == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s (Pause): Wasn't not the Player!"), *GetActorLabel());
+		//UE_LOG(LogTemp, Warning, TEXT("%s (Pause): Wasn't not the Player!"), *GetActorLabel());
 		return;
 	}
 		
@@ -132,7 +132,7 @@ void ASGObjectiveDefendThePod::UnPauseMainPhase(UPrimitiveComponent* OverlappedC
 	ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
 	if (Player == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s (UnPause): Wasn't not the Player!"), *GetActorLabel());
+		//UE_LOG(LogTemp, Warning, TEXT("%s (UnPause): Wasn't not the Player!"), *GetActorLabel());
 		return;
 	}
 	
