@@ -1,49 +1,58 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "SGUtilObjectPoolManager.generated.h"
+#include "SGUtilObjectPoolManager.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "SGObjectPoolSubsystem.generated.h"
 
-/*
 USTRUCT(BlueprintType, Category = "ActorPool")
 struct FActorPool
 {
 	GENERATED_BODY()
-	
+
 	FActorPool() {}
 	explicit FActorPool(const TArray<AActor*>& InActors) : Actors(InActors) {}
 
 	//TODO: Lägga till X antal att skapa? Om man vill sköta det i editor?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors", meta = (AllowPrivateAccess = "true"))
 	int DefaultPoolGrowthSize = 5;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors")
 	TArray<AActor*> Actors;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors")
 	bool bPersistAcrossLevels = true;
-};*/
+};
 
 UCLASS()
-class SPM_TEST_NO_LFS_API ASGUtilObjectPoolManager : public AActor
+class SPM_TEST_NO_LFS_API USGObjectPoolSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	
-//TODO: Överlagra BeginPlay() för att själva initiera pooler som lagts till via editorn? Just nu måste all initiering ske från andra klasser (se SGEnemyDropManager.cpp)
 
 public:
-	ASGUtilObjectPoolManager();
-	void InitializePool(const TSubclassOf<AActor>& ObjectClass, int32 PoolSize);
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+
+	void InitializePool(const TSubclassOf<AActor>& ObjectClass, int32 PoolSize, bool bPersistAcrossLevels = true);
+
 	AActor* GetPooledObject(TSubclassOf<AActor>& ObjectClass);
-	void ReturnObjectToPool(AActor* Object);
+	void ReturnObjectToPool(AActor* Object) const;
 
 private:
-	void ExpandPool(const TSubclassOf<AActor>& ObjectClass, int32 AdditionalSize);
-	void AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, const int32 Size, TArray<AActor*>& Actors) const;
+	UFUNCTION()
+	void OnPreLevelChange(const FString& MapName);
+	void CleanupAllPools();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Actor Pool", meta = (AllowPrivateAccess = "true"))
+	void ExpandPool(const TSubclassOf<AActor>& ObjectClass, int32 AdditionalSize);
+	void AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, int32 Size, TArray<AActor*>& Actors);
+
+	void PerformPoolMaintenance();
+
+	UPROPERTY()
 	TMap<TSubclassOf<AActor>, FActorPool> Pools;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Actor Pool", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY()
 	int InitialSize = 5;
+
+	FTimerHandle PoolMaintenanceTimer;
 };

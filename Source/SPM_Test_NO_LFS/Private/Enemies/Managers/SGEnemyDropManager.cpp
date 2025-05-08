@@ -2,8 +2,7 @@
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Pickups/SGPickUp.h"
-#include "Utils/SGUtilObjectPoolManager.h"
-#include "Kismet/GameplayStatics.h"
+#include "Utils/SGObjectPoolSubsystem.h"
 
 ASGEnemyDropManager::ASGEnemyDropManager()
 {
@@ -15,11 +14,12 @@ void ASGEnemyDropManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ObjectPoolManager = Cast<ASGUtilObjectPoolManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ASGUtilObjectPoolManager::StaticClass()));
-	if (!ObjectPoolManager || !EnemyDropDataTable)
+	if (!EnemyDropDataTable)
 	{
 		return;
 	}
+
+	ObjectPoolSubsystem = GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>();
 
 	auto PreloadEnemyDropData = [&](const FName&, const FEnemyDropInfo& Drop)
 	{
@@ -28,14 +28,14 @@ void ASGEnemyDropManager::BeginPlay()
 			return;
 		}
 		TSubclassOf<AActor> DropClass = TSubclassOf(Drop.PickUpClass);
-		ObjectPoolManager->InitializePool(DropClass, Drop.PickUpCount);
+		ObjectPoolSubsystem->InitializePool(DropClass, Drop.PickUpCount);
 	};
 	EnemyDropDataTable->ForeachRow<FEnemyDropInfo>(TEXT("Initialize Enemy Drop Data"),PreloadEnemyDropData);
 }
 
 void ASGEnemyDropManager::DropItem(ASGEnemyCharacter* EnemyCharacter) const
 {
-	if (!EnemyCharacter || !EnemyDropDataTable || !ObjectPoolManager)
+	if (!EnemyCharacter || !EnemyDropDataTable)
 	{
 		return;
 	}
@@ -53,7 +53,7 @@ void ASGEnemyDropManager::DropItem(ASGEnemyCharacter* EnemyCharacter) const
 		for (int32 i = 0; i < Drop.PickUpCount; ++i)
 		{
 			TSubclassOf<AActor> DropClass = TSubclassOf(Drop.PickUpClass);
-			if (AActor* PooledObject = ObjectPoolManager->GetPooledObject(DropClass))
+			if (AActor* PooledObject = ObjectPoolSubsystem->GetPooledObject(DropClass))
 			{
 				PooledObject->SetActorLocation(SpawnLocation);
 				PooledObject->SetActorRotation(SpawnRotation);

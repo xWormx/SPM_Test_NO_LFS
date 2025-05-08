@@ -41,28 +41,22 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 	OnEnemyDied.Broadcast(this);
 	OnEnemyDiedObjective.Broadcast(this);
 
-	//Destroy();
-	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth()); // EnemySpawnManager hanterar destroy/poolning
-	UE_LOG(LogTemp, Error, TEXT("OBS INGEN BUGG!! ️⚠️Inväntar POOL⚠️ OM FIENDEN INTE DÖR: //Destroy(); "));
+	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth()); // EnemySpawnManager hanterar poolning
 }
 
 // Called every frame
 void ASGEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent() const
 {
 	return AttackComponent;
 }
-
-
