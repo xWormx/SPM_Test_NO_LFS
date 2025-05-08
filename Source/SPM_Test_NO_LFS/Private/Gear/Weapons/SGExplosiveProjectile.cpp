@@ -56,7 +56,7 @@ void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	AActor* MyOwner = GetOwner();
 	AActor* MyOwnersOwner = GetOwner()->GetOwner();
 	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || 
-		OtherActor == MyOwnersOwner || OtherActor->ActorHasTag("Projectile"))
+		OtherActor == MyOwnersOwner || OtherActor->ActorHasTag("Projectile") || OtherActor->ActorHasTag("PickUpOrb"))
 	{
 		return;
 	}

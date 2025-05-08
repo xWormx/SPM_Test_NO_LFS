@@ -12,6 +12,7 @@ void ASGPickUpOrbs::BeginPlay()
 ASGPickUpOrbs::ASGPickUpOrbs()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	Tags.Add(FName("PickUpOrb"));
 	OrbEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("OrbEffect"));
 	OrbEffect->SetupAttachment(RootComponent);
 	

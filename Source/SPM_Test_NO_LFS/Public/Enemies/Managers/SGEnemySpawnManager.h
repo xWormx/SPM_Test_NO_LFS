@@ -82,6 +82,8 @@ private:
 	uint32 SpawnAreaIndex = 0;
 	uint32 EnemyCount = 1;
 	ESpawnMode DefaultSpawnMode;
+	int32 DefaultMaxEnemiesAlive;
+	float DefaultTimeBetweenSpawns;
 
 	UPROPERTY()
 	TArray<FDespawnCandidate> DespawnCandidates;
@@ -92,7 +94,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float DespawnGracePeriod = 10.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	int32 MaxEnemiesAtATime = 5;
+	int32 MaxEnemiesAlive = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	int32 MaxEnemiesAliveDefendThePodMultiplier = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float TimeBetweenSpawns = 1.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))

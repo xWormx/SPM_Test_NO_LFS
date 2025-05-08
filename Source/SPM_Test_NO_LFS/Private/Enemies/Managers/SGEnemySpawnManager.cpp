@@ -48,7 +48,7 @@ void ASGEnemySpawnManager::Tick(float DeltaTime)
 			DespawnCandidates.RemoveAt(i);
 			
 			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::An enemy has been culled by the despawn checker!"));
-			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAtATime);
+			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAlive);
 		}
 	}
 }
@@ -73,7 +73,7 @@ void ASGEnemySpawnManager::SetSpawnMode(ESpawnMode NewMode)
 void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
 	--EnemiesAlive;
-	UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAtATime);
+	UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAlive);
 
 	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(DeadEnemy);
 }
@@ -83,6 +83,8 @@ void ASGEnemySpawnManager::BeginPlay()
 {
 	Super::BeginPlay();
 	DefaultSpawnMode = SpawnMode;
+	DefaultMaxEnemiesAlive = MaxEnemiesAlive;
+	DefaultTimeBetweenSpawns = TimeBetweenSpawns;
 	PlayerCharacter = Cast<ASGPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("EnemySpawnPoint"), AllEnemySpawnPoints);
 	//UE_LOG(LogTemp, Warning, TEXT("EnemySpawnPoints found: %i"), AllEnemySpawnPoints.Num());
@@ -120,21 +122,27 @@ void ASGEnemySpawnManager::EndSpawnLoopTimer()
 	{
 		case ESpawnMode::Everywhere:
 			{
-				if (EnemiesAlive >= MaxEnemiesAtATime) break;
+				MaxEnemiesAlive = DefaultMaxEnemiesAlive;
+				TimeBetweenSpawns = DefaultTimeBetweenSpawns;
+				if (EnemiesAlive >= MaxEnemiesAlive) break;
 				SpawnEnemiesEverywhere();
 				break;
 			}
 		
 		case ESpawnMode::AtArea:
 			{
-				if (EnemiesAlive >= MaxEnemiesAtATime) break;
+				MaxEnemiesAlive = DefaultMaxEnemiesAlive;
+				TimeBetweenSpawns = DefaultTimeBetweenSpawns;
+				if (EnemiesAlive >= MaxEnemiesAlive) break;
 				SpawnEnemiesAtArea();
 				break;
 			}
 		
 		case ESpawnMode::AroundPlayer:
 			{
-				if (EnemiesAlive >= MaxEnemiesAtATime) break;
+				MaxEnemiesAlive *= MaxEnemiesAliveDefendThePodMultiplier;
+				TimeBetweenSpawns = 0.5f;
+				if (EnemiesAlive >= MaxEnemiesAlive) break;
 				SpawnEnemiesAroundPlayer();
 				break;
 			}
@@ -155,7 +163,7 @@ void ASGEnemySpawnManager::SetEnemyCount(uint32 NewEnemyCount)
 
 void ASGEnemySpawnManager::SetMaxEnemiesAtATime(int32 NewMaxEnemiesAtATime)
 {
-	MaxEnemiesAtATime = NewMaxEnemiesAtATime;
+	MaxEnemiesAlive = NewMaxEnemiesAtATime;
 }
 
 void ASGEnemySpawnManager::SpawnEnemiesEverywhere()
@@ -222,7 +230,7 @@ void ASGEnemySpawnManager::SpawnEnemies(const TArray<AActor*>& AvailableSpawnPoi
 		{
 			++EnemiesAlive;
 			SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
-			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAtATime);
+			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAlive);
 			if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, SpawnedEnemyPtr->GetActorLocation());
 			CheckIfDespawnCandidate(SpawnedEnemyPtr);
 		}
