@@ -82,8 +82,12 @@ private:
 
 	/* If grappledirection is upwards z > 0, this is the extra impuls on Z-axis*/
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	float ExtraUpwardsImpuls = 100000;
+	float ExtraUpwardsImpuls = 10;
 
+	/* Distance to the grapple point when the Grapplehook should reset and the Player released in the direction its getting dragged */
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	float GrappleReleaseDistance = 150;
+	
 	/* When player arrives at the attachment point, this impuls is added to the player */
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float ImpulsAtArrival = 100000;
