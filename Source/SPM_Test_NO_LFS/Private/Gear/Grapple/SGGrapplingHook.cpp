@@ -252,7 +252,7 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 		float DistanceToGrapplePoint = FVector::Distance(GetAttachmentPoint(), NewPosition); 
 		UE_LOG(LogTemp, Warning, TEXT("Grapple Location: %f"), DistanceToGrapplePoint);
 
-		if (DistanceToGrapplePoint < 150)
+		if (DistanceToGrapplePoint < GrappleReleaseDistance)
 		{
 			ResetGrapple();
 
