@@ -3,6 +3,7 @@
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BillboardComponent.h"
+#include "Utils/SGObjectPoolSubsystem.h"
 
 // Public
 ASGEnemySpawnPoint::ASGEnemySpawnPoint()
@@ -27,20 +28,27 @@ void ASGEnemySpawnPoint::Tick(float DeltaTime)
 
 ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyCharacter> EnemyClass) const
 {
-	if (EnemyClass == nullptr) return nullptr;
+	if (EnemyClass == nullptr)
+	{
+		return nullptr;
+	}
 
-	ASGEnemyCharacter* SpawnedEnemyPtr;
-	if (SpawnPointSpecificEnemyType)
+	USGObjectPoolSubsystem* ObjectPool = GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>();
+
+	TSubclassOf<AActor> EnemyType = TSubclassOf(SpawnPointSpecificEnemyType ? SpawnPointSpecificEnemyType : EnemyClass);
+	AActor* PooledEnemy = ObjectPool->GetPooledObject(EnemyType);
+	ASGEnemyCharacter* SpawnedEnemyPtr = Cast<ASGEnemyCharacter>(PooledEnemy);
+
+	if (!ensureMsgf(SpawnedEnemyPtr, TEXT("Was not able to spawn enemy of type %s"), *EnemyType->GetName()))
 	{
-		SpawnedEnemyPtr = GetWorld()->SpawnActor<ASGEnemyCharacter>(
-			SpawnPointSpecificEnemyType, GetActorLocation(), GetActorRotation());
+		return nullptr;
 	}
-	else
-	{
-		SpawnedEnemyPtr = GetWorld()->SpawnActor<ASGEnemyCharacter>(
-			EnemyClass, GetActorLocation(), GetActorRotation());
-	}
-	
+	FVector ActorLocation = GetActorLocation();
+	FVector ActorExtent;
+	GetActorBounds(false, ActorLocation, ActorExtent);
+	ActorLocation.Z += ActorExtent.Z/2.f;
+	SpawnedEnemyPtr->SetActorLocationAndRotation(ActorLocation, GetActorRotation());
+
 	if (ObjectiveHandler)
 	{
 		ObjectiveHandler->RegisterEnemy(SpawnedEnemyPtr);
@@ -57,4 +65,5 @@ ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyChar
 void ASGEnemySpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
+
 }
