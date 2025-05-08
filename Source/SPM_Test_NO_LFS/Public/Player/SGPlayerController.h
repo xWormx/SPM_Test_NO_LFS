@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "SGPlayerController.generated.h"
 
+class USGHUDGrapple;
 class USGTerminalWidget;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
@@ -69,6 +70,8 @@ private:
 	ASGPlayerCharacter* GetValidPlayerCharacter();
 	ASGPlayerCharacter* ThePlayerCharacter;
 
+	USGHUDGrapple* GetHUDGrapple() { return HUDGrapple; }
+
 public:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	float MoveSpeed = 5;
@@ -123,5 +126,11 @@ private:
 	// Added by Calle
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* HUDTerminal;
+
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	TSubclassOf<UUserWidget> HUDGrappleClass;
+	
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	USGHUDGrapple* HUDGrapple;
 	
 };

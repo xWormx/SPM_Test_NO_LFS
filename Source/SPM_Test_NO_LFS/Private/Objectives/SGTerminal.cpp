@@ -186,6 +186,7 @@ void ASGTerminal::InitializeHUD()
 	HUDTerminal = GameInstance->GetTerminalWidget();
 	if (HUDTerminal)
 	{
+		
 		if(!HUDTerminal->IsInViewport())
 		{
 			HUDTerminal->AddToViewport(10); // Should be higher then ToolTipWidget! highest render on top.
