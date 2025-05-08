@@ -43,8 +43,11 @@ ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyChar
 	{
 		return nullptr;
 	}
-
-	SpawnedEnemyPtr->SetActorLocationAndRotation(GetActorLocation(), GetActorRotation());
+	FVector ActorLocation = GetActorLocation();
+	FVector ActorExtent;
+	GetActorBounds(false, ActorLocation, ActorExtent);
+	ActorLocation.Z += ActorExtent.Z/2.f;
+	SpawnedEnemyPtr->SetActorLocationAndRotation(ActorLocation, GetActorRotation());
 
 	if (ObjectiveHandler)
 	{
