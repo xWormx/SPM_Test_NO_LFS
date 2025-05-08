@@ -87,6 +87,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	float FadeFactor = 0.3f;
 
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	USoundBase* TextClickSound;
+	
+	FTimerHandle CharByCharTimer;
+	int32 CharIndex = 0;
+	FString TextCharByChar = "123456DONE!";
+
 private:
 	bool bTimerAnimationFinished = false;
 	FVector2D ScaleBoxTimerFinalPosition;
@@ -96,6 +103,8 @@ private:
 	void SetToolTipText(FText NewToolTip);
 	
 
+	UFUNCTION()
+	void DisplayCharByChar(const FString& StringToolTip);
 	UFUNCTION()
 	void SetScaleBoxTransformAfterAnimation();	
 	UFUNCTION()
@@ -107,3 +116,4 @@ private:
 	FWidgetAnimationDynamicEvent EndMoveToolTipToProgressWindowAnimation;
 	FWidgetAnimationDynamicEvent EndHideToolTipAnimation;
 };
+
