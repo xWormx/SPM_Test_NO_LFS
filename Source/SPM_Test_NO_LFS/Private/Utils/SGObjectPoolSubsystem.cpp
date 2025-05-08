@@ -70,16 +70,25 @@ AActor* USGObjectPoolSubsystem::GetPooledObject(TSubclassOf<AActor>& ObjectClass
 	return GetPooledObject(ObjectClass);
 }
 
-void USGObjectPoolSubsystem::ReturnObjectToPool(AActor* Object) const
+void USGObjectPoolSubsystem::ReturnObjectToPool(AActor* Object) 
 {
-	if (!Object || !Pools.Contains(Object->GetClass()))
+	if (!Object)
 	{
 		return;
+	}
+	 if(!Pools.Contains(Object->GetClass()))
+	{
+		InitializePool(Object->GetClass(), InitialSize);
+	}
+	else if (!Pools[Object->GetClass()].Actors.Contains(Object))
+	{
+		Pools[Object->GetClass()].Actors.Add(Object);
 	}
 
 	Object->SetActorEnableCollision(false);
 	Object->SetActorHiddenInGame(true);
 	Object->SetActorTickEnabled(false);
+	Object->SetActorLocation(FVector(0, 0, -10000)); // Quick fix
 }
 
 void USGObjectPoolSubsystem::OnPreLevelChange([[maybe_unused]] const FString& MapName)
