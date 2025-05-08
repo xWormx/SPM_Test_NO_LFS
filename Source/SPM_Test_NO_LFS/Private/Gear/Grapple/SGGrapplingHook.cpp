@@ -41,7 +41,6 @@ void ASGGrapplingHook::BeginPlay()
 	CableComponent->SetAttachEndToComponent(Head->GetComponentByClass<UStaticMeshComponent>());
 	CableComponent->EndLocation = End;
 	SetGrappleVisibility(false);
-
 }
 
 // Called every frame
@@ -148,8 +147,11 @@ void ASGGrapplingHook::ResetGrapple()
 		UE_LOG(LogTemp, Warning, TEXT("ACJPlayerController Not Found!"));
 		return;
 	}
-	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 1.5f;
-	Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
+	
+	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 1.0f;
+	// TODO (Calle): Friction borde resettas när man INTE ÄR I LUFTEN LÄNGRE, så att man kan glida på väggar
+	// annars fastnar man i dem.
+	//Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
 	
 	Head->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
 	Head->SetActorLocation(GrappleHeadPosition->GetComponentLocation());
@@ -252,7 +254,7 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 		float DistanceToGrapplePoint = FVector::Distance(GetAttachmentPoint(), NewPosition); 
 		UE_LOG(LogTemp, Warning, TEXT("Grapple Location: %f"), DistanceToGrapplePoint);
 
-		if (DistanceToGrapplePoint < 150)
+		if (DistanceToGrapplePoint < GrappleReleaseDistance)
 		{
 			ResetGrapple();
 
