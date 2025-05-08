@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "SGUtilObjectPoolManager.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SGObjectPoolSubsystem.generated.h"
 
