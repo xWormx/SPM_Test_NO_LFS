@@ -47,4 +47,7 @@ protected:
 	UFUNCTION()
 	void FaceTarget(AActor* Target) const;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio", meta=(AllowPrivateAccess="true"))
+	class USoundBase* ChargeSound;
+
 };

@@ -29,8 +29,17 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Category = "Movement" ,meta = (AllowPrivateAccess = true))
 	float DetectionRadius = 1000.f;
-	float HoverAmplitude = 50.f;
-	float HoverSpeed = 1.5f;
-	float DesiredDistance = 300.f; 
+
+	UPROPERTY(EditAnywhere, Category = "Movement" ,meta = (AllowPrivateAccess = true))
+	float HoverAmplitude = 200.f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement" ,meta = (AllowPrivateAccess = true))
+	float HoverSpeed = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement" ,meta = (AllowPrivateAccess = true))
+	float DesiredDistance = 300.f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float HoverInterpSpeed = 5.0f;
 
 };

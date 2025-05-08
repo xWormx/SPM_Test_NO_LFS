@@ -1,8 +1,8 @@
 #include "Gear/Weapons/SGGun.h"
-
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Public
 ASGGun::ASGGun()
@@ -13,6 +13,8 @@ ASGGun::ASGGun()
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	//Mesh->SetupAttachment(Root);
 	SetRootComponent(Mesh);
+	ShootParticlesPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ShootParticlesPoint"));
+	ShootParticlesPoint->SetupAttachment(RootComponent);
 }
 
 void ASGGun::Tick(float DeltaTime)
@@ -22,15 +24,36 @@ void ASGGun::Tick(float DeltaTime)
 
 void ASGGun::Fire()
 {
-	if (ShootParticles && Mesh) UGameplayStatics::SpawnEmitterAttached(ShootParticles, Mesh, TEXT("MuzzleFlashSocket"));
+	if (ShootParticles && ShootParticlesPoint)
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAttached(
+			ShootParticles,
+			ShootParticlesPoint,
+			NAME_None,    
+			FVector::ZeroVector,
+			FRotator::ZeroRotator,
+			EAttachLocation::KeepRelativeOffset,
+			true
+			);
+	} //if (ShootParticles && Mesh) UGameplayStatics::SpawnEmitterAttached(ShootParticles, Mesh, TEXT("MuzzleFlashSocket"));
+	
 	if (ShootSound && Mesh) UGameplayStatics::SpawnSoundAttached(ShootSound, Mesh, TEXT("MuzzleFlashSocket"));
 
 	FHitResult HitResult;
 	FVector ShotDirection;
 	if (HitScan(HitResult, ShotDirection))
 	{
-		DrawDebugPoint(GetWorld(), HitResult.Location, 10, FColor::Red, true);
-		if (HitParticles) UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, HitResult.Location, ShotDirection.Rotation());
+		//DrawDebugPoint(GetWorld(), HitResult.Location, 10, FColor::Red, true);
+		if (HitParticles)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			GetWorld(),
+			HitParticles,
+			HitResult.Location,
+			FRotator::ZeroRotator
+		);
+		} //if (HitParticles) UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, HitResult.Location, ShotDirection.Rotation());
+		
 		if (HitSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, HitResult.Location);
 
 		AActor* HitActor = HitResult.GetActor();
@@ -72,18 +95,58 @@ AController* ASGGun::GetOwnerController() const
 bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
 {
 	AController* OwnerController = GetOwnerController();
-	if (OwnerController == nullptr) return false;
-	
-	FVector Location;
-	FRotator Rotation;
-	OwnerController->GetPlayerViewPoint(Location, Rotation);
-	//DrawDebugCamera(GetWorld(), Location, Rotation, 90, 3, FColor::Green, true);
-	FVector End = Location + Rotation.Vector() * MaxRange;
-	//DrawDebugLine(GetWorld(), Location, End, FColor::Green, true);
-	FVector OutDirection = -Rotation.Vector();
-	
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	Params.AddIgnoredActor(GetOwner());
-	return GetWorld()->LineTraceSingleByChannel(OutHitResult, Location, End, ECC_GameTraceChannel2, Params); //ECC_GameTraceChannel2 = Projectile (Blockas av pawns)
+    if (OwnerController == nullptr) return false;
+
+    FVector Location;
+    FRotator Rotation;
+    OwnerController->GetPlayerViewPoint(Location, Rotation);
+    
+    bool bHitSomething = false;
+    for (int i = 0; i < NumberOfPellets; ++i)
+    {
+        float RandomPitch = FMath::FRandRange(-PelletSpreadAngle, PelletSpreadAngle);
+        float RandomYaw = FMath::FRandRange(-PelletSpreadAngle, PelletSpreadAngle);
+        float RandomRoll = FMath::FRandRange(-PelletSpreadAngle, PelletSpreadAngle);
+        
+        FRotator PelletRotation = Rotation + FRotator(RandomPitch, RandomYaw, RandomRoll);
+        FVector PelletDirection = PelletRotation.Vector();
+        FVector End = Location + PelletDirection * MaxRange;
+        
+        FCollisionQueryParams Params;
+        Params.AddIgnoredActor(this);
+        Params.AddIgnoredActor(GetOwner());
+        
+        if (GetWorld()->LineTraceSingleByChannel(OutHitResult, Location, End, ECC_GameTraceChannel2, Params))
+        {
+            bHitSomething = true;
+            
+            AActor* HitActor = OutHitResult.GetActor();
+            if (HitActor != nullptr)
+            {
+                FVector ShotDirection = PelletDirection;
+                FPointDamageEvent DamageEvent(Damage, OutHitResult, ShotDirection, nullptr);
+                HitActor->TakeDamage(Damage, DamageEvent, GetOwnerController(), this);
+            }
+            
+            if (HitParticles)
+            {
+                UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+                GetWorld(),
+                HitParticles,
+                OutHitResult.Location,
+                FRotator::ZeroRotator
+            );
+            } //UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, OutHitResult.Location, PelletDirection.Rotation());
+
+            if (HitSound)
+            {
+                UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, OutHitResult.Location);
+            }
+        }
+
+        //DrawDebugLine(GetWorld(), Location, End, FColor::Green, false, 1.f, 0, 1.f);
+        //DrawDebugPoint(GetWorld(), OutHitResult.Location, 10, FColor::Red, false, 1.f);
+    }
+
+    return bHitSomething;
 }
