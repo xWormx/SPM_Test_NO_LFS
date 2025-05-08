@@ -5,7 +5,7 @@ ASGUtilObjectPoolManager::ASGUtilObjectPoolManager()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void ASGUtilObjectPoolManager::InitializePool(const TSubclassOf<AActor>& ObjectClass, const int32 PoolSize)
+/*void ASGUtilObjectPoolManager::InitializePool(const TSubclassOf<AActor>& ObjectClass, const int32 PoolSize)
 {	
 	/*if (Pools.Contains(ObjectClass))
 	{
@@ -16,13 +16,13 @@ void ASGUtilObjectPoolManager::InitializePool(const TSubclassOf<AActor>& ObjectC
 	AddActorsToPool(ObjectClass, PoolSize, NewPool);
 
 	const FActorPool NewPoolStruct(NewPool);
-	Pools.Add(ObjectClass, NewPoolStruct);	*/
+	Pools.Add(ObjectClass, NewPoolStruct);	#1#
 }
 
 AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectClass)
 {
 	/*if (!Pools.Contains(ObjectClass))
-	{		
+	{
 		InitializePool(ObjectClass, InitialSize);
 		return GetPooledObject(ObjectClass);
 	}
@@ -30,7 +30,7 @@ AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectCla
 	FActorPool Pool = Pools[ObjectClass];
 	for (AActor* Object : Pool.Actors)
 	{
-		if (!Object->IsActorTickEnabled()) 
+		if (!Object->IsActorTickEnabled())
 		{
 			Object->SetActorEnableCollision(true);
 			Object->SetActorHiddenInGame(false);
@@ -39,7 +39,7 @@ AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectCla
 		}
 	}
 	ExpandPool(ObjectClass, Pool.DefaultPoolGrowthSize);
-	return GetPooledObject(ObjectClass);*/
+	return GetPooledObject(ObjectClass);#1#
 	return nullptr;
 }
 
@@ -49,10 +49,10 @@ void ASGUtilObjectPoolManager::ReturnObjectToPool(AActor* Object)
 	{
 		return;
 	}
-	
+
 	Object->SetActorEnableCollision(false);
 	Object->SetActorHiddenInGame(true);
-	Object->SetActorTickEnabled(false);	
+	Object->SetActorTickEnabled(false);
 }
 
 void ASGUtilObjectPoolManager::ExpandPool(const TSubclassOf<AActor>& ObjectClass, const int32 AdditionalSize)
@@ -63,7 +63,7 @@ void ASGUtilObjectPoolManager::ExpandPool(const TSubclassOf<AActor>& ObjectClass
 	}
 
 	FActorPool& Pool = Pools[ObjectClass];
-	AddActorsToPool(ObjectClass, AdditionalSize, Pool.Actors);	*/
+	AddActorsToPool(ObjectClass, AdditionalSize, Pool.Actors);	#1#
 }
 
 void ASGUtilObjectPoolManager::AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, const int32 Size, TArray<AActor*>& Actors) const
@@ -79,4 +79,4 @@ void ASGUtilObjectPoolManager::AddActorsToPool(const TSubclassOf<AActor>& Object
 			Actors.Add(NewObject);
 		}
 	}
-}
+}*/
