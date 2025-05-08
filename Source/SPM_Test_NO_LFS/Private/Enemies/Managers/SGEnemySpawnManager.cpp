@@ -5,6 +5,7 @@
 #include "Player/SGPlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGObjectiveDefendThePod.h"
+#include "Utils/SGObjectPoolSubsystem.h"
 
 // Public functions
 ASGEnemySpawnManager::ASGEnemySpawnManager()
@@ -42,7 +43,7 @@ void ASGEnemySpawnManager::Tick(float DeltaTime)
 
 		if (Candidate.TimeOutOfRange >= DespawnGracePeriod)
 		{
-			Candidate.Enemy->Destroy();
+			GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(Candidate.Enemy);
 			EnemiesAlive--;
 			DespawnCandidates.RemoveAt(i);
 			
@@ -55,6 +56,7 @@ void ASGEnemySpawnManager::Tick(float DeltaTime)
 void ASGEnemySpawnManager::StartSpawning()
 {
 	bSpawningIsActive = true;
+
 	StartSpawnLoopTimer();
 }
 
@@ -72,6 +74,8 @@ void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
 	--EnemiesAlive;
 	UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAtATime);
+
+	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(DeadEnemy);
 }
 
 // Protected functions
