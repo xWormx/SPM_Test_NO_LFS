@@ -6,6 +6,7 @@
 #include "Enemies/Components/SGEnemyProjectile.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values for this component's properties
@@ -60,6 +61,12 @@ void USGEnemyShootAttackComponent::PerformAttack(AActor* Target)
     FActorSpawnParameters SpawnParams;
     SpawnParams.Owner = OwnerCharacter;
     SpawnParams.Instigator = OwnerCharacter;
+
+	//Sound
+	if (ShootSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(ShootSound, OwnerCharacter->GetMesh(), TEXT("ShootSound"));
+	}
 	
     GetWorld()->SpawnActor<ASGEnemyProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
 	
