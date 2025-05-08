@@ -39,8 +39,6 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 	{
 		ScaleBoxMission->SetVisibility(ESlateVisibility::Hidden);
 	}
-
-	
 }
 
 void USGObjectiveToolTipWidget::Display(FText NewToolTip)
