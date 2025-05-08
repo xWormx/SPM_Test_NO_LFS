@@ -50,6 +50,7 @@ void USGUpgradeSubsystem::OnPreLevelChange(const FString& String)
         PersistentData.Category = Attribute->Category;
         PersistentData.CurrentUpgradeLevel = Attribute->CurrentUpgradeLevel;
         PersistentData.InitialValue = Attribute->InitialValue;
+    	UE_LOG(LogTemp, Error, TEXT("PersistentData all values: CurrentUpgradeValue = %d, InitialValue = %f, RowName = %s, Category = %s"), PersistentData.CurrentUpgradeLevel, PersistentData.InitialValue, *PersistentData.RowName.ToString(), *PersistentData.Category.ToString());
 
         PersistentUpgradesByClass.FindOrAdd(ClassNameKey).Add(PersistentData);
     }
@@ -124,14 +125,16 @@ void USGUpgradeSubsystem::ProcessObjectForReconnection(UObject* Object)
 
 			NewAttribute->InitialValue = Data.InitialValue;
 
-			if (NewAttribute->CurrentUpgradeLevel == 1)
+			if (Data.CurrentUpgradeLevel == 1)
 			{
 				continue;
 			}
-			for (int32 i = 0; i < Data.CurrentUpgradeLevel; ++i)
+			for (int32 i = 0; i < Data.CurrentUpgradeLevel-1; ++i)
 			{
 				NewAttribute->OnAttributeModified.Broadcast();
 			}
+
+			
 		}
 	}
 }
