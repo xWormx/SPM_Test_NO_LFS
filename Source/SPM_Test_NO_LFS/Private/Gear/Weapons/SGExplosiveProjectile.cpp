@@ -55,8 +55,11 @@ void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 {
 	AActor* MyOwner = GetOwner();
 	AActor* MyOwnersOwner = GetOwner()->GetOwner();
-	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwnersOwner || OtherActor->ActorHasTag("Projectile"))
+	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || 
+		OtherActor == MyOwnersOwner || OtherActor->ActorHasTag("Projectile"))
+	{
 		return;
+	}
 
 	SphereCollider->OnComponentBeginOverlap.RemoveDynamic(this, &ASGExplosiveProjectile::OnBeginOverlap);
 	
