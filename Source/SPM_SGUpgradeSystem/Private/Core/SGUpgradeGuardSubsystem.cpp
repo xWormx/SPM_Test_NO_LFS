@@ -5,6 +5,7 @@
 void USGUpgradeGuardSubsystem::AddToCount(const float Amount)
 {
 	Count += Amount;
+	OnCountAddToCount.Broadcast();
 }
 
 void USGUpgradeGuardSubsystem::RemoveFromCount(const float Amount)

@@ -2,6 +2,7 @@
 
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
+#include "Core/SGUpgradeGuardSubsystem.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "UI/SGUpgradeCategoryWidget.h"
 #include "UI/SGUpgradeEntryTile.h"
@@ -10,22 +11,25 @@ void USGUpgradeWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	ConstructEntries();
-	//TODO: Sub till events
 
 	OnVisibilityChanged.AddDynamic(this, &USGUpgradeWidget::VisibilityChanged);
-	
+
 	USGUpgradeSubsystem* Sub = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>();
 	if (!ensureMsgf(Sub, TEXT("Upgrade Subsystem was nullptr")))
 	{
 		return;
 	}
+
 	Sub->OnBindAttribute.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
 	Sub->OnUpgrade.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
+
+	GetGameInstance()->GetSubsystem<USGUpgradeGuardSubsystem>()->OnCountAddToCount.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
 }
 
 //TODO: Borde hantera logik för att uppgradera attributen i UI:t också (ta bort det ansvaret från USGUpgradeEntryTile)
 void USGUpgradeWidget::ConstructEntries()
-{	
+{
+	UE_LOG(LogTemp, Display, TEXT("USGUpgradeWidget::ConstructEntries"));
 	if (!EntryTileClass || !EntriesBox || !CategoryWidgetClass || !MiscEntriesBox)
 	{		
 		return;
@@ -84,6 +88,7 @@ void USGUpgradeWidget::ConstructEntries()
 }
 
 void USGUpgradeWidget::VisibilityChanged(const ESlateVisibility NewVisibility)
-{	
+{
+	UE_LOG(LogTemp, Display, TEXT("VisibilityChanged"));
 	ConstructEntries();	
 }
