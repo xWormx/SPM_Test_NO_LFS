@@ -3,6 +3,7 @@
 
 #include "Enemies/Components/SGEnemyMeleAttackComponent.h"
 
+#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -68,6 +69,12 @@ void USGEnemyMeleAttackComponent::PerformAttack(AActor* Target)
 		Params
 	);
 
+	//Sound
+	if (MeleeSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(MeleeSound, OwnerCharacter->GetMesh(), TEXT("MeleeSound"));
+	}
+	
 	if (bHit && Hit.GetActor() == Target)
 	{
 		UGameplayStatics::ApplyDamage(
