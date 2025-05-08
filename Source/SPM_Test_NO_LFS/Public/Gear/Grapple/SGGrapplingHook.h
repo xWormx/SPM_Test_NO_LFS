@@ -6,7 +6,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CableComponent.h"
-#include "HeadMountedDisplayTypes.h"
 #include "SGGrapplingHook.generated.h"
 
 class USGHUDGrapple;
