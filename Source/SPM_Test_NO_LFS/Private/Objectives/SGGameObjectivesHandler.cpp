@@ -151,7 +151,15 @@ void ASGGameObjectivesHandler::RemoveCurrentObjective()
 	if (GameObjectives.Num() > 0)
 	{
 		GameObjectives.RemoveAt(0);
-		TerminalHUD->EnableStartButton();
+		if (GameObjectives.Num() <= 0)
+		{
+			TerminalHUD->DisableStartButton();
+		}
+		else
+		{
+			TerminalHUD->EnableStartButton();
+		}
+		
 	}
 	// Borde CurrentObjective vara något annat istället för nullptr när det inte är aktiverat?
 	CurrentObjective = nullptr;		
