@@ -33,17 +33,18 @@ class SPM_TEST_NO_LFS_API ASGUtilObjectPoolManager : public AActor
 
 public:
 	ASGUtilObjectPoolManager();
-	void InitializePool(const TSubclassOf<AActor>& ObjectClass, int32 PoolSize);
+	/*void InitializePool(const TSubclassOf<AActor>& ObjectClass, int32 PoolSize);
 	AActor* GetPooledObject(TSubclassOf<AActor>& ObjectClass);
 	void ReturnObjectToPool(AActor* Object);
+	*/
 
 private:
-	void ExpandPool(const TSubclassOf<AActor>& ObjectClass, int32 AdditionalSize);
+	/*void ExpandPool(const TSubclassOf<AActor>& ObjectClass, int32 AdditionalSize);
 	void AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, const int32 Size, TArray<AActor*>& Actors) const;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Actor Pool", meta = (AllowPrivateAccess = "true"))
 	TMap<TSubclassOf<AActor>, FActorPool> Pools;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Actor Pool", meta = (AllowPrivateAccess = "true"))
-	int InitialSize = 5;
+	int InitialSize = 5;*/
 };
