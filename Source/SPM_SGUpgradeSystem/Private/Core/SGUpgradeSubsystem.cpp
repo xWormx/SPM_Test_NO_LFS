@@ -532,9 +532,10 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowNam
 
 	//Hämtar uppgraderingsdatan för den nya nivån (har uppdaterats efter Broadcasten).
 	const FSGUpgradeData& UpgradeData = AttributeData->Data;
-
-	OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeData.Cost);
-	OnUpgradeCost.Broadcast(UpgradeData.Cost);
+	const float UpgradeCost = UpgradeData.Cost * TargetAttribute->CurrentUpgradeLevel;
+	
+	OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel,UpgradeCost);
+	OnUpgradeCost.Broadcast(UpgradeCost);
 	OnUpgradeLevel.Broadcast(TargetAttribute->CurrentUpgradeLevel);
 	OnUpgrade.Broadcast();
 
