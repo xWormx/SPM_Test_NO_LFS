@@ -40,6 +40,12 @@ protected:
 	TObjectPtr<UTextBlock> UpgradeText;
 
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	TObjectPtr<UTextBlock> UpgradeLevelText;
+
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
+	TObjectPtr<UTextBlock> UpgradeCurrentValueText;
+
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UTextBlock> UpgradeMultiplierText;
 
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))

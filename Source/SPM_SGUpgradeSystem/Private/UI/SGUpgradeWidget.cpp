@@ -24,12 +24,14 @@ void USGUpgradeWidget::NativeConstruct()
 //TODO: Borde hantera logik för att uppgradera attributen i UI:t också (ta bort det ansvaret från USGUpgradeEntryTile)
 void USGUpgradeWidget::ConstructEntries()
 {	
-	if (!EntryTileClass || !EntriesBox || !CategoryWidgetClass)
+	if (!EntryTileClass || !EntriesBox || !CategoryWidgetClass || !MiscEntriesBox)
 	{		
 		return;
-	}	
+	}
 	
-	EntriesBox->ClearChildren(); //TODO: Pool/Optimera för sätt att återanvända widgets
+	//TODO: Pool/Optimera för sätt att återanvända widgets
+	EntriesBox->ClearChildren(); 
+	MiscEntriesBox->ClearChildren(); 
 	CategoryWidgets.Empty();
 
 	const USGUpgradeSubsystem* Sub = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>();
@@ -64,7 +66,14 @@ void USGUpgradeWidget::ConstructEntries()
 
 			// Add to map and vertical box
 			CategoryWidgets.Add(UpgradeEntry.Category, CategoryWidget);
-			EntriesBox->AddChildToVerticalBox(CategoryWidget);
+			if (UpgradeEntry.Category == "Player") // TODO: justera hårdkodad lösning - fält i datatabellen för kategori/tab?
+			{
+				EntriesBox->AddChild(CategoryWidget);
+			}
+			else
+			{
+				MiscEntriesBox->AddChild(CategoryWidget);
+			}
 		}
 
 		// Now safe to call SetupEntry on a valid widget

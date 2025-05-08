@@ -30,6 +30,13 @@ void ASGPlayerController::BeginPlay()
 	if (HUDTerminal)
 		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetTerminalWidget(HUDTerminal);
 	bCanFire = true;
+
+	HUDGrapple = CreateWidget<USGHUDGrapple>(this, HUDGrappleClass);
+	if (HUDGrapple)
+	{
+		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetHUDGrapple(HUDGrapple);
+		HUDGrapple->AddToViewport();
+	}
 }
 
 void ASGPlayerController::Tick(float DeltaTime)
@@ -260,4 +267,28 @@ void ASGPlayerController::PauseGame()
 	PauseMenu->AddToViewport();
 	bShowMouseCursor = true;
 	SetInputMode(FInputModeUIOnly());
+}
+
+void ASGPlayerController::RestartGame()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+
+	FString CurrentLevel = GetWorld()->GetMapName();
+	CurrentLevel.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+
+	UGameplayStatics::OpenLevel(this, FName(*CurrentLevel));
+}
+
+void ASGPlayerController::EnableGameOver()
+{
+	SetPause(true);
+
+	if (!GameOverMenu)
+	{
+		return;
+	}
+
+	GameOverMenu->AddToViewport();
+	bShowMouseCursor = true;
+	SetInputMode(FInputModeGameOnly());
 }

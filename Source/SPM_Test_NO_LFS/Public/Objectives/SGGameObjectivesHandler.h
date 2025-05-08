@@ -36,6 +36,8 @@ public:
 	bool GetCurrentObjectiveIsActive() const { return CurrentObjective != nullptr; }
 	EObjectiveType GetCurrentObjectiveType() const { return CurrentObjective->GetObjectiveType(); }
 	ASGObjectiveBase* GetCurrentObjective() const { return CurrentObjective; }
+	ASGObjectiveBase* GetLastCompletedObjective() const { return LastCompletedObjective; }
+	EObjectiveType GetLastCompletedObjectiveType() const { return LastCompletedObjective->GetObjectiveType(); }
 	TArray<ASGObjectiveBase*> GetAllObjectives() const { return GameObjectives; }
 	FOnObjectiveStarted OnObjectiveStarted;
 	FOnObjectiveCompleted OnObjectiveCompleted;
@@ -67,8 +69,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<ASGObjectiveBase*> GameObjectives;
 
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	ASGObjectiveBase* CurrentObjective;
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	ASGObjectiveBase* LastCompletedObjective;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<ASGEnemyCharacter> TargetCharacterClass;

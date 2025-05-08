@@ -19,6 +19,8 @@ void USGUpgradeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	UpgradeDataTable = Cast<UDataTable>(UpgradeSettings->UpgradeDataTable.TryLoad());
 }
 
+//------- BIND
+
 void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName, const FName RowName, const FName Category)
 {
 	if (!ensureMsgf(Owner, TEXT("Owner was nullptr")) || !ensureMsgf(UpgradeDataTable,  TEXT("UpgradeDataTable was nullptr")))
@@ -79,6 +81,7 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 		// Uppdaterar float-propertyn till den nya nivån
 		Current += NewAttributeRaw->InitialValue * UpgradeData.Multiplier;
 		FloatProp->SetPropertyValue_InContainer(NewAttributeRaw->Owner.Get(), Current);
+		UE_LOG(LogTemp, Error, TEXT("Current %f"), Current);
 	});
 
 	// Lägg till i alla listor/loop-ups
@@ -88,6 +91,8 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 	RegisteredAttributes.Add(MoveTemp(NewAttribute));
 	OnBindAttribute.Broadcast();
 }
+
+//------- HELPERS
 
 const FSGAttribute* USGUpgradeSubsystem::GetByKey(UObject* Owner, FProperty* Property) const
 {
@@ -265,7 +270,7 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowNam
 	}
 }
 
-//------ UI
+//------- UI
 void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowName, const FName Category) const
 {
 	const FSGAttribute* TargetAttribute = GetByCategory(Category, RowName);
@@ -277,7 +282,7 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowNam
 	{
 		return;
 	}
-
+	
 	const int32 LevelBeforeUpgrade = TargetAttribute->CurrentUpgradeLevel;
 	//Anropar lambdan som skapades vid bindandet.
 	TargetAttribute->OnAttributeModified.Broadcast();
@@ -321,11 +326,10 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 		{
 			continue;
 		}
-		if (TargetAttribute->CurrentUpgradeLevel >= AttributeData->Data.MaxNumberOfUpgrades && AttributeData->Data.MaxNumberOfUpgrades != -1)
-		{
-			continue;
-		}
-
+	
+		FFloatProperty* FloatProp = CastFieldChecked<FFloatProperty>(TargetAttribute->Property);
+		const float Current = FloatProp->GetPropertyValue_InContainer(TargetAttribute->Owner.Get());
+		
 		FSGUpgradeEntry Entry;
 		Entry.DisplayName = AttributeData->DisplayName;
 		Entry.Icon = AttributeData->Icon.Get();
@@ -333,6 +337,10 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 		Entry.Multiplier = AttributeData->Data.Multiplier * 100;
 		Entry.Category = TargetAttribute->Category;
 		Entry.RowName = TargetAttribute->RowName;
+		Entry.CurrentValue = Current; //TODO: centrera - samma kalkylering sker på två ställen		
+		Entry.CurrentUpgradeLevel = TargetAttribute->CurrentUpgradeLevel;
+		Entry.MaxNumberOfUpgrades = AttributeData->Data.MaxNumberOfUpgrades;
+
 		Out.Add(Entry);
 	}
 

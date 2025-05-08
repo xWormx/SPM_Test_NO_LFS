@@ -30,4 +30,7 @@ public:
 protected:
 
 	virtual void PerformAttack(AActor* Target) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio", meta=(AllowPrivateAccess="true"))
+	class USoundBase* MeleeSound;
 };

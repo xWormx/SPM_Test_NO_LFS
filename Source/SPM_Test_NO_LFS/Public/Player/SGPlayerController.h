@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "SGPlayerController.generated.h"
 
+class USGHUDGrapple;
 class USGTerminalWidget;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
@@ -50,6 +51,14 @@ private:
 
 	//Added by Basir
 	void PauseGame();
+
+	//Added by Basir
+	UFUNCTION(BlueprintCallable)
+	void RestartGame();
+
+	//Added by Basir
+	UFUNCTION(BlueprintCallable)
+	void EnableGameOver();
 	
 	FTimerHandle CanFireAgainTimer;
 	bool bIsFiring = false;
@@ -60,6 +69,8 @@ private:
 	
 	ASGPlayerCharacter* GetValidPlayerCharacter();
 	ASGPlayerCharacter* ThePlayerCharacter;
+
+	USGHUDGrapple* GetHUDGrapple() { return HUDGrapple; }
 
 public:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -105,11 +116,21 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	class UUserWidget* PauseMenu;
 
+	//Added by Basir
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	class UUserWidget* GameOverMenu;
+
 	// Added by Calle
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
 	// Added by Calle
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* HUDTerminal;
+
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	TSubclassOf<UUserWidget> HUDGrappleClass;
+	
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	USGHUDGrapple* HUDGrapple;
 	
 };

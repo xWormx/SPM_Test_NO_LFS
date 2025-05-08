@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "SGExplosiveProjectile.generated.h"
 
+class UNiagaraSystem;
+
 UCLASS(Blueprintable)
 class SPM_TEST_NO_LFS_API ASGExplosiveProjectile : public AActor
 {
@@ -44,7 +46,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UParticleSystem* ExplodeEffect;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
-	UParticleSystemComponent* SmokeTrail;
+	UNiagaraSystem* SmokeTrail;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	USoundBase* ExplodeSound;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))

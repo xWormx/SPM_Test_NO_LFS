@@ -4,6 +4,8 @@
 #include "Enemies/Components/SGEnemyChargeAttackComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Navigation/PathFollowingComponent.h"
+#include "AIController.h"
 
 ASGAIControllerEnemyFlying::ASGAIControllerEnemyFlying()
 {
@@ -13,6 +15,10 @@ ASGAIControllerEnemyFlying::ASGAIControllerEnemyFlying()
 void ASGAIControllerEnemyFlying::BeginPlay()
 {
 	Super::BeginPlay();
+
+	float RandomOffset = FMath::FRandRange(-0.4f, 0.4f);
+
+	HoverSpeed += RandomOffset;
 }
 
 void ASGAIControllerEnemyFlying::HandleMovement()
@@ -21,35 +27,52 @@ void ASGAIControllerEnemyFlying::HandleMovement()
 	{
 		return;
 	}
+	
+	const bool bHasLineOfSight = LineOfSightTo(AttackTarget);
 
-	if (!bShouldAlwaysChaseTarget)
+	if (!bShouldAlwaysChaseTarget && !bHasLineOfSight)
 	{
-		if (!LineOfSightTo(AttackTarget))
-		{
-			return;
-		}
+		return;
 	}
 	
-	float TargetZ = AttackTarget->GetActorLocation().Z;	
-	float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
+	const float TargetZ = AttackTarget->GetActorLocation().Z;
+	const float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
 	
 	FVector CurrentLocation = ControlledEnemy->GetActorLocation();
-	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), 2.0f);
+	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
 	ControlledEnemy->SetActorLocation(CurrentLocation, true);
 	
-	if (CanAttackTarget())
+	const bool bCanAttack = CanAttackTarget() && bHasLineOfSight;
+	if (bCanAttack && !bIsAttacking)
 	{
 		bIsAttacking = true;
 		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
-	else
+	else if (!bCanAttack && bIsAttacking)
 	{
 		bIsAttacking = false;
+		// TODO: ControlledEnemy->GetAttackComponent()->StopAttack();
 	}
 
+	
 	if (!bIsAttacking)
 	{
-		FlyTowardsTarget();
+		if (!bHasLineOfSight)
+		{
+			EPathFollowingRequestResult::Type MoveResult = MoveToActor(AttackTarget);
+			if (MoveResult != EPathFollowingRequestResult::RequestSuccessful)
+			{
+				FlyTowardsTarget();
+			}
+			else
+			{
+				MoveToActor(AttackTarget);
+			}
+		}
+		else
+		{
+			FlyTowardsTarget();
+		}
 	}
 }
 
