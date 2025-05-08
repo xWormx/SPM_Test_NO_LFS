@@ -12,6 +12,8 @@ void USGUpgradeWidget::NativeConstruct()
 	ConstructEntries();
 	//TODO: Sub till events
 
+	OnVisibilityChanged.AddDynamic(this, &USGUpgradeWidget::VisibilityChanged);
+	
 	USGUpgradeSubsystem* Sub = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>();
 	if (!ensureMsgf(Sub, TEXT("Upgrade Subsystem was nullptr")))
 	{
@@ -79,4 +81,9 @@ void USGUpgradeWidget::ConstructEntries()
 		// Now safe to call SetupEntry on a valid widget
 		CategoryWidget->SetupEntry(UpgradeEntry.Category, Tile);
 	}
+}
+
+void USGUpgradeWidget::VisibilityChanged(const ESlateVisibility NewVisibility)
+{	
+	ConstructEntries();	
 }
