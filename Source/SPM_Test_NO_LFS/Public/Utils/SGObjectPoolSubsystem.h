@@ -35,7 +35,7 @@ public:
 	void InitializePool(const TSubclassOf<AActor>& ObjectClass, int32 PoolSize, bool bPersistAcrossLevels = true);
 
 	AActor* GetPooledObject(TSubclassOf<AActor>& ObjectClass);
-	void ReturnObjectToPool(AActor* Object) const;
+	void ReturnObjectToPool(AActor* Object);
 
 private:
 	UFUNCTION()
