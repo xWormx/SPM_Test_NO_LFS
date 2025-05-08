@@ -18,6 +18,7 @@ public:
 	USGUpgradeWidget(const FObjectInitializer& ObjectInitializer): Super(ObjectInitializer){}	
 	virtual void NativeConstruct() override;
 
+	
 protected:
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UVerticalBox> EntriesBox;
@@ -33,6 +34,9 @@ protected:
 
 	UFUNCTION()
 	void ConstructEntries();
+
+	UFUNCTION()
+	void VisibilityChanged(ESlateVisibility NewVisibility);
 
 private:
 	TMap<FName, TObjectPtr<USGUpgradeCategoryWidget>> CategoryWidgets;
