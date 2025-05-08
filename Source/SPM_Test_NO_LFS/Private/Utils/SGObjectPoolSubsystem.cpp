@@ -88,6 +88,7 @@ void USGObjectPoolSubsystem::ReturnObjectToPool(AActor* Object)
 	Object->SetActorEnableCollision(false);
 	Object->SetActorHiddenInGame(true);
 	Object->SetActorTickEnabled(false);
+	Object->SetActorLocation(FVector(0, 0, -10000)); // Quick fix
 }
 
 void USGObjectPoolSubsystem::OnPreLevelChange([[maybe_unused]] const FString& MapName)
