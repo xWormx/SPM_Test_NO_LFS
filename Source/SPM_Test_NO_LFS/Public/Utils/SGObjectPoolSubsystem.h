@@ -5,6 +5,24 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SGObjectPoolSubsystem.generated.h"
 
+USTRUCT(BlueprintType, Category = "ActorPool")
+struct FActorPool
+{
+	GENERATED_BODY()
+
+	FActorPool() {}
+	explicit FActorPool(const TArray<AActor*>& InActors) : Actors(InActors) {}
+
+	//TODO: Lägga till X antal att skapa? Om man vill sköta det i editor?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors", meta = (AllowPrivateAccess = "true"))
+	int DefaultPoolGrowthSize = 5;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors")
+	TArray<AActor*> Actors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors")
+	bool bPersistAcrossLevels = true;
+};
 
 UCLASS()
 class SPM_TEST_NO_LFS_API USGObjectPoolSubsystem : public UGameInstanceSubsystem

@@ -4,8 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "SGUtilObjectPoolManager.generated.h"
 
-class ISGUtilObjectPooledInterface;
-
+/*
 USTRUCT(BlueprintType, Category = "ActorPool")
 struct FActorPool
 {
@@ -19,8 +18,11 @@ struct FActorPool
 	int DefaultPoolGrowthSize = 5;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors")
-	TArray<AActor*> Actors;	
-};
+	TArray<AActor*> Actors;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors")
+	bool bPersistAcrossLevels = true;
+};*/
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGUtilObjectPoolManager : public AActor

@@ -1,8 +1,6 @@
 ﻿#include "Enemies/Managers/SGEnemyDropManager.h"
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
-#include "Utils/SGUtilObjectPoolManager.h"
-#include "Kismet/GameplayStatics.h"
 #include "Pickups/SGPickUp.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 
@@ -37,7 +35,7 @@ void ASGEnemyDropManager::BeginPlay()
 
 void ASGEnemyDropManager::DropItem(ASGEnemyCharacter* EnemyCharacter) const
 {
-	if (!EnemyCharacter || !EnemyDropDataTable || !ObjectPoolManager)
+	if (!EnemyCharacter || !EnemyDropDataTable)
 	{
 		return;
 	}

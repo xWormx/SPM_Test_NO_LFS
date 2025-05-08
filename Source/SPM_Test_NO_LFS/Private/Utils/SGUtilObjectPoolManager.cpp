@@ -7,7 +7,7 @@ ASGUtilObjectPoolManager::ASGUtilObjectPoolManager()
 
 void ASGUtilObjectPoolManager::InitializePool(const TSubclassOf<AActor>& ObjectClass, const int32 PoolSize)
 {	
-	if (Pools.Contains(ObjectClass))
+	/*if (Pools.Contains(ObjectClass))
 	{
 		return;
 	}
@@ -16,12 +16,12 @@ void ASGUtilObjectPoolManager::InitializePool(const TSubclassOf<AActor>& ObjectC
 	AddActorsToPool(ObjectClass, PoolSize, NewPool);
 
 	const FActorPool NewPoolStruct(NewPool);
-	Pools.Add(ObjectClass, NewPoolStruct);	
+	Pools.Add(ObjectClass, NewPoolStruct);	*/
 }
 
 AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectClass)
 {
-	if (!Pools.Contains(ObjectClass))
+	/*if (!Pools.Contains(ObjectClass))
 	{		
 		InitializePool(ObjectClass, InitialSize);
 		return GetPooledObject(ObjectClass);
@@ -39,7 +39,8 @@ AActor* ASGUtilObjectPoolManager::GetPooledObject(TSubclassOf<AActor>& ObjectCla
 		}
 	}
 	ExpandPool(ObjectClass, Pool.DefaultPoolGrowthSize);
-	return GetPooledObject(ObjectClass);
+	return GetPooledObject(ObjectClass);*/
+	return nullptr;
 }
 
 void ASGUtilObjectPoolManager::ReturnObjectToPool(AActor* Object)
@@ -56,13 +57,13 @@ void ASGUtilObjectPoolManager::ReturnObjectToPool(AActor* Object)
 
 void ASGUtilObjectPoolManager::ExpandPool(const TSubclassOf<AActor>& ObjectClass, const int32 AdditionalSize)
 {
-	if (!Pools.Contains(ObjectClass))
+	/*if (!Pools.Contains(ObjectClass))
 	{
 		return;
 	}
 
 	FActorPool& Pool = Pools[ObjectClass];
-	AddActorsToPool(ObjectClass, AdditionalSize, Pool.Actors);	
+	AddActorsToPool(ObjectClass, AdditionalSize, Pool.Actors);	*/
 }
 
 void ASGUtilObjectPoolManager::AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, const int32 Size, TArray<AActor*>& Actors) const
