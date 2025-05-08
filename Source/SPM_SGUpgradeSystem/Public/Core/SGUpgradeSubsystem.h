@@ -108,8 +108,5 @@ protected:
 	void ValidateReferences();
 	void RemoveAttributeFromCollections(const FSGAttribute* Attribute);
 
-	//TODO: Rensa! Copy paste från BindAttribute förutom byte av int32 CurrentUpgradeLevel & float InitialValue
-	void RebindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category, int32 CurrentUpgradeLevel, float InitialValue);
-
 	FString GetClassNameKey(UObject* Object) const;
 };

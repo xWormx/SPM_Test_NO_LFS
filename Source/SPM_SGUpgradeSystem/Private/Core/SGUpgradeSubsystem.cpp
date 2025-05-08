@@ -92,6 +92,7 @@ void USGUpgradeSubsystem::ReconnectAttributes()
 		}
 	}
 }
+
 void USGUpgradeSubsystem::ProcessObjectForReconnection(UObject* Object)
 {
 	if (!Object || !IsValid(Object))
@@ -138,6 +139,7 @@ void USGUpgradeSubsystem::ProcessObjectForReconnection(UObject* Object)
 		}
 	}
 }
+
 void USGUpgradeSubsystem::ValidateReferences()
 {
 	for (auto It = RegisteredAttributes.CreateIterator(); It; ++It)
@@ -150,6 +152,7 @@ void USGUpgradeSubsystem::ValidateReferences()
 		}
 	}
 }
+
 void USGUpgradeSubsystem::RemoveAttributeFromCollections(const FSGAttribute* Attribute)
 {
 	if (!Attribute)
@@ -172,79 +175,6 @@ void USGUpgradeSubsystem::RemoveAttributeFromCollections(const FSGAttribute* Att
 		uint64 Key = GetKey(Attribute->Owner.Get(), Attribute->Property);
 		AttributesByKey.Remove(Key);
 	}
-}
-
-void USGUpgradeSubsystem::RebindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category,
-	int32 CurrentUpgradeLevel, float InitialValue)
-{
-	if (!ensureMsgf(Owner, TEXT("Owner was nullptr")) || !ensureMsgf(UpgradeDataTable,  TEXT("UpgradeDataTable was nullptr")))
-	{
-		return;
-	}
-
-	//Hämtar propertyn som ska bindas och gör early return om den inte finns/är giltig
-	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
-	if (!Prop || !Prop->IsA<FFloatProperty>()) // Glöm inte att ändra denna om fler typer än float ska stödjas!
-	{
-		UE_LOG(LogTemp, Error, TEXT("Property %s not found or not a float property"), *PropertyName.ToString());
-		return;
-	}
-
-	if (const FSGAttribute* FoundExisting = GetByCategory(Category, RowName))
-	{
-		FoundExisting->Category = Category; //TODO: Se över alternativ. Snabblösning för att fungera med arvshierarkin för vapen. (Basklassen Gun's BeginPlay-funktion körs före.)
-		return;
-	}
-
-	//Hämtar propertyns data (för uppgradering) och gör early return om den inte finns
-	const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(RowName, TEXT("BindAttribute"));
-	if (!AttributeData)
-	{
-		return;
-	}
-
-	//Unik pekare för att säkerställa att inget blir knas vid eventuell omallokering och förflyttning av alla sparade attribut (vid ex utökning av listan).
-	TUniquePtr<FSGAttribute> NewAttribute = MakeUnique<FSGAttribute>();
-	NewAttribute->Owner = Owner;
-	NewAttribute->Property = Prop;
-	NewAttribute->RowName = RowName; //Vart man hittar den i datatabellen
-	NewAttribute->InitialValue = InitialValue;
-	NewAttribute->CurrentUpgradeLevel = CurrentUpgradeLevel;
-	NewAttribute->Category = Category;
-
-	FSGAttribute* NewAttributeRaw = NewAttribute.Get();
-	// För att inte riskera att tappa den i lambdan och behöva mecka
-	NewAttributeRaw->OnAttributeModified.AddLambda([NewAttributeRaw, AttributeData]
-	{
-		//Early return om ägaren inte är aktiv och om uppgraderingen är maxad
-		if (!NewAttributeRaw->Owner.IsValid())
-		{
-			return;
-		}
-
-		const FSGUpgradeData& UpgradeData = AttributeData->Data;
-		if (UpgradeData.MaxNumberOfUpgrades <= NewAttributeRaw->CurrentUpgradeLevel && UpgradeData.MaxNumberOfUpgrades != -1)
-		{
-			return;
-		}
-		NewAttributeRaw->CurrentUpgradeLevel++;
-
-		//Hämta float-propertyn
-		FFloatProperty* FloatProp = CastFieldChecked<FFloatProperty>(NewAttributeRaw->Property);
-		float Current = FloatProp->GetPropertyValue_InContainer(NewAttributeRaw->Owner.Get());
-
-		// Uppdaterar float-propertyn till den nya nivån
-		Current += NewAttributeRaw->InitialValue * UpgradeData.Multiplier;
-		FloatProp->SetPropertyValue_InContainer(NewAttributeRaw->Owner.Get(), Current);
-		UE_LOG(LogTemp, Error, TEXT("Current %f"), Current);
-	});
-
-	// Lägg till i alla listor/loop-ups
-	AttributesByRow.FindOrAdd(RowName).Add(NewAttributeRaw);
-	AttributesByKey.Add(GetKey(Owner, Prop), NewAttributeRaw);
-	AttributesByCategory.FindOrAdd(Category).Add(NewAttributeRaw);
-	RegisteredAttributes.Add(MoveTemp(NewAttribute));
-	OnBindAttribute.Broadcast();
 }
 
 FString USGUpgradeSubsystem::GetClassNameKey(UObject* Object) const
@@ -580,7 +510,7 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 		Entry.DisplayName = AttributeData->DisplayName;
 		Entry.Icon = AttributeData->Icon.Get();
 		Entry.Cost = AttributeData->Data.Cost * TargetAttribute->CurrentUpgradeLevel;
-		Entry.Multiplier = AttributeData->Data.Multiplier * 100;
+		Entry.Multiplier = TargetAttribute->InitialValue * AttributeData->Data.Multiplier; //AttributeData->Data.Multiplier * 100;
 		Entry.Category = TargetAttribute->Category;
 		Entry.RowName = TargetAttribute->RowName;
 		Entry.CurrentValue = Current;

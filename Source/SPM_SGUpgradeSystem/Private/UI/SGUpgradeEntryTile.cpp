@@ -22,8 +22,10 @@ void USGUpgradeEntryTile::SetupEntry(const FSGUpgradeEntry& Entry)
 	
 	UpgradeText->SetText( FText::Format(FText::FromString("{0}:"), EntryName));
 	UpgradeCurrentValueText->SetText(FText::Format(FText::FromString("{0}"), EntryCurrentValue));
-	UpgradeMultiplierText->SetText(FText::Format(FText::FromString(": +{0}%"), EntryMultiplier));
+	UpgradeMultiplierText->SetText(FText::Format(FText::FromString(": +{0}"), EntryMultiplier));
 	UpgradeCostText->SetText(FText::Format(FText::FromString("{0}"), EntryCost));
+
+	Icon->SetVisibility(ESlateVisibility::Hidden); //TODO: Ta bort denna när ikoner finns
 
 	if (Entry.MaxNumberOfUpgrades == -1)
 	{
@@ -37,14 +39,13 @@ void USGUpgradeEntryTile::SetupEntry(const FSGUpgradeEntry& Entry)
 	if (Entry.CurrentUpgradeLevel == Entry.MaxNumberOfUpgrades)
 	{
 		UpgradeButton->SetVisibility(ESlateVisibility::Hidden);
-		UpgradeMultiplierText->SetVisibility(ESlateVisibility::Hidden);		
+		UpgradeMultiplierText->SetVisibility(ESlateVisibility::Hidden);
+		this->SetToolTipText(FText::FromString("Maxed out"));
 		return;
 	}	
 	
 	UpgradeButton->OnClicked.AddDynamic(this, &USGUpgradeEntryTile::HandleClicked);
 	HandleButtonState();
-
-	Icon->SetVisibility(ESlateVisibility::Hidden); //TODO: Ta bort denna när ikoner finns
 }
 
 void USGUpgradeEntryTile::NativeConstruct()
