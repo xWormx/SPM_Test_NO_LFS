@@ -10,6 +10,7 @@
 #include "Components/Overlay.h"
 #include "Components/ScaleBox.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 #include "Objectives/SGObjectiveBase.h"
 
 void USGObjectiveToolTipWidget::NativeConstruct()
@@ -38,17 +39,22 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 	{
 		ScaleBoxMission->SetVisibility(ESlateVisibility::Hidden);
 	}
-	
 }
 
 void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 {
+	
+	FString Str = "HEJ";
 	SetVisibility(ESlateVisibility::HitTestInvisible);
 	SetRenderOpacity(1.0f);
 	ScaleBoxToolTip->SetVisibility(ESlateVisibility::HitTestInvisible);
 	PlayAnimation(MoveToolTipToProgressWindow, 0, 1);
-	ToolTip->SetText(NewToolTip);
+	//ToolTip->SetText(NewToolTip);
 	bIsHidden = false;
+	GetWorld()->GetTimerManager().SetTimer(CharByCharTimer, FTimerDelegate::CreateLambda([this, NewToolTip]()
+	{
+		DisplayCharByChar(NewToolTip.ToString());	
+	}), 0.05f, true);
 }
 
 void USGObjectiveToolTipWidget::DisplayTimer(FText NewTimerText)
@@ -126,6 +132,22 @@ void USGObjectiveToolTipWidget::Hide()
 	bHasFadedOut = true;
 	bShouldRender = false;
 	bIsHidden = true;
+}
+
+void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
+{
+	if (++CharIndex <= StringToolTip.Len())
+	{
+		FString StrToDisplay = StringToolTip.Mid(0, CharIndex);
+		ToolTip->SetText(FText::FromString(StrToDisplay));
+		UGameplayStatics::PlaySound2D(GetWorld(), TextClickSound);
+		UE_LOG(LogTemp, Error, TEXT("%s"), *StrToDisplay);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(CharByCharTimer);
+		CharIndex = 0;
+	}
 }
 
 void USGObjectiveToolTipWidget::SetScaleBoxTransformAfterAnimation()

@@ -5,6 +5,16 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SGUpgradeSubsystem.generated.h"
 
+//Spara attribut mellan levels
+	struct FSGUpgradePersistentData
+	{
+		FName PropertyName;
+		FName RowName;
+		FName Category;
+		int32 CurrentUpgradeLevel;
+		float InitialValue;
+	};
+
 //TODO: Snygga till. Flera för att undersöka vilka som lär vilja användas för UI osv
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpgradeFull, float, UpgradeLevel, float, UpgradeCost);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpgradeCost, float, UpgradeCost); 
@@ -16,7 +26,13 @@ UCLASS()
 class SPM_SGUPGRADESYSTEM_API USGUpgradeSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	
+
+	FDelegateHandle LevelTransitionHandle;
+	FDelegateHandle PostLevelLoadHandle;
+
+	TMap<FString, TArray<FSGUpgradePersistentData>> PersistentUpgradesByClass;
+	FTimerHandle ValidationTimerHandle;
+
 public:
 	USGUpgradeSubsystem(){};
 	
@@ -25,8 +41,9 @@ public:
 	FOnUpgradeLevel OnUpgradeLevel;
 	FOnUpgrade OnUpgrade;
 	FOnBindAttribute OnBindAttribute;
-	
+
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 
 	/// @brief Registrera ett attribut som ska kunna uppgraderas
 	/// @param Owner Ägaren av attributen (annars hittas den inte)
@@ -50,7 +67,7 @@ public:
 	void UnbindAttribute(UObject* Owner, FName PropertyName);
 
 	void RequestUpgrade(bool bUpgrade, UObject* Owner, FName PropertyName) const;
-	
+
 	void RequestUpgrade(bool bUpgrade, FName RowName) const;
 
 	void RequestUpgrade(bool bUpgrade, const FName RowName, const FName Category) const;
@@ -59,7 +76,6 @@ public:
 	TArray<FSGUpgradeEntry> GetUpgradeEntries() const;
 
 protected:
-	
 	const FSGAttribute* GetByKey(UObject* Owner, FProperty* Property) const;
 
 	const FSGAttribute* GetByCategory(FName Category, FName RowName) const;
@@ -67,7 +83,7 @@ protected:
 	TArray<const FSGAttribute*> GetByRow(FName RowName) const;
 
 	static uint64 GetKey(UObject* Owner, FProperty* Property);
-	
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Upgrades")
 	UDataTable* UpgradeDataTable = nullptr;
@@ -75,7 +91,7 @@ private:
 	//Listan med alla attribut som ska kunna uppgraderas
 	TArray<TUniquePtr<FSGAttribute>> RegisteredAttributes;
 
-	//Ifall det ska finnas flera attribut som ska uppgraderas samtidigt (samma namn) 
+	//Ifall det ska finnas flera attribut som ska uppgraderas samtidigt (samma namn)
 	TMap<FName, TArray<FSGAttribute*>> AttributesByRow;
 
 	//För uppgradering av enstaka attribut
@@ -83,4 +99,17 @@ private:
 
 	//För uppgradering av enstaka attribut
 	TMap<FName, TArray<FSGAttribute*>> AttributesByCategory;
+
+protected:
+	void OnPreLevelChange(const FString& String);
+	void OnPostLevelChange(UWorld* World);
+	void ReconnectAttributes();
+	void ProcessObjectForReconnection(UObject* Object);
+	void ValidateReferences();
+	void RemoveAttributeFromCollections(const FSGAttribute* Attribute);
+
+	//TODO: Rensa! Copy paste från BindAttribute förutom byte av int32 CurrentUpgradeLevel & float InitialValue
+	void RebindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category, int32 CurrentUpgradeLevel, float InitialValue);
+
+	FString GetClassNameKey(UObject* Object) const;
 };

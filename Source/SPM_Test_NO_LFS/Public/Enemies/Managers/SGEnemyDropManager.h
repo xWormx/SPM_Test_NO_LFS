@@ -46,6 +46,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UProperty - Enemy Drops", meta = (AllowPrivateAccess = "true"))
 	UDataTable* EnemyDropDataTable;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UProperty - Enemy Drops", meta = (AllowPrivateAccess = "true"))
-	class ASGUtilObjectPoolManager* ObjectPoolManager;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UProperty - Enemy Drops", meta = (AllowPrivateAccess = "true"))
+	class USGObjectPoolSubsystem* ObjectPoolSubsystem;
 };

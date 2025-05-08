@@ -3,6 +3,7 @@
 #include "Utils/SGUtilObjectPoolManager.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utils/SGObjectPoolSubsystem.h"
 
 ASGPickUp::ASGPickUp()
 {
@@ -23,20 +24,7 @@ void ASGPickUp::BeginPlay()
 
 void ASGPickUp::OnPickup_Implementation()
 {
-	/*//TODO: Temporär lösning för enkelheten - ska ändras! 
-	AActor* ObjectPoolActor = UGameplayStatics::GetActorOfClass(GetWorld(), ASGUtilObjectPoolManager::StaticClass());
-	if (!ObjectPoolActor)
-	{
-		return;
-	}*/
-	
-	ASGUtilObjectPoolManager* ObjectPoolManager = Cast<ASGUtilObjectPoolManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ASGUtilObjectPoolManager::StaticClass()));
-	if (!ObjectPoolManager) 
-	{
-		Destroy(); // Ifall ObjectPoolManager inte existerar i leveln
-		return;
-	}
-	ObjectPoolManager->ReturnObjectToPool(this);	
+	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
 }
 
 void ASGPickUp::SetPickUpValue(float Value)
