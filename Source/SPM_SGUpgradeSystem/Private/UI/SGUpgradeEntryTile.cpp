@@ -14,7 +14,7 @@ void USGUpgradeEntryTile::SetupEntry(const FSGUpgradeEntry& Entry)
 	Icon->SetBrushFromTexture(Entry.Icon);
 	
 	const FText EntryCost = FText::AsNumber(Entry.Cost);
-	const FText EntryMultiplier = FText::AsNumber(Entry.Multiplier);
+	const FText EntryMultiplier = FText::AsNumber(FMath::Abs(Entry.Multiplier));
 	const FText EntryName = FText::FromName(Entry.DisplayName);
 	const FText EntryCurrentValue = FText::AsNumber(Entry.CurrentValue);
 	const FText EntryCurrentLevel = FText::AsNumber(Entry.CurrentUpgradeLevel);
