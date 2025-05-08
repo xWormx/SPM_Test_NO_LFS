@@ -76,7 +76,7 @@ void ASGObjectiveBase::SetCurrentProgressText(FString NewCurrentProgressText)
 {
 	if (ProgressText.SubText.IsEmpty())
 	{
-		UE_LOG(LogTemp, Error, TEXT("Progress SubText (Whole array) was empty in Objective: %s"), *GetActorLabel())
+		//UE_LOG(LogTemp, Error, TEXT("Progress SubText (Whole array) was empty in Objective: %s"), *GetActorLabel())
 		return;
 
 	}
