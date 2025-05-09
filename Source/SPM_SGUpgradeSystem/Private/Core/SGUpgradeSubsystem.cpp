@@ -437,21 +437,7 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowNam
 void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowName, const FName Category) const
 {
 	const FSGAttribute* TargetAttribute = GetByCategory(Category, RowName);
-	if (!TargetAttribute)
-	{
-		return;
-	}
-	if (!bUpgrade)
-	{
-		return;
-	}
-	
-	const int32 LevelBeforeUpgrade = TargetAttribute->CurrentUpgradeLevel;
-	//Anropar lambdan som skapades vid bindandet.
-	TargetAttribute->OnAttributeModified.Broadcast();
-
-	// Early return om attributen inte blev uppgraderad
-	if (LevelBeforeUpgrade == TargetAttribute->CurrentUpgradeLevel)
+	if (!TargetAttribute || !bUpgrade)
 	{
 		return;
 	}
@@ -463,11 +449,22 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowNam
 		return;
 	}
 
-	//Hämtar uppgraderingsdatan för den nya nivån (har uppdaterats efter Broadcasten).
+	//Hämtar uppgraderingsdatan innan den ändras (uppdateras efter Broadcasten).
 	const FSGUpgradeData& UpgradeData = AttributeData->Data;
 	const float UpgradeCost = UpgradeData.Cost * TargetAttribute->CurrentUpgradeLevel;
-	
-	OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel,UpgradeCost);
+
+	const int32 LevelBeforeUpgrade = TargetAttribute->CurrentUpgradeLevel;
+
+	//Anropar lambdan som skapades vid bindandet.
+	TargetAttribute->OnAttributeModified.Broadcast();
+
+	// Early return om attributen inte blev uppgraderad
+	if (LevelBeforeUpgrade == TargetAttribute->CurrentUpgradeLevel)
+	{
+		return;
+	}
+
+	OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeCost);
 	OnUpgradeCost.Broadcast(UpgradeCost);
 	OnUpgradeLevel.Broadcast(TargetAttribute->CurrentUpgradeLevel);
 	OnUpgrade.Broadcast();
