@@ -7,7 +7,7 @@
 
 USGGearControllerComponent::USGGearControllerComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void USGGearControllerComponent::BeginPlay()
@@ -35,7 +35,7 @@ void USGGearControllerComponent::SetUpInputs()
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("👋GEAR: Adding Input Mapping Context: %s"), *InputMapping->GetName());
-	InputSubsystem->AddMappingContext(InputMapping, 1);
+	InputSubsystem->AddMappingContext(InputMapping, InputPriority);
 }
 
 

@@ -26,6 +26,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "UProperty - Input", meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* InputMapping;
 
+	uint32 InputPriority = 1;
+	
 	UPROPERTY()
 	TWeakObjectPtr<ACharacter> OwnerCharacter;
 
