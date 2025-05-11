@@ -25,9 +25,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void FireGun();
-	const ASGGun* GetGunRef() const;
 	void SetCurrentGunIndex(int8 NewIndex);
-	int8 GetCurrentGunIndex();
 	const TArray<ASGGun*>& GetGuns() const;
 
 protected:
@@ -46,12 +44,14 @@ private:
 	FVector WeaponMeshLocationOffset = FVector(50.f,30.f,-20.f);
 
 	UPROPERTY(EditAnywhere, Category = "UProperty - Input", meta = (AllowPrivateAccess = "true"))
-	FRotator WeaponMeshRotationOffset = FRotator(0.f,0.f,-80.f);
+	FRotator WeaponMeshRotationOffset = FRotator(0.f,-80.f,0.f); //(0.f,0.f,-80.f);
 
+	UPROPERTY()
+	class UInputTriggerPulse* PulseTrigger;
 	
 	FTimerHandle CanFireAgainTimer;
 	bool bIsFiring = false;
-	bool bCanFire;
+	bool bCanFire = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UProperty - Input", meta=(AllowPrivateAccess="true"))
 	TArray<TSubclassOf<ASGGun>> GunClasses;
@@ -63,6 +63,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category="UProperty - Input")
 	USkeletalMeshComponent* WeaponMesh;
+	//MESH: Script/Engine.SkeletalMesh'/Game/Weapon/NewTest/Weapon_FullRange.Weapon_FullRange'
+	//MATERIAL: MI_Template_BaseGray_02_Metal
 
 	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Input")
 	UInputAction* FireGunInputAction;

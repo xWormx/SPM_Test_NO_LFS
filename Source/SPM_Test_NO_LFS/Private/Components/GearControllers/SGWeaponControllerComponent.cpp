@@ -7,35 +7,39 @@
 
 
 USGWeaponControllerComponent::USGWeaponControllerComponent()
-{	
+{
 	PrimaryComponentTick.bCanEverTick = true;
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 }
 
 void USGWeaponControllerComponent::InitGear()
 {
-	UCameraComponent* OwnerCamera = Cast<UCameraComponent>(GetOwner()->GetComponentByClass(UCameraComponent::StaticClass()));
-
-	if (!OwnerCamera)
+	if (UCameraComponent* OwnerCamera = Cast<UCameraComponent>(GetOwner()->GetComponentByClass(UCameraComponent::StaticClass())))
 	{
-		return;
+		WeaponMesh->AttachToComponent(OwnerCamera, FAttachmentTransformRules::KeepRelativeTransform);
+		WeaponMesh->SetRelativeLocationAndRotation(WeaponMeshLocationOffset, WeaponMeshRotationOffset);
+
+		if (!ensureMsgf(WeaponMesh, TEXT("WeaponMesh is not set!")))
+		{
+			return;
+		}
+
 	}
-	WeaponMesh->AttachToComponent(OwnerCamera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	WeaponMesh->SetRelativeLocationAndRotation(WeaponMeshLocationOffset, WeaponMeshRotationOffset);	
-	
+
 	Guns.SetNum(GunClasses.Num());
+	
 	for (int32 i = 0; i < GunClasses.Num(); ++i)
 	{
-		if (ASGGun* Gun = Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]))
+		ASGGun* Gun = Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
+		if (!Gun)
 		{
-			Gun->SetOwner(GetOwner());
+			continue;
 		}
-		if (WeaponMesh)
-		{
-			Guns[i]->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		}
+		Gun->SetOwner(GetOwner());
+		Gun->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);		
 	}
-	if (Guns.Num() > 0 && Guns.IsValidIndex(CurrentGunIndex))
+	
+	/*if (Guns.Num() > 0 && Guns.IsValidIndex(CurrentGunIndex))
 	{
 		if (Guns[CurrentGunIndex])
 		{
@@ -48,7 +52,7 @@ void USGWeaponControllerComponent::InitGear()
 	{
 		// Handle the case where the Guns array is not populated
 		UE_LOG(LogTemp, Error, TEXT("Guns array is empty or index out of bounds!"));
-	}
+	}*/
 }
 
 void USGWeaponControllerComponent::SetUpInputs()
@@ -58,21 +62,23 @@ void USGWeaponControllerComponent::SetUpInputs()
 	if (!Input)
 	{
 		return;
-	}
+	}	
 
-	// Shooting
 	Input->BindAction(FireGunInputAction, ETriggerEvent::Triggered, this, &USGWeaponControllerComponent::OnFireButtonPressed);
 	Input->BindAction(StopFireGunInputAction, ETriggerEvent::Triggered, this, &USGWeaponControllerComponent::OnFireButtonReleased);
+
 	Input->BindAction(SwapWeapon1InputAction, ETriggerEvent::Triggered, this, &USGWeaponControllerComponent::OnSwapWeaponKey1Pressed);
 	Input->BindAction(SwapWeapon2InputAction, ETriggerEvent::Triggered, this, &USGWeaponControllerComponent::OnSwapWeaponKey2Pressed);
 	Input->BindAction(SwapWeapon3InputAction, ETriggerEvent::Triggered, this, &USGWeaponControllerComponent::OnSwapWeaponKey3Pressed);
+
 	Input->BindAction(SwapWeaponMouseWheelInputAction, ETriggerEvent::Triggered, this, &USGWeaponControllerComponent::OnSwapWeaponMouseWheel);
+
+	InputPriority = 2;
 	
 	Super::SetUpInputs();
 }
 
-
-void USGWeaponControllerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void USGWeaponControllerComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	HandleFiring(); // OK att ligga i Tick(), kollar bara 2st bools
@@ -80,32 +86,18 @@ void USGWeaponControllerComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 void USGWeaponControllerComponent::FireGun()
 {
-	const ASGGun* Gun = GetGunRef();
-	if (Gun)
+	if (ASGGun* Gun = Guns[CurrentGunIndex])
 	{
 		bCanFire = false;
-		if (Guns[CurrentGunIndex]) 
-		{
-			Guns[CurrentGunIndex]->Fire();
-		}
-		float FireRate = Gun->GetFireRate();	
-		GetWorld()->GetTimerManager().SetTimer(CanFireAgainTimer, this, &USGWeaponControllerComponent::CanFireAgain, FireRate, false);
+		Gun->Fire();
+		const float FireRate = Gun->GetFireRate();
+		GetWorld()->GetTimerManager().SetTimer(CanFireAgainTimer, this, &USGWeaponControllerComponent::CanFireAgain,  FireRate, false);
 	}
-}
-
-const ASGGun* USGWeaponControllerComponent::GetGunRef() const
-{
-	return Guns[CurrentGunIndex];
 }
 
 void USGWeaponControllerComponent::SetCurrentGunIndex(int8 NewIndex)
 {
 	CurrentGunIndex = NewIndex;
-}
-
-int8 USGWeaponControllerComponent::GetCurrentGunIndex()
-{
-	return CurrentGunIndex;
 }
 
 const TArray<ASGGun*>& USGWeaponControllerComponent::GetGuns() const
@@ -129,6 +121,7 @@ void USGWeaponControllerComponent::HandleFiring()
 	{
 		return;
 	}
+
 	FireGun();
 }
 
@@ -139,41 +132,28 @@ void USGWeaponControllerComponent::CanFireAgain()
 
 void USGWeaponControllerComponent::OnSwapWeaponKey1Pressed(const FInputActionValue& Value)
 {
-	if (!OwnerCharacter.IsValid())
-	{
-		return;
-	}
-	SetCurrentGunIndex(0);
+	CurrentGunIndex = 0;
 }
 
 void USGWeaponControllerComponent::OnSwapWeaponKey2Pressed(const FInputActionValue& Value)
 {
-	if (!OwnerCharacter.IsValid())
-	{
-		return;
-	}
-	SetCurrentGunIndex(1);
+	CurrentGunIndex = 1;
 }
 
 void USGWeaponControllerComponent::OnSwapWeaponKey3Pressed(const FInputActionValue& Value)
 {
-	if (!OwnerCharacter.IsValid())
-	{
-		return;
-	}
-	SetCurrentGunIndex(2);
+	CurrentGunIndex = 2;
 }
 
 void USGWeaponControllerComponent::OnSwapWeaponMouseWheel(const FInputActionValue& Value)
-{
-	if (!OwnerCharacter.IsValid())
+{	
+	const int32 NumberOfGuns = Guns.Num();
+	if (NumberOfGuns == 0)
 	{
 		return;
 	}
-	int32 NumberOfGuns = Guns.Num();
-	if (NumberOfGuns == 0) return;
 
-	float ScrollValue = Value.Get<float>();
+	const float ScrollValue = Value.Get<float>();
 
 	if (FMath::IsNearlyZero(ScrollValue))
 	{
@@ -188,7 +168,4 @@ void USGWeaponControllerComponent::OnSwapWeaponMouseWheel(const FInputActionValu
 	{
 		CurrentGunIndex = (CurrentGunIndex - 1 + NumberOfGuns) % NumberOfGuns;
 	}
-
-	SetCurrentGunIndex(CurrentGunIndex);
 }
-
