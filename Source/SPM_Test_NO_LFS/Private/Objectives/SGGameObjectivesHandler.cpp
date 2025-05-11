@@ -143,7 +143,7 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 		RemoveCurrentObjective();
 		OnObjectiveCompleted.Broadcast();
 	}
-}
+	}
 
 void ASGGameObjectivesHandler::RemoveCurrentObjective()
 {

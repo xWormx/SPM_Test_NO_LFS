@@ -111,12 +111,11 @@ void USGObjectiveToolTipWidget::SetProgressWindowText(ASGObjectiveBase* Objectiv
 			{
 				TextBlockMissionProgress->SetText(FText::FromString(TEXT("- ") + Objective->GetProgressText().SubText[i]));
 				continue;
-				
 			}
+			
 			FString CurrentProgressText = TextBlockMissionProgress->GetText().ToString();
 			TextBlockMissionProgress->SetText(FText::FromString(CurrentProgressText + ("\n\t- ") + Objective->GetProgressText().SubText[i]));
 		}
-		
 	}
 }
 
