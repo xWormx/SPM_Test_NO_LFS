@@ -24,6 +24,8 @@ private:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
 
+	bool CanUpgrade() const;
+
 	UFUNCTION()
 	void HandleClicked();
 public:

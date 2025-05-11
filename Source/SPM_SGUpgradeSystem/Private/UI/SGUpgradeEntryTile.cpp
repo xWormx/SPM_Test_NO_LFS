@@ -10,41 +10,48 @@
 void USGUpgradeEntryTile::SetupEntry(const FSGUpgradeEntry& Entry)
 {
 	BoundEntry = Entry;
-	
-	Icon->SetBrushFromTexture(Entry.Icon);
-	
+
+	// ENTRY TO TEXT
 	const FText EntryCost = FText::AsNumber(Entry.Cost);
 	const FText EntryMultiplier = FText::AsNumber(FMath::Abs(Entry.Multiplier));
 	const FText EntryName = FText::FromName(Entry.DisplayName);
 	const FText EntryCurrentValue = FText::AsNumber(Entry.CurrentValue);
 	const FText EntryCurrentLevel = FText::AsNumber(Entry.CurrentUpgradeLevel);
 	const FText EntryMaxLevel = FText::AsNumber(Entry.MaxNumberOfUpgrades);
-	
+	FText MaxNumberOfUpgrades = Entry.MaxNumberOfUpgrades == -1
+		                            ? FText::Format(FText::FromString("{0}/Infinite"), EntryCurrentLevel)
+		                            : FText::Format(FText::FromString("{0}/{1}"), EntryCurrentLevel, EntryMaxLevel);
+
+	// SET TEXT
 	UpgradeText->SetText( FText::Format(FText::FromString("{0}:"), EntryName));
 	UpgradeCurrentValueText->SetText(FText::Format(FText::FromString("{0}"), EntryCurrentValue));
-	UpgradeMultiplierText->SetText(FText::Format(FText::FromString(": +{0}%"), EntryMultiplier));
+	UpgradeMultiplierText->SetText(FText::Format(FText::FromString(": +{0}"), EntryMultiplier));
 	UpgradeCostText->SetText(FText::Format(FText::FromString("{0}"), EntryCost));
+	UpgradeLevelText->SetText(MaxNumberOfUpgrades);
 
-	if (Entry.MaxNumberOfUpgrades == -1)
+	// ICON
+	Icon->SetBrushFromTexture(Entry.Icon);
+	Icon->SetVisibility(ESlateVisibility::Hidden); //TODO: Ta bort denna när ikoner finns
+
+	/*if (Entry.MaxNumberOfUpgrades == -1)
 	{
 		UpgradeLevelText->SetText(FText::Format(FText::FromString("{0}/Infinite"), EntryCurrentLevel));
 	}
 	else
 	{
 		UpgradeLevelText->SetText(FText::Format(FText::FromString("{0}/{1}"), EntryCurrentLevel, EntryMaxLevel));
-	}
+	}*/
 
 	if (Entry.CurrentUpgradeLevel == Entry.MaxNumberOfUpgrades)
 	{
 		UpgradeButton->SetVisibility(ESlateVisibility::Hidden);
-		UpgradeMultiplierText->SetVisibility(ESlateVisibility::Hidden);		
+		UpgradeMultiplierText->SetVisibility(ESlateVisibility::Hidden);
+		this->SetToolTipText(FText::FromString("Maxed out"));
 		return;
 	}	
 	
 	UpgradeButton->OnClicked.AddDynamic(this, &USGUpgradeEntryTile::HandleClicked);
 	HandleButtonState();
-
-	Icon->SetVisibility(ESlateVisibility::Hidden); //TODO: Ta bort denna när ikoner finns
 }
 
 void USGUpgradeEntryTile::NativeConstruct()
@@ -61,31 +68,26 @@ void USGUpgradeEntryTile::NativeDestruct()
 	}
 }
 
+bool USGUpgradeEntryTile::CanUpgrade() const
+{
+	const USGUpgradeGuardSubsystem* UpgradeGuard = GetGameInstance()->GetSubsystem<USGUpgradeGuardSubsystem>();
+	return UpgradeGuard ? UpgradeGuard->CanUpgradeBasedOnCount(BoundEntry.Cost) : false;
+}
+
 void USGUpgradeEntryTile::HandleClicked()
 {
-	const USGUpgradeSubsystem* UpgradeSubsystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>();
-	if (!UpgradeSubsystem)
+	const USGUpgradeSubsystem* Upgrader = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>();
+	if (!Upgrader)
 	{
 		return;
 	}
 
-	const USGUpgradeGuardSubsystem* UpgradeGuardInstance = GetGameInstance()->GetSubsystem<USGUpgradeGuardSubsystem>();
-	if (!UpgradeGuardInstance)
-	{
-		return;
-	}
-	UpgradeSubsystem->RequestUpgrade(UpgradeGuardInstance->CanUpgradeBasedOnCount(BoundEntry.Cost), BoundEntry.RowName, BoundEntry.Category);
+	Upgrader->RequestUpgrade(CanUpgrade(), BoundEntry.RowName, BoundEntry.Category);
 }
 
 void USGUpgradeEntryTile::HandleButtonState()
 {
-	const USGUpgradeGuardSubsystem* UpgradeGuardInstance = GetGameInstance()->GetSubsystem<USGUpgradeGuardSubsystem>();
-	if (!UpgradeGuardInstance)
-	{
-		return;
-	}
-
-	const bool bCanUpgrade = UpgradeGuardInstance->CanUpgradeBasedOnCount(BoundEntry.Cost);
+	const bool bCanUpgrade = CanUpgrade();
 	const FText TooltipText = bCanUpgrade ? FText::FromString("Upgrade") : FText::FromString("Not enough Orbs");
 
 	UpgradeButton->SetToolTipText(TooltipText);

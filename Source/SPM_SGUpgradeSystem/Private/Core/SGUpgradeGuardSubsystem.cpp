@@ -5,11 +5,16 @@
 void USGUpgradeGuardSubsystem::AddToCount(const float Amount)
 {
 	Count += Amount;
+	OnCountAddToCount.Broadcast();
 }
 
 void USGUpgradeGuardSubsystem::RemoveFromCount(const float Amount)
 {
 	Count -= Amount;
+	if (Count < 0)
+	{
+		Count = 0;
+	}
 }
 
 bool USGUpgradeGuardSubsystem::CanUpgradeBasedOnCount(const float UpgradeCost) const
