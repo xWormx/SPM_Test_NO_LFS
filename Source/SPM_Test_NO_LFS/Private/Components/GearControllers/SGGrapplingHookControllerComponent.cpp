@@ -10,16 +10,6 @@ USGGrapplingHookControllerComponent::USGGrapplingHookControllerComponent()
 	GrapplingHookPosition = CreateDefaultSubobject<USceneComponent>(TEXT("GrapplingHookPosition"));
 }
 
-void USGGrapplingHookControllerComponent::OnRegister()
-{
-	Super::OnRegister();
-
-	if (GrapplingHookPosition && GetOwner() && GetOwner()->GetRootComponent())
-	{
-		GrapplingHookPosition->SetupAttachment(GetOwner()->GetRootComponent());
-	}
-}
-
 void USGGrapplingHookControllerComponent::SetUpInputs()
 {
 	UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(OwnerCharacter->InputComponent);
@@ -44,7 +34,7 @@ void USGGrapplingHookControllerComponent::InitGear()
 	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
 	if (GrapplingHook)
 	{
-		FVector SpawnLocation =OwnerCharacter->GetActorLocation() - GrapplingHookOffset;
+		FVector SpawnLocation = OwnerCharacter->GetActorLocation() + GrapplingHookOffset;
 
 		GrapplingHook->SetActorLocation(SpawnLocation);
 		GrapplingHook->AddActorLocalRotation(FRotator(0, 180, 0));

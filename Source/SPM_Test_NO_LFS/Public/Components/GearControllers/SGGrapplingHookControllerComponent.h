@@ -14,8 +14,6 @@ class SPM_TEST_NO_LFS_API USGGrapplingHookControllerComponent : public USGGearCo
 public:
 	USGGrapplingHookControllerComponent();
 
-	virtual void OnRegister() override;
-
 protected:
 	virtual void InitGear() override;
 	virtual void Fire() override;
@@ -26,7 +24,7 @@ private:
 	UInputAction* GrappleInputAction;
 
 	UPROPERTY(EditAnywhere, Category = "UProperty - Input", meta = (AllowPrivateAccess = "true"))
-	FVector GrapplingHookOffset = FVector(40.f,50.f,40.f);
+	FVector GrapplingHookOffset = FVector(40.f,-50.f,40.f);
 
 	UPROPERTY(EditAnywhere, Category = "UProperty - Input", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class ASGGrapplingHook> GrapplingHookClass;
