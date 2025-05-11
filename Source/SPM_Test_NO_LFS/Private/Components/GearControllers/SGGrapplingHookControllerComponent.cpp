@@ -21,6 +21,7 @@ void USGGrapplingHookControllerComponent::SetUpInputs()
 
 	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &USGGrapplingHookControllerComponent::Fire);
 
+	InputPriority = 1;
 	Super::SetUpInputs();
 }
 
