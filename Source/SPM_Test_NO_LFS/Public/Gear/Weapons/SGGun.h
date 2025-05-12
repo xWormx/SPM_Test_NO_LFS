@@ -16,6 +16,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Fire();
 	float GetFireRate() const;
+	void AddAmmo(int32 AmmoAmount);
 
 protected:
 	virtual void BeginPlay() override;
