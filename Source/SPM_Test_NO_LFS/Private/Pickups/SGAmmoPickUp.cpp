@@ -47,5 +47,6 @@ void ASGAmmoPickUp::OnPickup_Implementation()
 void ASGAmmoPickUp::BeginPlay()
 {
 	Super::BeginPlay();
+	
 	PlayerCharacter = Cast<ASGPlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 }
