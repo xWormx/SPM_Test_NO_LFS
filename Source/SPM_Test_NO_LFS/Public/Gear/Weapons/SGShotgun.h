@@ -11,4 +11,7 @@ class SPM_TEST_NO_LFS_API ASGShotgun : public ASGGun
 	
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	virtual bool HasAmmo() override;
 };

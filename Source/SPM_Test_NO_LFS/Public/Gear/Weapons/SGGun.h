@@ -20,6 +20,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	AController* GetOwnerController() const;
+	int32 Ammo = 3;
 
 	// VisibleAnywhere
 	UPROPERTY(VisibleAnywhere, Category="design")
@@ -49,5 +50,6 @@ protected:
 	float PelletSpreadAngle = 3.f;
 
 private:
+	virtual bool HasAmmo();
 	virtual bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
 };
