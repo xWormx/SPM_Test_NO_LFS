@@ -47,8 +47,8 @@ void ASGEnemySpawnManager::Tick(float DeltaTime)
 			EnemiesAlive--;
 			DespawnCandidates.RemoveAt(i);
 			
-			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::An enemy has been culled by the despawn checker!"));
-			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAlive);
+			//UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::An enemy has been culled by the despawn checker!"));
+			//UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAlive);
 		}
 	}
 }
@@ -265,7 +265,7 @@ void ASGEnemySpawnManager::CheckIfDespawnCandidate(ASGEnemyCharacter* Enemy)
 			Candidate.TimeOutOfRange = 0.f;
 			DespawnCandidates.Add(Candidate);
 
-			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::[%s] has spawned outside the despawn checker area!"), *Enemy->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::[%s] has spawned outside the despawn checker area!"), *Enemy->GetName());
 		}
 	}
 }
