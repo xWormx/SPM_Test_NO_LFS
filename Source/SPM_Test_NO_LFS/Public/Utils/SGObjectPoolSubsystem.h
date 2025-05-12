@@ -12,7 +12,6 @@ struct FActorPool
 	FActorPool() {}
 	explicit FActorPool(const TArray<AActor*>& InActors) : Actors(InActors) {}
 
-	//TODO: Lägga till X antal att skapa? Om man vill sköta det i editor?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors", meta = (AllowPrivateAccess = "true"))
 	int DefaultPoolGrowthSize = 5;
 
