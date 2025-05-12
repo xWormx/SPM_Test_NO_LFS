@@ -19,7 +19,7 @@ ASGEnemySpawnManager::ASGEnemySpawnManager()
 	DespawnTriggerSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	DespawnTriggerSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	DespawnTriggerSphere->SetGenerateOverlapEvents(true);
-	DespawnTriggerSphere->SetHiddenInGame(false);
+	DespawnTriggerSphere->SetHiddenInGame(true);
 	DespawnTriggerSphere->bDrawOnlyIfSelected = false;
 	DespawnTriggerSphere->SetVisibility(true);
 	DespawnTriggerSphere->ShapeColor = FColor::Green;
