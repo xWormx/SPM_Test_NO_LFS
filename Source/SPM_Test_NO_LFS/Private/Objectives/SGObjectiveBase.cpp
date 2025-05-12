@@ -43,8 +43,9 @@ void ASGObjectiveBase::OnStart(ASGGameObjectivesHandler* ObjectivesHandler)
 		CurrentSubToolTip = ObjectiveSubToolTips[0];
 	DisplayStartToolTip(ObjectivesHandler->GetObjectiveToolTipWidget());
 	CurrentSubObjectiveStep = 1;
-	ObjectivesHandler->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
-	
+	//ObjectivesHandler->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
+
+	OnObjectiveStart.Broadcast(this);
 }
 
 void ASGObjectiveBase::OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
@@ -81,7 +82,7 @@ void ASGObjectiveBase::SetCurrentProgressText(FString NewCurrentProgressText)
 
 	}
 	ProgressText.SubText[GetCurrentProgressStep() - 1] = NewCurrentProgressText;
-	GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
+	//GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
 }
 
 FText ASGObjectiveBase::GetObjectiveDescriptionToolTip()
