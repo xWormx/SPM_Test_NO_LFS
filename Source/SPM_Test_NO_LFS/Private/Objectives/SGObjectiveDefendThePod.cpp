@@ -6,6 +6,7 @@
 #include "Objectives/SGObjectiveToolTipWidget.h"
 #include "Player/SGPlayerCharacter.h"
 #include "Components/SphereComponent.h"
+#include "Objectives/SGHorizontalBoxObjective.h"
 
 
 ASGObjectiveDefendThePod::ASGObjectiveDefendThePod()
@@ -40,7 +41,7 @@ void ASGObjectiveDefendThePod::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (bDefendEventStarted && !bDefendEventPaused)
 	{
-		if (GetObjectiveHandler()->GetObjectiveToolTipWidget()->GetTimerAnimationFinished())
+		if (GetObjectiveHandler()->GetObjectiveToolTipWidget()->GetTimerAnimationFinished() || true)
 		{
 			float TimeLeft = GetWorldTimerManager().GetTimerRemaining(TimerHandle);
 			if (TimeLeft >= 0)
@@ -49,7 +50,12 @@ void ASGObjectiveDefendThePod::Tick(float DeltaTime)
 				int Seconds = TimeLeft - (Minutes * 60);
 				FString TimeLeftStr = FString::Printf(TEXT("%02d : %02d"), Minutes, Seconds);
 		
-				GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString(TimeLeftStr));	
+				GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString(TimeLeftStr));
+				USGHorizontalBoxObjective* EventProgressBox = GetObjectiveHandler()->GetObjectiveToolTipWidget()->GetHorizontalBoxAtIndex(3);
+				if (EventProgressBox)
+				{
+					EventProgressBox->SetValue(FText::FromString(TimeLeftStr));
+				}
 			}
 		}
 	}
@@ -59,14 +65,24 @@ void ASGObjectiveDefendThePod::OnStart(ASGGameObjectivesHandler* ObjectiveHandle
 {
 	Super::OnStart(ObjectiveHandler);
 	ObjectiveHandler->RegisterDefendThePod(this);
+	ObjectiveHandler->GetObjectiveToolTipWidget()->AddProgressTextElement(FText::FromString("Find the Pod!"), FText::FromString("Not Completed!"));
 }
   
-bool ASGObjectiveDefendThePod::IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler)
+bool ASGObjectiveDefendThePod::IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	return bDefendedThePod;
 }
 
-void ASGObjectiveDefendThePod::Update(ASGGameObjectivesHandler* ObjectivesHandler)
+void ASGObjectiveDefendThePod::OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
+{
+	Super::OnCompleted(ObjectiveHandler);
+	USGHorizontalBoxObjective* DefendPodProgressText = ObjectiveHandler->GetObjectiveToolTipWidget()->GetHorizontalBoxAtIndex(3);
+	DefendPodProgressText->ShowSucceed();
+	DefendPodProgressText->SetKeyAndValueOpacity(0.5);
+	DefendPodProgressText->SetValue(FText::FromString("Completed!"));
+}
+
+void ASGObjectiveDefendThePod::Update(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	/*
 	1. Overlap with PodArea
@@ -88,11 +104,19 @@ void ASGObjectiveDefendThePod::StartMainPhase(UPrimitiveComponent* OverlappedCom
 		{
 			bDefendEventStarted = true;
 			bDefendEventPaused = false;
-			GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("00:00"));
-			GetObjectiveHandler()->GetObjectiveToolTipWidget()->Display(GetCurrentSubToolTip());
+			//GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("00:00"));
+			//GetObjectiveHandler()->GetObjectiveToolTipWidget()->Display(GetCurrentSubToolTip());
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &ASGObjectiveDefendThePod::OnTimeIsOut, TimeToDefendPodSeconds, false);
 			AdvanceCurrentObjectiveStep();
-			GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
+			//GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
+			USGHorizontalBoxObjective* FindPodElement =  GetObjectiveHandler()->GetObjectiveToolTipWidget()->GetHorizontalBoxAtIndex(2);
+			if (FindPodElement)
+			{
+				FindPodElement->ShowSucceed();
+				FindPodElement->SetValue(FText::FromString("Completed!"));
+				FindPodElement->SetKeyAndValueOpacity(0.5);
+			}
+			GetObjectiveHandler()->GetObjectiveToolTipWidget()->AddProgressTextElement(FText::FromString("Defend the Pod!"), FText::FromString(TEXT("00 : 00")));
 
 			OnDefendEventStart.Broadcast();
 		}
@@ -118,9 +142,14 @@ void ASGObjectiveDefendThePod::PauseMainPhase(UPrimitiveComponent* OverlappedCom
 		
 	if (bDefendEventStarted)
 	{
+		USGHorizontalBoxObjective* EventProgressBox = GetObjectiveHandler()->GetObjectiveToolTipWidget()->GetHorizontalBoxAtIndex(3);
+		if (EventProgressBox)
+		{
+			EventProgressBox->SetValue(FText::FromString("Return to Pod!"));
+		}
 		bDefendEventPaused = true;
 		GetWorldTimerManager().PauseTimer(TimerHandle);
-		GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("PAUSED"));
+		//GetObjectiveHandler()->GetObjectiveToolTipWidget()->DisplayTimer(FText::FromString("PAUSED"));
 		OnDefendEventPaused.Broadcast();
 		UE_LOG(LogTemp, Warning, TEXT("DEFEND THE POD PAUSED!"));
 	}

@@ -11,6 +11,7 @@
 #include "Objectives/SGTerminalWidget.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
+#include "Objectives/SGHorizontalBoxObjective.h"
 #include "Objectives/SGObjectiveDefendThePod.h"
 
 // Sets default values
@@ -31,7 +32,9 @@ void ASGGameObjectivesHandler::BeginPlay()
 	{
 		ObjectiveToolTipWidget = Cast<USGObjectiveToolTipWidget>(CreateWidget<USGObjectiveToolTipWidget>(PlayerController, ObjectiveToolTipClass));
 		ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!
-		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::Hidden);
+		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+		ObjectiveToolTipWidget->ShowVisitTerminal();
+		ObjectiveToolTipWidget->HideToolTipScaleBox();
 		ObjectiveToolTipWidget->SetFadeFactor(ObjectiveToolTipFadeFactor);
 	}
 }
@@ -98,6 +101,7 @@ void ASGGameObjectivesHandler::StartMission()
 		progresswindow kan hålla koll på alla texter 
 	 
 	 */
+	ObjectiveToolTipWidget->HideVisitTerminal();
 	if (GameObjectives.Num() > 0)
 		CurrentObjective = GameObjectives[0];
 	
@@ -137,6 +141,7 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 	CurrentObjective->Update(this);
 	if (CurrentObjective->IsCompleted(this))
 	{
+		ObjectiveToolTipWidget->ShowVisitTerminal();
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted(this);
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
