@@ -24,6 +24,9 @@ void ASGGun::Tick(float DeltaTime)
 
 void ASGGun::Fire()
 {
+	if (!HasAmmo()) return;
+	--Ammo;
+	
 	if (ShootParticles && ShootParticlesPoint)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAttached(
@@ -149,4 +152,9 @@ bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
     }
 
     return bHitSomething;
+}
+
+bool ASGGun::HasAmmo()
+{
+	return true;
 }
