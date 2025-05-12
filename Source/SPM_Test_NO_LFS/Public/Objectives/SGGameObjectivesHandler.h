@@ -17,8 +17,14 @@ class USGObjectiveToolTipWidget;
 class ASGObjectiveBase;
 class ASGEnemyCharacter;
 class USGTerminalWidget;
-
 class UButton;
+
+UENUM(BlueprintType)
+enum class EDifficultType : uint8
+{
+	E_None, E_Easy, E_Medium, E_Hard, E_Insane
+};
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGGameObjectivesHandler : public AActor
 {

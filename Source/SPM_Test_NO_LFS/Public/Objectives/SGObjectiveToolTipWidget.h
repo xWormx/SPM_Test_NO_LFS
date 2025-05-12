@@ -6,6 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "SGObjectiveToolTipWidget.generated.h"
 
+class USGDifficultyBarWidget;
+class UVerticalBox;
+class USGHorizontalBoxObjective;
 class ASGObjectiveBase;
 class UScaleBox;
 /**
@@ -32,8 +35,18 @@ public:
 	void SetFadeFactor(float NewFadeFactor) { FadeFactor = NewFadeFactor; }
 	const bool& GetIsHidden() const { return bIsHidden; }
 	const bool& GetTimerAnimationFinished() const  { return bTimerAnimationFinished; }
+
+	void ShowVisitTerminal();
+	void HideVisitTerminal();
+	void ShowMissionVerticalBox();
+	void HideMissionVerticalBox();
+	void ShowToolTipScaleBox();
+	void HideToolTipScaleBox();
+	
 	void InterruptAndHide() { Hide(); }
 	void SetProgressWindowText(ASGObjectiveBase* Objective);
+	void AddProgressTextElement(FText KeyText, FText ValueText);
+	USGHorizontalBoxObjective* GetHorizontalBoxAtIndex(int32 index);
 protected:
 	
 	virtual void NativeConstruct() override;
@@ -64,13 +77,36 @@ protected:
 	UTextBlock* TextBlockMissionProgress;
 	UPROPERTY(EditAnywhere)
 	TMap<int32, FProgressText> ProgressTextMap; 
+
+	// Visit Terminal Text
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UTextBlock* TextBlockVisitTerminal;
 	
+	// ProgressWindow NEW
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<USGHorizontalBoxObjective> HorizontalBoxObjectiveClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	TArray<USGHorizontalBoxObjective*> HorizontalObjectiveList;
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UVerticalBox* VerticalBoxMission;
+
+	// Difficulty Progress Bar
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<USGDifficultyBarWidget> DifficultyBarWidgetClass;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	USGDifficultyBarWidget* DifficultyBarWidget;
+	UPROPERTY(VisibleAnywhere)
+	float DifficultyBarOffsetLeft = 0.0f;
+	//Animations
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* ShrinkAndMoveTimer;
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* MoveToolTipToProgressWindow;
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* AnimationHideToolTip;
+	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* AnimationVisitTerminal;
+
 	
 	UPROPERTY(VisibleAnywhere)
 	bool bIsHidden = true;
@@ -116,4 +152,6 @@ private:
 	FWidgetAnimationDynamicEvent EndMoveToolTipToProgressWindowAnimation;
 	FWidgetAnimationDynamicEvent EndHideToolTipAnimation;
 };
+
+
 

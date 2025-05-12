@@ -26,8 +26,9 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler) override;
-	virtual void Update(ASGGameObjectivesHandler* ObjectivesHandler) override;
+	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
+	virtual void OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
+	virtual void Update(ASGGameObjectivesHandler* ObjectiveHandler) override;
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_DefendThePod; }
 
 	FOnDefendEventStart OnDefendEventStart;
