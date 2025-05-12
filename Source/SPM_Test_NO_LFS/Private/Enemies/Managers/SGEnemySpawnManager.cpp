@@ -229,13 +229,17 @@ void ASGEnemySpawnManager::SpawnEnemies(const TArray<AActor*>& AvailableSpawnPoi
 		if (SpawnedEnemyPtr != nullptr)
 		{
 			++EnemiesAlive;
-			SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
+			if (!SpawnedEnemyPtr->OnEnemyDied.IsAlreadyBound(this, &ASGEnemySpawnManager::HandleEnemyDeath))
+			{
+				SpawnedEnemyPtr->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
+			}
+				
 			UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAlive);
 			if (SpawnSound) UGameplayStatics::PlaySoundAtLocation(GetWorld(), SpawnSound, SpawnedEnemyPtr->GetActorLocation());
 			CheckIfDespawnCandidate(SpawnedEnemyPtr);
 		}
 	}
-}
+}	
 
 const ASGEnemySpawnPoint* ASGEnemySpawnManager::GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const
 {

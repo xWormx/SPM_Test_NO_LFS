@@ -8,6 +8,8 @@
 #include "GameFramework/Actor.h"
 #include "SGObjectiveBase.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStart, AActor*, Actor);
+
 class ASGGameObjectivesHandler;
 class USGObjectiveToolTipWidget;
 UCLASS()
@@ -27,7 +29,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void ActivateObjective();
-	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectivesHandler){ return false; }
+	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler){ return false; }
 	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler);
 	virtual void OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler);
 	virtual void Update(ASGGameObjectivesHandler* ObjectiveHandler) {}
@@ -50,6 +52,9 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	bool bIsActivated = false;
+
+	FOnObjectiveStart OnObjectiveStart;
+	
 protected:
 	ASGGameObjectivesHandler* GetObjectiveHandler() { return ObjectiveHandlerPersistent; }
 	void SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler) { ObjectiveHandlerPersistent = ObjectiveHandler; }
