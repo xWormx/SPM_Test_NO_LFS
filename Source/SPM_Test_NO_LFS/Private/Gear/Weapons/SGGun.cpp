@@ -24,7 +24,7 @@ void ASGGun::Tick(float DeltaTime)
 
 void ASGGun::Fire()
 {
-	if (!HasAmmo()) return;
+	if (bIsReloading || !HasAmmo()) return;
 	
 	if (bUsesMagazine)
 	{
@@ -82,24 +82,23 @@ void ASGGun::Fire()
 
 void ASGGun::Reload()
 {
-	if (!bUsesMagazine) return;
+	if (!bUsesMagazine || bIsReloading) return;
 
 	int32 AmmoNeeded = MagazineSize - CurrentMagazineAmmo;
 	if (AmmoNeeded <= 0) return;
+	if (!bInfiniteAmmo && Ammo <= 0) return;
 
-	if (bInfiniteAmmo)
+	bIsReloading = true;
+
+	// Optional: Play reload sound immediately
+	if (ReloadSound && Mesh) 
 	{
-		CurrentMagazineAmmo += AmmoNeeded;
+		UGameplayStatics::SpawnSoundAttached(ReloadSound, Mesh, TEXT("MuzzleFlashSocket"));
 	}
-	else
-	{
-		if (Ammo <= 0) return;
-		int32 AmmoToReload = FMath::Min(AmmoNeeded, Ammo);
-		CurrentMagazineAmmo += AmmoToReload;
-		Ammo -= AmmoToReload;
-	}
+
+	// Schedule completion of reload after delay
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ASGGun::FinishReloading, ReloadTime, false);
 }
-
 
 float ASGGun::GetFireRate() const
 {
@@ -203,4 +202,22 @@ bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
     }
 
     return bHitSomething;
+}
+
+void ASGGun::FinishReloading()
+{
+	int32 AmmoNeeded = MagazineSize - CurrentMagazineAmmo;
+
+	if (bInfiniteAmmo)
+	{
+		CurrentMagazineAmmo += AmmoNeeded;
+	}
+	else
+	{
+		int32 AmmoToReload = FMath::Min(AmmoNeeded, Ammo);
+		CurrentMagazineAmmo += AmmoToReload;
+		Ammo -= AmmoToReload;
+	}
+
+	bIsReloading = false;
 }
