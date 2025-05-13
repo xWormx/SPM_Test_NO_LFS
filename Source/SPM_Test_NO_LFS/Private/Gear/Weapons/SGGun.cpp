@@ -74,6 +74,11 @@ float ASGGun::GetFireRate() const
 	return FireRate;
 }
 
+void ASGGun::AddAmmo(int32 AmmoAmount)
+{
+	Ammo += AmmoAmount;
+}
+
 // Protected
 void ASGGun::BeginPlay()
 {
