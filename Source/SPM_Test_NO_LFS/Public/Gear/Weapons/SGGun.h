@@ -24,6 +24,9 @@ protected:
 	AController* GetOwnerController() const;
 	virtual bool HasAmmo();
 
+	FTimerHandle ReloadTimerHandle;
+	bool bIsReloading = false;
+
 	// VisibleAnywhere
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USceneComponent* Root;
@@ -39,11 +42,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UNiagaraSystem* ShootParticles;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	USoundBase* ShootSound;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UNiagaraSystem* HitParticles;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	USoundBase* ShootSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	USoundBase* HitSound;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	USoundBase* ReloadSound;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float MaxRange = 5000.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
@@ -57,10 +62,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	int32 MagazineSize = 30;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	float ReloadTime = 2.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	bool bUsesMagazine = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	bool bInfiniteAmmo = true;
 
 private:
 	virtual bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
+	void FinishReloading();
 };

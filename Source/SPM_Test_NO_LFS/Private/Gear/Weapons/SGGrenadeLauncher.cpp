@@ -16,7 +16,7 @@ ASGGrenadeLauncher::ASGGrenadeLauncher()
 
 void ASGGrenadeLauncher::Fire()
 {
-	if (!HasAmmo()) return;
+	if (bIsReloading || !HasAmmo()) return;
 	
 	if (bUsesMagazine)
 	{
