@@ -6,6 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "AIController.h"
+#include "Enemies/Components/SGEnemyMoveToPoint.h"
+#include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemyFlying::ASGAIControllerEnemyFlying()
 {
@@ -19,61 +21,23 @@ void ASGAIControllerEnemyFlying::BeginPlay()
 	float RandomOffset = FMath::FRandRange(-0.4f, 0.4f);
 
 	HoverSpeed += RandomOffset;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGEnemyMoveToPoint::StaticClass(), MoveToPoints);
 }
 
-void ASGAIControllerEnemyFlying::HandleMovement()
+void ASGAIControllerEnemyFlying::SetFlyMode()
 {
-	if (!AttackTarget || !ControlledEnemy)
-	{
-		return;
-	}
-	
-	const bool bHasLineOfSight = LineOfSightTo(AttackTarget);
-
-	if (!bShouldAlwaysChaseTarget && !bHasLineOfSight)
-	{
-		return;
-	}
-	
 	const float TargetZ = AttackTarget->GetActorLocation().Z;
 	const float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
 	
 	FVector CurrentLocation = ControlledEnemy->GetActorLocation();
 	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
 	ControlledEnemy->SetActorLocation(CurrentLocation, true);
-	
-	const bool bCanAttack = CanAttackTarget() && bHasLineOfSight;
-	if (bCanAttack && !bIsAttacking)
-	{
-		bIsAttacking = true;
-		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
-	}
-	else if (!bCanAttack && bIsAttacking)
-	{
-		bIsAttacking = false;
-		// TODO: ControlledEnemy->GetAttackComponent()->StopAttack();
-	}
+}
 
+void ASGAIControllerEnemyFlying::HandleMovement()
+{
 	
-	if (!bIsAttacking)
-	{
-		if (!bHasLineOfSight)
-		{
-			EPathFollowingRequestResult::Type MoveResult = MoveToActor(AttackTarget);
-			if (MoveResult != EPathFollowingRequestResult::RequestSuccessful)
-			{
-				FlyTowardsTarget();
-			}
-			else
-			{
-				MoveToActor(AttackTarget);
-			}
-		}
-		else
-		{
-			FlyTowardsTarget();
-		}
-	}
 }
 
 void ASGAIControllerEnemyFlying::FlyTowardsTarget()
@@ -97,8 +61,139 @@ void ASGAIControllerEnemyFlying::FlyTowardsTarget()
 	
 }
 
+void ASGAIControllerEnemyFlying::FlyTowardsLocation(const FVector& TargetLocation)
+{
+	if (!ControlledEnemy)
+	{
+		return;
+	}
+
+	FVector ToTarget = TargetLocation - ControlledEnemy->GetActorLocation();
+	FVector Direction = ToTarget.GetSafeNormal();
+		
+	FVector NewVelocity = Direction * ControlledEnemy->GetCharacterMovement()->MaxFlySpeed;
+	ControlledEnemy->GetCharacterMovement()->Velocity = NewVelocity;
+
+	FRotator LookRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
+	ControlledEnemy->SetActorRotation(LookRotation);
+}
+
+ASGEnemyMoveToPoint* ASGAIControllerEnemyFlying::GetClosestMoveToPoint() 
+{
+	ASGEnemyMoveToPoint* Closest = nullptr;
+
+	float ClosestDistanceSquared = TNumericLimits<float>::Max();
+	const FVector Location = ControlledEnemy->GetActorLocation();
+
+	for (AActor* Actor : MoveToPoints)
+	{
+		if (ASGEnemyMoveToPoint* MoveToPoint = Cast<ASGEnemyMoveToPoint>(Actor))
+		{
+			if (!MoveToPoint || MoveToPoint == CurrentMoveToPoint)
+			{
+				continue;
+			}
+
+			float DistSq = FVector::DistSquared(MoveToPoint->GetActorLocation(), Location);
+			if (DistSq < ClosestDistanceSquared)
+			{
+				Closest = MoveToPoint;
+				ClosestDistanceSquared = DistSq;
+			}
+		}
+	}
+	
+	CurrentMoveToPoint = Closest;
+
+	if (CurrentMoveToPoint)
+	{
+		return CurrentMoveToPoint;
+	}
+	return nullptr;
+}
+
+FVector ASGAIControllerEnemyFlying::GetClosestMoveToPointLocation() 
+{
+	ASGEnemyMoveToPoint* Closest = nullptr;
+
+	float ClosestDistanceSquared = TNumericLimits<float>::Max();
+	const FVector Location = ControlledEnemy->GetActorLocation();
+
+	for (AActor* Actor : MoveToPoints)
+	{
+		if (ASGEnemyMoveToPoint* MoveToPoint = Cast<ASGEnemyMoveToPoint>(Actor))
+		{
+			if (!MoveToPoint || MoveToPoint == CurrentMoveToPoint)
+			{
+				continue;
+			}
+
+			float DistSq = FVector::DistSquared(MoveToPoint->GetActorLocation(), Location);
+			if (DistSq < ClosestDistanceSquared)
+			{
+				Closest = MoveToPoint;
+				ClosestDistanceSquared = DistSq;
+			}
+		}
+	}
+	
+	CurrentMoveToPoint = Closest;
+
+	if (CurrentMoveToPoint)
+	{
+		return CurrentMoveToPoint->GetActorLocation();
+	}
+	return FVector::ZeroVector;
+}
+
+bool ASGAIControllerEnemyFlying::HasReachedCurrentMoveToPoint(float Tolerance) const
+{
+	if (!ControlledEnemy || !CurrentMoveToPoint)
+	{
+		return false;
+	}
+	return FVector::DistSquared(CurrentMoveToPoint->GetActorLocation(), ControlledEnemy->GetActorLocation()) < FMath::Square(Tolerance);
+}
+
 void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	HandleMovement();
+
+	if (!AttackTarget || !ControlledEnemy)
+	{
+		return;
+	}
+
+	SetFlyMode();
+
+	const bool bHasLineOfSight = LineOfSightTo(AttackTarget);
+
+	if (bHasLineOfSight)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Blue, "Can see target");
+		CurrentMoveToPoint = nullptr; // Reset search path once player is found
+
+		if (CanAttackTarget())
+		{
+			ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
+		}
+		else
+		{
+			FlyTowardsTarget();
+		}
+	}
+	else
+	{
+		if (!CurrentMoveToPoint || HasReachedCurrentMoveToPoint(400.f))
+		{
+			CurrentMoveToPoint = GetClosestMoveToPoint();
+			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Blue, "HasReachedCurrentMoveToPoint");
+		}
+
+		if (CurrentMoveToPoint)
+		{
+			FlyTowardsLocation(CurrentMoveToPoint->GetActorLocation());
+		}
+		
+	}	
 }
