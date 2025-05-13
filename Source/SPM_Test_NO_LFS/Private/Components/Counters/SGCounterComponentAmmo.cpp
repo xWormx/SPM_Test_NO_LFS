@@ -22,10 +22,9 @@ void USGCounterComponentAmmo::ProcessPickup(AActor* Pickup)
 	{
 		return;
 	}
-
 	for (ASGGun* Gun : OwnerPlayer->GetGuns())
 	{
-		if (Ammo->IsCompatibleWithGun(Gun->GetClass()))
+		if (!Ammo->IsCompatibleWithGun(Gun->GetClass()))
 		{
 			continue;
 		}
