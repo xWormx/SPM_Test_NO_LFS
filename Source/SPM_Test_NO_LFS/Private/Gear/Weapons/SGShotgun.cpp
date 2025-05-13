@@ -16,8 +16,3 @@ void ASGShotgun::BeginPlay()
         UpgradeSystem->BindAttribute(this, TEXT("FireRate"), TEXT("GunFireRate"), Category);
     }
 }
-
-bool ASGShotgun::HasAmmo()
-{
-	return Ammo > 0;
-}

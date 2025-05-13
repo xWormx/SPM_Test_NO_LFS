@@ -21,8 +21,7 @@ protected:
 private:
 	USkeletalMeshComponent* PlayerMesh;
 	AController* PlayerController;
-
-	virtual bool HasAmmo() override;
+	
 	void SpawnProjectile();
 	void EnableOverlapEventsForAllStaticMeshes(UWorld* World);
 	
