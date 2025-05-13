@@ -2,12 +2,17 @@
 
 
 #include "Objectives/SGTerminal.h"
+#include "Objectives/SGTerminal.h"
+
+#include "NiagaraComponent.h"
 #include "Player/SGPlayerController.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
 #include "Components/SphereComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/SGGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "PaperSpriteComponent.h"
+#include "PaperSprite.h"
 
 // Sets default values
 ASGTerminal::ASGTerminal()
@@ -28,6 +33,16 @@ ASGTerminal::ASGTerminal()
 	
 	InteractSphere = CreateDefaultSubobject<USphereComponent>(TEXT("Interact Sphere"));
 	InteractSphere->SetupAttachment(Mesh);
+
+	SpriteComponentAlert = CreateDefaultSubobject<UPaperSpriteComponent>(TEXT("SpriteComponent"));
+	SpriteComponentAlert->SetupAttachment(Root);
+
+	ParticlesAlert = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ParticlesAlert"));
+	ParticlesAlert->SetupAttachment(Mesh);
+	ParticlesAlert->SetActive(true);
+	ParticlesAlert->Activate(true);
+
+	
 	
 }
 
@@ -44,10 +59,32 @@ void ASGTerminal::BeginPlay()
 	{
 		PlayerController->OnInteract.AddDynamic(this, &ASGTerminal::OpenTerminal);	
 	}
+	if (GameObjectivesHandler)
+	{
+		GameObjectivesHandler->OnObjectiveCompleted.AddDynamic(this, &ASGTerminal::SetAlertActive);	
+	}
+	
+	if (SpriteComponentAlert)
+	{
+		SpriteComponentAlert->SetSprite(SpriteAlertAsset);
+		float Scale = 0.15f;
+		SpriteComponentAlert->SetWorldScale3D(FVector(Scale, Scale, Scale));
+
+		if (ParticlesAlert)
+		{
+			ParticlesAlert->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+			ParticlesAlert->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+			ParticlesAlert->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
+			ParticlesAlert->SetWorldScale3D(FVector::OneVector);
+		}
+		SetAlertActive();
+	}
+
 }
 
 void ASGTerminal::OnStartMissionButtonClicked()
 {
+	SetAlertInactive();
 	CloseTerminal();
 }
 
@@ -107,6 +144,7 @@ void ASGTerminal::OpenTerminal()
 	
 	if (GameObjectivesHandler)
 	{
+		
 		HUDTerminal->SetObjectiveHandler(GameObjectivesHandler);
 		USGObjectiveToolTipWidget* ToolTipWidget = GameObjectivesHandler->GetObjectiveToolTipWidget();
 		if (ToolTipWidget)
@@ -130,7 +168,32 @@ void ASGTerminal::OpenTerminal()
 void ASGTerminal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PlayerController)
+	{
+		FVector PlayerPosition = PlayerController->PlayerCameraManager->GetCameraLocation();
+		FVector SpritePosition = SpriteComponentAlert->GetComponentLocation();
+
+		FRotator SpriteRotation = (PlayerPosition - SpritePosition).Rotation();
+		SpriteRotation.Yaw += 90.f;
+		SpriteRotation.Pitch = 0.0f;
+		SpriteRotation.Roll = 0.0f;
+		SpriteComponentAlert->SetWorldRotation(SpriteRotation);
+	}
+	
 }
+void ASGTerminal::SetAlertActive()
+{
+	SpriteComponentAlert->SetSpriteColor(FLinearColor(ColorSpriteAlert));
+	ParticlesAlert->Activate(true);
+}
+
+void ASGTerminal::SetAlertInactive()
+{
+	SpriteComponentAlert->SetSpriteColor(FLinearColor(1.0, 1.0, 1.0, 0.1f));
+	ParticlesAlert->Deactivate();
+}
+
 
 void ASGTerminal::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {

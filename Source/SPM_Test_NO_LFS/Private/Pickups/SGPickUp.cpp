@@ -1,6 +1,8 @@
 ﻿#include "Pickups/SGPickUp.h"
 
+#include "Utils/SGUtilObjectPoolManager.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 
 ASGPickUp::ASGPickUp()
@@ -14,17 +16,18 @@ ASGPickUp::ASGPickUp()
 	RootComponent = CollisionSphere;
 }
 
+// Called when the game starts or when spawned
+void ASGPickUp::BeginPlay()
+{
+	Super::BeginPlay();	
+}
+
 void ASGPickUp::OnPickup_Implementation()
 {
 	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
 }
 
-float ASGPickUp::GetPickupValue() const
-{
-	return PickUpValue;
-}
-
-void ASGPickUp::SetPickUpValue(const float Value)
+void ASGPickUp::SetPickUpValue(float Value)
 {
 	PickUpValue = Value;
 }
