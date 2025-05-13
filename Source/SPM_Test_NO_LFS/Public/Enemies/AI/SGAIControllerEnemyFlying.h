@@ -20,7 +20,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	virtual void SetFlyMode();
+	virtual void SetFlyingMode(bool bShouldFly);
 
 	virtual void HandleMovement() override;
 
@@ -33,6 +33,12 @@ protected:
 	FVector GetClosestMoveToPointLocation();
 
 	bool HasReachedCurrentMoveToPoint(float Tolerance) const;
+
+	virtual void SetChaseAndAttackMode();
+
+	virtual void SearchForTarget();
+
+	FVector GetFallbackChaseLocation() const;
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -55,6 +61,7 @@ private:
 	TArray<AActor*> MoveToPoints;
 
 	ASGEnemyMoveToPoint* CurrentMoveToPoint = nullptr;
-	
 
+	bool bHasFoundTarget = true;
+	
 };

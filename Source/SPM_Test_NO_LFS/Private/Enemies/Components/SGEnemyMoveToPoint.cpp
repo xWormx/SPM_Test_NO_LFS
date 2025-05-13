@@ -1,14 +1,8 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Enemies/Components/SGEnemyMoveToPoint.h"
-
+﻿#include "Enemies/Components/SGEnemyMoveToPoint.h"
 #include "Components/BillboardComponent.h"
-
 
 ASGEnemyMoveToPoint::ASGEnemyMoveToPoint()
 {
-	
 	PrimaryActorTick.bCanEverTick = false;
 	Tags.Add(TEXT("EnemyMoveToPoint"));
 
@@ -25,9 +19,7 @@ ASGEnemyMoveToPoint::ASGEnemyMoveToPoint()
 	}
 
 	bIsEditorOnlyActor = false;
-	
 }
-
 
 void ASGEnemyMoveToPoint::BeginPlay()
 {

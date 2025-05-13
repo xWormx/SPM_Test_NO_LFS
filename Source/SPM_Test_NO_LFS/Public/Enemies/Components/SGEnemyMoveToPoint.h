@@ -27,14 +27,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UBillboardComponent* Billboard;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Beacon")
+
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MoveToPoint")
 	FName BeaconTag;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Beacon")
-	float Priority = 1.0f;
-
-	bool bIsCurrent = false;
-	bool bIsPrevious = false;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MoveToPoint")
+	float Priority = 1.0f;
+	
+	bool bIsCurrent = false;
+	bool bIsPrevious = false;*/
 };
