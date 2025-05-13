@@ -15,13 +15,14 @@ public:
 	ASGGun();
 	virtual void Tick(float DeltaTime) override;
 	virtual void Fire();
+	virtual void Reload();
 	float GetFireRate() const;
 	void AddAmmo(int32 AmmoAmount);
 
 protected:
 	virtual void BeginPlay() override;
 	AController* GetOwnerController() const;
-	int32 Ammo = 3;
+	virtual bool HasAmmo();
 
 	// VisibleAnywhere
 	UPROPERTY(VisibleAnywhere, Category="design")
@@ -30,6 +31,10 @@ protected:
 	USkeletalMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USceneComponent* ShootParticlesPoint;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="design", meta=(AllowPrivateAccess="true"))
+	int32 Ammo = 1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="design", meta=(AllowPrivateAccess="true"))
+	int32 CurrentMagazineAmmo = 30;
 	// EditAnywhere+BP
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UNiagaraSystem* ShootParticles;
@@ -49,8 +54,13 @@ protected:
 	int NumberOfPellets = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float PelletSpreadAngle = 3.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	int32 MagazineSize = 30;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	bool bUsesMagazine = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	bool bInfiniteAmmo = true;
 
 private:
-	virtual bool HasAmmo();
 	virtual bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
 };

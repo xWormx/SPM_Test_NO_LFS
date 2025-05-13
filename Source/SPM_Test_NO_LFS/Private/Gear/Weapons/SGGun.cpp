@@ -25,7 +25,18 @@ void ASGGun::Tick(float DeltaTime)
 void ASGGun::Fire()
 {
 	if (!HasAmmo()) return;
-	--Ammo;
+	
+	if (bUsesMagazine)
+	{
+		--CurrentMagazineAmmo;
+	}
+	else
+	{
+		if (!bInfiniteAmmo)
+		{
+			--Ammo;
+		}
+	}
 	
 	if (ShootParticles && ShootParticlesPoint)
 	{
@@ -69,6 +80,27 @@ void ASGGun::Fire()
 
 }
 
+void ASGGun::Reload()
+{
+	if (!bUsesMagazine) return;
+
+	int32 AmmoNeeded = MagazineSize - CurrentMagazineAmmo;
+	if (AmmoNeeded <= 0) return;
+
+	if (bInfiniteAmmo)
+	{
+		CurrentMagazineAmmo += AmmoNeeded;
+	}
+	else
+	{
+		if (Ammo <= 0) return;
+		int32 AmmoToReload = FMath::Min(AmmoNeeded, Ammo);
+		CurrentMagazineAmmo += AmmoToReload;
+		Ammo -= AmmoToReload;
+	}
+}
+
+
 float ASGGun::GetFireRate() const
 {
 	return FireRate;
@@ -84,6 +116,8 @@ void ASGGun::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//CurrentMagazineAmmo = FMath::Min(MagazineSize, Ammo);
+
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
 		FName Category = TEXT("Assault Rifle");
@@ -97,6 +131,18 @@ AController* ASGGun::GetOwnerController() const
 	APawn* MyOwner = Cast<APawn>(GetOwner());
 	if (MyOwner == nullptr) return nullptr;
 	return MyOwner->GetController();
+}
+
+bool ASGGun::HasAmmo()
+{
+	if (bUsesMagazine)
+	{
+		return CurrentMagazineAmmo > 0;
+	}
+	else
+	{
+		return bInfiniteAmmo || Ammo > 0;
+	}
 }
 
 // Private
@@ -157,9 +203,4 @@ bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
     }
 
     return bHitSomething;
-}
-
-bool ASGGun::HasAmmo()
-{
-	return true;
 }
