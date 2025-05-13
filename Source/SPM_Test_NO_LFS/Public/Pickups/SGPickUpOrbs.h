@@ -18,13 +18,13 @@ public:
 	
 protected:	
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PickUp Properties")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UPROPERTY - PickUp")
 	class ASGPlayerCharacter* PlayerCharacter;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PickUp Properties")
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
 	float InterpSpeed;
 	
-	UPROPERTY(EditAnywhere, Category = "PickUp Properties")
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
 	class UNiagaraComponent* OrbEffect;
 
 };

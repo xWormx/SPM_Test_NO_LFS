@@ -16,21 +16,21 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UFUNCTION(BlueprintNativeEvent, Category = "PickUp")
-	void OnPickup(); 
+	UFUNCTION(BlueprintNativeEvent, Category = "UFUNCTION - PickUp")
+	void OnPickup();
 	
 	virtual void OnPickup_Implementation();
 	
-	UFUNCTION(BlueprintPure, Category = "PickUp")
-	float GetPickupValue() const { return PickUpValue; }
+	UFUNCTION(BlueprintPure, Category = "UFUNCTION - PickUp")
+	float GetPickupValue() const;
 
-	UFUNCTION(BlueprintCallable, Category ="PickUp")
+	UFUNCTION(BlueprintCallable, Category ="UFUNCTION - PickUp")
 	void SetPickUpValue(float Value);
 	
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PickUp Properties")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UPROPERTY - PickUp")
 	class USphereComponent* CollisionSphere;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PickUp Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UPROPERTY - PickUp")
 	float PickUpValue = 10.0f; //Random defaultvärde bara
 };

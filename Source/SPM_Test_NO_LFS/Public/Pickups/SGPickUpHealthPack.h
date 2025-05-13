@@ -13,6 +13,6 @@ public:
 	ASGPickUpHealthPack();
 	
 protected:
-	UPROPERTY(EditAnywhere, Category = "PickUp Properties")
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
 	class UStaticMeshComponent* HealthPacketMesh;
 };
