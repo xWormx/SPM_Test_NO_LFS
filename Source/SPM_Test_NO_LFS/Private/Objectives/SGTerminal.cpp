@@ -12,6 +12,7 @@
 #include "Core/SGGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "PaperSpriteComponent.h"
+#include "PaperSprite.h"
 
 // Sets default values
 ASGTerminal::ASGTerminal()
