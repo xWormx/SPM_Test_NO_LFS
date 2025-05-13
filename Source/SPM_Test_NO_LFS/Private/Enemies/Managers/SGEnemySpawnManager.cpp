@@ -131,8 +131,8 @@ void ASGEnemySpawnManager::EndSpawnLoopTimer()
 		
 		case ESpawnMode::AtArea:
 			{
-				MaxEnemiesAlive = MaxEnemiesAliveDuringDefendThePod;
-				TimeBetweenSpawns = 0.5f;
+				MaxEnemiesAlive = DefaultMaxEnemiesAlive;
+				TimeBetweenSpawns = DefaultTimeBetweenSpawns;
 				if (EnemiesAlive >= MaxEnemiesAlive) break;
 				SpawnEnemiesAtArea();
 				break;
@@ -140,8 +140,8 @@ void ASGEnemySpawnManager::EndSpawnLoopTimer()
 		
 		case ESpawnMode::AroundPlayer:
 			{
-				MaxEnemiesAlive = DefaultMaxEnemiesAlive;
-				TimeBetweenSpawns = DefaultTimeBetweenSpawns;
+				MaxEnemiesAlive *= MaxEnemiesAliveDefendThePodMultiplier;
+				TimeBetweenSpawns = 0.5f;
 				if (EnemiesAlive >= MaxEnemiesAlive) break;
 				SpawnEnemiesAroundPlayer();
 				break;

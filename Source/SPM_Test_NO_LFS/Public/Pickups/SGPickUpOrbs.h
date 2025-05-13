@@ -11,7 +11,6 @@ class SPM_TEST_NO_LFS_API ASGPickUpOrbs : public ASGPickUp
 protected:
 
 	virtual void BeginPlay() override;
-
 public:
 	ASGPickUpOrbs();
 
@@ -19,13 +18,13 @@ public:
 	
 protected:	
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UPROPERTY - PickUp")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PickUp Properties")
 	class ASGPlayerCharacter* PlayerCharacter;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UPROPERTY - PickUp")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PickUp Properties")
 	float InterpSpeed;
 	
-	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
+	UPROPERTY(EditAnywhere, Category = "PickUp Properties")
 	class UNiagaraComponent* OrbEffect;
 
 };

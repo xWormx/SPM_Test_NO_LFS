@@ -24,19 +24,8 @@ void ASGGun::Tick(float DeltaTime)
 
 void ASGGun::Fire()
 {
-	if (bIsReloading || !HasAmmo()) return;
-	
-	if (bUsesMagazine)
-	{
-		--CurrentMagazineAmmo;
-	}
-	else
-	{
-		if (!bInfiniteAmmo)
-		{
-			--Ammo;
-		}
-	}
+	if (!HasAmmo()) return;
+	--Ammo;
 	
 	if (ShootParticles && ShootParticlesPoint)
 	{
@@ -80,26 +69,6 @@ void ASGGun::Fire()
 
 }
 
-void ASGGun::Reload()
-{
-	if (!bUsesMagazine || bIsReloading) return;
-
-	int32 AmmoNeeded = MagazineSize - CurrentMagazineAmmo;
-	if (AmmoNeeded <= 0) return;
-	if (!bInfiniteAmmo && Ammo <= 0) return;
-
-	bIsReloading = true;
-
-	// Optional: Play reload sound immediately
-	if (ReloadSound && Mesh) 
-	{
-		UGameplayStatics::SpawnSoundAttached(ReloadSound, Mesh, TEXT("MuzzleFlashSocket"));
-	}
-
-	// Schedule completion of reload after delay
-	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ASGGun::FinishReloading, ReloadTime, false);
-}
-
 float ASGGun::GetFireRate() const
 {
 	return FireRate;
@@ -115,8 +84,6 @@ void ASGGun::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//CurrentMagazineAmmo = FMath::Min(MagazineSize, Ammo);
-
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
 		FName Category = TEXT("Assault Rifle");
@@ -130,18 +97,6 @@ AController* ASGGun::GetOwnerController() const
 	APawn* MyOwner = Cast<APawn>(GetOwner());
 	if (MyOwner == nullptr) return nullptr;
 	return MyOwner->GetController();
-}
-
-bool ASGGun::HasAmmo()
-{
-	if (bUsesMagazine)
-	{
-		return CurrentMagazineAmmo > 0;
-	}
-	else
-	{
-		return bInfiniteAmmo || Ammo > 0;
-	}
 }
 
 // Private
@@ -204,20 +159,7 @@ bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
     return bHitSomething;
 }
 
-void ASGGun::FinishReloading()
+bool ASGGun::HasAmmo()
 {
-	int32 AmmoNeeded = MagazineSize - CurrentMagazineAmmo;
-
-	if (bInfiniteAmmo)
-	{
-		CurrentMagazineAmmo += AmmoNeeded;
-	}
-	else
-	{
-		int32 AmmoToReload = FMath::Min(AmmoNeeded, Ammo);
-		CurrentMagazineAmmo += AmmoToReload;
-		Ammo -= AmmoToReload;
-	}
-
-	bIsReloading = false;
+	return true;
 }
