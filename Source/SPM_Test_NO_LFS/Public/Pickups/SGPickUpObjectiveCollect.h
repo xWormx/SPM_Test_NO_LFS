@@ -26,7 +26,7 @@ protected:
 	void HandleOverlap(AActor* OverlappedActor, AActor* OtherActor);
 	
 	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
-	class UStaticMeshComponent* Mesh;
+	UStaticMeshComponent* Mesh;
 
 	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
 	USoundBase* PickUpSound;
