@@ -34,6 +34,11 @@ protected:
 
 	bool HasReachedCurrentMoveToPoint(float Tolerance) const;
 
+	virtual void SetChaseAndAttackMode();
+
+	virtual void SearchForTarget();
+
+	FVector GetFallbackChaseLocation() const;
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -56,6 +61,7 @@ private:
 	TArray<AActor*> MoveToPoints;
 
 	ASGEnemyMoveToPoint* CurrentMoveToPoint = nullptr;
-	
 
+	bool bHasFoundTarget = true;
+	
 };

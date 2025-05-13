@@ -3,9 +3,9 @@
 
 #include "Enemies/AI/SGAIControllerEnemyBase.h"
 
+#include "NavigationPath.h"
+#include "NavigationSystem.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -131,6 +131,57 @@ void ASGAIControllerEnemyBase::RotateTowardsTargetWhileNotMoving()
 	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
 
 	ControlledEnemy->SetActorRotation(LookAtRotation);
+}
+
+bool ASGAIControllerEnemyBase::CanReachTarget() const
+{
+	if (!AttackTarget || !ControlledEnemy)
+	{
+		return false;
+	}
+
+	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
+
+	if (!NavSys)
+	{
+		return false;
+	}
+
+	UNavigationPath* NavPath = NavSys->FindPathToActorSynchronously(GetWorld(),
+		ControlledEnemy->GetActorLocation(), AttackTarget);
+
+	if (!NavPath || NavPath->PathPoints.Num() == 0)
+	{
+		return false;
+	}
+
+	return NavPath->IsValid() && !NavPath->IsPartial();
+}
+
+bool ASGAIControllerEnemyBase::IsStuck()
+{
+	if (!ControlledEnemy)
+	{
+		return false;
+	}
+
+	float CurrentTime = GetWorld()->GetTimeSeconds();
+	if (CurrentTime - LastLocationCheckTime < StuckCheckInterval)
+	{
+		return bWasStuckLastChecked;
+	}
+
+	FVector CurrentLocation = ControlledEnemy->GetActorLocation();
+	float DistanceMoved = FVector::Dist(CurrentLocation, LastLocationCheck);
+
+	bool bIsStuck = DistanceMoved < StuckDistanceThreshold;
+
+	// Updating for next checking
+	LastLocationCheck = CurrentLocation;
+	LastLocationCheckTime = CurrentTime;
+	bWasStuckLastChecked = bIsStuck;
+
+	return bIsStuck;
 }
 
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)

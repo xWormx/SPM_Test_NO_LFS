@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "AIController.h"
+#include "NavigationSystem.h"
 #include "Enemies/Components/SGEnemyMoveToPoint.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -27,6 +28,11 @@ void ASGAIControllerEnemyFlying::BeginPlay()
 
 void ASGAIControllerEnemyFlying::SetFlyingMode(bool bShouldFly)
 {
+	if (!bShouldFly)
+	{
+		return;
+	}
+	
 	const float TargetZ = AttackTarget->GetActorLocation().Z;
 	const float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
 
@@ -154,6 +160,88 @@ bool ASGAIControllerEnemyFlying::HasReachedCurrentMoveToPoint(float Tolerance) c
 		FMath::Square(Tolerance);
 }
 
+void ASGAIControllerEnemyFlying::SetChaseAndAttackMode()
+{
+	if (IsStuck() && !LineOfSightTo(AttackTarget))
+	{
+		bHasFoundTarget = false;
+	}
+	else
+	{
+		if (CanAttackTarget())
+		{
+			if (IsStuck())
+			{
+				FVector MoveToLocation = GetFallbackChaseLocation();
+				FlyTowardsLocation(MoveToLocation);
+			}
+			else
+			{
+				ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
+				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, TEXT("Is Charging"));
+			}
+		}
+		else
+		{
+			FlyTowardsTarget();
+		}
+	}
+}
+
+void ASGAIControllerEnemyFlying::SearchForTarget()
+{
+	if (LineOfSightTo(AttackTarget))
+	{
+		bHasFoundTarget = true;
+	}
+	if (!CurrentMoveToPoint || HasReachedCurrentMoveToPoint(400.f))
+	{
+		CurrentMoveToPoint = GetClosestMoveToPoint();
+	}
+
+	if (CurrentMoveToPoint)
+	{
+		FlyTowardsLocation(CurrentMoveToPoint->GetActorLocation());
+	}
+}
+
+FVector ASGAIControllerEnemyFlying::GetFallbackChaseLocation() const
+{
+	if (!ControlledEnemy || !AttackTarget)
+	{
+		return ControlledEnemy ? ControlledEnemy->GetActorLocation() : FVector::ZeroVector;
+	}
+
+	const FVector EnemyLocation = ControlledEnemy->GetActorLocation();
+	const FVector TargetLocation = AttackTarget->GetActorLocation();
+
+	
+	FVector Direction = (TargetLocation - EnemyLocation).GetSafeNormal();
+	
+	const float HorizontalOffset = 500.0f;
+	const float VerticalOffset = 300.0f;
+	const float SearchRadius = 100.0f;
+
+	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
+	if (!NavSys)
+	{
+		return EnemyLocation;
+	}
+	
+	FVector DesiredLocation = EnemyLocation + Direction * HorizontalOffset;
+	DesiredLocation.Z += FMath::RandRange(-VerticalOffset, VerticalOffset);
+
+	FNavLocation ProjectedLocation;
+	bool bFound = NavSys->ProjectPointToNavigation(
+		DesiredLocation,
+		ProjectedLocation,
+		FVector(SearchRadius, SearchRadius, VerticalOffset),
+		nullptr
+	);
+
+	return bFound ? ProjectedLocation.Location : EnemyLocation;
+}
+
 void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -165,31 +253,14 @@ void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 
 	SetFlyingMode(true);
 
-	const bool bHasLineOfSight = LineOfSightTo(AttackTarget);
-
-	if (bHasLineOfSight)
+	if (bHasFoundTarget)
 	{
 		CurrentMoveToPoint = nullptr;
 
-		if (CanAttackTarget())
-		{
-			ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
-		}
-		else
-		{
-			FlyTowardsTarget();
-		}
+		SetChaseAndAttackMode();
 	}
 	else
 	{
-		if (!CurrentMoveToPoint || HasReachedCurrentMoveToPoint(400.f))
-		{
-			CurrentMoveToPoint = GetClosestMoveToPoint();
-		}
-
-		if (CurrentMoveToPoint)
-		{
-			FlyTowardsLocation(CurrentMoveToPoint->GetActorLocation());
-		}
+		SearchForTarget();
 	}
 }

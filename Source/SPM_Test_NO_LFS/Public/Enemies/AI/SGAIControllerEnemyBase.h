@@ -74,6 +74,23 @@ protected:
 
 	virtual void RotateTowardsTargetWhileNotMoving();
 
+	bool CanReachTarget() const;
+
+	bool IsStuck();
+
+	//Used in IsStuck()
+	FVector LastLocationCheck = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float StuckDistanceThreshold = 40.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float StuckCheckInterval = 1.0f;
+
+	bool bWasStuckLastChecked = false;
+	
+	float LastLocationCheckTime = 0.0f;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 	

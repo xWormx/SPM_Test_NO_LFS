@@ -19,18 +19,6 @@ void ASGAIControllerEnemySmall::BeginPlay()
 
 void ASGAIControllerEnemySmall::HandleMovement()
 {
-	if (!AttackTarget || !ControlledEnemy)
-	{
-		return;
-	}
-
-	if (!bShouldAlwaysChaseTarget)
-	{
-		if (!LineOfSightTo(AttackTarget))
-		{
-			return;
-		}
-	}
 	FVector Location = ControlledEnemy->GetActorLocation();
 	FVector PlayerLocation = AttackTarget->GetActorLocation();
 
@@ -60,8 +48,19 @@ void ASGAIControllerEnemySmall::HandleMovement()
 void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	HandleMovement();
+
+	if (!bShouldAlwaysChaseTarget)
+	{
+		if (!LineOfSightTo(AttackTarget))
+		{
+			return;
+		}
+	}
+
+	if (CanReachTarget())
+	{
+		HandleMovement();
+	}
 	RotateTowardsTargetWhileNotMoving();
 	
 }
