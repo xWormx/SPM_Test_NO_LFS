@@ -96,7 +96,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	int32 MaxEnemiesAlive = 5;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	int32 MaxEnemiesAliveDefendThePodMultiplier = 5;
+	int32 MaxEnemiesAliveDuringDefendThePod = 50;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float TimeBetweenSpawns = 1.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design",meta=(AllowPrivateAccess="true"))
