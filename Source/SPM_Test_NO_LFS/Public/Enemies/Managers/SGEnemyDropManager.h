@@ -25,6 +25,9 @@ struct FEnemyDropInfo : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy Drop")
 	float SpawnRadius = 10.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy Drop", meta = (ToolTip = "1 = 100% drop chance"))
+	float DropChance = 1.f;
 };
 
 UCLASS()
