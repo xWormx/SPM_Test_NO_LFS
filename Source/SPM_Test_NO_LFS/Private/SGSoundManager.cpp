@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "SGSoundManager.h"
@@ -23,6 +23,8 @@ ASGSoundManager::ASGSoundManager()
 // Called when the game starts or when spawned
 void ASGSoundManager::BeginPlay()
 {
+	Super::BeginPlay();
+
 	Super::BeginPlay();
 
 	if (BackgroundMusicCue)

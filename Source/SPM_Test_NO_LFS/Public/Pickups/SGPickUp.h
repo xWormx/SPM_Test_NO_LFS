@@ -12,21 +12,25 @@ class SPM_TEST_NO_LFS_API ASGPickUp : public AActor
 public:
 	ASGPickUp();
 
-	UFUNCTION(BlueprintNativeEvent, Category = "UFUNCTION - PickUp")
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	UFUNCTION(BlueprintNativeEvent, Category = "PickUp")
 	void OnPickup(); 
 	
 	virtual void OnPickup_Implementation();
 	
-	UFUNCTION(BlueprintPure, Category = "UFUNCTION - PickUp")
-	float GetPickupValue() const;
+	UFUNCTION(BlueprintPure, Category = "PickUp")
+	float GetPickupValue() const { return PickUpValue; }
 
-	UFUNCTION(BlueprintCallable, Category ="UFUNCTION - PickUp")
+	UFUNCTION(BlueprintCallable, Category ="PickUp")
 	void SetPickUpValue(float Value);
 	
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UPROPERTY - PickUp")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PickUp Properties")
 	class USphereComponent* CollisionSphere;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UPROPERTY - PickUp")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "PickUp Properties")
 	float PickUpValue = 10.0f; //Random defaultvärde bara
 };

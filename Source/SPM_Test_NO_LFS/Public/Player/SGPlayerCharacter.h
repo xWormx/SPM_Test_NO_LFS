@@ -29,7 +29,6 @@ public:
 	float GetRage() const { return Rage; };
 	void FireGrapple();
 	void FireGun();
-	void ReloadGun();
 	const ASGGun* GetGunRef() const;
 	void SetCurrentGunIndex(int8 NewIndex);
 	int8 GetCurrentGunIndex();
