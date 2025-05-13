@@ -12,10 +12,14 @@ UCLASS()
 class SPM_SGUPGRADESYSTEM_API USGUpgradeGuardSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
+
 public:
 	
 	USGUpgradeGuardSubsystem(){};
-	
+
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+
 	UFUNCTION(BlueprintCallable, Category = "UFunction - Upgrade System")
 	void AddToCount(float Amount);
 
@@ -27,9 +31,19 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "UFunction - Upgrade System")
 	float GetCount() const;
+
+protected:
+	void ResetCount(UWorld* World);
+
 private:
+
 	UPROPERTY()
 	float Count = 200.0f;
+
+	UPROPERTY()
+	float DefaultValue = 200.0f;
+
+	FDelegateHandle PostLevelLoadHandle;
 
 public:
 	FOnCountAddToCount OnCountAddToCount;
