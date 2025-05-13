@@ -25,11 +25,11 @@ void ASGAIControllerEnemyFlying::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGEnemyMoveToPoint::StaticClass(), MoveToPoints);
 }
 
-void ASGAIControllerEnemyFlying::SetFlyMode()
+void ASGAIControllerEnemyFlying::SetFlyingMode(bool bShouldFly)
 {
 	const float TargetZ = AttackTarget->GetActorLocation().Z;
 	const float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
-	
+
 	FVector CurrentLocation = ControlledEnemy->GetActorLocation();
 	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
 	ControlledEnemy->SetActorLocation(CurrentLocation, true);
@@ -37,7 +37,6 @@ void ASGAIControllerEnemyFlying::SetFlyMode()
 
 void ASGAIControllerEnemyFlying::HandleMovement()
 {
-	
 }
 
 void ASGAIControllerEnemyFlying::FlyTowardsTarget()
@@ -46,19 +45,18 @@ void ASGAIControllerEnemyFlying::FlyTowardsTarget()
 	{
 		return;
 	}
-	
+
 	FVector ToPlayer = AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation();
 
 	FVector Direction = ToPlayer.GetSafeNormal();
-		
+
 	FVector NewVelocity = Direction * ControlledEnemy->GetCharacterMovement()->MaxFlySpeed;
-	
+
 	ControlledEnemy->GetCharacterMovement()->Velocity = NewVelocity;
 
 	FRotator LookRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
-	
+
 	ControlledEnemy->SetActorRotation(LookRotation);
-	
 }
 
 void ASGAIControllerEnemyFlying::FlyTowardsLocation(const FVector& TargetLocation)
@@ -70,7 +68,7 @@ void ASGAIControllerEnemyFlying::FlyTowardsLocation(const FVector& TargetLocatio
 
 	FVector ToTarget = TargetLocation - ControlledEnemy->GetActorLocation();
 	FVector Direction = ToTarget.GetSafeNormal();
-		
+
 	FVector NewVelocity = Direction * ControlledEnemy->GetCharacterMovement()->MaxFlySpeed;
 	ControlledEnemy->GetCharacterMovement()->Velocity = NewVelocity;
 
@@ -78,7 +76,7 @@ void ASGAIControllerEnemyFlying::FlyTowardsLocation(const FVector& TargetLocatio
 	ControlledEnemy->SetActorRotation(LookRotation);
 }
 
-ASGEnemyMoveToPoint* ASGAIControllerEnemyFlying::GetClosestMoveToPoint() 
+ASGEnemyMoveToPoint* ASGAIControllerEnemyFlying::GetClosestMoveToPoint()
 {
 	ASGEnemyMoveToPoint* Closest = nullptr;
 
@@ -102,7 +100,7 @@ ASGEnemyMoveToPoint* ASGAIControllerEnemyFlying::GetClosestMoveToPoint()
 			}
 		}
 	}
-	
+
 	CurrentMoveToPoint = Closest;
 
 	if (CurrentMoveToPoint)
@@ -112,7 +110,7 @@ ASGEnemyMoveToPoint* ASGAIControllerEnemyFlying::GetClosestMoveToPoint()
 	return nullptr;
 }
 
-FVector ASGAIControllerEnemyFlying::GetClosestMoveToPointLocation() 
+FVector ASGAIControllerEnemyFlying::GetClosestMoveToPointLocation()
 {
 	ASGEnemyMoveToPoint* Closest = nullptr;
 
@@ -136,7 +134,7 @@ FVector ASGAIControllerEnemyFlying::GetClosestMoveToPointLocation()
 			}
 		}
 	}
-	
+
 	CurrentMoveToPoint = Closest;
 
 	if (CurrentMoveToPoint)
@@ -152,7 +150,8 @@ bool ASGAIControllerEnemyFlying::HasReachedCurrentMoveToPoint(float Tolerance) c
 	{
 		return false;
 	}
-	return FVector::DistSquared(CurrentMoveToPoint->GetActorLocation(), ControlledEnemy->GetActorLocation()) < FMath::Square(Tolerance);
+	return FVector::DistSquared(CurrentMoveToPoint->GetActorLocation(), ControlledEnemy->GetActorLocation()) <
+		FMath::Square(Tolerance);
 }
 
 void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
@@ -164,14 +163,13 @@ void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 		return;
 	}
 
-	SetFlyMode();
+	SetFlyingMode(true);
 
 	const bool bHasLineOfSight = LineOfSightTo(AttackTarget);
 
 	if (bHasLineOfSight)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Blue, "Can see target");
-		CurrentMoveToPoint = nullptr; // Reset search path once player is found
+		CurrentMoveToPoint = nullptr;
 
 		if (CanAttackTarget())
 		{
@@ -187,13 +185,11 @@ void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 		if (!CurrentMoveToPoint || HasReachedCurrentMoveToPoint(400.f))
 		{
 			CurrentMoveToPoint = GetClosestMoveToPoint();
-			GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Blue, "HasReachedCurrentMoveToPoint");
 		}
 
 		if (CurrentMoveToPoint)
 		{
 			FlyTowardsLocation(CurrentMoveToPoint->GetActorLocation());
 		}
-		
-	}	
+	}
 }

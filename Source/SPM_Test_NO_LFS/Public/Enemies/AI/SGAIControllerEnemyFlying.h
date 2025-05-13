@@ -20,7 +20,7 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	virtual void SetFlyMode();
+	virtual void SetFlyingMode(bool bShouldFly);
 
 	virtual void HandleMovement() override;
 
@@ -33,6 +33,7 @@ protected:
 	FVector GetClosestMoveToPointLocation();
 
 	bool HasReachedCurrentMoveToPoint(float Tolerance) const;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
