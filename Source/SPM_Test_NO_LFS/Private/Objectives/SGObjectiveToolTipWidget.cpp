@@ -210,7 +210,7 @@ void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float In
 	DifficultyBarOffsetLeft += 100*InDeltaTime;
 	DifficultyBarWidget->MoveOverlaysLeft(DifficultyBarOffsetLeft);
 	int index = 0;
-	UE_LOG(LogTemp, Warning, TEXT("Trigger: %f"), DifficultyBarWidget->GetTriggerAbsolutePositionX());
+	//UE_LOG(LogTemp, Warning, TEXT("Trigger: %f"), DifficultyBarWidget->GetTriggerAbsolutePositionX());
 	
 	for (UOverlay* overlay : DifficultyBarWidget->GetOverlays())
 	{
