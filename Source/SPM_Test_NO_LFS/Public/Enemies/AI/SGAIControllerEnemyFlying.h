@@ -6,6 +6,7 @@
 #include "SGAIControllerEnemyBase.h"
 #include "SGAIControllerEnemyFlying.generated.h"
 
+class ASGEnemyMoveToPoint;
 /**
  * 
  */
@@ -19,10 +20,19 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	virtual void SetFlyMode();
+
 	virtual void HandleMovement() override;
 
 	virtual void FlyTowardsTarget();
 
+	virtual void FlyTowardsLocation(const FVector& TargetLocation);
+
+	ASGEnemyMoveToPoint* GetClosestMoveToPoint();
+
+	FVector GetClosestMoveToPointLocation();
+
+	bool HasReachedCurrentMoveToPoint(float Tolerance) const;
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -41,5 +51,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float HoverInterpSpeed = 5.0f;
+
+	TArray<AActor*> MoveToPoints;
+
+	ASGEnemyMoveToPoint* CurrentMoveToPoint = nullptr;
+	
 
 };
