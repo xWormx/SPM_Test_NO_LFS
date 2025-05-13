@@ -7,8 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "SGGameObjectivesHandler.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnObjectiveStarted);
-DECLARE_MULTICAST_DELEGATE(FOnObjectiveCompleted);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnObjectiveStarted);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnObjectiveCompleted);
 
 enum class EObjectiveType : uint8;
 class ASGObjectiveDefendThePod;

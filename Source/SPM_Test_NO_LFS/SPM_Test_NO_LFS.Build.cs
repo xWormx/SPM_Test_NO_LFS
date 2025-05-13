@@ -8,7 +8,7 @@ public class SPM_Test_NO_LFS : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "Niagara", "UMG", "GameplayTasks", "AIModule", "NavigationSystem"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "Niagara", "UMG", "GameplayTasks", "AIModule", "NavigationSystem", "Paper2D"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "CableComponent", "SPM_SGUpgradeSystem"  });
 

@@ -8,7 +8,9 @@
 #include "Player/SGPlayerCharacter.h"
 #include "SGTerminalWidget.h"
 #include "SGTerminal.generated.h"
-
+class UNiagaraComponent;
+class UPaperSpriteComponent;
+class UPaperSprite;
 DECLARE_MULTICAST_DELEGATE(FOnTerminalOpen);
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGTerminal : public AActor
@@ -26,6 +28,11 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	void SetAlertActive();
+	UFUNCTION()
+	void SetAlertInactive();
+	
 	FOnTerminalOpen OnTerminalOpen;
 	
 private:
@@ -47,17 +54,29 @@ private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshFloor;
 
+
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class ASGGameObjectivesHandler* GameObjectivesHandler;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 
+	// Sprite Above Terminal
+	UPROPERTY(EditAnywhere)
+	UPaperSpriteComponent* SpriteComponentAlert;
+	UPROPERTY(EditAnywhere)
+	UPaperSprite* SpriteAlertAsset;
+	UPROPERTY(EditAnywhere)
+	UNiagaraComponent* ParticlesAlert;
+	UPROPERTY(EditAnywhere)
+	FLinearColor ColorSpriteAlert;
+	
+	// Terminal Widget
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
-	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* HUDTerminal;
+
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class ASGPlayerController* LastInteractingPlayerController;
@@ -84,3 +103,4 @@ private:
 	void CloseTerminal();
 	
 };
+
