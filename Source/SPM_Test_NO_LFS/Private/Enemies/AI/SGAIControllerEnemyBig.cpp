@@ -31,14 +31,21 @@ void ASGAIControllerEnemyBig::HandleMovement()
 			return;
 		}
 	}
-	
-	if (CanAttackTarget())
+
+	if (CanReachTarget())
 	{
-		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
+		if (CanAttackTarget())
+		{
+			ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
+		}
+		else
+		{
+			MoveToActor(AttackTarget);
+		}
 	}
 	else
 	{
-		MoveToActor(AttackTarget);
+		// TODO: Patroling
 	}
 }
 
