@@ -21,6 +21,8 @@ void ASGEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	
+
 	if (HealthComponent)
 	{
 		HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
@@ -39,6 +41,7 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 	}
 	
 	OnEnemyDied.Broadcast(this);
+	UE_LOG(LogTemp, Warning, TEXT("Enemy [%s] died. Broadcasting OnEnemyDied"), *GetName());
 	OnEnemyDiedObjective.Broadcast(this);
 
 	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth()); // EnemySpawnManager hanterar poolning
