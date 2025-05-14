@@ -91,6 +91,11 @@ void USGObjectPoolSubsystem::ReturnObjectToPool(AActor* Object)
 	Object->SetActorLocation(FVector(0, 0, -10000)); // Quick fix
 }
 
+int32 USGObjectPoolSubsystem::GetPoolSize(const TSubclassOf<AActor>& ObjectClass) const
+{
+	return Pools.Contains(ObjectClass) ? Pools[ObjectClass].Actors.Num() : 0;
+}
+
 void USGObjectPoolSubsystem::OnPreLevelChange([[maybe_unused]] const FString& MapName)
 {
 	for (auto It = Pools.CreateIterator(); It; ++It)
