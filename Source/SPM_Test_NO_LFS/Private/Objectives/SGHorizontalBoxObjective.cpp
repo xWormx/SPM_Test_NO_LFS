@@ -93,3 +93,8 @@ void USGHorizontalBoxObjective::PlayUpdateValueAnimation()
 {
 	PlayAnimation(AnimationUpdateValue);
 }
+
+void USGHorizontalBoxObjective::PlayAnimationValueCompleted()
+{
+	PlayAnimation(AnimationValueCompleted);
+}

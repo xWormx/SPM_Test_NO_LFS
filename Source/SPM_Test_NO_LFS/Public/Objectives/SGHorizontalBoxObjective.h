@@ -39,6 +39,8 @@ public:
 	UWidgetAnimation* AnimationKeyStartObjective;
 	UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* AnimationUpdateValue;
+	UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* AnimationValueCompleted;
 	
 	void SetKeyValue(FText KeyText, FText ValueText);
 	void SetKey(FText KeyText);
@@ -58,7 +60,8 @@ public:
 	void PlayAnimationKeyStartObjective();
 	UFUNCTION()
 	void PlayUpdateValueAnimation();
-	
+	UFUNCTION()
+	void PlayAnimationValueCompleted();
 private:
 };
 

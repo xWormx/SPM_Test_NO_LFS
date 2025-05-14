@@ -139,15 +139,20 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 		return;
 	
 	CurrentObjective->Update(this);
-	ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayUpdateValueAnimation();
+	
 	if (CurrentObjective->IsCompleted(this))
 	{
 		ObjectiveToolTipWidget->ShowVisitTerminal();
+		ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayAnimationValueCompleted();
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted(this);
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
 		RemoveCurrentObjective();
 		OnObjectiveCompleted.Broadcast();
+	}
+	else
+	{
+		ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayUpdateValueAnimation();
 	}
 }
 
