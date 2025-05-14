@@ -61,6 +61,11 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 	{
 		HandleMovement();
 	}
+	else
+	{
+		MoveToLocation(FirstStartLocation);
+	}
+	
 	RotateTowardsTargetWhileNotMoving();
 	
 }

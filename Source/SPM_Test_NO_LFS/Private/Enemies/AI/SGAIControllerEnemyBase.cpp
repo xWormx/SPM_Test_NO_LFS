@@ -17,8 +17,18 @@ ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 void ASGAIControllerEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
+	/*AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());*/
+
+	FTimerHandle TimerHandle;
+
+	GetWorld()->GetTimerManager().SetTimer(
+		TimerHandle,
+		this,
+		&ASGAIControllerEnemyBase::SetInitialValues,
+		1.f,
+		false
+		);
 }
 
 bool ASGAIControllerEnemyBase::CanAttackTarget() const
@@ -189,11 +199,22 @@ bool ASGAIControllerEnemyBase::IsStuck()
 	return bIsStuck;
 }
 
+void ASGAIControllerEnemyBase::SetInitialValues()
+{
+	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
+
+	if (ControlledEnemy)
+	{
+		FirstStartLocation = ControlledEnemy->GetActorLocation();
+	}
+}
+
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!AttackRange)
+	/*if (!AttackTarget)
 	{
 		AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	}
@@ -202,4 +223,10 @@ void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 	{
 		ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
 	}
+
+	if (ControlledEnemy && !bIsFirstStartLocationSet)
+	{
+		FirstStartLocation = ControlledEnemy->GetActorLocation();
+		bIsFirstStartLocationSet = true;
+	}*/
 }

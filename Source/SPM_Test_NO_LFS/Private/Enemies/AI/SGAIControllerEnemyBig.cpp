@@ -46,6 +46,7 @@ void ASGAIControllerEnemyBig::HandleMovement()
 	else
 	{
 		// TODO: Patroling
+		MoveToLocation(FirstStartLocation);
 	}
 }
 

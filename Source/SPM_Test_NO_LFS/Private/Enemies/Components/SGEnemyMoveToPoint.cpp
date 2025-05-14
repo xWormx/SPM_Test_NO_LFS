@@ -27,8 +27,10 @@ void ASGEnemyMoveToPoint::BeginPlay()
 	
 }
 
+
+#if WITH_EDITOR
 void ASGEnemyMoveToPoint::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 }
-
+#endif

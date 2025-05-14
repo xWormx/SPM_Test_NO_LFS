@@ -71,10 +71,10 @@ void USGEnemyChargeAttackComponent::ChargeTowardsTarget(const FVector& TargetLoc
 		return;
 	}
 	//Sound
-	if (ChargeSound)
+	/*if (ChargeSound)
 	{
 		UGameplayStatics::SpawnSoundAttached(ChargeSound, OwnerCharacter->GetMesh(), "ChargeSound");
-	}
+	}*/
 
 	bIsCharging = true;
 	

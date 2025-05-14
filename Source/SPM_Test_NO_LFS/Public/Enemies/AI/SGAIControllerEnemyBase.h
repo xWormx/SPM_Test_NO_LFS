@@ -78,6 +78,10 @@ protected:
 
 	bool IsStuck();
 
+	FVector FirstStartLocation = FVector::ZeroVector;
+
+	bool bIsFirstStartLocationSet = false;
+
 	//Used in IsStuck()
 	FVector LastLocationCheck = FVector::ZeroVector;
 
@@ -90,6 +94,8 @@ protected:
 	bool bWasStuckLastChecked = false;
 	
 	float LastLocationCheckTime = 0.0f;
+
+	void SetInitialValues();
 
 public:
 	virtual void Tick(float DeltaTime) override;
