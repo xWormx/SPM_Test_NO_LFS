@@ -34,6 +34,11 @@ bool ASGAIControllerEnemyBase::CanAttackTarget() const
 
 	const bool bCanAttackTarget = DistanceToPlayer < AttackRange;
 
+	/*if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Distance to player: %f"), DistanceToPlayer));
+	}*/
+
 	return bCanAttackTarget;
 }
 

@@ -178,7 +178,7 @@ void ASGAIControllerEnemyFlying::SetChaseAndAttackMode()
 			else
 			{
 				ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
-				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, TEXT("Is Charging"));
+				//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, TEXT("Is Charging"));
 			}
 		}
 		else
@@ -245,6 +245,14 @@ FVector ASGAIControllerEnemyFlying::GetFallbackChaseLocation() const
 void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	/*if (LineOfSightTo(AttackTarget))
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Has line of sight to target"));
+		}
+	}*/
 
 	if (!AttackTarget || !ControlledEnemy)
 	{
