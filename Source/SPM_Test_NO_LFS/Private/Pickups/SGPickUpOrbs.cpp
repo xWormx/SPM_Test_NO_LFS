@@ -25,6 +25,8 @@ void ASGPickUpOrbs::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (PlayerCharacter)
 	{
+		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), PlayerCharacter->GetActorRotation(), DeltaTime, InterpSpeed);
 		FVector NewLocation = FMath::VInterpTo(GetActorLocation(), PlayerCharacter->GetActorLocation(), DeltaTime, InterpSpeed);
-		SetActorLocation(NewLocation);
-	}}
+		SetActorLocationAndRotation( NewLocation, NewRotation);
+	}
+}

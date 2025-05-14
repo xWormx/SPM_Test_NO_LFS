@@ -17,7 +17,13 @@ public:
 	FOnCollected OnCollected;
 
 	virtual void OnPickup_Implementation() override;
-	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_Collect; }
+
+	virtual EObjectiveType GetObjectiveType() override
+	{
+		return EObjectiveType::EOT_Collect;
+	}
+
+	void ReturnToStartLocation();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -30,4 +36,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
 	USoundBase* PickUpSound;
+
+	FVector InitialPosition;
 };
