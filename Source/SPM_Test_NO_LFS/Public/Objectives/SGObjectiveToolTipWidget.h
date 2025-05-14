@@ -47,6 +47,7 @@ public:
 	void SetProgressWindowText(ASGObjectiveBase* Objective);
 	void AddProgressTextElement(FText KeyText, FText ValueText);
 	USGHorizontalBoxObjective* GetHorizontalBoxAtIndex(int32 index);
+	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective() { return CurrentHorizontalBoxObjectiveElement; } 
 protected:
 	
 	virtual void NativeConstruct() override;
@@ -87,6 +88,8 @@ protected:
 	TSubclassOf<USGHorizontalBoxObjective> HorizontalBoxObjectiveClass;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<USGHorizontalBoxObjective*> HorizontalObjectiveList;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	USGHorizontalBoxObjective* CurrentHorizontalBoxObjectiveElement;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UVerticalBox* VerticalBoxMission;
 
@@ -97,6 +100,7 @@ protected:
 	USGDifficultyBarWidget* DifficultyBarWidget;
 	UPROPERTY(VisibleAnywhere)
 	float DifficultyBarOffsetLeft = 0.0f;
+	
 	//Animations
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* ShrinkAndMoveTimer;

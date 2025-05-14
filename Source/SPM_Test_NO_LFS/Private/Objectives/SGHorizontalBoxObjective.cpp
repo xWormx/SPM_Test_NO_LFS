@@ -83,3 +83,13 @@ void USGHorizontalBoxObjective::HideFail()
 {
 	ImageFail->SetVisibility(ESlateVisibility::Hidden);
 }
+
+void USGHorizontalBoxObjective::PlayAnimationKeyStartObjective()
+{
+	PlayAnimation(AnimationKeyStartObjective);
+}
+
+void USGHorizontalBoxObjective::PlayUpdateValueAnimation()
+{
+	PlayAnimation(AnimationUpdateValue);
+}

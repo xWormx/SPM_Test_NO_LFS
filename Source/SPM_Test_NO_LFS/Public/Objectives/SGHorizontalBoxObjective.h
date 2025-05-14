@@ -34,6 +34,12 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* ImageFail;
 
+	//Animations
+	UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* AnimationKeyStartObjective;
+	UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* AnimationUpdateValue;
+	
 	void SetKeyValue(FText KeyText, FText ValueText);
 	void SetKey(FText KeyText);
 	void SetValue(FText ValueText);
@@ -47,6 +53,11 @@ public:
 	void HideSucceed();
 	void ShowFail();
 	void HideFail();
+	
+	UFUNCTION()
+	void PlayAnimationKeyStartObjective();
+	UFUNCTION()
+	void PlayUpdateValueAnimation();
 	
 private:
 };
