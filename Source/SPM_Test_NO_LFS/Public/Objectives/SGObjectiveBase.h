@@ -58,7 +58,9 @@ public:
 protected:
 	ASGGameObjectivesHandler* GetObjectiveHandler() { return ObjectiveHandlerPersistent; }
 	void SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler) { ObjectiveHandlerPersistent = ObjectiveHandler; }
-	
+
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	TArray<USGHorizontalBoxObjective*> HorizontalBoxProgressElement; 
 private:
 
 	UPROPERTY(VisibleAnywhere)
@@ -81,6 +83,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<FString> ObjectiveSubToolTips;
 	
-
+	
 
 };
