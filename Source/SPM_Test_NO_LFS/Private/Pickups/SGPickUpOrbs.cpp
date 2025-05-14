@@ -7,7 +7,6 @@ void ASGPickUpOrbs::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerCharacter = Cast<ASGPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	OrbMesh = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
 }
 
 ASGPickUpOrbs::ASGPickUpOrbs()
