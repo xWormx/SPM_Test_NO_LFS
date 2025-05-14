@@ -16,8 +16,19 @@ ASGGrenadeLauncher::ASGGrenadeLauncher()
 
 void ASGGrenadeLauncher::Fire()
 {
-	if (!HasAmmo()) return;
-	--Ammo;
+	if (bIsReloading || !HasAmmo()) return;
+	
+	if (bUsesMagazine)
+	{
+		--CurrentMagazineAmmo;
+	}
+	else
+	{
+		if (!bInfiniteAmmo)
+		{
+			--Ammo;
+		}
+	}
 	
 	if (!ProjectileSpawnPoint || !ProjectileClass) return;
 	
@@ -63,11 +74,6 @@ void ASGGrenadeLauncher::BeginPlay()
 }
 
 // Private
-bool ASGGrenadeLauncher::HasAmmo()
-{
-	return Ammo > 0;
-}
-
 void ASGGrenadeLauncher::SpawnProjectile()
 {
 	if (!ProjectileClass || !ProjectileSpawnPoint) return;

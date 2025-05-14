@@ -48,6 +48,7 @@ private:
 	void OnSwapWeaponKey2Pressed(const FInputActionValue& Value);
 	void OnSwapWeaponKey3Pressed(const FInputActionValue& Value);
 	void OnSwapWeaponMouseWheel(const FInputActionValue& Value);
+	void OnReloadPressed(const FInputActionValue& Value);
 
 	//Added by Basir
 	void PauseGame();
@@ -103,6 +104,8 @@ private:
 	UInputAction* SwapWeapon3InputAction;
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	UInputAction* SwapWeaponMouseWheelInputAction;
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UInputAction* ReloadInputAction;
 
 	//Added by Basir
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
