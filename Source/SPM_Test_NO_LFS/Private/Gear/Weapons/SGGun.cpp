@@ -77,7 +77,6 @@ void ASGGun::Fire()
 			HitActor->TakeDamage(Damage, DamageEvent, GetOwnerController(), this);
 		}
 	}
-
 }
 
 void ASGGun::Reload()
@@ -108,6 +107,38 @@ float ASGGun::GetFireRate() const
 void ASGGun::AddAmmo(int32 AmmoAmount)
 {
 	Ammo += AmmoAmount;
+}
+
+int32 ASGGun::GetAmmoClip()
+{
+	if (bUsesMagazine)
+	{
+		return CurrentMagazineAmmo;
+	}
+	else
+	{
+		if (!bInfiniteAmmo)
+		{
+			return Ammo;
+		}
+	}
+
+	return 999;
+}
+
+int32 ASGGun::GetAmmoStock()
+{
+	if (bInfiniteAmmo)
+	{
+		return 999;
+	}
+	
+	return Ammo;
+}
+
+FText ASGGun::GetWeaponDisplayName()
+{
+	return WeaponDisplayName;
 }
 
 // Protected

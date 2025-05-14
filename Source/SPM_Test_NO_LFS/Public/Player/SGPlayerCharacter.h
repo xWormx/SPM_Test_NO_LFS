@@ -6,6 +6,7 @@
 
 // Forward declarations
 class ASGGun;
+class USGWeaponsHUD;
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGPlayerCharacter : public ACharacter
@@ -51,6 +52,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TArray<ASGGun*> Guns;
 	int8 CurrentGunIndex = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	TSubclassOf<UUserWidget> WeaponHUDWidgetClass;
+	USGWeaponsHUD* WeaponHUD;
 	UPROPERTY(VisibleAnywhere, Category="design")
 	class UCameraComponent* CameraComponent;
 	UPROPERTY(VisibleAnywhere, Category="design")
