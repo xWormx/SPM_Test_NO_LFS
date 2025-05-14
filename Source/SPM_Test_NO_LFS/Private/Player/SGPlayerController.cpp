@@ -68,6 +68,7 @@ void ASGPlayerController::SetupInputComponent()
 	Input->BindAction(SwapWeapon2InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey2Pressed);
 	Input->BindAction(SwapWeapon3InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey3Pressed);
 	Input->BindAction(SwapWeaponMouseWheelInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponMouseWheel);
+	Input->BindAction(ReloadInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnReloadPressed);
 	
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	
@@ -241,6 +242,14 @@ void ASGPlayerController::OnSwapWeaponMouseWheel(const FInputActionValue& Value)
 	}
 
 	ThePlayerCharacter->SetCurrentGunIndex(CurrentGunIndex);
+}
+
+void ASGPlayerController::OnReloadPressed(const FInputActionValue& Value)
+{
+	if (ThePlayerCharacter == nullptr) return;
+
+	UE_LOG(LogTemp, Warning, TEXT("SGPlayerController::OnReloadPressed()"));
+	ThePlayerCharacter->ReloadGun();
 }
 
 ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()

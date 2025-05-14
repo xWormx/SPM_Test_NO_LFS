@@ -29,13 +29,14 @@ public:
 	float GetRage() const { return Rage; };
 	void FireGrapple();
 	void FireGun();
+	void ReloadGun();
 	const ASGGun* GetGunRef() const;
 	void SetCurrentGunIndex(int8 NewIndex);
 	int8 GetCurrentGunIndex();
 	const TArray<ASGGun*>& GetGuns() const;
 	
 private:
-	float Rage = 66.f;
+	float Rage = 66.f; // lol
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	USceneComponent* GrapplingHookPosition;
 	

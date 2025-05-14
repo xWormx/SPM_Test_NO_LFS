@@ -44,7 +44,7 @@ void ASGGameObjectivesHandler::RegisterEnemy(ASGEnemyCharacter* Enemy)
 	if (Enemy == nullptr)
 		return;
 
-	Enemy->OnEnemyDiedObjective.AddDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
+	Enemy->OnEnemyDiedObjective.AddUniqueDynamic(this, &ASGGameObjectivesHandler::UpdateCurrentGameObjective);
 	TargetCharacters.Push(Enemy);
 }
 
