@@ -7,6 +7,7 @@ void ASGPickUpOrbs::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerCharacter = Cast<ASGPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	OrbMesh = Cast<UStaticMeshComponent>(GetComponentByClass(UStaticMeshComponent::StaticClass()));
 }
 
 ASGPickUpOrbs::ASGPickUpOrbs()
@@ -25,6 +26,8 @@ void ASGPickUpOrbs::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (PlayerCharacter)
 	{
+		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), PlayerCharacter->GetActorRotation(), DeltaTime, InterpSpeed);
 		FVector NewLocation = FMath::VInterpTo(GetActorLocation(), PlayerCharacter->GetActorLocation(), DeltaTime, InterpSpeed);
-		SetActorLocation(NewLocation);
-	}}
+		SetActorLocationAndRotation( NewLocation, NewRotation);
+	}
+}
