@@ -18,6 +18,9 @@ public:
 	virtual void Reload();
 	float GetFireRate() const;
 	void AddAmmo(int32 AmmoAmount);
+	int32 GetAmmoClip();
+	int32 GetAmmoStock();
+	FText GetWeaponDisplayName();
 
 protected:
 	virtual void BeginPlay() override;
@@ -39,6 +42,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="design", meta=(AllowPrivateAccess="true"))
 	int32 CurrentMagazineAmmo = 30;
 	// EditAnywhere
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	FText WeaponDisplayName = FText::FromString("AssaultRifle");
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UNiagaraSystem* ShootParticles;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
