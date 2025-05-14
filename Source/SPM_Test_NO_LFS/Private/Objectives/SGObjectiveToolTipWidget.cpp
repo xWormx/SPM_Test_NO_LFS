@@ -21,29 +21,15 @@
 void USGObjectiveToolTipWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	EndTimerAnimation.BindDynamic(this, &USGObjectiveToolTipWidget::SetScaleBoxTransformAfterAnimation);
-	if (ShrinkAndMoveTimer)
-	{
-		BindToAnimationFinished(ShrinkAndMoveTimer, EndTimerAnimation);	
-	}
+/*
 	EndMoveToolTipToProgressWindowAnimation.BindDynamic(this, &USGObjectiveToolTipWidget::OnEndMoveToolTipAnimation);
-	if (MoveToolTipToProgressWindow)
+	if (AnimationToolTipOutOfWindow)
 	{
-		BindToAnimationFinished(MoveToolTipToProgressWindow, EndMoveToolTipToProgressWindowAnimation);
+		BindToAnimationFinished(AnimationToolTipOutOfWindow, EndMoveToolTipToProgressWindowAnimation);
 	}
 	EndHideToolTipAnimation.BindDynamic(this, &USGObjectiveToolTipWidget::OnEndHideToolTipAnimation);
-	if (AnimationHideToolTip)
-	{
-		BindToAnimationFinished(AnimationHideToolTip, EndHideToolTipAnimation);
-	}
-	if (ScaleBoxTimer)
-	{
-		ScaleBoxTimer->SetVisibility(ESlateVisibility::Hidden);
-	}
-	if (ScaleBoxMission)
-	{
-		ScaleBoxMission->SetVisibility(ESlateVisibility::Hidden);
-	}
+
+*/	
 	if (TextBlockVisitTerminal)
 	{
 		TextBlockVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
@@ -80,6 +66,29 @@ void USGObjectiveToolTipWidget::AddProgressTextElement(FText KeyText, FText Valu
 	CurrentHorizontalBoxObjectiveElement = NewHorizontalBox;
 	
 }
+
+USGHorizontalBoxObjective* USGObjectiveToolTipWidget::CreateProgressTextElement(FText KeyText, FText ValueText)
+{
+	const float DPI = UWidgetLayoutLibrary::GetViewportScale(this);
+	FMargin VerticalPadding = FMargin(80,10,80,0);
+	USGHorizontalBoxObjective* NewHorizontalBox = CreateWidget<USGHorizontalBoxObjective>(this, HorizontalBoxObjectiveClass);
+	NewHorizontalBox->SetKey(KeyText);
+	NewHorizontalBox->SetValue(ValueText);
+	NewHorizontalBox->HideFail();
+	NewHorizontalBox->HideSucceed();
+	
+	// Returnerar Sloten så vi kan sätta allignment och padding på den.
+	UVerticalBoxSlot* VerticalBoxSlot = VerticalBoxMission->AddChildToVerticalBox(NewHorizontalBox);
+	VerticalBoxSlot->SetPadding(VerticalPadding);
+	VerticalBoxSlot->SetHorizontalAlignment(HAlign_Fill);
+	VerticalBoxSlot->SetVerticalAlignment(VAlign_Fill);
+	NewHorizontalBox->PlayAnimationKeyStartObjective();
+	HorizontalObjectiveList.Add(NewHorizontalBox);
+	CurrentHorizontalBoxObjectiveElement = NewHorizontalBox;
+	
+	return NewHorizontalBox;
+}
+
 USGHorizontalBoxObjective* USGObjectiveToolTipWidget::GetHorizontalBoxAtIndex(int32 index)
 {
 	if (HorizontalObjectiveList.IsValidIndex(index))
@@ -90,16 +99,13 @@ USGHorizontalBoxObjective* USGObjectiveToolTipWidget::GetHorizontalBoxAtIndex(in
 	return nullptr;
 }
 
-
-
 void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 {
-	
 	FString Str = "HEJ";
 	SetVisibility(ESlateVisibility::HitTestInvisible);
 	SetRenderOpacity(1.0f);
 	ScaleBoxToolTip->SetVisibility(ESlateVisibility::HitTestInvisible);
-	PlayAnimation(MoveToolTipToProgressWindow, 0, 1);
+	PlayAnimation(AnimationToolTipOutOfWindow, 0, 1);
 	//ToolTip->SetText(NewToolTip);
 	bIsHidden = false;
 	GetWorld()->GetTimerManager().SetTimer(CharByCharTimer, FTimerDelegate::CreateLambda([this, NewToolTip]()
@@ -110,6 +116,7 @@ void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 
 void USGObjectiveToolTipWidget::DisplayTimer(FText NewTimerText)
 {
+	/*
 	ScaleBoxTimer->SetVisibility(ESlateVisibility::HitTestInvisible);
 	TextTimer->SetText(NewTimerText);
 	if (UCanvasPanelSlot* ScaleBoxSlot = Cast<UCanvasPanelSlot>(ScaleBoxTimer->Slot))
@@ -131,7 +138,7 @@ void USGObjectiveToolTipWidget::DisplayTimer(FText NewTimerText)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ShrinkAndMoveTimer is NOOOT playing"));
 	}
-
+*/
 }
 
 void USGObjectiveToolTipWidget::Render(float InDeltaTime)
@@ -175,38 +182,12 @@ void USGObjectiveToolTipWidget::HideToolTipScaleBox()
 {
 	ScaleBoxToolTip->SetVisibility(ESlateVisibility::Hidden);
 }
-void USGObjectiveToolTipWidget::SetProgressWindowText(ASGObjectiveBase* Objective)
-{
-	if (!Objective->GetProgressText().SubText.IsEmpty())
-	{
-		if (!ProgressTextMap.Contains(Objective->GetObjectiveID()))
-		{
-			ProgressTextMap.Add(Objective->GetObjectiveID(), Objective->GetProgressText());
-		}
-		for (int i = 0; i < Objective->GetCurrentProgressStep(); i++)
-		{
-			if (i >= Objective->GetProgressText().SubText.Num())
-			{
-				UE_LOG(LogTemp, Error, TEXT("ProgressStep was larger than number of ProgressTexts"));
-				break;
-			}
-			if (i == 0)
-			{
-				TextBlockMissionProgress->SetText(FText::FromString(TEXT("- ") + Objective->GetProgressText().SubText[i]));
-				continue;
-			}
-			
-			FString CurrentProgressText = TextBlockMissionProgress->GetText().ToString();
-			TextBlockMissionProgress->SetText(FText::FromString(CurrentProgressText + ("\n\t- ") + Objective->GetProgressText().SubText[i]));
-		}
-	}
-}
 
 void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 	Render(InDeltaTime);
-	DifficultyBarOffsetLeft += 100*InDeltaTime;
+	DifficultyBarOffsetLeft += 10*InDeltaTime;
 	DifficultyBarWidget->MoveOverlaysLeft(DifficultyBarOffsetLeft);
 	int index = 0;
 	//UE_LOG(LogTemp, Warning, TEXT("Trigger: %f"), DifficultyBarWidget->GetTriggerAbsolutePositionX());
@@ -250,6 +231,7 @@ void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 
 void USGObjectiveToolTipWidget::SetScaleBoxTransformAfterAnimation()
 {
+	/*
 	UE_LOG(LogTemp, Warning, TEXT("End of ToolTipWidget Animation!"));
 	bTimerAnimationFinished = true;
 	// Hämtar position och storlek vid slutet av animationen och sätter den till den nya riktiga pos/size.
@@ -259,20 +241,20 @@ void USGObjectiveToolTipWidget::SetScaleBoxTransformAfterAnimation()
 		ScaleBoxSlot->SetSize(ScaleBoxTimerFinalSize);
 	}
 	StopAnimation(ShrinkAndMoveTimer);
+	*/
 }
 
 void USGObjectiveToolTipWidget::OnEndMoveToolTipAnimation()
 {
-	StopAnimation(MoveToolTipToProgressWindow);
-	PlayAnimation(AnimationHideToolTip, 0, 1);
+	StopAnimation(AnimationToolTipOutOfWindow);
+	
 }
 
 void USGObjectiveToolTipWidget::OnEndHideToolTipAnimation()
 {
-	StopAnimation(AnimationHideToolTip);
+	
 	ScaleBoxToolTip->SetRenderTranslation(FVector2D(0.0f, 0.0f));
 	ScaleBoxToolTip->SetVisibility(ESlateVisibility::Hidden);
-	//ScaleBoxMission->SetVisibility(ESlateVisibility::HitTestInvisible);
 }
 
 

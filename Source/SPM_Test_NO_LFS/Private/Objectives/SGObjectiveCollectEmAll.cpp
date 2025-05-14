@@ -10,8 +10,7 @@ void ASGObjectiveCollectEmAll::OnStart(ASGGameObjectivesHandler* ObjectiveHandle
 {
 	Super::OnStart(ObjectiveHandler);
 	FString StrCollected = FString::Printf(TEXT("%d/%d"), CurrentCollected, CollectGoal);
-	ObjectiveHandler->GetObjectiveToolTipWidget()->AddProgressTextElement(FText::FromString("Fueldrods:"), FText::FromString(StrCollected));
-
+	HorizontalBoxProgressElement.Add(ObjectiveHandler->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(TEXT("Fuelrods:")), FText::FromString(TEXT("0/0"))));
 	ShowCollectables();
 }
 
@@ -25,9 +24,9 @@ void ASGObjectiveCollectEmAll::OnCompleted(ASGGameObjectivesHandler* ObjectiveHa
 	Super::OnCompleted(ObjectiveHandler);
 
 	USGHorizontalBoxObjective* CollectProgressText = ObjectiveHandler->GetObjectiveToolTipWidget()->GetHorizontalBoxAtIndex(1);
-	CollectProgressText->ShowSucceed();
-	CollectProgressText->SetKeyAndValueOpacity(0.5);
-	CollectProgressText->SetValue(FText::FromString("Completed!"));
+	HorizontalBoxProgressElement[0]->ShowSucceed();
+	HorizontalBoxProgressElement[0]->SetKeyAndValueOpacity(0.5);
+	HorizontalBoxProgressElement[0]->SetValue(FText::FromString("Completed!"));
 
 	HideCollectables();
 }
@@ -36,10 +35,7 @@ void ASGObjectiveCollectEmAll::Update(ASGGameObjectivesHandler* ObjectiveHandler
 {
 	CurrentCollected++;
 	FString StrCollected = FString::Printf(TEXT("%d/%d"), CurrentCollected, CollectGoal);
-	//SetCurrentProgressText(StrCollected);
-	
-	if (USGHorizontalBoxObjective* CollectProgressText = ObjectiveHandler->GetObjectiveToolTipWidget()->GetHorizontalBoxAtIndex(1))
-		CollectProgressText->SetValue(FText::FromString(StrCollected));
+	HorizontalBoxProgressElement[0]->SetValue(FText::FromString(StrCollected));
 }
 
 void ASGObjectiveCollectEmAll::ShowCollectables() const

@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "SGObjectiveToolTipWidget.generated.h"
 
+class UTextBlock;
+class UImage;
 class USGDifficultyBarWidget;
 class UVerticalBox;
 class USGHorizontalBoxObjective;
@@ -44,8 +46,8 @@ public:
 	void HideToolTipScaleBox();
 	
 	void InterruptAndHide() { Hide(); }
-	void SetProgressWindowText(ASGObjectiveBase* Objective);
 	void AddProgressTextElement(FText KeyText, FText ValueText);
+	USGHorizontalBoxObjective* CreateProgressTextElement(FText KeyText, FText ValueText);
 	USGHorizontalBoxObjective* GetHorizontalBoxAtIndex(int32 index);
 	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective() { return CurrentHorizontalBoxObjectiveElement; } 
 protected:
@@ -53,7 +55,7 @@ protected:
 	virtual void NativeConstruct() override;
 
 	// Timer
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	/*UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UScaleBox* ScaleBoxTimer;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UTextBlock* TextTimer;
@@ -61,8 +63,7 @@ protected:
 	class UOverlay* TimerOverlay;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	class UImage* TimerImage;
-
-	
+	*/
 	// ToolTip
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UScaleBox* ScaleBoxToolTip;
@@ -70,14 +71,6 @@ protected:
 	UImage* ToolTipBackground;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UTextBlock* ToolTip;
-
-	// ProgressWindow
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	UScaleBox* ScaleBoxMission;
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	UTextBlock* TextBlockMissionProgress;
-	UPROPERTY(EditAnywhere)
-	TMap<int32, FProgressText> ProgressTextMap; 
 
 	// Visit Terminal Text
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
@@ -103,11 +96,7 @@ protected:
 	
 	//Animations
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
-	UWidgetAnimation* ShrinkAndMoveTimer;
-	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
-	UWidgetAnimation* MoveToolTipToProgressWindow;
-	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
-	UWidgetAnimation* AnimationHideToolTip;
+	UWidgetAnimation* AnimationToolTipOutOfWindow;
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* AnimationVisitTerminal;
 
