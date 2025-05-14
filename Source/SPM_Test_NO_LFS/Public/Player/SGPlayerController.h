@@ -60,6 +60,15 @@ private:
 	//Added by Basir
 	UFUNCTION(BlueprintCallable)
 	void EnableGameOver();
+
+	//Added by Basir
+	UFUNCTION(BlueprintCallable)
+	void PlayTempDamageEffect();
+
+	void RemoveDamageEffect();
+
+	//Added by Basir
+	FTimerHandle DamageEffectTimer;
 	
 	FTimerHandle CanFireAgainTimer;
 	bool bIsFiring = false;
@@ -122,6 +131,14 @@ private:
 	//Added by Basir
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	class UUserWidget* GameOverMenu;
+
+	//Added by Basir
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	class UUserWidget* TempDamageEffect;
+
+	//Added by Basir
+	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	TSubclassOf<class UCameraShakeBase> TempDamageEffectCameraShake;
 
 	// Added by Calle
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)

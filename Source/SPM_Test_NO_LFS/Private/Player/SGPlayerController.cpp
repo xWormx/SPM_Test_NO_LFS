@@ -301,3 +301,34 @@ void ASGPlayerController::EnableGameOver()
 	bShowMouseCursor = true;
 	SetInputMode(FInputModeGameOnly());
 }
+
+void ASGPlayerController::PlayTempDamageEffect()
+{
+	if (!TempDamageEffect)
+	{
+		return;
+	}
+
+	TempDamageEffect->AddToViewport();
+
+	if (TempDamageEffectCameraShake)
+	{
+		PlayerCameraManager->StartCameraShake(TempDamageEffectCameraShake);
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(
+		DamageEffectTimer,
+		this,
+		&ASGPlayerController::RemoveDamageEffect,
+		0.7f,
+		false
+		);
+}
+
+void ASGPlayerController::RemoveDamageEffect()
+{
+	if (TempDamageEffect)
+	{
+		TempDamageEffect->RemoveFromParent();
+	}
+}
