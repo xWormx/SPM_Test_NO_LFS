@@ -139,6 +139,7 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 		return;
 	
 	CurrentObjective->Update(this);
+	ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayUpdateValueAnimation();
 	if (CurrentObjective->IsCompleted(this))
 	{
 		ObjectiveToolTipWidget->ShowVisitTerminal();

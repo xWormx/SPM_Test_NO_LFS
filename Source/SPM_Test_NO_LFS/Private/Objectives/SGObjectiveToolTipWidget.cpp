@@ -77,8 +77,9 @@ void USGObjectiveToolTipWidget::AddProgressTextElement(FText KeyText, FText Valu
 	VerticalBoxSlot->SetPadding(VerticalPadding);
 	VerticalBoxSlot->SetHorizontalAlignment(HAlign_Fill);
 	VerticalBoxSlot->SetVerticalAlignment(VAlign_Fill);
-
+	NewHorizontalBox->PlayAnimationKeyStartObjective();
 	HorizontalObjectiveList.Add(NewHorizontalBox);
+	CurrentHorizontalBoxObjectiveElement = NewHorizontalBox;
 	
 }
 USGHorizontalBoxObjective* USGObjectiveToolTipWidget::GetHorizontalBoxAtIndex(int32 index)

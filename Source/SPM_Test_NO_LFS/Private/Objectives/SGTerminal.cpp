@@ -76,6 +76,7 @@ void ASGTerminal::BeginPlay()
 			ParticlesAlert->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
 			ParticlesAlert->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
 			ParticlesAlert->SetWorldScale3D(FVector::OneVector);
+			
 		}
 		SetAlertActive();
 	}
