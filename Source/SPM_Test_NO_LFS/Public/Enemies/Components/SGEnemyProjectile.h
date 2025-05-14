@@ -25,8 +25,6 @@ protected:
 							 bool bFromSweep, const FHitResult& SweepResult);
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	class USphereComponent* CollisionComponent;

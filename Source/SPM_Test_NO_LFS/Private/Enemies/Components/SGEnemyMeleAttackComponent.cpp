@@ -12,7 +12,7 @@ USGEnemyMeleAttackComponent::USGEnemyMeleAttackComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
@@ -25,15 +25,6 @@ void USGEnemyMeleAttackComponent::BeginPlay()
 	
 }
 
-
-// Called every frame
-void USGEnemyMeleAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType,
-                                                FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
 
 void USGEnemyMeleAttackComponent::StartAttack(AActor* Target)
 {

@@ -259,10 +259,11 @@ void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 		return;
 	}
 
-	SetFlyingMode(true);
+	
 
 	if (bHasFoundTarget)
 	{
+		SetFlyingMode(true);
 		CurrentMoveToPoint = nullptr;
 
 		SetChaseAndAttackMode();

@@ -58,10 +58,4 @@ void ASGEnemyProjectile::OnProjectileOverlap(UPrimitiveComponent* OverlappedComp
 	}
 }
 
-// Called every frame
-void ASGEnemyProjectile::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 

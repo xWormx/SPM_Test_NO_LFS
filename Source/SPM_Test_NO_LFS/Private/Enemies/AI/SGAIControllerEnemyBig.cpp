@@ -53,4 +53,5 @@ void ASGAIControllerEnemyBig::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	HandleMovement();
+	RotateTowardsTargetWhileNotMoving();
 }
