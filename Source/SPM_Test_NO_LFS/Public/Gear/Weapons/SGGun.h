@@ -38,7 +38,7 @@ protected:
 	int32 Ammo = 1;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="design", meta=(AllowPrivateAccess="true"))
 	int32 CurrentMagazineAmmo = 30;
-	// EditAnywhere+BP
+	// EditAnywhere
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UNiagaraSystem* ShootParticles;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
@@ -54,7 +54,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float Damage = 100.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	float FireRate = 0.1f; // 0.1 = 10 skott per sekund
+	float FireRate = 0.1f; // Hur ofta vapnet kan skjuta (0.1 = tio skott per sekund, 2.0 = ett skott varannan sekund)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	int NumberOfPellets = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
