@@ -1,14 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "SGObjectiveBase.h"
 #include "SGObjectiveCollectEmAll.generated.h"
 
-/**
- * 
- */
+class ASGPickUpObjectiveCollect;
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGObjectiveCollectEmAll : public ASGObjectiveBase
 {
@@ -26,8 +23,12 @@ private:
 	UPROPERTY(EditAnywhere ,Category=UPROPERTY)
 	unsigned int CurrentCollected = 0;
 
-	/*
-	 TArray<UPickups> PickUps
-	 */
+public:
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
+	TSubclassOf<ASGPickUpObjectiveCollect> CollectableClass;
+
+private:
+	void ShowCollectables() const;
+	void HideCollectables() const;
 };
 
