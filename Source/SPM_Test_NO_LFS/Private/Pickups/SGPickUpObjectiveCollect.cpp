@@ -3,15 +3,21 @@
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utils/SGObjectPoolSubsystem.h"
 
 ASGPickUpObjectiveCollect::ASGPickUpObjectiveCollect()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Mesh->SetupAttachment(RootComponent);	
+}
+
+void ASGPickUpObjectiveCollect::ReturnToStartLocation()
+{
+	SetActorLocation(InitialPosition);
 }
 
 void ASGPickUpObjectiveCollect::BeginPlay()
@@ -28,8 +34,16 @@ void ASGPickUpObjectiveCollect::BeginPlay()
 	{
 		return;
 	}
-	
+
 	GameObjectivesHandler->RegisterCollectible(this);
+
+	InitialPosition = GetActorLocation();
+
+	FTimerHandle DelayTimer;
+	GetWorldTimerManager().SetTimer(DelayTimer, FTimerDelegate::CreateLambda([this]()
+	{
+		GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
+	}), 0.1f, false);
 }
 
 //TODO: Se över hantering av collectables. Kompakt lösning för enkelheten just nu.

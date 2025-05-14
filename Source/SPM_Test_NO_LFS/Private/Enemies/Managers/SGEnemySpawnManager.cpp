@@ -122,8 +122,6 @@ void ASGEnemySpawnManager::EndSpawnLoopTimer()
 	{
 		case ESpawnMode::Everywhere:
 			{
-				MaxEnemiesAlive = DefaultMaxEnemiesAlive;
-				TimeBetweenSpawns = DefaultTimeBetweenSpawns;
 				if (EnemiesAlive >= MaxEnemiesAlive) break;
 				SpawnEnemiesEverywhere();
 				break;
@@ -131,8 +129,6 @@ void ASGEnemySpawnManager::EndSpawnLoopTimer()
 		
 		case ESpawnMode::AtArea:
 			{
-				MaxEnemiesAlive = DefaultMaxEnemiesAlive;
-				TimeBetweenSpawns = DefaultTimeBetweenSpawns;
 				if (EnemiesAlive >= MaxEnemiesAlive) break;
 				SpawnEnemiesAtArea();
 				break;
@@ -140,8 +136,6 @@ void ASGEnemySpawnManager::EndSpawnLoopTimer()
 		
 		case ESpawnMode::AroundPlayer:
 			{
-				MaxEnemiesAlive *= MaxEnemiesAliveDefendThePodMultiplier;
-				TimeBetweenSpawns = 0.5f;
 				if (EnemiesAlive >= MaxEnemiesAlive) break;
 				SpawnEnemiesAroundPlayer();
 				break;
@@ -224,7 +218,14 @@ void ASGEnemySpawnManager::SpawnEnemies(const TArray<AActor*>& AvailableSpawnPoi
 {
 	for (uint32 i = 0; i < EnemyCount; ++i)
 	{
+		if (EnemiesAlive >= MaxEnemiesAlive) return;
+		
 		ASGEnemyCharacter* SpawnedEnemyPtr = GetRandomSpawnPoint(AvailableSpawnPoints)->SpawnEnemy(GetRandomEnemyType());
+
+		if (!SpawnedEnemyPtr)
+		{
+			UE_LOG(LogTemp, Error, TEXT("EnemySpawnManager::SpawnEnemy returned nullptr!"));
+		}
 		
 		if (SpawnedEnemyPtr != nullptr)
 		{
@@ -304,9 +305,13 @@ void ASGEnemySpawnManager::HandleDefendEventStart()
 	
 	SpawnMode = ESpawnMode::AtArea;
 	SpawnAreaIndex = 0;
+	MaxEnemiesAlive = MaxEnemiesAliveDefendThePod;
+	TimeBetweenSpawns = 0.5f;
 }
 
 void ASGEnemySpawnManager::HandleDefendEventEnd(UObject* ObjectiveInterfaceImplementor)
 {
 	SpawnMode = DefaultSpawnMode;
+	MaxEnemiesAlive = DefaultMaxEnemiesAlive;
+	TimeBetweenSpawns = DefaultTimeBetweenSpawns;
 }
