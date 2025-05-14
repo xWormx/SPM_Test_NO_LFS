@@ -60,8 +60,6 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 	}
 }
 
-
-
 void USGObjectiveToolTipWidget::AddProgressTextElement(FText KeyText, FText ValueText)
 {
 	const float DPI = UWidgetLayoutLibrary::GetViewportScale(this);
