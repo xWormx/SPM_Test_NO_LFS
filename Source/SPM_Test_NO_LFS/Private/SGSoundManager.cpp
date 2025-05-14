@@ -25,8 +25,6 @@ void ASGSoundManager::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Super::BeginPlay();
-
 	if (BackgroundMusicCue)
 	{
 		AudioComponent->SetSound(BackgroundMusicCue);
