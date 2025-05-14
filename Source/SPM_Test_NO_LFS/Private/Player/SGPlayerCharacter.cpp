@@ -123,6 +123,13 @@ void ASGPlayerCharacter::FireGun()
 	if (Guns[CurrentGunIndex]) Guns[CurrentGunIndex]->Fire();
 }
 
+void ASGPlayerCharacter::ReloadGun()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SGPlayerCharacter::ReloadGun()"));
+	
+	if (Guns[CurrentGunIndex]) Guns[CurrentGunIndex]->Reload();
+}
+
 const ASGGun* ASGPlayerCharacter::GetGunRef() const
 {
 	return Guns[CurrentGunIndex];
