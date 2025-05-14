@@ -1,4 +1,6 @@
 #include "Player/SGPlayerCharacter.h"
+#include "SGWeaponsHUD.h"
+#include "Blueprint/UserWidget.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Camera/CameraComponent.h"
@@ -44,6 +46,10 @@ void ASGPlayerCharacter::BeginPlay()
 		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
 		if (Guns[i]) Guns[i]->SetOwner(this);
 		if (WeaponMesh) Guns[i]->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		if (WeaponHUD)
+		{
+			WeaponHUD->UpdWeaponName(Guns[i]->GetWeaponDisplayName());
+		}
 	}
 	if (Guns.Num() > 0 && Guns.IsValidIndex(CurrentGunIndex))
 	{
@@ -56,8 +62,16 @@ void ASGPlayerCharacter::BeginPlay()
 	}
 	else
 	{
-		// Handle the case where the Guns array is not populated
 		UE_LOG(LogTemp, Error, TEXT("Guns array is empty or index out of bounds!"));
+	}
+
+	if (WeaponHUDWidgetClass)
+	{
+		WeaponHUD = CreateWidget<USGWeaponsHUD>(GetWorld(), WeaponHUDWidgetClass);
+		if (WeaponHUD)
+		{
+			WeaponHUD->AddToViewport();
+		}
 	}
 }
 
@@ -65,6 +79,14 @@ void ASGPlayerCharacter::BeginPlay()
 void ASGPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (WeaponHUD && Guns[CurrentGunIndex])
+	{
+		WeaponHUD->UpdWeaponName(Guns[CurrentGunIndex]->GetWeaponDisplayName());
+		WeaponHUD->UpdAmmoClip(Guns[CurrentGunIndex]->GetAmmoClip());
+		WeaponHUD->UpdAmmoStock(Guns[CurrentGunIndex]->GetAmmoStock());
+	}
+	
 /*
 	if (GrapplingHook->HeadAttached())
 	{
@@ -120,7 +142,16 @@ void ASGPlayerCharacter::FireGrapple()
 void ASGPlayerCharacter::FireGun()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Trying to fire gun at index: %d"), CurrentGunIndex);
-	if (Guns[CurrentGunIndex]) Guns[CurrentGunIndex]->Fire();
+	ASGGun* Gun = Guns[CurrentGunIndex];
+	if (Gun)
+	{
+		if (Gun->GetAmmoClip() <= 0)
+		{
+			ReloadGun();
+		}
+		
+		Gun->Fire();
+	}
 }
 
 void ASGPlayerCharacter::ReloadGun()
