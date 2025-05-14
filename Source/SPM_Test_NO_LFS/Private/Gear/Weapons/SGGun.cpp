@@ -89,13 +89,11 @@ void ASGGun::Reload()
 
 	bIsReloading = true;
 
-	// Optional: Play reload sound immediately
 	if (ReloadSound && Mesh) 
 	{
 		UGameplayStatics::SpawnSoundAttached(ReloadSound, Mesh, TEXT("MuzzleFlashSocket"));
 	}
 
-	// Schedule completion of reload after delay
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ASGGun::FinishReloading, ReloadTime, false);
 }
 
@@ -123,14 +121,14 @@ int32 ASGGun::GetAmmoClip()
 		}
 	}
 
-	return 999;
+	return -1;
 }
 
 int32 ASGGun::GetAmmoStock()
 {
 	if (bInfiniteAmmo)
 	{
-		return 999;
+		return -1;
 	}
 	
 	return Ammo;
