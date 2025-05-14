@@ -36,6 +36,7 @@ public:
 	AActor* GetPooledObject(TSubclassOf<AActor>& ObjectClass);
 	void ReturnObjectToPool(AActor* Object);
 
+	int32 GetPoolSize(const TSubclassOf<AActor>& ObjectClass) const;
 private:
 	UFUNCTION()
 	void OnPreLevelChange(const FString& MapName);
