@@ -211,11 +211,11 @@ void ASGAIControllerEnemyBase::SetInitialValues()
 	}
 }
 
-void ASGAIControllerEnemyBase::SetJumpingMode()
+/*void ASGAIControllerEnemyBase::SetJumpingMode()
 {
 	ControlledEnemy->bUseControllerRotationYaw = true;
 	ControlledEnemy->GetCharacterMovement()->bOrientRotationToMovement = true;
-}
+}*/
 
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 {
