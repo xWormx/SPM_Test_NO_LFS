@@ -147,12 +147,6 @@ void ASGTerminal::OpenTerminal()
 	{
 		
 		HUDTerminal->SetObjectiveHandler(GameObjectivesHandler);
-		USGObjectiveToolTipWidget* ToolTipWidget = GameObjectivesHandler->GetObjectiveToolTipWidget();
-		if (ToolTipWidget)
-		{
-			if (!ToolTipWidget->GetIsHidden())
-				ToolTipWidget->InterruptAndHide();	
-		}
 		OnTerminalOpen.Broadcast();
 	}
 	else
