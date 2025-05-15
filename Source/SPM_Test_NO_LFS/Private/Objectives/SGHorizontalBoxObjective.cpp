@@ -6,6 +6,46 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
+void USGHorizontalBoxObjective::PauseAllOngoingAnimations()
+{
+	if (IsAnimationPlaying(AnimationUpdateValue))
+	{
+		bAnimationUpdateValueWasPaused = true;
+		AnimationUpdateValuePauseTime = PauseAnimation(AnimationUpdateValue);	
+	}
+	if (IsAnimationPlaying(AnimationKeyStartObjective))
+	{
+		bAnimationKeyStartObjectiveWasPaused = true;
+		AnimationKeyStartObjectivePauseTime = PauseAnimation(AnimationKeyStartObjective);	
+	}
+	if (IsAnimationPlaying(AnimationValueCompleted))
+	{
+		bAnimationValueCompletedWasPaused = true;
+		AnimationValueCompletedPauseTime = PauseAnimation(AnimationValueCompleted);	
+	}
+	
+	
+}
+
+void USGHorizontalBoxObjective::ResumeAllOngoingAnimations()
+{
+	if (bAnimationUpdateValueWasPaused)
+	{
+		bAnimationUpdateValueWasPaused = false;
+		PlayAnimation(AnimationUpdateValue, AnimationUpdateValuePauseTime);	
+	}
+	if (bAnimationKeyStartObjectiveWasPaused)
+	{
+		bAnimationKeyStartObjectiveWasPaused = false;
+		PlayAnimation(AnimationKeyStartObjective, AnimationKeyStartObjectivePauseTime);
+	}
+	if (bAnimationValueCompletedWasPaused)
+	{
+		bAnimationValueCompletedWasPaused = false;
+		PlayAnimation(AnimationValueCompleted, AnimationValueCompletedPauseTime);
+	}
+}
+
 void USGHorizontalBoxObjective::SetKeyValue(FText KeyText, FText ValueText)
 {
 	if (TextBlockKey)

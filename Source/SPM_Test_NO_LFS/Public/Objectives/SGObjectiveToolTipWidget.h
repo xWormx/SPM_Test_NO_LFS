@@ -37,6 +37,8 @@ public:
 	
 	const bool& GetTimerAnimationFinished() const  { return bTimerAnimationFinished; }
 
+	void PauseAllOngoingAnimations();
+	void ResumeAllOngoingAnimations();
 	void ShowVisitTerminal();
 	void HideVisitTerminal();
 	void ShowMissionVerticalBox();
@@ -47,7 +49,8 @@ public:
 	void AddProgressTextElement(FText KeyText, FText ValueText);
 	USGHorizontalBoxObjective* CreateProgressTextElement(FText KeyText, FText ValueText);
 	USGHorizontalBoxObjective* GetHorizontalBoxAtIndex(int32 index);
-	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective() { return CurrentHorizontalBoxObjectiveElement; } 
+	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective() { return CurrentHorizontalBoxObjectiveElement; }
+	TArray<USGHorizontalBoxObjective*> GetHorizontalBoxObjectiveList() {return HorizontalObjectiveList; }
 protected:
 	
 	virtual void NativeConstruct() override;
@@ -87,10 +90,13 @@ protected:
 	//Animations
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* AnimationToolTipOutOfWindow;
+	float AnimationToolTipOutOfWindowPauseTime;
+	bool bAnimationToolTipOutOfWindowWasPaused;
+
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* AnimationVisitTerminal;
-
-	
+	float AnimationVisitTerminalPauseTime;
+	bool bAnimationVisitTerminalWasPaused;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	USoundBase* TextClickSound;
