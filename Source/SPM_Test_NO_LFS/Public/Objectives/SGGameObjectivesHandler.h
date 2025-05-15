@@ -45,8 +45,11 @@ public:
 	ASGObjectiveBase* GetLastCompletedObjective() const { return LastCompletedObjective; }
 	EObjectiveType GetLastCompletedObjectiveType() const { return LastCompletedObjective->GetObjectiveType(); }
 	TArray<ASGObjectiveBase*> GetAllObjectives() const { return GameObjectives; }
+
+	
 	FOnObjectiveStarted OnObjectiveStarted;
 	FOnObjectiveCompleted OnObjectiveCompleted;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -70,9 +73,6 @@ private:
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	float ObjectiveToolTipFadeFactor = 1.0f;
-	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<ASGObjectiveBase*> GameObjectives;
 
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
@@ -80,13 +80,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	ASGObjectiveBase* LastCompletedObjective;
 
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TSubclassOf<ASGEnemyCharacter> TargetCharacterClass;
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	TArray<ASGEnemyCharacter*> TargetCharacters;
 
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TSubclassOf<ASGPickUpObjectiveCollect> TargetCollectibleClass;
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	TArray<ASGPickUpObjectiveCollect*> TargetCollectibles;
 	
