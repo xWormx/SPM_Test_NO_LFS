@@ -35,7 +35,6 @@ void ASGGameObjectivesHandler::BeginPlay()
 		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 		ObjectiveToolTipWidget->ShowVisitTerminal();
 		ObjectiveToolTipWidget->HideToolTipScaleBox();
-		ObjectiveToolTipWidget->SetFadeFactor(ObjectiveToolTipFadeFactor);
 	}
 }
 
