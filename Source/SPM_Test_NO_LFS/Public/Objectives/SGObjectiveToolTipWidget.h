@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SGObjectiveToolTipWidget.generated.h"
 
+class UOverlay;
 class UTextBlock;
 class UImage;
 class USGDifficultyBarWidget;
@@ -62,6 +63,8 @@ protected:
 	// Visit Terminal Text
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UTextBlock* TextBlockVisitTerminal;
+	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
+	UOverlay* OverlayVisitTerminal;
 	
 	// ProgressWindow NEW
 	UPROPERTY(EditAnywhere)

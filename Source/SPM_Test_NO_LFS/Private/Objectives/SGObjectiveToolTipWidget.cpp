@@ -22,6 +22,10 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	if (OverlayVisitTerminal)
+	{
+		//OverlayVisitTerminal->SetVisibility(ESlateVisibility::V);
+	}
 	if (TextBlockVisitTerminal)
 	{
 		TextBlockVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
@@ -34,7 +38,6 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 			DifficultyBarWidget->AddToViewport();
 			DifficultyBarWidget->SetVisibility(ESlateVisibility::Visible);
 		}
-			
 	}
 }
 
@@ -134,12 +137,14 @@ void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
 
 void USGObjectiveToolTipWidget::ShowVisitTerminal()
 {
+	OverlayVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
 	TextBlockVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
 	PlayAnimation(AnimationVisitTerminal, 0, 0);
 }
 
 void USGObjectiveToolTipWidget::HideVisitTerminal()
 {
+	OverlayVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
 	TextBlockVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
 	StopAnimation(AnimationVisitTerminal);
 }
