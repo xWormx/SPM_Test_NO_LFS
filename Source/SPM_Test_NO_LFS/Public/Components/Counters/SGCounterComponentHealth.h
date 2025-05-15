@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "UProperty - Counter Component")
 	float GetBufferedHealth() const;
 
+	UFUNCTION(BlueprintPure, Category = "UProperty - Counter Component")
+	float GetBufferCapacity() const;
+
 protected:
 
 	virtual void BeginPlay() override;
