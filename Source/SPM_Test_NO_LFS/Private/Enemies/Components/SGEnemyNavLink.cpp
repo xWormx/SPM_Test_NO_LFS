@@ -28,8 +28,11 @@ void ASGEnemyNavLink::OnSmartLinkReachedHandler(AActor* MovingActor, const FVect
 
 	if (ASGEnemyCharacter* Character = Cast<ASGEnemyCharacter>(MovingActor))
 	{
-		Character->JumpToLocation(DestinationPoint);
-		BASIR_DEBUG(TEXT("Should Jump"), FColor::Green, 3.f);
+		if (ASGAIControllerEnemyBase* AIController = Cast<ASGAIControllerEnemyBase>(Character->GetController()))
+		{
+			Character->JumpToLocation(DestinationPoint);
+			AIController->bIsJumping = true;
+		}
 	}
 	
 }
