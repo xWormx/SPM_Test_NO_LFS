@@ -33,9 +33,7 @@ class SPM_TEST_NO_LFS_API USGObjectiveToolTipWidget : public UUserWidget
 public:
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	void Display(FText NewToolTip);
-	void DisplayTimer(FText NewTimerText);
-	void SetFadeFactor(float NewFadeFactor) { FadeFactor = NewFadeFactor; }
-	const bool& GetIsHidden() const { return bIsHidden; }
+	
 	const bool& GetTimerAnimationFinished() const  { return bTimerAnimationFinished; }
 
 	void ShowVisitTerminal();
@@ -45,7 +43,6 @@ public:
 	void ShowToolTipScaleBox();
 	void HideToolTipScaleBox();
 	
-	void InterruptAndHide() { Hide(); }
 	void AddProgressTextElement(FText KeyText, FText ValueText);
 	USGHorizontalBoxObjective* CreateProgressTextElement(FText KeyText, FText ValueText);
 	USGHorizontalBoxObjective* GetHorizontalBoxAtIndex(int32 index);
@@ -54,16 +51,6 @@ protected:
 	
 	virtual void NativeConstruct() override;
 
-	// Timer
-	/*UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	UScaleBox* ScaleBoxTimer;
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UTextBlock* TextTimer;
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UOverlay* TimerOverlay;
-	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	class UImage* TimerImage;
-	*/
 	// ToolTip
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UScaleBox* ScaleBoxToolTip;
@@ -101,20 +88,6 @@ protected:
 	UWidgetAnimation* AnimationVisitTerminal;
 
 	
-	UPROPERTY(VisibleAnywhere)
-	bool bIsHidden = true;
-	
-	UPROPERTY(VisibleAnywhere)
-	bool bHasFadedOut = false;
-	
-	UPROPERTY(VisibleAnywhere)
-	bool bShouldRender = false;
-
-	UPROPERTY(VisibleAnywhere)
-	float CurrentOpacity = 1.0f;
-	
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-	float FadeFactor = 0.3f;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	USoundBase* TextClickSound;
@@ -127,15 +100,12 @@ private:
 	bool bTimerAnimationFinished = false;
 	FVector2D ScaleBoxTimerFinalPosition;
 	FVector2D ScaleBoxTimerFinalSize;
-	void Render(float InDeltaTime);
-	void Hide();
+	void UpdateDifficultyBar(float InDeltaTime);
 	void SetToolTipText(FText NewToolTip);
 	
 
 	UFUNCTION()
 	void DisplayCharByChar(const FString& StringToolTip);
-	UFUNCTION()
-	void SetScaleBoxTransformAfterAnimation();	
 	UFUNCTION()
 	void OnEndMoveToolTipAnimation();
 	UFUNCTION()
@@ -145,6 +115,5 @@ private:
 	FWidgetAnimationDynamicEvent EndMoveToolTipToProgressWindowAnimation;
 	FWidgetAnimationDynamicEvent EndHideToolTipAnimation;
 };
-
 
 
