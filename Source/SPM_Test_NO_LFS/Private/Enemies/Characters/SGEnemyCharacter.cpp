@@ -10,7 +10,7 @@
 ASGEnemyCharacter::ASGEnemyCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
 
 	Tags.Add("Enemy");
@@ -47,11 +47,11 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth()); // EnemySpawnManager hanterar poolning
 }
 
-// Called every frame
+/*// Called every frame
 void ASGEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
+}*/
 
 // Called to bind functionality to input
 void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

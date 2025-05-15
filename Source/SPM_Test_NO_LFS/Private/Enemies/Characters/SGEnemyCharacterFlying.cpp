@@ -9,7 +9,7 @@
 
 ASGEnemyCharacterFlying::ASGEnemyCharacterFlying()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	AttackComponent = CreateDefaultSubobject<USGEnemyChargeAttackComponent>(TEXT("ChargeAttackComponent"));
 
@@ -27,10 +27,10 @@ void ASGEnemyCharacterFlying::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ASGEnemyCharacterFlying::Tick(float DeltaTime)
+/*void ASGEnemyCharacterFlying::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
+}*/
 
 void ASGEnemyCharacterFlying::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {

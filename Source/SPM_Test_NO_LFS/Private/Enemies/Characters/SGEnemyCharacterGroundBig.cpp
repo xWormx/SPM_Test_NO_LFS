@@ -7,15 +7,15 @@
 
 ASGEnemyCharacterGroundBig::ASGEnemyCharacterGroundBig()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	AttackComponent = CreateDefaultSubobject<USGEnemyMeleAttackComponent>(TEXT("MeleeComponent"));
 }
 
-void ASGEnemyCharacterGroundBig::Tick(float DeltaTime)
+/*void ASGEnemyCharacterGroundBig::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
+}*/
 
 void ASGEnemyCharacterGroundBig::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
