@@ -57,10 +57,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class ASGGameObjectivesHandler* GameObjectivesHandler;
-
+/*
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
-
+*/
 	// Sprite Above Terminal
 	UPROPERTY(EditAnywhere)
 	UPaperSpriteComponent* SpriteComponentAlert;

@@ -110,6 +110,49 @@ void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 	}), 0.05f, true);
 }
 
+void USGObjectiveToolTipWidget::PauseAllOngoingAnimations()
+{
+	for (USGHorizontalBoxObjective* HorizontalBoxObject : HorizontalObjectiveList)
+	{
+		HorizontalBoxObject->PauseAllOngoingAnimations();
+	}
+
+	if (IsAnimationPlaying(AnimationVisitTerminal))
+	{
+		bAnimationVisitTerminalWasPaused = true;
+		AnimationVisitTerminalPauseTime = PauseAnimation(AnimationVisitTerminal);
+	}
+		
+	if (IsAnimationPlaying(AnimationToolTipOutOfWindow))
+	{
+		bAnimationToolTipOutOfWindowWasPaused = true;
+		AnimationToolTipOutOfWindowPauseTime = PauseAnimation(AnimationToolTipOutOfWindow);
+	}
+		
+	
+}
+
+void USGObjectiveToolTipWidget::ResumeAllOngoingAnimations()
+{
+	for (USGHorizontalBoxObjective* HorizontalBoxObject : HorizontalObjectiveList)
+	{
+		HorizontalBoxObject->ResumeAllOngoingAnimations();
+	}
+	if (bAnimationToolTipOutOfWindowWasPaused)
+	{
+		bAnimationToolTipOutOfWindowWasPaused = false;
+		PlayAnimation(AnimationToolTipOutOfWindow, AnimationToolTipOutOfWindowPauseTime);
+	}
+	
+	if (bAnimationVisitTerminalWasPaused)
+	{
+		bAnimationVisitTerminalWasPaused = false;
+		PlayAnimation(AnimationVisitTerminal, AnimationVisitTerminalPauseTime, 0);	
+	}
+	
+	
+}
+
 
 void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 {

@@ -96,6 +96,9 @@ void ASGTerminal::OnCloseTerminalClicked()
 
 void ASGTerminal::CloseTerminal()
 {
+	USGObjectiveToolTipWidget* ObjectiveToolTip = GameObjectivesHandler->GetObjectiveToolTipWidget();
+	if (ObjectiveToolTip)
+		ObjectiveToolTip->ResumeAllOngoingAnimations();
 	if (HUDTerminal == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ASGTerminal - CloseTerminal(): HUDTerminal was nullptr"))
@@ -119,6 +122,7 @@ void ASGTerminal::CloseTerminal()
 void ASGTerminal::OpenTerminal()
 {
 	InitializeHUD();
+	GameObjectivesHandler->GetObjectiveToolTipWidget()->PauseAllOngoingAnimations();
 	if (HUDTerminal == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ASGTerminal - OpenTerminal(): HUDTerminal was nullptr"))
