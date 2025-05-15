@@ -9,7 +9,7 @@
 
 ASGEnemyCharacterFlying::ASGEnemyCharacterFlying()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	AttackComponent = CreateDefaultSubobject<USGEnemyChargeAttackComponent>(TEXT("ChargeAttackComponent"));
 

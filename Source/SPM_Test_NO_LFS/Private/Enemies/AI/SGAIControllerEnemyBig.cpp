@@ -6,6 +6,7 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyMeleAttackComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ASGAIControllerEnemyBig::ASGAIControllerEnemyBig()
 {
@@ -56,3 +57,21 @@ void ASGAIControllerEnemyBig::Tick(float DeltaTime)
 	HandleMovement();
 	RotateTowardsTargetWhileNotMoving();
 }
+
+/*void ASGAIControllerEnemyBig::JumpToLocation(const FVector& Destination)
+{
+	if (!ControlledEnemy) return;
+
+	FVector CurrentLocation = ControlledEnemy->GetActorLocation();
+	FVector ToTarget = Destination - CurrentLocation;
+
+	// Add vertical lift manually
+	FVector JumpVelocity = ToTarget.GetSafeNormal() * 600.f; // Forward speed
+	JumpVelocity.Z = 420.f; // Vertical lift — tweak as needed
+
+	// Optional: face the jump direction
+	FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, Destination);
+	ControlledEnemy->SetActorRotation(NewRotation);
+
+	ControlledEnemy->LaunchCharacter(JumpVelocity, true, true);
+}*/

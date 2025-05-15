@@ -1,8 +1,11 @@
 ﻿
 #include "Enemies/Components/SGEnemyNavLink.h"
 
+#include "SPM_Test_NO_LFS.h"
 #include "Enemies/AI/SGAIControllerEnemyBase.h"
-#include "GameFramework/Character.h"
+#include "Enemies/AI/SGAIControllerEnemyBig.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
+
 #include "Navigation/NavLinkProxy.h"
 
 ASGEnemyNavLink::ASGEnemyNavLink()
@@ -22,16 +25,11 @@ void ASGEnemyNavLink::BeginPlay()
 
 void ASGEnemyNavLink::OnSmartLinkReachedHandler(AActor* MovingActor, const FVector& DestinationPoint)
 {
-	ACharacter* Character = Cast<ACharacter>(MovingActor);
 
-	if (Character)
+	if (ASGEnemyCharacter* Character = Cast<ASGEnemyCharacter>(MovingActor))
 	{
-		ASGAIControllerEnemyBase* AIController = Cast<ASGAIControllerEnemyBase>(Character->GetController());
-
-		if (AIController)
-		{
-			//AIController->JumpTowardsTarget(DestinationPoint);
-		}
+		Character->JumpToLocation(DestinationPoint);
+		BASIR_DEBUG(TEXT("Should Jump"), FColor::Green, 3.f);
 	}
 	
 }
