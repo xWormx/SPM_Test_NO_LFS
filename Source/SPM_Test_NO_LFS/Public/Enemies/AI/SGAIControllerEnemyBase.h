@@ -97,7 +97,12 @@ protected:
 
 	void SetInitialValues();
 
+	/*void SetJumpingMode();
+
+	struct FTimerHandle JumpTimerHandle;*/
+
 public:
 	virtual void Tick(float DeltaTime) override;
-	
+
+	//bool bIsJumping = false;
 };
