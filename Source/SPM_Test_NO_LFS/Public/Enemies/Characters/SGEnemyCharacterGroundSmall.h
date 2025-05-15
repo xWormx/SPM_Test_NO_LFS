@@ -15,7 +15,7 @@ class SPM_TEST_NO_LFS_API ASGEnemyCharacterGroundSmall : public ASGEnemyCharacte
 	GENERATED_BODY()
 public:
 	ASGEnemyCharacterGroundSmall();
-	virtual void Tick(float DeltaTime) override;
+	//virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 protected:

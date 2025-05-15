@@ -7,15 +7,15 @@
 
 ASGEnemyCharacterGroundSmall::ASGEnemyCharacterGroundSmall()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	AttackComponent = CreateDefaultSubobject<USGEnemyShootAttackComponent>(TEXT("ShootAttackComponent"));
 }
 
-void ASGEnemyCharacterGroundSmall::Tick(float DeltaTime)
+/*void ASGEnemyCharacterGroundSmall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
+}*/
 
 void ASGEnemyCharacterGroundSmall::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
