@@ -516,5 +516,5 @@ void USGUpgradeSubsystem::AnnounceUpgrade(const FSGAUpgradeResult& UpgradeResult
 
 bool USGUpgradeSubsystem::IsValidProperty(const FProperty* Property) const
 {
-	return Property && !Property->IsA<FFloatProperty>();
+	return Property && Property->IsA<FFloatProperty>();
 }
