@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "SGObjectiveToolTipWidget.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDifficultyChanged, int, NewDifficultLevel);
+
 class UOverlay;
 class UTextBlock;
 class UImage;
@@ -51,6 +53,8 @@ public:
 	USGHorizontalBoxObjective* GetHorizontalBoxAtIndex(int32 index);
 	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective() { return CurrentHorizontalBoxObjectiveElement; }
 	TArray<USGHorizontalBoxObjective*> GetHorizontalBoxObjectiveList() {return HorizontalObjectiveList; }
+
+	FOnDifficultyChanged OnDifficultyChanged;
 protected:
 	
 	virtual void NativeConstruct() override;
@@ -86,7 +90,8 @@ protected:
 	USGDifficultyBarWidget* DifficultyBarWidget;
 	UPROPERTY(VisibleAnywhere)
 	float DifficultyBarOffsetLeft = 0.0f;
-	
+	UPROPERTY(VisibleAnywhere)
+	int DifficultLevel = 0;
 	//Animations
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* AnimationToolTipOutOfWindow;
