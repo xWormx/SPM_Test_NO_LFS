@@ -10,7 +10,7 @@
 ASGEnemyCharacter::ASGEnemyCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
 
 	Tags.Add("Enemy");

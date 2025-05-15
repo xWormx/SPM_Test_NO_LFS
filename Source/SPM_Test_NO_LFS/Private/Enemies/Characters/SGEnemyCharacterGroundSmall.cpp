@@ -7,7 +7,7 @@
 
 ASGEnemyCharacterGroundSmall::ASGEnemyCharacterGroundSmall()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	AttackComponent = CreateDefaultSubobject<USGEnemyShootAttackComponent>(TEXT("ShootAttackComponent"));
 }
