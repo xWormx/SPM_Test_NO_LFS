@@ -21,15 +21,7 @@
 void USGObjectiveToolTipWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-/*
-	EndMoveToolTipToProgressWindowAnimation.BindDynamic(this, &USGObjectiveToolTipWidget::OnEndMoveToolTipAnimation);
-	if (AnimationToolTipOutOfWindow)
-	{
-		BindToAnimationFinished(AnimationToolTipOutOfWindow, EndMoveToolTipToProgressWindowAnimation);
-	}
-	EndHideToolTipAnimation.BindDynamic(this, &USGObjectiveToolTipWidget::OnEndHideToolTipAnimation);
 
-*/	
 	if (TextBlockVisitTerminal)
 	{
 		TextBlockVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
@@ -52,6 +44,7 @@ void USGObjectiveToolTipWidget::AddProgressTextElement(FText KeyText, FText Valu
 	FMargin VerticalPadding = FMargin(80,10,80,0);
 	USGHorizontalBoxObjective* NewHorizontalBox = CreateWidget<USGHorizontalBoxObjective>(this, HorizontalBoxObjectiveClass);
 	NewHorizontalBox->SetKey(KeyText);
+	NewHorizontalBox->SetValue(ValueText);
 	NewHorizontalBox->SetValue(ValueText);
 	NewHorizontalBox->HideFail();
 	NewHorizontalBox->HideSucceed();
@@ -107,44 +100,33 @@ void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 	ScaleBoxToolTip->SetVisibility(ESlateVisibility::HitTestInvisible);
 	PlayAnimation(AnimationToolTipOutOfWindow, 0, 1);
 	//ToolTip->SetText(NewToolTip);
-	bIsHidden = false;
+	// = false;
 	GetWorld()->GetTimerManager().SetTimer(CharByCharTimer, FTimerDelegate::CreateLambda([this, NewToolTip]()
 	{
 		DisplayCharByChar(NewToolTip.ToString());	
 	}), 0.05f, true);
 }
 
-void USGObjectiveToolTipWidget::DisplayTimer(FText NewTimerText)
+
+void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 {
-	/*
-	ScaleBoxTimer->SetVisibility(ESlateVisibility::HitTestInvisible);
-	TextTimer->SetText(NewTimerText);
-	if (UCanvasPanelSlot* ScaleBoxSlot = Cast<UCanvasPanelSlot>(ScaleBoxTimer->Slot))
-	{
-		if (!bTimerAnimationFinished)
-		{
-			ScaleBoxTimerFinalPosition = ScaleBoxSlot->GetPosition();
-			ScaleBoxTimerFinalSize = ScaleBoxSlot->GetSize();
-		}
-	}
-	if (!bTimerAnimationFinished)
-		PlayAnimation(ShrinkAndMoveTimer, 0 ,1);
+	DifficultyBarOffsetLeft += 10*InDeltaTime;
+	DifficultyBarWidget->MoveOverlaysLeft(DifficultyBarOffsetLeft);
+	int index = 0;
+	//UE_LOG(LogTemp, Warning, TEXT("Trigger: %f"), DifficultyBarWidget->GetTriggerAbsolutePositionX());
 	
-	if (IsAnimationPlaying(ShrinkAndMoveTimer))
+	for (UOverlay* overlay : DifficultyBarWidget->GetOverlays())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ShrinkAndMoveTimer is playing"));
+		if (overlay->GetCachedGeometry().GetAbsolutePosition().X < DifficultyBarWidget->GetTriggerAbsolutePositionX() &&
+			overlay->GetCachedGeometry().GetAbsolutePosition().X > 0.0f)
+		{
+			// TODO (Calle): Vill Broadcasta när nästa svårighetsgrad nås!
+			//UE_LOG(LogTemp, Warning, TEXT("%d: is past the Trigger"), index);
+		}
+		//UE_LOG(LogTemp, Warning, TEXT("%d: %f"), index, overlay->GetCachedGeometry().GetAbsolutePosition().X);
+		index++;
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ShrinkAndMoveTimer is NOOOT playing"));
-	}
-*/
 }
-
-void USGObjectiveToolTipWidget::Render(float InDeltaTime)
-{
-}
-
 void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
 {
 	ToolTip->SetText(NewToolTip);
@@ -186,33 +168,18 @@ void USGObjectiveToolTipWidget::HideToolTipScaleBox()
 void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-	Render(InDeltaTime);
-	DifficultyBarOffsetLeft += 10*InDeltaTime;
-	DifficultyBarWidget->MoveOverlaysLeft(DifficultyBarOffsetLeft);
-	int index = 0;
-	//UE_LOG(LogTemp, Warning, TEXT("Trigger: %f"), DifficultyBarWidget->GetTriggerAbsolutePositionX());
-	
-	for (UOverlay* overlay : DifficultyBarWidget->GetOverlays())
-	{
-		if (overlay->GetCachedGeometry().GetAbsolutePosition().X < DifficultyBarWidget->GetTriggerAbsolutePositionX() &&
-			overlay->GetCachedGeometry().GetAbsolutePosition().X > 0.0f)
-		{
-			// TODO (Calle): Vill Broadcasta när nästa svårighetsgrad nås!
-			//UE_LOG(LogTemp, Warning, TEXT("%d: is past the Trigger"), index);
-		}
-		//UE_LOG(LogTemp, Warning, TEXT("%d: %f"), index, overlay->GetCachedGeometry().GetAbsolutePosition().X);
-		index++;
-	}
+	UpdateDifficultyBar(InDeltaTime);
 }
-
+/*
 void USGObjectiveToolTipWidget::Hide()
 {
-	CurrentOpacity = 1.0f;
+	
 	bHasFadedOut = true;
 	bShouldRender = false;
 	bIsHidden = true;
+	
 }
-
+*/
 void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 {
 	if (++CharIndex <= StringToolTip.Len())
@@ -229,25 +196,10 @@ void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 	}
 }
 
-void USGObjectiveToolTipWidget::SetScaleBoxTransformAfterAnimation()
-{
-	/*
-	UE_LOG(LogTemp, Warning, TEXT("End of ToolTipWidget Animation!"));
-	bTimerAnimationFinished = true;
-	// Hämtar position och storlek vid slutet av animationen och sätter den till den nya riktiga pos/size.
-	if (UCanvasPanelSlot* ScaleBoxSlot = Cast<UCanvasPanelSlot>(ScaleBoxTimer->Slot))
-	{
-		ScaleBoxSlot->SetPosition(ScaleBoxTimerFinalPosition);
-		ScaleBoxSlot->SetSize(ScaleBoxTimerFinalSize);
-	}
-	StopAnimation(ShrinkAndMoveTimer);
-	*/
-}
 
 void USGObjectiveToolTipWidget::OnEndMoveToolTipAnimation()
 {
 	StopAnimation(AnimationToolTipOutOfWindow);
-	
 }
 
 void USGObjectiveToolTipWidget::OnEndHideToolTipAnimation()
