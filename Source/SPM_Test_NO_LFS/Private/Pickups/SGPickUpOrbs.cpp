@@ -15,18 +15,16 @@ ASGPickUpOrbs::ASGPickUpOrbs()
 	Tags.Add(FName("PickUpOrb"));
 	OrbEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("OrbEffect"));
 	OrbEffect->SetupAttachment(RootComponent);
-	
-	InterpSpeed = 1.0f;
-}
 
+}
 
 void ASGPickUpOrbs::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	if (PlayerCharacter)
 	{
 		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), PlayerCharacter->GetActorRotation(), DeltaTime, InterpSpeed);
-		FVector NewLocation = FMath::VInterpTo(GetActorLocation(), PlayerCharacter->GetActorLocation(), DeltaTime, InterpSpeed);
-		SetActorLocationAndRotation( NewLocation, NewRotation);
+		SetActorRotation(NewRotation);
 	}
 }

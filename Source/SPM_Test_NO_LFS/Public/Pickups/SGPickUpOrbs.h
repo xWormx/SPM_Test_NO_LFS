@@ -26,5 +26,4 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
 	class UNiagaraComponent* OrbEffect;
-
 };
