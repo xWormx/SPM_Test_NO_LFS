@@ -9,7 +9,8 @@
 void ASGObjectiveKillEmAll::OnStart(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	Super::OnStart(ObjectiveHandler);
-	HorizontalBoxProgressElement.Add(ObjectiveHandler->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(TEXT("ENEMIES KILLED:")), FText::FromString(TEXT("0/0"))));
+	FString StrEnemiesKilled = FString::Printf(TEXT("%d/%d"), CurrentEnemiesKilled, EnemiesToKill);
+	HorizontalBoxProgressElement.Add(ObjectiveHandler->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(TEXT("ENEMIES KILLED:")), FText::FromString(StrEnemiesKilled)));
 }
 
 bool ASGObjectiveKillEmAll::IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
