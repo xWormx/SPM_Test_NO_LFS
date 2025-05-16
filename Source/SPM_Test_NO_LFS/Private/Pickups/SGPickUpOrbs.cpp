@@ -7,6 +7,7 @@ void ASGPickUpOrbs::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerCharacter = Cast<ASGPlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	InterpSpeed = 1.0f;
 }
 
 ASGPickUpOrbs::ASGPickUpOrbs()
