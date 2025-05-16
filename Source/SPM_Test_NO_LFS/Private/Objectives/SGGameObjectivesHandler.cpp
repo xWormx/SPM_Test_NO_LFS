@@ -10,6 +10,7 @@
 #include "Player/SGPlayerController.h"
 #include "Objectives/SGTerminalWidget.h"
 #include "Components/Button.h"
+#include "Core/SGGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGHorizontalBoxObjective.h"
 #include "Objectives/SGObjectiveDefendThePod.h"
@@ -31,10 +32,16 @@ void ASGGameObjectivesHandler::BeginPlay()
 	if (PlayerController)
 	{
 		ObjectiveToolTipWidget = Cast<USGObjectiveToolTipWidget>(CreateWidget<USGObjectiveToolTipWidget>(PlayerController, ObjectiveToolTipClass));
+		USGGameInstance* GameInstance = Cast<USGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (GameInstance)
+		{
+			GameInstance->SetObjectiveTooltipWidget(ObjectiveToolTipWidget);
+		}
 		ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!
 		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 		ObjectiveToolTipWidget->ShowVisitTerminal();
 		ObjectiveToolTipWidget->HideToolTipScaleBox();
+		
 	}
 }
 
