@@ -7,7 +7,7 @@
 
 ASGEnemyCharacterGroundBig::ASGEnemyCharacterGroundBig()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	AttackComponent = CreateDefaultSubobject<USGEnemyMeleAttackComponent>(TEXT("MeleeComponent"));
 }

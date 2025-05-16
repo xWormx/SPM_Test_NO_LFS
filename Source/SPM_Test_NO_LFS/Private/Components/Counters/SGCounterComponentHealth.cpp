@@ -104,15 +104,29 @@ void USGCounterComponentHealth::StartHealthBufferTimer()
 
 void USGCounterComponentHealth::DecreaseHealthBuffer(const float Amount)
 {
-	if (HealthBuffer > 0)
+	if (HealthBuffer <= 0)
 	{
-		HealthBuffer -= Amount;
+		HealthBuffer = 0;
+		GetWorld()->GetTimerManager().ClearTimer(HealthBufferTimerHandle);
+	}
+	else if (HealthComponent->GetCurrentHealth() < HealthComponent->GetMaxHealth() )
+	{
+		UseHealthBuffer(Amount);
+	}
+	else
+	{
+		UseHealthBuffer(Amount);
+	}
+
+	/*if (HealthBuffer > 0)
+	{
+		UseHealthBuffer(Amount);
 	}
 	else
 	{
 		HealthBuffer = 0;
 		GetWorld()->GetTimerManager().ClearTimer(HealthBufferTimerHandle);
-	}
+	}*/
 }
 
 float USGCounterComponentHealth::GetCurrentHealth() const
@@ -123,4 +137,9 @@ float USGCounterComponentHealth::GetCurrentHealth() const
 float USGCounterComponentHealth::GetBufferedHealth() const
 {
 	return HealthBuffer;
+}
+
+float USGCounterComponentHealth::GetBufferCapacity() const
+{
+	return HealthBufferCapacity;
 }

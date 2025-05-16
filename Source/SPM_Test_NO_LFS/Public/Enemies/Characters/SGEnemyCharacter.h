@@ -42,8 +42,14 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEnemyDiedObjective OnEnemyDiedObjective;
 
+	UPROPERTY(EditAnywhere)
+	float JumpStrength = 500.f; 
+
 	UFUNCTION(BlueprintCallable)
 	USGEnemyAttackComponentBase* GetAttackComponent() const;
+
+	UFUNCTION(BlueprintCallable)
+	void JumpToLocation(const FVector Destination);
 
 protected:
 	UPROPERTY()

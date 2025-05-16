@@ -15,6 +15,13 @@
 		float InitialValue;
 	};
 
+struct FSGAUpgradeResult
+{
+	int32 Level;
+	float Cost;
+	bool bUpgraded;
+};
+
 //TODO: Snygga till. Flera för att undersöka vilka som lär vilja användas för UI osv
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpgradeFull, float, UpgradeLevel, float, UpgradeCost);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpgradeCost, float, UpgradeCost); 
@@ -77,11 +84,8 @@ public:
 
 protected:
 	const FSGAttribute* GetByKey(UObject* Owner, FProperty* Property) const;
-
 	const FSGAttribute* GetByCategory(FName Category, FName RowName) const;
-
 	TArray<const FSGAttribute*> GetByRow(FName RowName) const;
-
 	static uint64 GetKey(UObject* Owner, FProperty* Property);
 
 private:
@@ -109,4 +113,10 @@ protected:
 	void RemoveAttributeFromCollections(const FSGAttribute* Attribute);
 
 	FString GetClassNameKey(UObject* Object) const;
+
+private:
+
+	FSGAUpgradeResult AttemptUpgrade(const FSGAttributeData& AttributeData, const FSGAttribute& TargetAttribute) const;
+	void AnnounceUpgrade(const FSGAUpgradeResult& UpgradeResult) const;
+	bool IsValidProperty(const FProperty* Property) const;
 };

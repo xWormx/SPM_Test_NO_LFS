@@ -31,7 +31,7 @@ void USGUpgradeSubsystem::Deinitialize()
 	Super::Deinitialize();
 }
 
-void USGUpgradeSubsystem::OnPreLevelChange(const FString& String)
+void USGUpgradeSubsystem::OnPreLevelChange([[maybe_unused]] const FString& String)
 {
    PersistentUpgradesByClass.Empty();
 
@@ -100,7 +100,6 @@ void USGUpgradeSubsystem::ProcessObjectForReconnection(UObject* Object)
 	}
 
 	FString ClassNameKey = GetClassNameKey(Object);
-
 	TArray<FSGUpgradePersistentData>* StoredData = PersistentUpgradesByClass.Find(ClassNameKey);
 	if (!StoredData)
 	{
@@ -110,7 +109,7 @@ void USGUpgradeSubsystem::ProcessObjectForReconnection(UObject* Object)
 	for (const FSGUpgradePersistentData& Data : *StoredData)
 	{
 		FProperty* Prop = Object->GetClass()->FindPropertyByName(Data.PropertyName);
-		if (!Prop || !Prop->IsA<FFloatProperty>())
+		if (!IsValidProperty(Prop))
 		{
 			continue;
 		}
@@ -185,16 +184,15 @@ FString USGUpgradeSubsystem::GetClassNameKey(UObject* Object) const
 
 void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName, const FName RowName, const FName Category)
 {
-	if (!ensureMsgf(Owner, TEXT("Owner was nullptr")) || !ensureMsgf(UpgradeDataTable,  TEXT("UpgradeDataTable was nullptr")))
+	if (!Owner)
 	{
 		return;
 	}
 
 	//Hämtar propertyn som ska bindas och gör early return om den inte finns/är giltig
 	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
-	if (!Prop || !Prop->IsA<FFloatProperty>()) // Glöm inte att ändra denna om fler typer än float ska stödjas!
+	if (!IsValidProperty(Prop)) // Glöm inte att ändra denna om fler typer än float ska stödjas!
 	{
-		UE_LOG(LogTemp, Error, TEXT("Property %s not found or not a float property"), *PropertyName.ToString());
 		return;
 	}
 
@@ -243,7 +241,6 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 		// Uppdaterar float-propertyn till den nya nivån
 		Current += NewAttributeRaw->InitialValue * UpgradeData.Multiplier;
 		FloatProp->SetPropertyValue_InContainer(NewAttributeRaw->Owner.Get(), Current);
-		UE_LOG(LogTemp, Error, TEXT("Current %f"), Current);
 	});
 
 	// Lägg till i alla listor/loop-ups
@@ -304,14 +301,14 @@ uint64 USGUpgradeSubsystem::GetKey(UObject* Owner, FProperty* Property)
 
 void USGUpgradeSubsystem::ModifyAttribute(UObject* Owner, FName PropertyName) const
 {
-	if (!ensureMsgf(Owner, TEXT("Owner was nullptr")))
+	if (!Owner)
 	{
 		return;
 	}
 
 	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
 	const FSGAttribute* TargetAttribute = GetByKey(Owner, Prop);
-	if (!ensureMsgf(TargetAttribute, TEXT("TargetAttribute was nullptr")))
+	if (!TargetAttribute)
 	{
 		return;
 	}
@@ -368,15 +365,7 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, UObject* Owner, co
 
 	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
 	const FSGAttribute* TargetAttribute = GetByKey(Owner, Prop);
-	if (!ensureMsgf(TargetAttribute, TEXT("TargetAttribute was nullptr")))
-	{
-		return;
-	}
-
-	const int32 PreviousUpgradeLevel = TargetAttribute->CurrentUpgradeLevel;
-	TargetAttribute->OnAttributeModified.Broadcast();
-	// Early return om attributen inte blev uppgraderad
-	if (PreviousUpgradeLevel == TargetAttribute->CurrentUpgradeLevel)
+	if (!TargetAttribute)
 	{
 		return;
 	}
@@ -388,11 +377,12 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, UObject* Owner, co
 		return;
 	}
 
-	const float UpgradeCost = AttributeData->Data.Cost * TargetAttribute->CurrentUpgradeLevel;
-	OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeCost);
-	OnUpgradeCost.Broadcast(UpgradeCost);
-	OnUpgradeLevel.Broadcast(TargetAttribute->CurrentUpgradeLevel);
-	OnUpgrade.Broadcast();
+	const FSGAUpgradeResult UpgradeResult = AttemptUpgrade(*AttributeData, *TargetAttribute);
+	if (!UpgradeResult.bUpgraded)
+	{
+		return;
+	}
+	AnnounceUpgrade(UpgradeResult);
 }
 
 void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowName) const
@@ -411,31 +401,24 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowNam
 
 	for (const FSGAttribute* TargetAttribute : GetByRow(RowName))
 	{
-		const int32 LevelBeforeUpgrade = TargetAttribute->CurrentUpgradeLevel;
-
-		//Anropar lambdan som skapades vid bindandet.
-		TargetAttribute->OnAttributeModified.Broadcast();
-
-		// Early return om attributen inte blev uppgraderad
-		if (LevelBeforeUpgrade == TargetAttribute->CurrentUpgradeLevel)
+		const FSGAUpgradeResult UpgradeData = AttemptUpgrade(*AttributeData, *TargetAttribute);
+		if (!UpgradeData.bUpgraded)
 		{
 			return;
 		}
-		//Hämtar uppgraderingsdatan för den nya nivån (har uppdaterats efter Broadcasten).
-		const FSGUpgradeData& UpgradeData = AttributeData->Data;
-
-		OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeData.Cost);
-		OnUpgradeCost.Broadcast(UpgradeData.Cost);
-		OnUpgradeLevel.Broadcast(TargetAttribute->CurrentUpgradeLevel);
-		OnUpgrade.Broadcast();
+		AnnounceUpgrade(UpgradeData);
 	}
 }
 
 //------- UI
 void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowName, const FName Category) const
 {
+	if (!bUpgrade)
+	{
+		return;
+	}
 	const FSGAttribute* TargetAttribute = GetByCategory(Category, RowName);
-	if (!TargetAttribute || !bUpgrade)
+	if (!TargetAttribute)
 	{
 		return;
 	}
@@ -447,25 +430,12 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowNam
 		return;
 	}
 
-	//Hämtar uppgraderingsdatan innan den ändras (uppdateras efter Broadcasten).
-	const FSGUpgradeData& UpgradeData = AttributeData->Data;
-	const float UpgradeCost = UpgradeData.Cost * TargetAttribute->CurrentUpgradeLevel;
-
-	const int32 LevelBeforeUpgrade = TargetAttribute->CurrentUpgradeLevel;
-
-	//Anropar lambdan som skapades vid bindandet.
-	TargetAttribute->OnAttributeModified.Broadcast();
-
-	// Early return om attributen inte blev uppgraderad
-	if (LevelBeforeUpgrade == TargetAttribute->CurrentUpgradeLevel)
+	const FSGAUpgradeResult UpgradeResult = AttemptUpgrade(*AttributeData, *TargetAttribute);
+	if (!UpgradeResult.bUpgraded)
 	{
 		return;
 	}
-
-	OnUpgradeFull.Broadcast(TargetAttribute->CurrentUpgradeLevel, UpgradeCost);
-	OnUpgradeCost.Broadcast(UpgradeCost);
-	OnUpgradeLevel.Broadcast(TargetAttribute->CurrentUpgradeLevel);
-	OnUpgrade.Broadcast();
+	AnnounceUpgrade(UpgradeResult);
 
 }
 
@@ -516,4 +486,35 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 	}
 
 	return Out;
+}
+
+//------ UPGRADE HELPERS
+FSGAUpgradeResult USGUpgradeSubsystem::AttemptUpgrade(const FSGAttributeData& AttributeData, const FSGAttribute& TargetAttribute) const
+{
+	// Fetch upgrade data before it changes (updated after the Broadcast).
+	const int32 LevelBeforeUpgrade = TargetAttribute.CurrentUpgradeLevel;
+	const float UpgradeCost = AttributeData.Data.Cost * LevelBeforeUpgrade;
+
+	// Call the lambda created during binding.
+	TargetAttribute.OnAttributeModified.Broadcast();
+
+	//Samla resultat (samlad plats för att modifiera vad som ska skickas ut)
+	FSGAUpgradeResult Result;
+	Result.Level = LevelBeforeUpgrade;
+	Result.Cost = UpgradeCost;
+	Result.bUpgraded = LevelBeforeUpgrade != TargetAttribute.CurrentUpgradeLevel;
+	return Result;
+}
+
+void USGUpgradeSubsystem::AnnounceUpgrade(const FSGAUpgradeResult& UpgradeResult) const
+{
+	OnUpgradeFull.Broadcast(UpgradeResult.Level, UpgradeResult.Cost);
+	OnUpgradeCost.Broadcast(UpgradeResult.Cost);
+	OnUpgradeLevel.Broadcast(UpgradeResult.Level);
+	OnUpgrade.Broadcast();
+}
+
+bool USGUpgradeSubsystem::IsValidProperty(const FProperty* Property) const
+{
+	return Property && Property->IsA<FFloatProperty>();
 }

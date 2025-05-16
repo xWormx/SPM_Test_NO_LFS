@@ -41,7 +41,9 @@ public:
 	UWidgetAnimation* AnimationUpdateValue;
 	UPROPERTY(BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* AnimationValueCompleted;
-	
+
+	void PauseAllOngoingAnimations();
+	void ResumeAllOngoingAnimations();
 	void SetKeyValue(FText KeyText, FText ValueText);
 	void SetKey(FText KeyText);
 	void SetValue(FText ValueText);
@@ -63,6 +65,14 @@ public:
 	UFUNCTION()
 	void PlayAnimationValueCompleted();
 private:
+
+	// Animation Pause info
+	float AnimationKeyStartObjectivePauseTime;
+	float AnimationUpdateValuePauseTime;
+	float AnimationValueCompletedPauseTime;
+	bool bAnimationKeyStartObjectiveWasPaused;
+	bool bAnimationUpdateValueWasPaused;
+	bool bAnimationValueCompletedWasPaused;
 };
 
 

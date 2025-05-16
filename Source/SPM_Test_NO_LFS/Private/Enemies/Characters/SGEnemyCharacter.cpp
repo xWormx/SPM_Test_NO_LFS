@@ -2,15 +2,19 @@
 
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
+
+#include "SPM_Test_NO_LFS.h"
 #include "Enemies/Managers/SGEnemyDropManager.h"
 #include "Components/SGHealthComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ASGEnemyCharacter::ASGEnemyCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
 
 	Tags.Add("Enemy");
@@ -62,4 +66,20 @@ void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent() const
 {
 	return AttackComponent;
+}
+
+void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
+{
+
+	FVector CurrentLocation = GetActorLocation();
+	FVector ToTarget = Destination - CurrentLocation;
+
+	
+	FVector JumpVelocity = ToTarget.GetSafeNormal() * 600.f; 
+	JumpVelocity.Z = 420.f; 
+	
+	FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, Destination);
+	SetActorRotation(NewRotation);
+
+	LaunchCharacter(JumpVelocity, true, true);
 }
