@@ -1,10 +1,9 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
-#include "Enemies/Managers/SGEnemyDropManager.h"
 #include "Components/SGHealthComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/SGObjectPoolSubsystem.h"
+#include "Utils/SGPickUpSubsystem.h"
 
 ASGEnemyCharacter::ASGEnemyCharacter()
 {
@@ -27,15 +26,8 @@ void ASGEnemyCharacter::BeginPlay()
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
 {
-	//TODO: Ska ändras - temporär lösning
-	if (AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), ASGEnemyDropManager::StaticClass()))
-	{
-		if (ASGEnemyDropManager* DropManager = Cast<ASGEnemyDropManager>(Actor))
-		{
-			DropManager->DropItem(this);
-		}
-	}
-	
+	GetGameInstance()->GetSubsystem<USGPickUpSubsystem>()->DropItem(this);
+
 	OnEnemyDied.Broadcast(this);
 	OnEnemyDiedObjective.Broadcast(this);
 
