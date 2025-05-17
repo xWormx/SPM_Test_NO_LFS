@@ -4,7 +4,7 @@
 #include "Pickups/SGPickUp.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 
-ASGEnemyDropManager::ASGEnemyDropManager()
+/*ASGEnemyDropManager::ASGEnemyDropManager()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
@@ -182,5 +182,5 @@ void ASGEnemyDropManager::DropItem(ASGEnemyCharacter* EnemyCharacter) const
 		}
 	};
 
-	EnemyDropDataTable->ForeachRow<FEnemyDropInfo>(DebugMessage, DropLoot);*/
-}
+	EnemyDropDataTable->ForeachRow<FEnemyDropInfo>(DebugMessage, DropLoot);#1#
+}*/
