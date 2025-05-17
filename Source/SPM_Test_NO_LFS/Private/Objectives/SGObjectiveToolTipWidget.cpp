@@ -155,10 +155,10 @@ void USGObjectiveToolTipWidget::ResumeAllOngoingAnimations()
 
 void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 {
-	DifficultyBarOffsetLeft += 50*InDeltaTime;
+	DifficultyBarOffsetLeft += DifficultyBarWidget->GetDifficultBarScrollSpeed()*InDeltaTime;
 	DifficultyBarWidget->MoveOverlaysLeft(DifficultyBarOffsetLeft);
 	int index = 0;
-	
+
 	float FirstElementPosition = DifficultyBarWidget->GetOverlays()[0]->GetCachedGeometry().GetAbsolutePosition().X; 
 	float TriggerAbsolutePosition = DifficultyBarWidget->GetTriggerAbsolutePositionX();
 	//UE_LOG(LogTemp, Warning, TEXT("FirstElement: %f, Trigger: %f"), FirstElementPosition, TriggerAbsolutePosition);
@@ -225,7 +225,19 @@ void USGObjectiveToolTipWidget::HideToolTipScaleBox()
 void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-	UpdateDifficultyBar(InDeltaTime);
+	
+	float LastOverlayAbsolutePosition = DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsolutePosition().X;
+	float WhereToStop = DifficultyBarWidget->GetTriggerAbsolutePositionX() - DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsoluteSize().X / 2;
+	// Fortsätt scrolla DifficultBar tills att sista elementets mitt har nått TriggerPunkten.
+	if (DifficultLevel != DifficultyBarWidget->GetOverlays().Num() || (LastOverlayAbsolutePosition >= WhereToStop && LastOverlayAbsolutePosition >= 0 ))
+	{
+		UpdateDifficultyBar(InDeltaTime);	
+	}
+	else
+	{
+		int i = 0;
+	}
+	
 }
 /*
 void USGObjectiveToolTipWidget::Hide()

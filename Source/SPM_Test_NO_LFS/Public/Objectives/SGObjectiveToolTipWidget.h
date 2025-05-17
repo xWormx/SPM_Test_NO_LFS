@@ -92,6 +92,7 @@ protected:
 	float DifficultyBarOffsetLeft = 0.0f;
 	UPROPERTY(VisibleAnywhere)
 	int DifficultLevel = 0;
+	
 	//Animations
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
 	UWidgetAnimation* AnimationToolTipOutOfWindow;
