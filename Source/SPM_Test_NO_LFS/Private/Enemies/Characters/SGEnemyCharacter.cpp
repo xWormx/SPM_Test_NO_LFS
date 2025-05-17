@@ -1,6 +1,7 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
 #include "Components/SGHealthComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 #include "Utils/SGPickUpSubsystem.h"
@@ -47,7 +48,8 @@ USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent() const
 
 void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 {
-
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	FVector CurrentLocation = GetActorLocation();
 	FVector ToTarget = Destination - CurrentLocation;
 
@@ -59,6 +61,20 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 	SetActorRotation(NewRotation);
 
 	LaunchCharacter(JumpVelocity, true, true);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		JumpTimerHandle,
+		this,
+		&ASGEnemyCharacter::AdjustJumpRotation,
+		1.f,
+		false
+		);
+}
+
+void ASGEnemyCharacter::AdjustJumpRotation()
+{
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 }
 
 void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)

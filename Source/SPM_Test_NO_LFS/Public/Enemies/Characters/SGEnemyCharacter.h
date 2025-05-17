@@ -43,6 +43,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void JumpToLocation(const FVector Destination);
 
+	UFUNCTION(BlueprintCallable)
+	void AdjustJumpRotation();
+
+	FTimerHandle JumpTimerHandle;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USGHealthComponent> HealthComponent;
