@@ -9,6 +9,10 @@ void USGGameInstance::Init()
 {
 	Super::Init();
 
+	if (ObjectiveToolTipClass)
+	{
+		ObjectiveToolTipWidget = Cast<USGObjectiveToolTipWidget>(CreateWidget(this, ObjectiveToolTipClass));
+	}
 	EMMA_LOG(Warning, TEXT("Här är Emmas Log!"));
 	BASIR_LOG(Warning, TEXT("Här är Basirs Log!"));
 	CALLE_LOG(Warning, TEXT("Här är Calles Log!"));
