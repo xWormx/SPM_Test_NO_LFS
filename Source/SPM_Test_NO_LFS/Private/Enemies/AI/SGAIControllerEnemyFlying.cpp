@@ -7,7 +7,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "AIController.h"
 #include "NavigationSystem.h"
-#include "Enemies/Components/SGEnemyMoveToPoint.h"
+#include "Enemies/Navigation/SGEnemyMoveToPoint.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemyFlying::ASGAIControllerEnemyFlying()

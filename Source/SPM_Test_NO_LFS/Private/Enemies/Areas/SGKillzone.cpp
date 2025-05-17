@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGKillzone.h"
+#include "Enemies/Areas/SGKillzone.h"
 
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"

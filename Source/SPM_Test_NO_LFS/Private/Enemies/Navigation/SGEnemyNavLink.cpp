@@ -1,5 +1,5 @@
 ﻿
-#include "Enemies/Components/SGEnemyNavLink.h"
+#include "Enemies/Navigation/SGEnemyNavLink.h"
 
 #include "SPM_Test_NO_LFS.h"
 #include "Enemies/AI/SGAIControllerEnemyBase.h"

@@ -1,4 +1,4 @@
-﻿#include "Enemies/Components/SGEnemyMoveToPoint.h"
+﻿#include "Enemies/Navigation/SGEnemyMoveToPoint.h"
 #include "Components/BillboardComponent.h"
 
 ASGEnemyMoveToPoint::ASGEnemyMoveToPoint()
