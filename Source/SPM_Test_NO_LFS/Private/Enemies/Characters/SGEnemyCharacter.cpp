@@ -1,31 +1,23 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
-#include "SPM_Test_NO_LFS.h"
-#include "Enemies/Managers/SGEnemyDropManager.h"
 #include "Components/SGHealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Utils/SGObjectPoolSubsystem.h"
+#include "Utils/SGPickUpSubsystem.h"
 
-// Sets default values
 ASGEnemyCharacter::ASGEnemyCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
 
 	Tags.Add("Enemy");
 }
 
-// Called when the game starts or when spawned
 void ASGEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
 
 	if (HealthComponent)
 	{
@@ -35,29 +27,15 @@ void ASGEnemyCharacter::BeginPlay()
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
 {
-	//TODO: Ska ändras - temporär lösning
-	if (AActor* Actor = UGameplayStatics::GetActorOfClass(GetWorld(), ASGEnemyDropManager::StaticClass()))
-	{
-		if (ASGEnemyDropManager* DropManager = Cast<ASGEnemyDropManager>(Actor))
-		{
-			DropManager->DropItem(this);
-		}
-	}
-	
+	GetGameInstance()->GetSubsystem<USGPickUpSubsystem>()->DropItem(this);
+
 	OnEnemyDied.Broadcast(this);
-	UE_LOG(LogTemp, Warning, TEXT("Enemy [%s] died. Broadcasting OnEnemyDied"), *GetName());
 	OnEnemyDiedObjective.Broadcast(this);
 
-	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth()); // EnemySpawnManager hanterar poolning
+	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
+	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth());
 }
 
-/*// Called every frame
-void ASGEnemyCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}*/
-
-// Called to bind functionality to input
 void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -70,7 +48,8 @@ USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent() const
 
 void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 {
-
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	FVector CurrentLocation = GetActorLocation();
 	FVector ToTarget = Destination - CurrentLocation;
 
@@ -82,4 +61,34 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 	SetActorRotation(NewRotation);
 
 	LaunchCharacter(JumpVelocity, true, true);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		JumpTimerHandle,
+		this,
+		&ASGEnemyCharacter::AdjustJumpRotation,
+		1.f,
+		false
+		);
 }
+
+void ASGEnemyCharacter::AdjustJumpRotation()
+{
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+}
+
+void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)
+{
+	// Get current rotation before push
+	FRotator CurrentRotation = GetActorRotation();
+
+	// Apply push force
+	LaunchCharacter(PushDirection.GetSafeNormal() * PushStrength, true, true);
+
+	// Set up a timer to restore rotation after physics update
+	GetWorldTimerManager().SetTimerForNextTick([this, CurrentRotation]()
+	{
+		SetActorRotation(CurrentRotation);
+	});
+}
+

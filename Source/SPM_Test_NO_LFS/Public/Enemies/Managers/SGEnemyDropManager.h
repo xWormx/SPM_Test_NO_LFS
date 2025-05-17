@@ -6,6 +6,7 @@
 #include "Engine/DataTable.h"
 #include "SGEnemyDropManager.generated.h"
 
+/*
 class ASGPickUp;
 class ASGEnemyCharacter;
 
@@ -58,23 +59,25 @@ struct FEnemyDropInfo : public FTableRowBase
 	int32 PickUpCount = 1;
 
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy Drop")
-	float SpawnRadius = 10.0f;*/
+	float SpawnRadius = 10.0f;#1#
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy Drop", meta = (ToolTip = "1 = 100% drop chance"))
 	float DropChance = 1.f;
 
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy Drop")
-	TArray<FEnemyDrop> EnemyDrops;*/
+	TArray<FEnemyDrop> EnemyDrops;#1#
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy Drop", meta = (ToolTip = "Används ifall pickupen kolliderar med något statiskt när den spawnas"))
 	FEnemyDropSpawnCondition SpawnCondition;
 };
+*/
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGEnemyDropManager : public AActor
 {
 	GENERATED_BODY()
 
+/*
 public:
 	ASGEnemyDropManager();
 
@@ -92,5 +95,5 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UProperty - Enemy Drops", meta = (AllowPrivateAccess = "true"))
 	class USGObjectPoolSubsystem* ObjectPoolSubsystem;
 
-	TMap<TSubclassOf<ASGEnemyCharacter>, TArray<FEnemyDropInfo>> EnemyDropMap;
+	TMap<TSubclassOf<ASGEnemyCharacter>, TArray<FEnemyDropInfo>> EnemyDropMap;*/
 };
