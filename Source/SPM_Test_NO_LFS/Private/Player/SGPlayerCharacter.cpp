@@ -4,6 +4,8 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
 
 // Sets default values
 ASGPlayerCharacter::ASGPlayerCharacter()
@@ -22,6 +24,12 @@ ASGPlayerCharacter::ASGPlayerCharacter()
 	
 	GrapplingHookPosition = CreateDefaultSubobject<USceneComponent>(TEXT("GrapplingHookPosition"));
 	GrapplingHookPosition->SetupAttachment(GetRootComponent());
+
+    if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
+	{
+		CapsuleComp->SetNotifyRigidBodyCollision(true); // Enable hit events
+		CapsuleComp->OnComponentHit.AddDynamic(this, &ASGPlayerCharacter::OnComponentHit);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -179,4 +187,17 @@ int8 ASGPlayerCharacter::GetCurrentGunIndex()
 const TArray<ASGGun*>& ASGPlayerCharacter::GetGuns() const
 {
 	return Guns;
+}
+
+void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* HitComponent, AActor* OtherActor, [[maybe_unused]] UPrimitiveComponent* OtherComp, [[maybe_unused]] FVector NormalImpulse, [[maybe_unused]] const FHitResult& Hit)
+{
+	ASGEnemyCharacter* Enemy = Cast<ASGEnemyCharacter>(OtherActor);
+	if (!Enemy)
+	{
+		return;
+	}
+
+	FVector PushDirection = Enemy->GetActorLocation() - GetActorLocation();
+	PushDirection.Z = 0;
+	Enemy->ApplyPush(PushDirection, PushStrength);
 }
