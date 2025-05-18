@@ -161,8 +161,7 @@ void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 
 	float FirstElementPosition = DifficultyBarWidget->GetOverlays()[0]->GetCachedGeometry().GetAbsolutePosition().X; 
 	float TriggerAbsolutePosition = DifficultyBarWidget->GetTriggerAbsolutePositionX();
-	//UE_LOG(LogTemp, Warning, TEXT("FirstElement: %f, Trigger: %f"), FirstElementPosition, TriggerAbsolutePosition);
-	
+
 	for (UOverlay* overlay : DifficultyBarWidget->GetOverlays())
 	{
 		if (overlay->GetCachedGeometry().GetAbsolutePosition().X < TriggerAbsolutePosition &&
@@ -173,15 +172,11 @@ void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 				DifficultLevel = index+1;
 				OnDifficultyChanged.Broadcast(DifficultLevel);
 			}
-				
-			// TODO (Calle): Vill Broadcasta när nästa svårighetsgrad nås!
-			//UE_LOG(LogTemp, Warning, TEXT("(Calle) -  DifficultLevel: %d"), (int)(overlay->GetCachedGeometry().GetAbsolutePosition().X / TriggerAbsolutePosition));
 		}
-		//UE_LOG(LogTemp, Warning, TEXT("%d: %f"), index, overlay->GetCachedGeometry().GetAbsolutePosition().X);
 		index++;
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("DifficultLEve: %d"), DifficultLevel);
 }
+
 void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
 {
 	ToolTip->SetText(NewToolTip);
