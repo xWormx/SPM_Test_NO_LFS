@@ -27,6 +27,10 @@ public:
 	USGObjectiveToolTipWidget* GetObjectiveTooltipWidget() { return ObjectiveToolTipWidget; }
 	
 private:
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
+
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* HUDTerminal;
 
@@ -39,4 +43,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 
+
+	
 };

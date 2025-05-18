@@ -65,10 +65,10 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* TerminalHUD;
-
+/*
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveToolTipClass;
-	
+*/	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 	

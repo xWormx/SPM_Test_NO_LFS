@@ -27,11 +27,11 @@ void ASGGameObjectivesHandler::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("ASGGameObjectivesHandler::BeginPlay, there is a objectivehandler"));
-
+	
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController)
 	{
-		USGGameInstance* GameInstance = Cast<USGGameInstance>(PlayerController->GetGameInstance());
+		USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance());
 		if (GameInstance)
 		{
 			ObjectiveToolTipWidget = GameInstance->GetObjectiveTooltipWidget();

@@ -161,7 +161,7 @@ void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 
 	float FirstElementPosition = DifficultyBarWidget->GetOverlays()[0]->GetCachedGeometry().GetAbsolutePosition().X; 
 	float TriggerAbsolutePosition = DifficultyBarWidget->GetTriggerAbsolutePositionX();
-
+	
 	for (UOverlay* overlay : DifficultyBarWidget->GetOverlays())
 	{
 		if (overlay->GetCachedGeometry().GetAbsolutePosition().X < TriggerAbsolutePosition &&
@@ -171,6 +171,8 @@ void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 			{
 				DifficultLevel = index+1;
 				OnDifficultyChanged.Broadcast(DifficultLevel);
+				UGameplayStatics::PlaySound2D(GetWorld(), SoundWarningDifficultLevel);
+				UGameplayStatics::PlaySound2D(GetWorld(), SoundAlarmBell);
 			}
 		}
 		index++;
@@ -180,6 +182,19 @@ void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
 {
 	ToolTip->SetText(NewToolTip);
+}
+
+bool USGObjectiveToolTipWidget::LastDifficultNotReached()
+{
+	float LastOverlayAbsolutePosition = DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsolutePosition().X;
+	float WhereToStop = DifficultyBarWidget->GetTriggerAbsolutePositionX() - DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsoluteSize().X / 2;
+
+	return (LastOverlayAbsolutePosition >= WhereToStop) && (LastOverlayAbsolutePosition >= 0);
+}
+
+bool USGObjectiveToolTipWidget::LastDifficultBoxNotCenteredAtTrigger()
+{
+	return DifficultLevel != DifficultyBarWidget->GetOverlays().Num();
 }
 
 void USGObjectiveToolTipWidget::ShowVisitTerminal()
@@ -199,7 +214,6 @@ void USGObjectiveToolTipWidget::HideVisitTerminal()
 void USGObjectiveToolTipWidget::ShowMissionVerticalBox()
 {
 	VerticalBoxMission->SetVisibility(ESlateVisibility::HitTestInvisible);
-	
 }
 
 void USGObjectiveToolTipWidget::HideMissionVerticalBox()
@@ -220,11 +234,8 @@ void USGObjectiveToolTipWidget::HideToolTipScaleBox()
 void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-	
-	float LastOverlayAbsolutePosition = DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsolutePosition().X;
-	float WhereToStop = DifficultyBarWidget->GetTriggerAbsolutePositionX() - DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsoluteSize().X / 2;
-	// Fortsätt scrolla DifficultBar tills att sista elementets mitt har nått TriggerPunkten.
-	if (DifficultLevel != DifficultyBarWidget->GetOverlays().Num() || (LastOverlayAbsolutePosition >= WhereToStop && LastOverlayAbsolutePosition >= 0 ))
+
+	if(LastDifficultNotReached() || LastDifficultBoxNotCenteredAtTrigger())
 	{
 		UpdateDifficultyBar(InDeltaTime);	
 	}
@@ -234,16 +245,7 @@ void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float In
 	}
 	
 }
-/*
-void USGObjectiveToolTipWidget::Hide()
-{
-	
-	bHasFadedOut = true;
-	bShouldRender = false;
-	bIsHidden = true;
-	
-}
-*/
+
 void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 {
 	if (++CharIndex <= StringToolTip.Len())
