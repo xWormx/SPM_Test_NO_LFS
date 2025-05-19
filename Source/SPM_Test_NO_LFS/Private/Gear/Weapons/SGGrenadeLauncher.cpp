@@ -62,14 +62,7 @@ void ASGGrenadeLauncher::BeginPlay()
 		PlayerController = MyOwner->GetController();
 	}
 
-	EnableOverlapEventsForAllStaticMeshes(GetWorld());
-
-	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
-	{
-		FName Category = TEXT("Grenade Launcher");
-		UpgradeSystem->BindAttribute(this, TEXT("Damage"), TEXT("GunDamage"), Category);
-		UpgradeSystem->BindAttribute(this, TEXT("FireRate"), TEXT("GunFireRate"), Category);
-	}
+	EnableOverlapEventsForAllStaticMeshes(GetWorld());	
 	
 }
 
