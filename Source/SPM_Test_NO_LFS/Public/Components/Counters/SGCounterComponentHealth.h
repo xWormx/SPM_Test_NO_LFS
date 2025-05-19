@@ -39,7 +39,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties")
 	USGHealthComponent* HealthComponent;
 	
-	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties")
+	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties", meta = (AllowPrivateAccess = "true"))
 	float HealthBuffer = 0.0f;
 
 	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties", meta = (AllowPrivateAccess = "true"))
