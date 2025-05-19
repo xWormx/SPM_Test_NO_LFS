@@ -11,6 +11,26 @@
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGTerminalWidget.h"
 
+void ASGPlayerController::UpgradeScorePoint()
+{
+	ScorePoint += KillScorePoint;
+}
+
+void ASGPlayerController::ClearScorePoint()
+{
+	ScorePoint = 0;
+}
+
+void ASGPlayerController::SetScorePoint(int32 NewScorePoint)
+{
+	ScorePoint = NewScorePoint;
+}
+
+int32 ASGPlayerController::GetScorePoint() const
+{
+	return ScorePoint;
+}
+
 void ASGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();

@@ -29,6 +29,15 @@ public:
 	bool GetCanInteractWithTerminal() { return bCanInteractWithTerminal; }
 	bool GetWantToInteractWithTerminal() { return bWantToInteract; }
 
+	//Added by Basir
+	void UpgradeScorePoint();
+	void ClearScorePoint();
+	void SetScorePoint(int32 NewScorePoint);
+
+	//Added by Basir
+	UFUNCTION(BlueprintCallable, Category = "Score System")
+	int32 GetScorePoint() const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
@@ -145,5 +154,12 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGHUDGrapple* HUDGrapple;
+
+	//Added by Basir
+	int32 ScorePoint = 0;
+
+	//Added by Basir
+	UPROPERTY(EditDefaultsOnly, Category = "Score System")
+	int32 KillScorePoint = 10;
 	
 };
