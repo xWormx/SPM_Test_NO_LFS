@@ -1,6 +1,8 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
+#include "SPM_Test_NO_LFS.h"
 #include "Components/SGHealthComponent.h"
+#include "Core/SGUpgradeSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/SGObjectPoolSubsystem.h"
@@ -18,10 +20,17 @@ void ASGEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 	if (HealthComponent)
 	{
 		HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
+	}
+	
+	if (USGUpgradeSubsystem* UpgradeSubsystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+	{
+		FName Category = TEXT("Hidden");
+		FName MaxHealth = TEXT("MaxHealth");
+		UpgradeSubsystem->BindAttribute(HealthComponent, MaxHealth, TEXT("EnemyHealth"), Category);
+		UpgradeSubsystem->BindDependentAttribute(HealthComponent, TEXT("CurrentHealth"), false, HealthComponent, MaxHealth);
 	}
 }
 
