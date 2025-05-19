@@ -81,6 +81,8 @@ void ASGTerminal::BeginPlay()
 		SetAlertActive();
 	}
 
+	InitializeHUD();
+
 }
 
 void ASGTerminal::OnStartMissionButtonClicked()
@@ -121,7 +123,6 @@ void ASGTerminal::CloseTerminal()
 
 void ASGTerminal::OpenTerminal()
 {
-	InitializeHUD();
 	GameObjectivesHandler->GetObjectiveToolTipWidget()->PauseAllOngoingAnimations();
 	if (HUDTerminal == nullptr)
 	{
@@ -234,10 +235,6 @@ void ASGTerminal::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor*
 
 void ASGTerminal::InitializeHUD()
 {
-	if (bHUDInitialized)
-		return;
-	
-	bHUDInitialized = true;
 	USGGameInstance* GameInstance = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
 	if (!GameInstance)
 	{

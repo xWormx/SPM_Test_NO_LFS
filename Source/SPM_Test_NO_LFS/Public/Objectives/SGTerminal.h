@@ -72,13 +72,11 @@ private:
 	FLinearColor ColorSpriteAlert;
 	
 	// Terminal Widget
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* HUDTerminal;
 
 	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	class ASGPlayerController* LastInteractingPlayerController;
 
 	

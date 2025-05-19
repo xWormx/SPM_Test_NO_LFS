@@ -94,15 +94,10 @@ protected:
 	bool bWasStuckLastChecked = false;
 	
 	float LastLocationCheckTime = 0.0f;
+	//
 
 	void SetInitialValues();
 
-	/*void SetJumpingMode();
-
-	struct FTimerHandle JumpTimerHandle;*/
-
 public:
 	virtual void Tick(float DeltaTime) override;
-
-	//bool bIsJumping = false;
 };

@@ -140,13 +140,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	TSubclassOf<class UCameraShakeBase> TempDamageEffectCameraShake;
 
-	// Added by Calle
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
-	// Added by Calle
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-	USGTerminalWidget* HUDTerminal;
-
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	TSubclassOf<UUserWidget> HUDGrappleClass;
 	

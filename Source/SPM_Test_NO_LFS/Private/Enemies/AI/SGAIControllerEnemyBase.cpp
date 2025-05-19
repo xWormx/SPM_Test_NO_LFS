@@ -211,12 +211,6 @@ void ASGAIControllerEnemyBase::SetInitialValues()
 	}
 }
 
-/*void ASGAIControllerEnemyBase::SetJumpingMode()
-{
-	ControlledEnemy->bUseControllerRotationYaw = true;
-	ControlledEnemy->GetCharacterMovement()->bOrientRotationToMovement = true;
-}*/
-
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -235,19 +229,5 @@ void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 	{
 		FirstStartLocation = ControlledEnemy->GetActorLocation();
 		bIsFirstStartLocationSet = true;
-	}*/
-
-	/*if (bIsJumping)
-	{
-		ControlledEnemy->bUseControllerRotationYaw = false;
-		ControlledEnemy->GetCharacterMovement()->bOrientRotationToMovement = false;
-
-		GetWorld()->GetTimerManager().SetTimer(
-			JumpTimerHandle,
-			this,
-			&ASGAIControllerEnemyBase::SetJumpingMode,
-			1.f,
-			false
-			);
 	}*/
 }

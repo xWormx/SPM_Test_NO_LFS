@@ -27,10 +27,21 @@ void ASGGameObjectivesHandler::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("ASGGameObjectivesHandler::BeginPlay, there is a objectivehandler"));
-
+	
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController)
 	{
+		USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance());
+		if (GameInstance)
+		{
+			ObjectiveToolTipWidget = GameInstance->GetObjectiveTooltipWidget();
+			ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!i
+			ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
+			ObjectiveToolTipWidget->ShowVisitTerminal();
+			ObjectiveToolTipWidget->HideToolTipScaleBox();
+		}
+		
+		/*
 		ObjectiveToolTipWidget = Cast<USGObjectiveToolTipWidget>(CreateWidget<USGObjectiveToolTipWidget>(PlayerController, ObjectiveToolTipClass));
 		USGGameInstance* GameInstance = Cast<USGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 		if (GameInstance)
@@ -41,6 +52,7 @@ void ASGGameObjectivesHandler::BeginPlay()
 		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 		ObjectiveToolTipWidget->ShowVisitTerminal();
 		ObjectiveToolTipWidget->HideToolTipScaleBox();
+		*/
 		
 	}
 }
