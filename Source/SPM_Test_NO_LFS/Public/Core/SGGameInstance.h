@@ -43,6 +43,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 
-
+public:
+	UFUNCTION()
+	void IncreaseDifficultyLevel(int Difficulty);
 	
 };

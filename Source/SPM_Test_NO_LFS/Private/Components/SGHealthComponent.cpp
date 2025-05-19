@@ -1,9 +1,10 @@
 ﻿#include "Components/SGHealthComponent.h"
 
-#include "SPM_Test_NO_LFS.h"
-#include "Player/SGPlayerController.h"
-
-USGHealthComponent::USGHealthComponent(){}
+USGHealthComponent::USGHealthComponent()
+{
+	MaxHealth = 100;
+	CurrentHealth = MaxHealth;
+}
 
 void USGHealthComponent::BeginPlay()
 {
@@ -23,17 +24,8 @@ void USGHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const U
 	
 	if (CurrentHealth <= 0.f)
 	{
-		//Added by Basir
-		if (Instigator)
-		{
-			ASGPlayerController* PlayerController = Cast<ASGPlayerController>(Instigator);
-			if (PlayerController)
-			{
-				PlayerController->UpgradeScorePoint();
-			}
-		}
 		CurrentHealth = 0;
-		OnNoHealth.Broadcast(CurrentHealth);	
+		OnNoHealth.Broadcast(CurrentHealth);		
 	}
 }
 

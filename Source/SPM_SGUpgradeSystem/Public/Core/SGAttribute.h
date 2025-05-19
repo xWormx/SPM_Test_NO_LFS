@@ -17,6 +17,17 @@ struct FSGAttribute
 	float InitialValue = 0.f; 
 	FOnAttributeModified OnAttributeModified;
 	mutable FName Category; // mutable för att tillåta ändring om dubblett hittas. Se BindAttribute
+	bool bFindOnReload = false;
+};
+
+USTRUCT(BlueprintType)
+struct FSGDependentAttribute
+{
+	GENERATED_BODY()
+
+	TWeakObjectPtr<UObject> Owner;
+	FProperty* Property = nullptr;
+	bool bOverrideOnModified = false; // Ifall nuvarande värde ska spegla det modifierade värdet. Om inte så kommer den ändras procentuellt.
 };
 
 USTRUCT(BlueprintType)

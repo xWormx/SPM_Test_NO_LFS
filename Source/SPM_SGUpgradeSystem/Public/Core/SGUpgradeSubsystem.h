@@ -6,14 +6,25 @@
 #include "SGUpgradeSubsystem.generated.h"
 
 //Spara attribut mellan levels
-	struct FSGUpgradePersistentData
-	{
-		FName PropertyName;
-		FName RowName;
-		FName Category;
-		int32 CurrentUpgradeLevel;
-		float InitialValue;
-	};
+struct FSGUpgradePersistentData
+{
+	FName PropertyName;
+	FName RowName;
+	FName Category;
+	int32 CurrentUpgradeLevel;
+	float InitialValue;
+};
+
+struct FSGDependentUpgradePersistentData
+{
+	FString ClassNameKey;
+	FName PropertyName;
+	float InitialValue;
+	bool bOverrideOnModified;
+	FString TargetClassNameKey;
+	FName TargetPropertyName;
+	FSGUpgradePersistentData Dependency;
+};
 
 struct FSGAUpgradeResult
 {
@@ -38,6 +49,7 @@ class SPM_SGUPGRADESYSTEM_API USGUpgradeSubsystem : public UGameInstanceSubsyste
 	FDelegateHandle PostLevelLoadHandle;
 
 	TMap<FString, TArray<FSGUpgradePersistentData>> PersistentUpgradesByClass;
+	TMap<FString, TArray<FSGDependentUpgradePersistentData>> PersistentDependenciesByClass;
 	FTimerHandle ValidationTimerHandle;
 
 public:
@@ -57,7 +69,11 @@ public:
 	/// @param PropertyName Vad attributen heter (måste just nu vara en float)
 	/// @param RowName Raden i datatabellen som ska användas för uppgraderingarna
 	/// @param Category Kategori för attributen (ex. "Player", "Enemy" osv)
-	void BindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category);
+	/// @param bFindOnReload
+	void BindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category, bool bFindOnReload = false);
+	//void BindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category);
+
+	void BindDependentAttribute(UObject* Owner, FName PropertyName, bool OverrideOnModified, UObject* TargetOwner, FName TargetPropertyName);
 
 	/// @brief Kalla på denna om endast en unik attribut ska uppgraderas
 	/// @param Owner Ägaren av attributen
@@ -84,6 +100,7 @@ public:
 
 protected:
 	const FSGAttribute* GetByKey(UObject* Owner, FProperty* Property) const;
+	FSGAttribute* GetByKey(UObject* Owner, FProperty* Property);
 	const FSGAttribute* GetByCategory(FName Category, FName RowName) const;
 	TArray<const FSGAttribute*> GetByRow(FName RowName) const;
 	static uint64 GetKey(UObject* Owner, FProperty* Property);
@@ -95,6 +112,9 @@ private:
 	//Listan med alla attribut som ska kunna uppgraderas
 	TArray<TUniquePtr<FSGAttribute>> RegisteredAttributes;
 
+	//Listan med alla attribut som är beroende av andra attribut
+	TArray<TUniquePtr<FSGDependentAttribute>> RegisteredDependentAttributes;
+
 	//Ifall det ska finnas flera attribut som ska uppgraderas samtidigt (samma namn)
 	TMap<FName, TArray<FSGAttribute*>> AttributesByRow;
 
@@ -103,6 +123,9 @@ private:
 
 	//För uppgradering av enstaka attribut
 	TMap<FName, TArray<FSGAttribute*>> AttributesByCategory;
+
+	//För uppdatering av beroende attribut efter uppgradering
+	TMap<uint64, TArray<FSGDependentAttribute*>> DependentAttributesByKey;
 
 protected:
 	void OnPreLevelChange(const FString& String);
@@ -115,6 +138,7 @@ protected:
 	FString GetClassNameKey(UObject* Object) const;
 
 private:
+	void BindDependentAttribute(UObject* Owner, FProperty* Prop, bool OverrideOnModified, FSGAttribute* TargetAttribute);
 
 	FSGAUpgradeResult AttemptUpgrade(const FSGAttributeData& AttributeData, const FSGAttribute& TargetAttribute) const;
 	void AnnounceUpgrade(const FSGAUpgradeResult& UpgradeResult) const;

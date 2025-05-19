@@ -1,7 +1,6 @@
 ﻿#include "Utils/SGPickUpSubsystem.h"
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
-#include "Enemies/Managers/SGEnemyDropManager.h"
 #include "Pickups/SGPickUp.h"
 #include "Utils/SGDeveloperSettings.h"
 #include "Utils/SGObjectPoolSubsystem.h"
