@@ -57,13 +57,14 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 		}
 	}
 
-	if (CanReachTarget())
+	if (CanReachTarget(AttackTarget))
 	{
 		HandleMovement();
 	}
 	else
 	{
-		MoveToLocation(FirstStartLocation);
+		//MoveToLocation(FirstStartLocation);
+		Patrol();
 	}
 	
 	RotateTowardsTargetWhileNotMoving();

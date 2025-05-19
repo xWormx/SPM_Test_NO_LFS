@@ -74,11 +74,11 @@ protected:
 
 	virtual void RotateTowardsTargetWhileNotMoving();
 
-	bool CanReachTarget() const;
+	bool CanReachTarget(AActor* Target) const;
 
 	bool IsStuck();
 
-	FVector FirstStartLocation = FVector::ZeroVector;
+	//FVector FirstStartLocation = FVector::ZeroVector;
 
 	bool bIsFirstStartLocationSet = false;
 
@@ -97,6 +97,18 @@ protected:
 	//
 
 	void SetInitialValues();
+
+	TArray<AActor*> PatrolPoints;
+
+	void UpdatePatrolPoints();
+
+	class ASGEnemyPatrolPoint* CurrentPatrolPoint = nullptr;
+
+	ASGEnemyPatrolPoint* GetPatrolPoint();
+
+	bool HasReachedCurrentPatrolPoint(float Tolerance) const;
+
+	virtual void Patrol();
 
 public:
 	virtual void Tick(float DeltaTime) override;
