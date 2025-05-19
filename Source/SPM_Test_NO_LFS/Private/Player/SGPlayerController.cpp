@@ -8,6 +8,7 @@
 #include "Gear/Weapons/SGGun.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/SGGameInstance.h"
+#include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGTerminalWidget.h"
 
@@ -54,6 +55,17 @@ void ASGPlayerController::BeginPlay()
 	{
 		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetHUDGrapple(HUDGrapple);
 		HUDGrapple->AddToViewport();
+	}
+
+	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+	{
+		FName MovementSpeed = TEXT("MoveSpeed");
+		FName Category = TEXT("Player");
+		UpgradeSystem->BindAttribute(this, MovementSpeed, MovementSpeed, Category);
+		if (UCharacterMovementComponent* CharacterMovement = Cast<UCharacterMovementComponent>(GetCharacter()->GetMovementComponent()))
+		{
+			UpgradeSystem->BindAttribute(CharacterMovement, TEXT("JumpZVelocity"), TEXT("JumpHeight"), Category);			
+		}		
 	}
 }
 
