@@ -3,6 +3,7 @@
 
 #include "Enemies/Components/SGEnemyAttackComponentBase.h"
 
+#include "Core/SGUpgradeSubsystem.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
 
@@ -22,8 +23,10 @@ void USGEnemyAttackComponentBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	if (USGUpgradeSubsystem* UpgradeSubsystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
+	{
+		UpgradeSubsystem->BindAttribute(this, TEXT("DamageAmount"), TEXT("EnemyDamage"), TEXT("Hidden"));
+	}	
 }
 
 
