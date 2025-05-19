@@ -37,9 +37,9 @@ void USGCounterComponentHealth::BeginPlay()
 		FName MaxHealth = TEXT("MaxHealth");
 		FName HealthBuffCapacity = TEXT("HealthBufferCapacity");
 		UpgradeSystem->BindAttribute(HealthComponent, MaxHealth, MaxHealth, Category);
-		UpgradeSystem->BindAttribute(this, HealthBuffCapacity, TEXT("MaxHealthBufferCapacity"), Category);
-
 		UpgradeSystem->BindDependentAttribute(HealthComponent, TEXT("CurrentHealth"), false, HealthComponent, MaxHealth);
+		
+		UpgradeSystem->BindAttribute(this, HealthBuffCapacity, TEXT("MaxHealthBufferCapacity"), Category);
 		UpgradeSystem->BindDependentAttribute(this, TEXT("HealthBuffer"), false, this, HealthBuffCapacity);
 	}
 }

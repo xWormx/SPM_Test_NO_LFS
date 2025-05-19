@@ -30,7 +30,7 @@ protected:
 
 	virtual void ResetAttackCooldown();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = "true"))
 	float DamageAmount = 10.0f;
 
 	UPROPERTY(EditAnywhere)
