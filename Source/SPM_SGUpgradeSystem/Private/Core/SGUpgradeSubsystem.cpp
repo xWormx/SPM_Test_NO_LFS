@@ -84,10 +84,11 @@ void USGUpgradeSubsystem::OnPreLevelChange([[maybe_unused]] const FString& Strin
 
 void USGUpgradeSubsystem::OnPostLevelChange(UWorld* World)
 {
-	// Behövs inte då alla attribut ska återställas vid restart
-	FTimerHandle ReconnectTimerHandle;
+	// Behövs inte då alla attribut ska återställas vid restart och alla Actors i objektpoolen skapas på nytt
+	//TODO: Implementera att objektpoolen behåller actors vid Restart/GameOver (utan att de städas bort av garbage collection. Tidigare försök orsakade krash). 
+	/*FTimerHandle ReconnectTimerHandle;
 	World->GetTimerManager().SetTimer(ReconnectTimerHandle, FTimerDelegate::CreateUObject(this, &USGUpgradeSubsystem::ReconnectAttributes),0.5f, false);
-	World->GetTimerManager().SetTimer(ValidationTimerHandle,this, &USGUpgradeSubsystem::ValidateReferences, 10.0f, true);
+	World->GetTimerManager().SetTimer(ValidationTimerHandle,this, &USGUpgradeSubsystem::ValidateReferences, 10.0f, true);*/
 }
 
 void USGUpgradeSubsystem::ReconnectAttributes()
@@ -222,7 +223,6 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 {
 	if (!Owner)
 	{
-		UE_LOG(LogTemp, Error, TEXT("BindAttribute: Owner was nullptr"));
 		return;
 	}
 
@@ -230,13 +230,11 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
 	if (!IsValidProperty(Prop)) // Glöm inte att ändra denna om fler typer än float ska stödjas!
 	{
-		UE_LOG(LogTemp, Error, TEXT("BindAttribute: Property %s not found on %s"), *PropertyName.ToString(), *Owner->GetName());
 		return;
 	}
 
 	if (const FSGAttribute* ExistingAttribute = GetByCategory(Category, RowName))
 	{
-		UE_LOG(LogTemp, Error, TEXT("BindAttribute: Found existing attribute with the same category and row name. Property: %s. Owner: %s. Category: %s. RowName: %s."), *PropertyName.ToString(), *Owner->GetName(), *Category.ToString(), *RowName.ToString());
 		BindDependentAttribute(Owner, PropertyName, true, ExistingAttribute->Owner.Get(), ExistingAttribute->Property->GetFName());
 		return;
 		//Category = TEXT("Hidden");
@@ -298,7 +296,6 @@ void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FName PropertyN
 {
 	if (!Owner)
 	{
-		UE_LOG(LogTemp, Error, TEXT("BindDependentAttribute: Owner was nullptr"));
 		return;
 	}
 
@@ -306,14 +303,12 @@ void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FName PropertyN
 	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
 	if (!IsValidProperty(Prop)) // Update this if more types than float are supported!
 	{
-		UE_LOG(LogTemp, Error, TEXT("BindDependentAttribute: Property %s not found on %s"), *PropertyName.ToString(), *Owner->GetName());
 		return;
 	}
 
 	FSGAttribute* TargetAttribute = GetByKey(TargetOwner, TargetOwner->GetClass()->FindPropertyByName(TargetPropertyName));
 	if (!TargetAttribute)
 	{
-		UE_LOG(LogTemp, Error, TEXT("BindDependentAttribute: TargetProperty %s not found on %s"), *TargetPropertyName.ToString(), *TargetOwner->GetName());
 		return;
 	}
 
@@ -346,22 +341,17 @@ void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FProperty* Prop
 
 		if (DependentAttributeRaw->bOverrideOnModified)
 		{
-
 			const FFloatProperty* TargetFloatProp = CastFieldChecked<const FFloatProperty>(TargetAttribute->Property);
-			Current = TargetFloatProp->GetPropertyValue_InContainer(TargetAttribute->Owner.Get());
+			float TargetsCurrent = TargetFloatProp->GetPropertyValue_InContainer(TargetAttribute->Owner.Get());
+			Current = TargetsCurrent;
+
 		}
 		else
 		{
 			Current += TargetAttribute->InitialValue * AttributeData->Data.Multiplier;
 		}
-
-		UE_LOG(LogTemp, Error, TEXT("Current: %f of %s, from %s"), Current,*DependentAttributeRaw->Property->GetName(),  *DependentAttributeRaw->Owner->GetName());
-
 		FloatProp->SetPropertyValue_InContainer(DependentAttributeRaw->Owner.Get(), Current);
 	});
-
-	UE_LOG (LogTemp, Error, TEXT("BindDependentAttribute: Binding Dependent Attribute %s to %s"), *DependentAttributeRaw->Property->GetName(), *DependentAttributeRaw->Owner->GetName());
-
 	int32 Key = GetKey(DependentAttributeRaw->Owner.Get(), DependentAttributeRaw->Property);
 	DependentAttributesByKey.FindOrAdd(Key).Add(DependentAttributeRaw);
 	RegisteredDependentAttributes.Add(MoveTemp(DependentAttribute));
@@ -442,8 +432,6 @@ void USGUpgradeSubsystem::ModifyAttributeByRow(FName RowName) const
 	{
 		//Anropar lambdan som skapades vid bindandet.
 		TargetAttribute->OnAttributeModified.Broadcast();
-
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("RowName: %s"), *RowName.ToString()));
 	}
 }
 
@@ -556,8 +544,8 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowNam
 	{
 		return;
 	}
+	
 	AnnounceUpgrade(UpgradeResult);
-
 }
 
 TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
