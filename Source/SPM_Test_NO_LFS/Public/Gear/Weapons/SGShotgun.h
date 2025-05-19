@@ -8,4 +8,6 @@ UCLASS()
 class SPM_TEST_NO_LFS_API ASGShotgun : public ASGGun
 {
 	GENERATED_BODY()
+protected:
+	virtual void BeginPlay() override;
 };
