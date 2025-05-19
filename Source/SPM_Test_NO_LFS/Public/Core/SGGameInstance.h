@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "Gear/Grapple/SGHUDGrapple.h"
+#include "Objectives/SGObjectiveToolTipWidget.h"
 #include "SGGameInstance.generated.h"
 
 class USGTerminalWidget;
@@ -20,13 +21,28 @@ public:
 
 	void SetTerminalWidget(USGTerminalWidget* InWidget) { HUDTerminal = InWidget; }
 	void SetHUDGrapple(USGHUDGrapple* InHUDGrapple) { HUDGrapple = InHUDGrapple; }
+	void SetObjectiveTooltipWidget(USGObjectiveToolTipWidget* InObjectiveTooltipWidget) { ObjectiveToolTipWidget = InObjectiveTooltipWidget; }
 	USGTerminalWidget* GetTerminalWidget() { return HUDTerminal; }
 	USGHUDGrapple* GetHUDGrapple() {	return HUDGrapple; }
+	USGObjectiveToolTipWidget* GetObjectiveTooltipWidget() { return ObjectiveToolTipWidget; }
+	
 private:
+
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TSubclassOf<USGTerminalWidget> HUDTerminalClass;
+
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* HUDTerminal;
 
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGHUDGrapple* HUDGrapple;
 
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveToolTipClass;
+	
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
+
+
+	
 };

@@ -75,7 +75,8 @@ void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 	--EnemiesAlive;
 	UE_LOG(LogTemp, Warning, TEXT("EnemySpawnManager::EnemiesAlive[%i],MaxEnemiesAtATime[%i]"), EnemiesAlive, MaxEnemiesAlive);
 
-	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(DeadEnemy);
+// EnemyCharacter lämnar tillbaka sig själv till poolen (så fiender också kan placeras manuellt i spelvärlden)
+// GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(DeadEnemy);
 }
 
 // Protected functions

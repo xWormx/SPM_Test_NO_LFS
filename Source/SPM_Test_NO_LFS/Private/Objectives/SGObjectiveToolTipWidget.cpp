@@ -155,13 +155,12 @@ void USGObjectiveToolTipWidget::ResumeAllOngoingAnimations()
 
 void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 {
-	DifficultyBarOffsetLeft += 50*InDeltaTime;
+	DifficultyBarOffsetLeft += DifficultyBarWidget->GetDifficultBarScrollSpeed()*InDeltaTime;
 	DifficultyBarWidget->MoveOverlaysLeft(DifficultyBarOffsetLeft);
 	int index = 0;
-	
+
 	float FirstElementPosition = DifficultyBarWidget->GetOverlays()[0]->GetCachedGeometry().GetAbsolutePosition().X; 
 	float TriggerAbsolutePosition = DifficultyBarWidget->GetTriggerAbsolutePositionX();
-	//UE_LOG(LogTemp, Warning, TEXT("FirstElement: %f, Trigger: %f"), FirstElementPosition, TriggerAbsolutePosition);
 	
 	for (UOverlay* overlay : DifficultyBarWidget->GetOverlays())
 	{
@@ -172,19 +171,30 @@ void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 			{
 				DifficultLevel = index+1;
 				OnDifficultyChanged.Broadcast(DifficultLevel);
+				UGameplayStatics::PlaySound2D(GetWorld(), SoundWarningDifficultLevel);
+				UGameplayStatics::PlaySound2D(GetWorld(), SoundAlarmBell);
 			}
-				
-			// TODO (Calle): Vill Broadcasta när nästa svårighetsgrad nås!
-			//UE_LOG(LogTemp, Warning, TEXT("(Calle) -  DifficultLevel: %d"), (int)(overlay->GetCachedGeometry().GetAbsolutePosition().X / TriggerAbsolutePosition));
 		}
-		//UE_LOG(LogTemp, Warning, TEXT("%d: %f"), index, overlay->GetCachedGeometry().GetAbsolutePosition().X);
 		index++;
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("DifficultLEve: %d"), DifficultLevel);
 }
+
 void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
 {
 	ToolTip->SetText(NewToolTip);
+}
+
+bool USGObjectiveToolTipWidget::LastDifficultNotReached()
+{
+	float LastOverlayAbsolutePosition = DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsolutePosition().X;
+	float WhereToStop = DifficultyBarWidget->GetTriggerAbsolutePositionX() - DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsoluteSize().X / 2;
+
+	return (LastOverlayAbsolutePosition >= WhereToStop) && (LastOverlayAbsolutePosition >= 0);
+}
+
+bool USGObjectiveToolTipWidget::LastDifficultBoxNotCenteredAtTrigger()
+{
+	return DifficultLevel != DifficultyBarWidget->GetOverlays().Num();
 }
 
 void USGObjectiveToolTipWidget::ShowVisitTerminal()
@@ -204,7 +214,6 @@ void USGObjectiveToolTipWidget::HideVisitTerminal()
 void USGObjectiveToolTipWidget::ShowMissionVerticalBox()
 {
 	VerticalBoxMission->SetVisibility(ESlateVisibility::HitTestInvisible);
-	
 }
 
 void USGObjectiveToolTipWidget::HideMissionVerticalBox()
@@ -225,18 +234,18 @@ void USGObjectiveToolTipWidget::HideToolTipScaleBox()
 void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
-	UpdateDifficultyBar(InDeltaTime);
-}
-/*
-void USGObjectiveToolTipWidget::Hide()
-{
+
+	if(LastDifficultNotReached() || LastDifficultBoxNotCenteredAtTrigger())
+	{
+		UpdateDifficultyBar(InDeltaTime);	
+	}
+	else
+	{
+		int i = 0;
+	}
 	
-	bHasFadedOut = true;
-	bShouldRender = false;
-	bIsHidden = true;
-	
 }
-*/
+
 void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 {
 	if (++CharIndex <= StringToolTip.Len())

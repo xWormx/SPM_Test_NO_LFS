@@ -62,9 +62,10 @@ void USGUpgradeSubsystem::OnPreLevelChange([[maybe_unused]] const FString& Strin
 
 void USGUpgradeSubsystem::OnPostLevelChange(UWorld* World)
 {
-	FTimerHandle ReconnectTimerHandle;
+	// Behövs inte då alla attribut ska återställas vid restart
+	/*FTimerHandle ReconnectTimerHandle;
 	World->GetTimerManager().SetTimer(ReconnectTimerHandle, FTimerDelegate::CreateUObject(this, &USGUpgradeSubsystem::ReconnectAttributes),0.5f, false);
-	World->GetTimerManager().SetTimer(ValidationTimerHandle,this, &USGUpgradeSubsystem::ValidateReferences, 10.0f, true);
+	World->GetTimerManager().SetTimer(ValidationTimerHandle,this, &USGUpgradeSubsystem::ValidateReferences, 10.0f, true);*/
 }
 
 void USGUpgradeSubsystem::ReconnectAttributes()

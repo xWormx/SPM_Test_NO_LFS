@@ -26,9 +26,7 @@ void ASGPlayerController::BeginPlay()
 	{
 		CrossHair->AddToViewport();
 	}
-	HUDTerminal = Cast<USGTerminalWidget>(CreateWidget<UUserWidget>(this, HUDTerminalClass));
-	if (HUDTerminal)
-		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetTerminalWidget(HUDTerminal);
+
 	bCanFire = true;
 
 	HUDGrapple = CreateWidget<USGHUDGrapple>(this, HUDGrappleClass);

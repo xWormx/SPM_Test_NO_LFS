@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SGSoundManager.h"
+#include "Sound/SGSoundManager.h"
 
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"

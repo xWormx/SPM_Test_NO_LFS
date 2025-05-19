@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -17,21 +15,15 @@ class SPM_TEST_NO_LFS_API ASGEnemyCharacter : public ACharacter, public ISGObjec
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ASGEnemyCharacter();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
 	UFUNCTION()
 	virtual void HandleDeath(float NewHealth);
 
-public:	
-	/*// Called every frame
-	virtual void Tick(float DeltaTime) override;*/
-
-	// Called to bind functionality to input
+public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_KillAllEnemies; }
@@ -42,7 +34,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEnemyDiedObjective OnEnemyDiedObjective;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy", meta = (AllowPrivateAccess = "true"))
 	float JumpStrength = 500.f; 
 
 	UFUNCTION(BlueprintCallable)
@@ -51,13 +43,23 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void JumpToLocation(const FVector Destination);
 
-protected:
-	UPROPERTY()
-	class USGHealthComponent* HealthComponent;
+	UFUNCTION(BlueprintCallable)
+	void AdjustJumpRotation();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), Category = "Combat")
+	FTimerHandle JumpTimerHandle;
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USGHealthComponent> HealthComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USGEnemyAttackComponentBase> AttackComponent;
-	
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "UFunction - Enemy")
+	void ApplyPush(const FVector& PushDirection, float PushStrength = 500.f);
+
+
 
 };
 

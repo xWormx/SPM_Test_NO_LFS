@@ -10,7 +10,7 @@ void ASGObjectiveCollectEmAll::OnStart(ASGGameObjectivesHandler* ObjectiveHandle
 {
 	Super::OnStart(ObjectiveHandler);
 	FString StrCollected = FString::Printf(TEXT("%d/%d"), CurrentCollected, CollectGoal);
-	HorizontalBoxProgressElement.Add(ObjectiveHandler->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(TEXT("Fuelrods:")), FText::FromString(TEXT("0/0"))));
+	HorizontalBoxProgressElement.Add(ObjectiveHandler->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(TEXT("Fuelrods:")), FText::FromString(StrCollected)));
 	ShowCollectables();
 }
 

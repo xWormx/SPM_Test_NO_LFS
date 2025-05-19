@@ -35,7 +35,15 @@ public:
 	void SetCurrentGunIndex(int8 NewIndex);
 	int8 GetCurrentGunIndex();
 	const TArray<ASGGun*>& GetGuns() const;
-	
+
+protected:
+
+	UFUNCTION()
+	void OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Uproperty - Player", meta=(AllowPrivateAccess="true", ToolTip = "När spelaren kolliderar med fiender"))
+	float PushStrength = 800.0f;
+
 private:
 	float Rage = 66.f; // lol
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)

@@ -7,7 +7,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "AIController.h"
 #include "NavigationSystem.h"
-#include "Enemies/Components/SGEnemyMoveToPoint.h"
+#include "Enemies/Navigation/SGEnemyMoveToPoint.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemyFlying::ASGAIControllerEnemyFlying()
@@ -33,11 +33,24 @@ void ASGAIControllerEnemyFlying::SetFlyingMode(bool bShouldFly)
 		return;
 	}
 	
-	const float TargetZ = AttackTarget->GetActorLocation().Z;
-	const float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
+	/*const float TargetZ = AttackTarget->GetActorLocation().Z;
+	float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;*/
 
-	FVector CurrentLocation = ControlledEnemy->GetActorLocation();
-	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
+	CurrentLocation = ControlledEnemy->GetActorLocation();
+
+	GetWorld()->GetTimerManager().SetTimer(HoverZTimerHandle,
+		this,
+		&ASGAIControllerEnemyFlying::HoverZDelay,
+		1.f,
+		false
+		);
+
+	
+	//CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
+	if (CurrentLocation == FVector::ZeroVector)
+	{
+		return;
+	}
 	ControlledEnemy->SetActorLocation(CurrentLocation, true);
 }
 
@@ -272,4 +285,15 @@ void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 	{
 		SearchForTarget();
 	}
+}
+
+void ASGAIControllerEnemyFlying::HoverZDelay()
+{
+	const float TargetZ = AttackTarget->GetActorLocation().Z;
+	float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
+	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
+
+	//CurrentLocation = ControlledEnemy->GetActorLocation();
+	//ControlledEnemy->SetActorLocation(CurrentLocation, true);
+	
 }
