@@ -23,7 +23,8 @@ void USGDifficultyBarWidget::NativeConstruct()
 		ObjectiveToolTipWidget = GameInstance->GetObjectiveTooltipWidget();
 		if (ObjectiveToolTipWidget)
 		{
-			ObjectiveToolTipWidget->OnDifficultyChanged.AddDynamic(this, &USGDifficultyBarWidget::AnimationTriggerAlert);	
+			ObjectiveToolTipWidget->OnDifficultyChanged.AddDynamic(this, &USGDifficultyBarWidget::AnimationTriggerAlert);
+			ObjectiveToolTipWidget->OnDifficultyChanged.AddDynamic(GameInstance, &USGGameInstance::IncreaseDifficultyLevel);	
 		}
 	}
 
