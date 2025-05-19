@@ -4,6 +4,7 @@
 #include "Core/SGGameInstance.h"
 
 #include "SPM_Test_NO_LFS.h"
+#include "Core/SGUpgradeSubsystem.h"
 #include "Objectives/SGTerminalWidget.h"
 
 void USGGameInstance::Init()
@@ -23,4 +24,13 @@ void USGGameInstance::Init()
 	BASIR_LOG(Warning, TEXT("Här är Basirs Log!"));
 	CALLE_LOG(Warning, TEXT("Här är Calles Log!"));
 	JOEL_LOG(Warning, TEXT("Här är Joels Log!"));
+}
+
+void USGGameInstance::IncreaseDifficultyLevel(int Difficulty)
+{
+	if (const USGUpgradeSubsystem* UpgradeSubsystem = GetSubsystem<USGUpgradeSubsystem>())
+	{
+		UpgradeSubsystem->ModifyAttributeByRow(TEXT("EnemyHealth"));
+		UpgradeSubsystem->ModifyAttributeByRow(TEXT("EnemyDamage"));
+	}
 }
