@@ -38,8 +38,10 @@ void USGUpgradeSubsystem::OnPreLevelChange([[maybe_unused]] const FString& Strin
     for (const TUniquePtr<FSGAttribute>& AttributePtr : RegisteredAttributes)
     {
         const FSGAttribute* Attribute = AttributePtr.Get();
-        if (!Attribute || !Attribute->Owner.IsValid())
-            continue;
+        if (!Attribute || !Attribute->Owner.IsValid() || !Attribute->bFindOnReload)
+        {
+	        continue;
+        }
 
         UObject* Owner = Attribute->Owner.Get();
         FString ClassNameKey = GetClassNameKey(Owner);
@@ -52,6 +54,26 @@ void USGUpgradeSubsystem::OnPreLevelChange([[maybe_unused]] const FString& Strin
         PersistentData.InitialValue = Attribute->InitialValue;
 
         PersistentUpgradesByClass.FindOrAdd(ClassNameKey).Add(PersistentData);
+    	int32 Key = GetKey(Owner, Attribute->Property);
+        TArray<FSGDependentAttribute*>* Dependencies = DependentAttributesByKey.Find(Key);
+    	if (!Dependencies)
+    	{
+    		continue;
+    	}
+    	for (FSGDependentAttribute* Dependency : *Dependencies)
+    	{
+
+    		FSGDependentUpgradePersistentData PersistentDependentData;
+    		PersistentDependentData.ClassNameKey = GetClassNameKey(Dependency->Owner.Get());
+    		PersistentDependentData.PropertyName = Dependency->Property->GetFName();
+    		PersistentDependentData.bOverrideOnModified = Dependency->bOverrideOnModified;
+    		PersistentDependentData.InitialValue = CastFieldChecked<FFloatProperty>(Dependency->Property)->GetPropertyValue_InContainer(Dependency->Owner.Get());
+    		PersistentDependentData.TargetClassNameKey = GetClassNameKey(Dependency->Owner.Get());
+    		PersistentDependentData.TargetPropertyName = Dependency->Property->GetFName();
+
+    		FString DependencyClassNameKey = GetClassNameKey(Dependency->Owner.Get());
+    		PersistentDependenciesByClass.FindOrAdd(DependencyClassNameKey).Add(PersistentDependentData);
+    	}
     }
 
     RegisteredAttributes.Empty();
@@ -63,9 +85,9 @@ void USGUpgradeSubsystem::OnPreLevelChange([[maybe_unused]] const FString& Strin
 void USGUpgradeSubsystem::OnPostLevelChange(UWorld* World)
 {
 	// Behövs inte då alla attribut ska återställas vid restart
-	/*FTimerHandle ReconnectTimerHandle;
+	FTimerHandle ReconnectTimerHandle;
 	World->GetTimerManager().SetTimer(ReconnectTimerHandle, FTimerDelegate::CreateUObject(this, &USGUpgradeSubsystem::ReconnectAttributes),0.5f, false);
-	World->GetTimerManager().SetTimer(ValidationTimerHandle,this, &USGUpgradeSubsystem::ValidateReferences, 10.0f, true);*/
+	World->GetTimerManager().SetTimer(ValidationTimerHandle,this, &USGUpgradeSubsystem::ValidateReferences, 10.0f, true);
 }
 
 void USGUpgradeSubsystem::ReconnectAttributes()
@@ -101,40 +123,53 @@ void USGUpgradeSubsystem::ProcessObjectForReconnection(UObject* Object)
 	}
 
 	FString ClassNameKey = GetClassNameKey(Object);
-	TArray<FSGUpgradePersistentData>* StoredData = PersistentUpgradesByClass.Find(ClassNameKey);
-	if (!StoredData)
+	if (TArray<FSGUpgradePersistentData>* StoredData = PersistentUpgradesByClass.Find(ClassNameKey))
 	{
-		return;
+			for (const FSGUpgradePersistentData& Data : *StoredData)
+        	{
+        		FProperty* Prop = Object->GetClass()->FindPropertyByName(Data.PropertyName);
+        		if (!IsValidProperty(Prop))
+        		{
+        			continue;
+        		}
+
+        		BindAttribute(Object, Data.PropertyName, Data.RowName, Data.Category, true);
+
+        		uint64 Key = GetKey(Object, Prop);
+        		if (FSGAttribute** FoundAttr = AttributesByKey.Find(Key))
+        		{
+        			FSGAttribute* NewAttribute = *FoundAttr;
+
+        			NewAttribute->InitialValue = Data.InitialValue;
+
+        			//Bortkommenterat så alla attribut reset:as när leveln startas om
+        			/*if (Data.CurrentUpgradeLevel == 1)
+        			{
+        				continue;
+        			}
+        			for (int32 i = 0; i < Data.CurrentUpgradeLevel-1; ++i)
+        			{
+        				NewAttribute->OnAttributeModified.Broadcast();
+        			}*/
+        		}
+        	}
 	}
-
-	for (const FSGUpgradePersistentData& Data : *StoredData)
+	else if (TArray<FSGDependentUpgradePersistentData>* StoredDependentData = PersistentDependenciesByClass.Find(ClassNameKey))
 	{
-		FProperty* Prop = Object->GetClass()->FindPropertyByName(Data.PropertyName);
-		if (!IsValidProperty(Prop))
+		for (const FSGDependentUpgradePersistentData& Data : *StoredDependentData)
 		{
-			continue;
-		}
-
-		//TODO: Fixa bugg att inte statsen sätts där de va + möjlighet att bestämma om stats ska reset:as när onLoad eller inte
-		BindAttribute(Object, Data.PropertyName, Data.RowName, Data.Category);
-
-		uint64 Key = GetKey(Object, Prop);
-		if (FSGAttribute** FoundAttr = AttributesByKey.Find(Key))
-		{
-			FSGAttribute* NewAttribute = *FoundAttr;
-
-			NewAttribute->InitialValue = Data.InitialValue;
-
-			//Bortkommenterat så alla attribut reset:as när leveln startas om
-			/*if (Data.CurrentUpgradeLevel == 1)
+			UObject* TargetObject = StaticFindObject(UObject::StaticClass(), nullptr, *Data.ClassNameKey);
+			if (!TargetObject)
 			{
 				continue;
 			}
-			for (int32 i = 0; i < Data.CurrentUpgradeLevel-1; ++i)
+
+			FProperty* Prop = TargetObject->GetClass()->FindPropertyByName(Data.TargetPropertyName);
+			if (!IsValidProperty(Prop))
 			{
-				NewAttribute->OnAttributeModified.Broadcast();
-			}*/
-			
+				continue;
+			}
+			BindDependentAttribute(Object, Data.PropertyName, Data.bOverrideOnModified, TargetObject, Data.TargetPropertyName);
 		}
 	}
 }
@@ -183,10 +218,11 @@ FString USGUpgradeSubsystem::GetClassNameKey(UObject* Object) const
 
 //------- BIND
 
-void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName, const FName RowName, const FName Category)
+void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName, const FName RowName, FName Category, bool bFindOnReload)
 {
 	if (!Owner)
 	{
+		UE_LOG(LogTemp, Error, TEXT("BindAttribute: Owner was nullptr"));
 		return;
 	}
 
@@ -194,13 +230,18 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
 	if (!IsValidProperty(Prop)) // Glöm inte att ändra denna om fler typer än float ska stödjas!
 	{
+		UE_LOG(LogTemp, Error, TEXT("BindAttribute: Property %s not found on %s"), *PropertyName.ToString(), *Owner->GetName());
 		return;
 	}
 
-	if (const FSGAttribute* FoundExisting = GetByCategory(Category, RowName))
+	if (const FSGAttribute* ExistingAttribute = GetByCategory(Category, RowName))
 	{
-		FoundExisting->Category = Category; //TODO: Se över alternativ. Snabblösning för att fungera med arvshierarkin för vapen. (Basklassen Gun's BeginPlay-funktion körs före.)
+		UE_LOG(LogTemp, Error, TEXT("BindAttribute: Found existing attribute with the same category and row name. Property: %s. Owner: %s. Category: %s. RowName: %s."), *PropertyName.ToString(), *Owner->GetName(), *Category.ToString(), *RowName.ToString());
+		BindDependentAttribute(Owner, PropertyName, true, ExistingAttribute->Owner.Get(), ExistingAttribute->Property->GetFName());
 		return;
+		//Category = TEXT("Hidden");
+		//FoundExisting->Category = Category; //TODO: Se över alternativ. Snabblösning för att fungera med arvshierarkin för vapen. (Basklassen Gun's BeginPlay-funktion körs före.)
+		//return;
 	}
 
 	//Hämtar propertyns data (för uppgradering) och gör early return om den inte finns
@@ -217,6 +258,7 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 	NewAttribute->RowName = RowName; //Vart man hittar den i datatabellen
 	NewAttribute->InitialValue = CastFieldChecked<FFloatProperty>(Prop)->GetPropertyValue_InContainer(Owner); //Hämtar det initiala värdet från propertyn
 	NewAttribute->Category = Category;
+	NewAttribute->bFindOnReload = bFindOnReload;
 
 	FSGAttribute* NewAttributeRaw = NewAttribute.Get();
 	// För att inte riskera att tappa den i lambdan och behöva mecka
@@ -252,12 +294,88 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 	OnBindAttribute.Broadcast();
 }
 
+void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FName PropertyName, const bool OverrideOnModified, UObject* TargetOwner, FName TargetPropertyName)
+{
+	if (!Owner)
+	{
+		UE_LOG(LogTemp, Error, TEXT("BindDependentAttribute: Owner was nullptr"));
+		return;
+	}
+
+	//Hämtar propertyn som ska bindas och gör early return om den inte finns/är giltig
+	FProperty* Prop = Owner->GetClass()->FindPropertyByName(PropertyName);
+	if (!IsValidProperty(Prop)) // Update this if more types than float are supported!
+	{
+		UE_LOG(LogTemp, Error, TEXT("BindDependentAttribute: Property %s not found on %s"), *PropertyName.ToString(), *Owner->GetName());
+		return;
+	}
+
+	FSGAttribute* TargetAttribute = GetByKey(TargetOwner, TargetOwner->GetClass()->FindPropertyByName(TargetPropertyName));
+	if (!TargetAttribute)
+	{
+		UE_LOG(LogTemp, Error, TEXT("BindDependentAttribute: TargetProperty %s not found on %s"), *TargetPropertyName.ToString(), *TargetOwner->GetName());
+		return;
+	}
+
+	BindDependentAttribute(Owner, Prop, OverrideOnModified, TargetAttribute);
+}
+
 //------- HELPERS
+
+void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FProperty* Prop, const bool OverrideOnModified, FSGAttribute* TargetAttribute)
+{
+	//Inga null-checkar av parametrar för de är gjordes i funktionerna: BindDependentAttribute (public) och BindAttribute.
+	const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(TargetAttribute->RowName, TEXT("BindDependentAttribute"));
+	if (!AttributeData)
+	{
+		return;
+	}
+	// Läggs på heapen för att säkerställa livscykeln
+	TUniquePtr<FSGDependentAttribute> DependentAttribute = MakeUnique<FSGDependentAttribute>();
+	DependentAttribute->Owner = Owner;
+	DependentAttribute->Property = Prop;
+	DependentAttribute->bOverrideOnModified = OverrideOnModified;
+
+	//Rå pekare för att inte tappa den i lambdan
+	FSGDependentAttribute* DependentAttributeRaw = DependentAttribute.Get();
+
+	TargetAttribute->OnAttributeModified.AddLambda([TargetAttribute, AttributeData, DependentAttributeRaw]
+	{
+		const FFloatProperty* FloatProp = CastFieldChecked<const FFloatProperty>(DependentAttributeRaw->Property);
+		float Current = FloatProp->GetPropertyValue_InContainer(DependentAttributeRaw->Owner.Get());
+
+		if (DependentAttributeRaw->bOverrideOnModified)
+		{
+
+			const FFloatProperty* TargetFloatProp = CastFieldChecked<const FFloatProperty>(TargetAttribute->Property);
+			Current = TargetFloatProp->GetPropertyValue_InContainer(TargetAttribute->Owner.Get());
+		}
+		else
+		{
+			Current += TargetAttribute->InitialValue * AttributeData->Data.Multiplier;
+		}
+
+		UE_LOG(LogTemp, Error, TEXT("Current: %f of %s, from %s"), Current,*DependentAttributeRaw->Property->GetName(),  *DependentAttributeRaw->Owner->GetName());
+
+		FloatProp->SetPropertyValue_InContainer(DependentAttributeRaw->Owner.Get(), Current);
+	});
+
+	UE_LOG (LogTemp, Error, TEXT("BindDependentAttribute: Binding Dependent Attribute %s to %s"), *DependentAttributeRaw->Property->GetName(), *DependentAttributeRaw->Owner->GetName());
+
+	int32 Key = GetKey(DependentAttributeRaw->Owner.Get(), DependentAttributeRaw->Property);
+	DependentAttributesByKey.FindOrAdd(Key).Add(DependentAttributeRaw);
+	RegisteredDependentAttributes.Add(MoveTemp(DependentAttribute));
+}
 
 const FSGAttribute* USGUpgradeSubsystem::GetByKey(UObject* Owner, FProperty* Property) const
 {
 	FSGAttribute* const* Found = AttributesByKey.Find(GetKey(Owner, Property));
 	return Found ? *Found : nullptr;
+}
+
+FSGAttribute* USGUpgradeSubsystem::GetByKey(UObject* Owner, FProperty* Property)
+{
+	return AttributesByKey.FindRef(GetKey(Owner, Property));
 }
 
 const FSGAttribute* USGUpgradeSubsystem::GetByCategory(const FName Category, FName RowName) const
@@ -324,6 +442,8 @@ void USGUpgradeSubsystem::ModifyAttributeByRow(FName RowName) const
 	{
 		//Anropar lambdan som skapades vid bindandet.
 		TargetAttribute->OnAttributeModified.Broadcast();
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("RowName: %s"), *RowName.ToString()));
 	}
 }
 
@@ -443,7 +563,7 @@ void USGUpgradeSubsystem::RequestUpgrade(const bool bUpgrade, const FName RowNam
 TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 {
 	TArray<FSGUpgradeEntry> Out;
-	if (!ensureMsgf(UpgradeDataTable, TEXT("UpgradeDataTable was nullptr")))
+	if (!UpgradeDataTable)
 	{
 		return Out;
 	}
@@ -452,13 +572,13 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 	{
 		const FSGAttribute* TargetAttribute = Ptr.Get();
 
-		if (!TargetAttribute || !TargetAttribute->Owner.IsValid())
+		if (!TargetAttribute || !TargetAttribute->Owner.IsValid() || TargetAttribute->Category == TEXT("Hidden"))
 		{
 			continue;
 		}
 
 		const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(TargetAttribute->RowName, TEXT("GetUpgradeEntries"));
-		if (!ensureMsgf(AttributeData, TEXT("AttributeData was nullptr")))
+		if (!AttributeData)
 		{
 			continue;
 		}
@@ -492,7 +612,7 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 //------ UPGRADE HELPERS
 FSGAUpgradeResult USGUpgradeSubsystem::AttemptUpgrade(const FSGAttributeData& AttributeData, const FSGAttribute& TargetAttribute) const
 {
-	// Fetch upgrade data before it changes (updated after the Broadcast).
+	// Hämta uppgraderingsdata before it changes (updated after the Broadcast).
 	const int32 LevelBeforeUpgrade = TargetAttribute.CurrentUpgradeLevel;
 	const float UpgradeCost = AttributeData.Data.Cost * LevelBeforeUpgrade;
 
@@ -509,6 +629,7 @@ FSGAUpgradeResult USGUpgradeSubsystem::AttemptUpgrade(const FSGAttributeData& At
 
 void USGUpgradeSubsystem::AnnounceUpgrade(const FSGAUpgradeResult& UpgradeResult) const
 {
+	//TODO: Ta bort oanvända delegates
 	OnUpgradeFull.Broadcast(UpgradeResult.Level, UpgradeResult.Cost);
 	OnUpgradeCost.Broadcast(UpgradeResult.Cost);
 	OnUpgradeLevel.Broadcast(UpgradeResult.Level);
