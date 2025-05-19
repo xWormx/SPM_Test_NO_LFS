@@ -33,7 +33,7 @@ void ASGAIControllerEnemyBig::HandleMovement()
 		}
 	}
 
-	if (CanReachTarget())
+	if (CanReachTarget(AttackTarget))
 	{
 		if (CanAttackTarget())
 		{
@@ -46,8 +46,8 @@ void ASGAIControllerEnemyBig::HandleMovement()
 	}
 	else
 	{
-		// TODO: Patroling
-		MoveToLocation(FirstStartLocation);
+		//MoveToLocation(FirstStartLocation);
+		Patrol();
 	}
 }
 

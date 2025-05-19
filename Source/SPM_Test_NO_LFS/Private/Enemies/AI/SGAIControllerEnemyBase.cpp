@@ -5,8 +5,9 @@
 
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
+#include "SPM_Test_NO_LFS.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Enemies/Navigation/SGEnemyPatrolPoint.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -149,9 +150,9 @@ void ASGAIControllerEnemyBase::RotateTowardsTargetWhileNotMoving()
 	ControlledEnemy->SetActorRotation(LookAtRotation);
 }
 
-bool ASGAIControllerEnemyBase::CanReachTarget() const
+bool ASGAIControllerEnemyBase::CanReachTarget(AActor* Target) const
 {
-	if (!AttackTarget || !ControlledEnemy)
+	if (!Target || !ControlledEnemy)
 	{
 		return false;
 	}
@@ -164,7 +165,7 @@ bool ASGAIControllerEnemyBase::CanReachTarget() const
 	}
 
 	UNavigationPath* NavPath = NavSys->FindPathToActorSynchronously(GetWorld(),
-		ControlledEnemy->GetActorLocation(), AttackTarget);
+		ControlledEnemy->GetActorLocation(), Target);
 
 	if (!NavPath || NavPath->PathPoints.Num() == 0)
 	{
@@ -205,10 +206,75 @@ void ASGAIControllerEnemyBase::SetInitialValues()
 	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
 
-	if (ControlledEnemy)
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGEnemyPatrolPoint::StaticClass(), PatrolPoints);
+
+	UpdatePatrolPoints();
+}
+
+void ASGAIControllerEnemyBase::UpdatePatrolPoints()
+{
+	for (AActor* Target : PatrolPoints)
 	{
-		FirstStartLocation = ControlledEnemy->GetActorLocation();
+		if (!CanReachTarget(Target))
+		{
+			PatrolPoints.Remove(Target);
+		}
 	}
+}
+
+ASGEnemyPatrolPoint* ASGAIControllerEnemyBase::GetPatrolPoint()
+{
+	if (PatrolPoints.IsEmpty())
+	{
+		return nullptr;
+	}
+	INT32 index = FMath::RandRange(0, PatrolPoints.Num() - 1);
+
+	if (!PatrolPoints[index]) { return nullptr; }
+
+	CurrentPatrolPoint = Cast<ASGEnemyPatrolPoint>(PatrolPoints[index]);
+	
+	if (CurrentPatrolPoint)
+	{
+		return CurrentPatrolPoint;
+	}
+	return nullptr;
+}
+
+bool ASGAIControllerEnemyBase::HasReachedCurrentPatrolPoint(float Tolerance) const
+{
+	if (!ControlledEnemy || !CurrentPatrolPoint)
+	{
+		return false;
+	}
+
+	return FVector::DistSquared(CurrentPatrolPoint->GetActorLocation(), ControlledEnemy->GetActorLocation()) <
+		FMath::Square(Tolerance);
+}
+
+void ASGAIControllerEnemyBase::Patrol()
+{
+	if (!CurrentPatrolPoint || HasReachedCurrentPatrolPoint(200.f))
+	{
+		CurrentPatrolPoint = GetPatrolPoint();
+		if (!CanReachTarget(CurrentPatrolPoint))
+		{
+			PatrolPoints.Remove(CurrentPatrolPoint);
+			UpdatePatrolPoints();
+			CurrentPatrolPoint = GetPatrolPoint();
+		}
+	}
+
+	if (CurrentPatrolPoint)
+	{
+		MoveToActor(CurrentPatrolPoint);
+		/*if (!CanReachTarget(CurrentPatrolPoint))
+		{
+			//BASIR_DEBUG(TEXT("Move to Patrol Point"), FColor::Blue, 3.f);
+			UpdatePatrolPoints();
+		}*/
+	}
+	
 }
 
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
