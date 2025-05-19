@@ -148,9 +148,14 @@ void ASGGun::BeginPlay()
 
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
-		FName Category = TEXT("Assault Rifle");
+		FName Category = TEXT("All Guns");
 		UpgradeSystem->BindAttribute(this, TEXT("Damage"), TEXT("GunDamage"), Category);
 		UpgradeSystem->BindAttribute(this, TEXT("FireRate"), TEXT("GunFireRate"), Category);
+
+		/* Alla vapen kommer binda ReloadTime då detta är basklassen, men används endast av AR så övriga vapen påverkas inte.
+		 * En vackrare lösning som inte innebär att ha (två) dinglande attribut som uppgraderas utan användning vore nice, men eftersom detta
+		 * i nuläget är (och förmodligen kommer vara) enda stället det här sker, så låter jag det vara (just nu).*/
+		UpgradeSystem->BindAttribute(this, TEXT("ReloadTime"), TEXT("GunReloadSpeed"), TEXT("Assault Rifle"));
 	}
 }
 
