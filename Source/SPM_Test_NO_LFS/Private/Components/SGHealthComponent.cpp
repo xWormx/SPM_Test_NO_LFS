@@ -1,6 +1,10 @@
 ﻿#include "Components/SGHealthComponent.h"
 
-USGHealthComponent::USGHealthComponent(){}
+USGHealthComponent::USGHealthComponent()
+{
+	MaxHealth = 100;
+	CurrentHealth = MaxHealth;
+}
 
 void USGHealthComponent::BeginPlay()
 {
