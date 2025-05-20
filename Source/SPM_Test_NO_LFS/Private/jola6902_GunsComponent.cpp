@@ -1,12 +1,13 @@
 // Joel Larsson Wendt | jola6902
 
 #include "jola6902_GunsComponent.h"
+#include "InputActionValue.h"
 #include "SGWeaponsHUD.h"
 #include "Blueprint/UserWidget.h"
 #include "Gear/Weapons/SGGun.h"
 
 // Public
-Ujola6902_GunsComponent::Ujola6902_GunsComponent(): Owner(GetOwner())
+Ujola6902_GunsComponent::Ujola6902_GunsComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -23,8 +24,23 @@ void Ujola6902_GunsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Owner = GetOwner();
 	CreateGunsHUD();
 	SetUpGuns();
+}
+
+void Ujola6902_GunsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	for (ASGGun* Gun : Guns)
+	{
+		if (Gun && IsValid(Gun))
+		{
+			Gun->Destroy();
+		}
+	}
+	Guns.Empty();
 }
 
 // Public
@@ -68,6 +84,22 @@ int8 Ujola6902_GunsComponent::GetCurrentGunIndex()
 const TArray<ASGGun*>& Ujola6902_GunsComponent::GetGuns() const
 {
 	return Guns;
+}
+
+void Ujola6902_GunsComponent::SwapWithMouseWheel(const FInputActionValue& Value)
+{
+	float ScrollValue = Value.Get<float>();
+	
+	if (FMath::IsNearlyZero(ScrollValue)) return;
+
+	if (ScrollValue > 0.f)
+	{
+		CurrentGunIndex = (CurrentGunIndex + 1) % Guns.Num();
+	}
+	else if (ScrollValue < 0.f)
+	{
+		CurrentGunIndex = (CurrentGunIndex - 1 + Guns.Num()) % Guns.Num();
+	}
 }
 
 // Private

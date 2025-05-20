@@ -256,26 +256,8 @@ void ASGPlayerController::OnSwapWeaponMouseWheel(const FInputActionValue& Value)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Mouse Scroll Wheel"));
 	if (GunsComponent == nullptr) return;
-
-	const TArray<ASGGun*>& Guns = GunsComponent->GetGuns();
-	int32 NumberOfGuns = Guns.Num();
-	if (NumberOfGuns == 0) return;
-
-	int32 CurrentGunIndex = GunsComponent->GetCurrentGunIndex();
-	float ScrollValue = Value.Get<float>();
-
-	if (FMath::IsNearlyZero(ScrollValue)) return;
-
-	if (ScrollValue > 0.f)
-	{
-		CurrentGunIndex = (CurrentGunIndex + 1) % NumberOfGuns;
-	}
-	else if (ScrollValue < 0.f)
-	{
-		CurrentGunIndex = (CurrentGunIndex - 1 + NumberOfGuns) % NumberOfGuns;
-	}
-
-	GunsComponent->SetCurrentGunIndex(CurrentGunIndex);
+	
+	GunsComponent->SwapWithMouseWheel(Value);
 }
 
 void ASGPlayerController::OnReloadPressed(const FInputActionValue& Value)

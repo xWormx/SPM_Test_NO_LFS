@@ -20,6 +20,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	void FireGun();
@@ -28,6 +29,7 @@ public:
 	void SetCurrentGunIndex(int8 NewIndex);
 	int8 GetCurrentGunIndex();
 	const TArray<ASGGun*>& GetGuns() const;
+	void SwapWithMouseWheel(const struct FInputActionValue& Value);
 
 private:
 	void CreateGunsHUD();
