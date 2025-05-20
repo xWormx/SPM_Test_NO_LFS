@@ -26,34 +26,16 @@ ASGGameObjectivesHandler::ASGGameObjectivesHandler()
 void ASGGameObjectivesHandler::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("ASGGameObjectivesHandler::BeginPlay, there is a objectivehandler"));
-	
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (PlayerController)
+	USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance());
+	if (GameInstance)
 	{
-		USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance());
-		if (GameInstance)
-		{
-			ObjectiveToolTipWidget = GameInstance->GetObjectiveTooltipWidget();
-			ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!i
-			ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
-			ObjectiveToolTipWidget->ShowVisitTerminal();
-			ObjectiveToolTipWidget->HideToolTipScaleBox();
-		}
-		
-		/*
-		ObjectiveToolTipWidget = Cast<USGObjectiveToolTipWidget>(CreateWidget<USGObjectiveToolTipWidget>(PlayerController, ObjectiveToolTipClass));
-		USGGameInstance* GameInstance = Cast<USGGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (GameInstance)
-		{
-			GameInstance->SetObjectiveTooltipWidget(ObjectiveToolTipWidget);
-		}
-		ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!
+		ObjectiveToolTipWidget = GameInstance->GetObjectiveTooltipWidget();
+		ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!i
 		ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 		ObjectiveToolTipWidget->ShowVisitTerminal();
 		ObjectiveToolTipWidget->HideToolTipScaleBox();
-		*/
-		
+
+		//GameInstance->SetObjectiveHandler(this);
 	}
 }
 
@@ -114,11 +96,13 @@ void ASGGameObjectivesHandler::RegisterDefendThePod(ASGObjectiveDefendThePod* De
 
 void ASGGameObjectivesHandler::StartMission()
 {
+	
 	/*
 		Tilldela varje objective ett ID här så att det kan lagras i ToolTipWidget's TMap så att
 		progresswindow kan hålla koll på alla texter 
 	 
 	 */
+	/*
 	ObjectiveToolTipWidget->HideVisitTerminal();
 	if (GameObjectives.Num() > 0)
 		CurrentObjective = GameObjectives[0];
@@ -133,12 +117,14 @@ void ASGGameObjectivesHandler::StartMission()
 	CurrentObjective->OnStart(this);
 	TerminalHUD->DisableStartButton();
 	UGameplayStatics::PlaySound2D(this, MissionStartedSound);
-	OnObjectiveStarted.Broadcast();
+	//OnObjectiveStarted.Broadcast();
+	*/
 }
 
 // TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...
 void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor)
 {
+	/*
 	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_InvalidObjectiveType;
 	ISGObjectiveInterface* Objective = Cast<ISGObjectiveInterface>(ObjectiveInterfaceImplementor);
 	if (Objective)
@@ -166,12 +152,14 @@ void ASGGameObjectivesHandler::UpdateCurrentGameObjective(UObject* ObjectiveInte
 		CurrentObjective->OnCompleted(this);
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
 		RemoveCurrentObjective();
-		OnObjectiveCompleted.Broadcast();
+		//OnObjectiveCompleted.Broadcast();
+		//OnObjectiveCompletedWithType.Broadcast(IncomingObjectiveType);
 	}
 	else
 	{
 		ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayUpdateValueAnimation();
 	}
+	*/
 }
 
 void ASGGameObjectivesHandler::RemoveCurrentObjective()
