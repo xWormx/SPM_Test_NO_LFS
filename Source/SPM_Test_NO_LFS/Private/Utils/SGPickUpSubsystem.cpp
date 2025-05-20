@@ -1,5 +1,6 @@
 ﻿#include "Utils/SGPickUpSubsystem.h"
 
+#include "SPM_Test_NO_LFS.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Pickups/SGPickUp.h"
 #include "Utils/SGDeveloperSettings.h"
@@ -8,45 +9,61 @@
 void USGPickUpSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-
 	const USGDeveloperSettings* DeveloperSettings = GetDefault<USGDeveloperSettings>();
 	if (!DeveloperSettings)
 	{
 		return;
 	}
-	const UDataTable* EnemyDrops = Cast<UDataTable>(DeveloperSettings->EnemyDropsDataTable.TryLoad());
+	EnemyDropDataTable = Cast<UDataTable>(DeveloperSettings->EnemyDropsDataTable.TryLoad());
 
-	auto PreloadEnemyDropData = [&](const FName&, const FEnemyDropInfo& Drop)
+}
+
+TArray<FEnemyDropInfo> USGPickUpSubsystem::GetEnemyDropInfos(const TSubclassOf<ASGEnemyCharacter>& EnemyClass) const
+{
+	TArray<FEnemyDropInfo> Drops;
+	auto LoadEnemyDrops = [&](const FName&, const FEnemyDropInfo& Drop)
 	{
-		if (!Drop.EnemyClass)
+		if (!Drop.EnemyClass || !IsValid(Drop.EnemyClass) || Drop.EnemyClass != EnemyClass)
 		{
 			return;
 		}
-		EnemyDropMap.FindOrAdd(Drop.EnemyClass).Add(Drop);
+		Drops.Add(Drop);
 	};
 
-	EnemyDrops->ForeachRow<FEnemyDropInfo>(TEXT("Initialize Enemy Drop Data"), PreloadEnemyDropData);
+	if (EnemyDropDataTable)
+	{
+		EnemyDropDataTable->ForeachRow<FEnemyDropInfo>(TEXT("Initialize Enemy Drop Data"), LoadEnemyDrops);
+	}
+
+	return Drops;
 }
 
-void USGPickUpSubsystem::DropItem(ASGEnemyCharacter* EnemyCharacter) const
+bool USGPickUpSubsystem::IsValidEnemy(ASGEnemyCharacter* EnemyCharacter)
 {
 	if (!EnemyCharacter)
 	{
-		return;
+		return false;
 	}
 
-	TArray<FEnemyDropInfo> const* DropInfoArray = EnemyDropMap.Find(EnemyCharacter->GetClass());
-	if (!DropInfoArray)
+	UClass* EnemyClass = EnemyCharacter->GetClass();
+	return EnemyClass && IsValid(EnemyClass);
+}
+
+void USGPickUpSubsystem::DropItem(ASGEnemyCharacter* EnemyCharacter)
+{
+	if (!IsValidEnemy(EnemyCharacter))
 	{
 		return;
 	}
+
+	TArray<FEnemyDropInfo> DropInfoArray = GetEnemyDropInfos(EnemyCharacter->GetClass()); //TODO: Testa cache:a arrayen i en map om det här drar ner på prestanda
 
 	USGObjectPoolSubsystem* ObjectPoolSubsystem = GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>();
 
 	const FVector SpawnLocation = EnemyCharacter->GetActorLocation();
 	const FRotator SpawnRotation = FRotator::ZeroRotator;
 
-	for (const FEnemyDropInfo Drop : *DropInfoArray)
+	for (const FEnemyDropInfo& Drop : DropInfoArray)
 	{
 		if (FMath::FRand() > Drop.DropChance)
 		{
