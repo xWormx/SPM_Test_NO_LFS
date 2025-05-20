@@ -235,7 +235,7 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 
 	if (const FSGAttribute* ExistingAttribute = GetByCategory(Category, RowName))
 	{
-		BindDependentAttribute(Owner, PropertyName, true, ExistingAttribute->Owner.Get(), ExistingAttribute->Property->GetFName());
+		BindDependentAttribute(Owner, PropertyName, false, ExistingAttribute->Owner.Get(), ExistingAttribute->Property->GetFName());
 		return;
 		//Category = TEXT("Hidden");
 		//FoundExisting->Category = Category; //TODO: Se över alternativ. Snabblösning för att fungera med arvshierarkin för vapen. (Basklassen Gun's BeginPlay-funktion körs före.)
