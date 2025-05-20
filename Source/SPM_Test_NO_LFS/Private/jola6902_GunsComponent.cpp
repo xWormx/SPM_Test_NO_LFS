@@ -95,11 +95,12 @@ void Ujola6902_GunsComponent::UpdateGunsHUD()
 
 void Ujola6902_GunsComponent::SetUpGuns()
 {
+	USceneComponent* AttachmentComponent = Cast<USceneComponent>(GunsAttachment.GetComponent(Owner));
 	Guns.SetNum(GunClasses.Num());
 	for (int32 i = 0; i < GunClasses.Num(); ++i)
 	{
 		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
 		if (Guns[i]) Guns[i]->SetOwner(Owner);
-		if (GunsAttachmentComponent) Guns[i]->AttachToComponent(GunsAttachmentComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		if (AttachmentComponent) Guns[i]->AttachToComponent(AttachmentComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 }

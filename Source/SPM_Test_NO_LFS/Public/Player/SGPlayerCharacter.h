@@ -57,5 +57,6 @@ private:
 	USkeletalMeshComponent* WeaponMesh;
 
 	// jola6902_GunsComponent coupling
+	UPROPERTY(VisibleAnywhere)
 	Ujola6902_GunsComponent* GunsComponent;
 };
