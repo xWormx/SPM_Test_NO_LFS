@@ -36,7 +36,9 @@ private:
 
 	AActor* Owner;
 	USGWeaponsHUD* GunsHUD;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	USceneComponent* GunsAttachmentComponent;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TArray<TSubclassOf<ASGGun>> GunClasses;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))

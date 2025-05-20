@@ -1,4 +1,6 @@
 #include "Player/SGPlayerCharacter.h"
+
+#include "jola6902_GunsComponent.h"
 #include "SGWeaponsHUD.h"
 #include "Blueprint/UserWidget.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
@@ -30,6 +32,8 @@ ASGPlayerCharacter::ASGPlayerCharacter()
 		CapsuleComp->SetNotifyRigidBodyCollision(true); // Enable hit events
 		CapsuleComp->OnComponentHit.AddDynamic(this, &ASGPlayerCharacter::OnComponentHit);
 	}
+
+	GunsComponent = CreateDefaultSubobject<Ujola6902_GunsComponent>(TEXT("GunsComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -104,6 +108,11 @@ void ASGPlayerCharacter::FireGrapple()
 	UE_LOG(LogTemp, Warning, TEXT("Fire Grapple"));
 	GrapplingHook->FireGrapple();
 	//GetCharacterMovement()->GravityScale = 0.5;
+}
+
+Ujola6902_GunsComponent* ASGPlayerCharacter::GetGunsComponent()
+{
+	return GunsComponent;
 }
 
 void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* HitComponent, AActor* OtherActor, [[maybe_unused]] UPrimitiveComponent* OtherComp, [[maybe_unused]] FVector NormalImpulse, [[maybe_unused]] const FHitResult& Hit)

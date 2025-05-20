@@ -3,6 +3,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
+#include "jola6902_GunsComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
@@ -67,6 +68,9 @@ void ASGPlayerController::BeginPlay()
 			UpgradeSystem->BindAttribute(CharacterMovement, TEXT("JumpZVelocity"), TEXT("JumpHeight"), Category);			
 		}		
 	}
+
+	// jola6902_GunsComponent coupling
+	GunsComponent = ThePlayerCharacter->GetGunsComponent();
 }
 
 void ASGPlayerController::Tick(float DeltaTime)
@@ -210,13 +214,13 @@ void ASGPlayerController::HandleFiring()
 void ASGPlayerController::FireGun()
 {
 	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr) return;
+	if (CurrentPlayer == nullptr || GunsComponent == nullptr) return;
 
-	const ASGGun* Gun = CurrentPlayer->GetGunRef();
+	const ASGGun* Gun = GunsComponent->GetGunRef();
 	if (Gun)
 	{
 		bCanFire = false;
-		CurrentPlayer->FireGun();
+		GunsComponent->FireGun();
 		float FireRate = Gun->GetFireRate();
 		GetWorld()->GetTimerManager().SetTimer(CanFireAgainTimer, this, &ASGPlayerController::CanFireAgain, FireRate, false);
 	}
@@ -230,34 +234,34 @@ void ASGPlayerController::CanFireAgain()
 void ASGPlayerController::OnSwapWeaponKey1Pressed(const FInputActionValue& Value)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Pressed Key 1"));
-	if (ThePlayerCharacter == nullptr) return;
-	ThePlayerCharacter->SetCurrentGunIndex(0);
+	if (GunsComponent == nullptr) return;
+	GunsComponent->SetCurrentGunIndex(0);
 }
 
 void ASGPlayerController::OnSwapWeaponKey2Pressed(const FInputActionValue& Value)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Pressed Key 2"));
-	if (ThePlayerCharacter == nullptr) return;
-	ThePlayerCharacter->SetCurrentGunIndex(1);
+	if (GunsComponent == nullptr) return;
+	GunsComponent->SetCurrentGunIndex(1);
 }
 
 void ASGPlayerController::OnSwapWeaponKey3Pressed(const FInputActionValue& Value)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Pressed Key 3"));
-	if (ThePlayerCharacter == nullptr) return;
-	ThePlayerCharacter->SetCurrentGunIndex(2);
+	if (GunsComponent == nullptr) return;
+	GunsComponent->SetCurrentGunIndex(2);
 }
 
 void ASGPlayerController::OnSwapWeaponMouseWheel(const FInputActionValue& Value)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Mouse Scroll Wheel"));
-	if (ThePlayerCharacter == nullptr) return;
+	if (GunsComponent == nullptr) return;
 
-	const TArray<ASGGun*>& Guns = ThePlayerCharacter->GetGuns();
+	const TArray<ASGGun*>& Guns = GunsComponent->GetGuns();
 	int32 NumberOfGuns = Guns.Num();
 	if (NumberOfGuns == 0) return;
 
-	int32 CurrentGunIndex = ThePlayerCharacter->GetCurrentGunIndex();
+	int32 CurrentGunIndex = GunsComponent->GetCurrentGunIndex();
 	float ScrollValue = Value.Get<float>();
 
 	if (FMath::IsNearlyZero(ScrollValue)) return;
@@ -271,15 +275,15 @@ void ASGPlayerController::OnSwapWeaponMouseWheel(const FInputActionValue& Value)
 		CurrentGunIndex = (CurrentGunIndex - 1 + NumberOfGuns) % NumberOfGuns;
 	}
 
-	ThePlayerCharacter->SetCurrentGunIndex(CurrentGunIndex);
+	GunsComponent->SetCurrentGunIndex(CurrentGunIndex);
 }
 
 void ASGPlayerController::OnReloadPressed(const FInputActionValue& Value)
 {
-	if (ThePlayerCharacter == nullptr) return;
+	if (GunsComponent == nullptr) return;
 
 	UE_LOG(LogTemp, Warning, TEXT("SGPlayerController::OnReloadPressed()"));
-	ThePlayerCharacter->ReloadGun();
+	GunsComponent->ReloadGun();
 }
 
 ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()

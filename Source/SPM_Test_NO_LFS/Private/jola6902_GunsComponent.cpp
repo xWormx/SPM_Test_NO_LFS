@@ -100,6 +100,6 @@ void Ujola6902_GunsComponent::SetUpGuns()
 	{
 		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
 		if (Guns[i]) Guns[i]->SetOwner(Owner);
-		if (WeaponMesh) Guns[i]->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		if (GunsAttachmentComponent) Guns[i]->AttachToComponent(GunsAttachmentComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 }
