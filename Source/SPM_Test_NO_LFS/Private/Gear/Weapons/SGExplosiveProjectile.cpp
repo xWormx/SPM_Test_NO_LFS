@@ -2,6 +2,7 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Pickups/SGPickUp.h"
 
 // Public
 ASGExplosiveProjectile::ASGExplosiveProjectile()
@@ -50,13 +51,11 @@ void ASGExplosiveProjectile::BeginPlay()
 }
 
 // Private
-void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AActor* MyOwner = GetOwner();
 	AActor* MyOwnersOwner = GetOwner()->GetOwner();
-	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || 
-		OtherActor == MyOwnersOwner || OtherActor->ActorHasTag("Projectile") || OtherActor->ActorHasTag("PickUpOrb"))
+	if (!MyOwner || OtherActor == this || OtherActor == MyOwner || OtherActor == MyOwnersOwner)
 	{
 		return;
 	}
