@@ -8,6 +8,7 @@
 #include "Objectives/SGObjectiveToolTipWidget.h"
 #include "SGGameInstance.generated.h"
 
+class ASGGameObjectivesHandler;
 class USGTerminalWidget;
 /**
  * 
@@ -22,9 +23,11 @@ public:
 	void SetTerminalWidget(USGTerminalWidget* InWidget) { HUDTerminal = InWidget; }
 	void SetHUDGrapple(USGHUDGrapple* InHUDGrapple) { HUDGrapple = InHUDGrapple; }
 	void SetObjectiveTooltipWidget(USGObjectiveToolTipWidget* InObjectiveTooltipWidget) { ObjectiveToolTipWidget = InObjectiveTooltipWidget; }
+	//void SetObjectiveHandler(ASGGameObjectivesHandler* InObjectiveHandler) { ObjectivesHandler = InObjectiveHandler; }
 	USGTerminalWidget* GetTerminalWidget() { return HUDTerminal; }
 	USGHUDGrapple* GetHUDGrapple() {	return HUDGrapple; }
 	USGObjectiveToolTipWidget* GetObjectiveTooltipWidget() { return ObjectiveToolTipWidget; }
+	//ASGGameObjectivesHandler* GetObjectiveHandler() { return ObjectivesHandler; }
 	
 private:
 
@@ -42,7 +45,10 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
-
+/*
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	ASGGameObjectivesHandler* ObjectivesHandler;
+	*/
 public:
 	UFUNCTION()
 	void IncreaseDifficultyLevel(int Difficulty);
