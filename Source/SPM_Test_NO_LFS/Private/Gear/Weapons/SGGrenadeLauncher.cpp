@@ -16,7 +16,13 @@ ASGGrenadeLauncher::ASGGrenadeLauncher()
 
 void ASGGrenadeLauncher::Fire()
 {
-	if (bIsReloading || !HasAmmo()) return;
+	if (bIsReloading) return;
+
+	if (!HasAmmo())
+	{
+		if (OutOfAmmoSound && Mesh) UGameplayStatics::SpawnSoundAttached(OutOfAmmoSound, Mesh, TEXT("MuzzleFlashSocket"));
+		return;
+	}
 	
 	if (bUsesMagazine)
 	{
