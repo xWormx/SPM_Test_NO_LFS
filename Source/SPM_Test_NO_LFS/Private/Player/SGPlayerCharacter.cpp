@@ -47,53 +47,12 @@ void ASGPlayerCharacter::BeginPlay()
 		GrapplingHook->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
 		GrapplingHook->SetOwner(this);	
 	}
-
-	Guns.SetNum(GunClasses.Num());
-	for (int32 i = 0; i < GunClasses.Num(); ++i)
-	{
-		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
-		if (Guns[i]) Guns[i]->SetOwner(this);
-		if (WeaponMesh) Guns[i]->AttachToComponent(WeaponMesh, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		if (WeaponHUD)
-		{
-			WeaponHUD->UpdWeaponName(Guns[i]->GetWeaponDisplayName());
-		}
-	}
-	if (Guns.Num() > 0 && Guns.IsValidIndex(CurrentGunIndex))
-	{
-		if (Guns[CurrentGunIndex])
-		{
-			// Använd senare för att attacha första vapnet vid start, ska sedan byta vapenobjekt vid weapon swap
-			// WeaponSocket == bone-socket där vapnet ska sitta fast
-			//Guns[CurrentGunIndex]->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Guns array is empty or index out of bounds!"));
-	}
-
-	if (WeaponHUDWidgetClass)
-	{
-		WeaponHUD = CreateWidget<USGWeaponsHUD>(GetWorld(), WeaponHUDWidgetClass);
-		if (WeaponHUD)
-		{
-			WeaponHUD->AddToViewport();
-		}
-	}
 }
 
 // Called every frame
 void ASGPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (WeaponHUD && Guns[CurrentGunIndex])
-	{
-		WeaponHUD->UpdWeaponName(Guns[CurrentGunIndex]->GetWeaponDisplayName());
-		WeaponHUD->UpdAmmoClip(Guns[CurrentGunIndex]->GetAmmoClip());
-		WeaponHUD->UpdAmmoStock(Guns[CurrentGunIndex]->GetAmmoStock());
-	}
 	
 /*
 	if (GrapplingHook->HeadAttached())
@@ -145,48 +104,6 @@ void ASGPlayerCharacter::FireGrapple()
 	UE_LOG(LogTemp, Warning, TEXT("Fire Grapple"));
 	GrapplingHook->FireGrapple();
 	//GetCharacterMovement()->GravityScale = 0.5;
-}
-
-void ASGPlayerCharacter::FireGun()
-{
-	//UE_LOG(LogTemp, Warning, TEXT("Trying to fire gun at index: %d"), CurrentGunIndex);
-	ASGGun* Gun = Guns[CurrentGunIndex];
-	if (Gun)
-	{
-		if (Gun->GetAmmoClip() <= 0)
-		{
-			ReloadGun();
-		}
-		
-		Gun->Fire();
-	}
-}
-
-void ASGPlayerCharacter::ReloadGun()
-{
-	UE_LOG(LogTemp, Warning, TEXT("SGPlayerCharacter::ReloadGun()"));
-	
-	if (Guns[CurrentGunIndex]) Guns[CurrentGunIndex]->Reload();
-}
-
-const ASGGun* ASGPlayerCharacter::GetGunRef() const
-{
-	return Guns[CurrentGunIndex];
-}
-
-void ASGPlayerCharacter::SetCurrentGunIndex(int8 NewIndex)
-{
-	CurrentGunIndex = NewIndex;
-}
-
-int8 ASGPlayerCharacter::GetCurrentGunIndex()
-{
-	return CurrentGunIndex;
-}
-
-const TArray<ASGGun*>& ASGPlayerCharacter::GetGuns() const
-{
-	return Guns;
 }
 
 void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* HitComponent, AActor* OtherActor, [[maybe_unused]] UPrimitiveComponent* OtherComp, [[maybe_unused]] FVector NormalImpulse, [[maybe_unused]] const FHitResult& Hit)

@@ -29,12 +29,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	float GetRage() const { return Rage; };
 	void FireGrapple();
-	void FireGun();
-	void ReloadGun();
-	const ASGGun* GetGunRef() const;
-	void SetCurrentGunIndex(int8 NewIndex);
-	int8 GetCurrentGunIndex();
-	const TArray<ASGGun*>& GetGuns() const;
 
 protected:
 
@@ -55,14 +49,6 @@ private:
 	UPROPERTY()
 	ASGGrapplingHook* GrapplingHook;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	TArray<TSubclassOf<ASGGun>> GunClasses;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	TArray<ASGGun*> Guns;
-	int8 CurrentGunIndex = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	TSubclassOf<UUserWidget> WeaponHUDWidgetClass;
-	USGWeaponsHUD* WeaponHUD;
 	UPROPERTY(VisibleAnywhere, Category="design")
 	class UCameraComponent* CameraComponent;
 	UPROPERTY(VisibleAnywhere, Category="design")
