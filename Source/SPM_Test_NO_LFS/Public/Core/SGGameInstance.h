@@ -10,13 +10,10 @@
 #include "SaveGame/USGISaveGame.h"
 #include "SGGameInstance.generated.h"
 
-<<<<<<< HEAD
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameLoaded);
 //DECLARE_DYNAMIC_MULTICAST_DELEGATE(FONGameSaved);
 
 class USaveGame;
-=======
->>>>>>> parent of c75c5fc (ADD - PodArrival objective tillagt, ADD - Stor Refactor av Objectivesystem som nu använder ett subsystem och data assets för att sätta objectives data, ADD - Lagt in delar som blockar varje sektion av tornet och kan öppnas när ett visst objective är avklarat och stängas när spelaren går in i en triggerzone, dessa är komponenter som sätts på en mesh)
 class USGTerminalWidget;
 class USGSaveGame;
 /**
