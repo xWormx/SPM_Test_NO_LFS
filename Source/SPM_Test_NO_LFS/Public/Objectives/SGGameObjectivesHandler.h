@@ -6,11 +6,10 @@
 #include "SGObjectiveBase.h"
 #include "GameFramework/Actor.h"
 #include "SGGameObjectivesHandler.generated.h"
-/*
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnObjectiveStarted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnObjectiveCompleted);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveCompletedWithType, EObjectiveType, ObjectiveType);
-*/
+
 enum class EObjectiveType : uint8;
 class ASGObjectiveDefendThePod;
 class ASGPickUpObjectiveCollect;
@@ -47,11 +46,9 @@ public:
 	EObjectiveType GetLastCompletedObjectiveType() const { return LastCompletedObjective->GetObjectiveType(); }
 	TArray<ASGObjectiveBase*> GetAllObjectives() const { return GameObjectives; }
 
-/*	
+	
 	FOnObjectiveStarted OnObjectiveStarted;
 	FOnObjectiveCompleted OnObjectiveCompleted;
-	FOnObjectiveCompletedWithType OnObjectiveCompletedWithType;
-*/
 	
 protected:
 	// Called when the game starts or when spawned

@@ -19,7 +19,7 @@ class SPM_TEST_NO_LFS_API USGTerminalWidget : public UUserWidget
 public:
 	FOnStartMission OnStartMission;
 	FOnCloseTerminal OnCloseTerminal;
-	//void SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler);
+	void SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler);
 	void EnableStartButton();
 	void DisableStartButton();
 protected:
@@ -58,10 +58,7 @@ protected:
 	void OnHoverCloseTerminal();
 	UFUNCTION()
 	void OnUnHoverCloseTerminal();
-	UPROPERTY(VisibleAnywhere)
-	USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem;
-	/*
+
 	UPROPERTY()
 	class ASGGameObjectivesHandler* GameObjectivesHandler;
-	*/
 };

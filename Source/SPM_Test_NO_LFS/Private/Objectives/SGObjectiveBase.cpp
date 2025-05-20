@@ -3,8 +3,6 @@
 
 #include "Objectives/SGObjectiveBase.h"
 
-#include "SPM_Test_NO_LFS.h"
-#include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
@@ -19,11 +17,6 @@ ASGObjectiveBase::ASGObjectiveBase()
 void ASGObjectiveBase::BeginPlay()
 {
 	Super::BeginPlay();
-	ObjectiveHandlerSubSystem = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
-	if (ObjectiveHandlerSubSystem == nullptr)
-	{
-		CALLE_LOG(Error, TEXT("ObjectiveBase: Couldn't find ObjectiveHandlerSubSystem"));
-	}
 }
 
 // Called every frame
@@ -36,7 +29,7 @@ void ASGObjectiveBase::ActivateObjective()
 {
 	bIsActivated = true;
 }
-/*
+
 void ASGObjectiveBase::OnStart(ASGGameObjectivesHandler* ObjectivesHandler)
 {
 	if (ObjectivesHandler == nullptr)
@@ -45,38 +38,21 @@ void ASGObjectiveBase::OnStart(ASGGameObjectivesHandler* ObjectivesHandler)
 		return;
 	}
 	
-	//SetObjectiveHandler(ObjectivesHandler);
+	SetObjectiveHandler(ObjectivesHandler);
 	if (!ObjectiveSubToolTips.IsEmpty())
 		CurrentSubToolTip = ObjectiveSubToolTips[0];
-	//DisplayStartToolTip(ObjectivesHandler->GetObjectiveToolTipWidget());
-	DisplayStartToolTip(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget());
+	DisplayStartToolTip(ObjectivesHandler->GetObjectiveToolTipWidget());
 	CurrentSubObjectiveStep = 1;
+	//ObjectivesHandler->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
 
 	OnObjectiveStart.Broadcast(this);
 }
 
 void ASGObjectiveBase::OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
 {
-	//DisplayEndToolTip(ObjectiveHandler->GetObjectiveToolTipWidget());
-	DisplayEndToolTip(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget());
-	
-}
-*/
-void ASGObjectiveBase::OnStart()
-{
-	if (!ObjectiveSubToolTips.IsEmpty())
-		CurrentSubToolTip = ObjectiveSubToolTips[0];
-	//DisplayStartToolTip(ObjectivesHandler->GetObjectiveToolTipWidget());
-	DisplayStartToolTip(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget());
-	CurrentSubObjectiveStep = 1;
-
-	OnObjectiveStart.Broadcast(this);
+	DisplayEndToolTip(ObjectiveHandler->GetObjectiveToolTipWidget());
 }
 
-void ASGObjectiveBase::OnCompleted()
-{
-	DisplayEndToolTip(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget());
-}
 void ASGObjectiveBase::DisplayStartToolTip(USGObjectiveToolTipWidget* ToolTipWidget)
 {
 	ToolTipWidget->Display(GetObjectiveDescriptionToolTip());

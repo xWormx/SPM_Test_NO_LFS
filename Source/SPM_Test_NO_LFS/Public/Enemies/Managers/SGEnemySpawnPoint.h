@@ -4,7 +4,6 @@
 #include "GameFramework/Actor.h"
 #include "SGEnemySpawnPoint.generated.h"
 
-class USGObjectiveHandlerSubSystem;
 class ASGEnemyCharacter;
 
 UCLASS()
@@ -16,12 +15,9 @@ public:
 	ASGEnemySpawnPoint();
 	virtual void Tick(float DeltaTime) override;
 	ASGEnemyCharacter* SpawnEnemy(const TSubclassOf<ASGEnemyCharacter> EnemyClass) const;
-	/*
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY)
 	class ASGGameObjectivesHandler* ObjectiveHandler;
-	*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY)
-	USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem;
 protected:
 	virtual void BeginPlay() override;
 	
