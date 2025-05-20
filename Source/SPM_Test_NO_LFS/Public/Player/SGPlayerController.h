@@ -161,5 +161,8 @@ private:
 	//Added by Basir
 	UPROPERTY(EditDefaultsOnly, Category = "Score System")
 	int32 KillScorePoint = 10;
+
+	// jola6902_GunsComponent coupling
+	class Ujola6902_GunsComponent* GunsComponent;
 	
 };

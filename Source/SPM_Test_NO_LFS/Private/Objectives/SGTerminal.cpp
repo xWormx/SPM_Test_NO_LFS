@@ -13,7 +13,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
-#include "Core/SGObjectiveHandlerSubSystem.h"
 
 // Sets default values
 ASGTerminal::ASGTerminal()
@@ -60,18 +59,11 @@ void ASGTerminal::BeginPlay()
 	{
 		PlayerController->OnInteract.AddDynamic(this, &ASGTerminal::OpenTerminal);	
 	}
-
-	ObjectiveHandlerSubSystem = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
-	if (ObjectiveHandlerSubSystem)
-	{
-		ObjectiveHandlerSubSystem->OnObjectiveCompleted.AddDynamic(this, &ASGTerminal::SetAlertActive);
-	}
-	/*
 	if (GameObjectivesHandler)
 	{
 		GameObjectivesHandler->OnObjectiveCompleted.AddDynamic(this, &ASGTerminal::SetAlertActive);	
 	}
-	*/
+	
 	if (SpriteComponentAlert)
 	{
 		SpriteComponentAlert->SetSprite(SpriteAlertAsset);
@@ -106,8 +98,7 @@ void ASGTerminal::OnCloseTerminalClicked()
 
 void ASGTerminal::CloseTerminal()
 {
-	//USGObjectiveToolTipWidget* ObjectiveToolTip = GameObjectivesHandler->GetObjectiveToolTipWidget();
-	USGObjectiveToolTipWidget* ObjectiveToolTip = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget();
+	USGObjectiveToolTipWidget* ObjectiveToolTip = GameObjectivesHandler->GetObjectiveToolTipWidget();
 	if (ObjectiveToolTip)
 		ObjectiveToolTip->ResumeAllOngoingAnimations();
 	if (HUDTerminal == nullptr)
@@ -132,9 +123,7 @@ void ASGTerminal::CloseTerminal()
 
 void ASGTerminal::OpenTerminal()
 {
-	
-	//GameObjectivesHandler->GetObjectiveToolTipWidget()->PauseAllOngoingAnimations();
-	ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->PauseAllOngoingAnimations();
+	GameObjectivesHandler->GetObjectiveToolTipWidget()->PauseAllOngoingAnimations();
 	if (HUDTerminal == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ASGTerminal - OpenTerminal(): HUDTerminal was nullptr"))
@@ -159,16 +148,15 @@ void ASGTerminal::OpenTerminal()
 	LastInteractingPlayerController->SetInputMode(FInputModeUIOnly());
 	LastInteractingPlayerController->SetShowMouseCursor(true);
 	
-	//if (GameObjectivesHandler)
-	if (ObjectiveHandlerSubSystem)
+	if (GameObjectivesHandler)
 	{
 		
-		//HUDTerminal->SetObjectiveHandler(GameObjectivesHandler);
+		HUDTerminal->SetObjectiveHandler(GameObjectivesHandler);
 		OnTerminalOpen.Broadcast();
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Terminal needs a ObjectiveHandlerSubSystem!"));
+		UE_LOG(LogTemp, Error, TEXT("Terminal needs a GameObjectivesHandler!"));
 	}
 
 	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());

@@ -11,27 +11,20 @@ class SPM_TEST_NO_LFS_API ASGObjectiveCollectEmAll : public ASGObjectiveBase
 {
 	GENERATED_BODY()
 public:
-	/*
 	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler) override;
 	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
 	virtual void OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
 	virtual void Update(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	*/
-	virtual bool IsCompleted() override;
-	virtual void OnStart() override;
-	virtual void OnCompleted() override;
-	virtual void Update() override;
-	void SetNumberToCollect(int InNumToCollect) { CollectGoal = InNumToCollect; }
 	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_Collect; }
 private:
-	UPROPERTY(VisibleAnywhere, Category=UPROPERTY)
+	UPROPERTY(EditAnywhere, Category=UPROPERTY)
 	unsigned int CollectGoal;
 
-	UPROPERTY(VisibleAnywhere ,Category=UPROPERTY)
+	UPROPERTY(EditAnywhere ,Category=UPROPERTY)
 	unsigned int CurrentCollected = 0;
 
 public:
-	UPROPERTY(VisibleAnywhere, Category = "UPROPERTY")
+	UPROPERTY(EditAnywhere, Category = "UPROPERTY")
 	TSubclassOf<ASGPickUpObjectiveCollect> CollectableClass;
 
 private:

@@ -9,7 +9,7 @@
 UENUM(BlueprintType)
 enum class EObjectiveType : uint8
 {
-	EOT_InvalidObjectiveType, EOT_KillAllEnemies, EOT_Collect, EOT_DefendThePod, EOT_PodArrival
+	EOT_InvalidObjectiveType, EOT_KillAllEnemies, EOT_Collect, EOT_DefendThePod
 };
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)

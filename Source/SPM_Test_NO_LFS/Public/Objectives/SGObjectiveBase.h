@@ -8,8 +8,8 @@
 #include "GameFramework/Actor.h"
 #include "SGObjectiveBase.generated.h"
 
-class USGObjectiveHandlerSubSystem;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStart, AActor*, Actor);
+
 class ASGGameObjectivesHandler;
 class USGObjectiveToolTipWidget;
 UCLASS()
@@ -29,16 +29,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void ActivateObjective();
-/*
 	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler){ return false; }
 	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler);
 	virtual void OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler);
 	virtual void Update(ASGGameObjectivesHandler* ObjectiveHandler) {}
-*/
-	virtual bool IsCompleted(){ return false; }
-	virtual void OnStart();
-	virtual void OnCompleted();
-	virtual void Update() {}
 	virtual void DisplayStartToolTip(USGObjectiveToolTipWidget* ToolTipWidget);
 	virtual void DisplayEndToolTip(USGObjectiveToolTipWidget* ToolTipWidget);
 	virtual void DisplayToolTip(USGObjectiveToolTipWidget* ToolTipWidget, const FText& ToolTip);
@@ -55,11 +49,6 @@ public:
 	const int32& GetCurrentProgressStep() const { return CurrentSubObjectiveStep; }
 	const int32& GetObjectiveID() const { return ObjectiveID; }
 	FProgressText GetProgressText() { return ProgressText; }
-
-	void SetStartDescriptionTooltipText(FString InStartDescriptionTooltipText) { ObjectiveDescriptionToolTip = InStartDescriptionTooltipText; }
-	void SetCompletedDescriptionTooltipText(FString InCompletedDescriptionTooltipText) { ObjectiveCompletedToolTip = InCompletedDescriptionTooltipText; }
-	void AddProgressBarText(const TArray<FString>& InProgressBarText) { ObjectiveProgressText = InProgressBarText; }
-	void AddSubTooltips(const TArray<FString>& InSubTooltips) { ObjectiveSubToolTips = InSubTooltips; }
 	
 	UPROPERTY(EditAnywhere)
 	bool bIsActivated = false;
@@ -67,44 +56,33 @@ public:
 	FOnObjectiveStart OnObjectiveStart;
 	
 protected:
-	/*
 	ASGGameObjectivesHandler* GetObjectiveHandler() { return ObjectiveHandlerPersistent; }
 	void SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler) { ObjectiveHandlerPersistent = ObjectiveHandler; }
-*/
-		
-	UPROPERTY(VisibleAnywhere, Category=UPROPERTY)
-	USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem;
-	
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-	TArray<USGHorizontalBoxObjective*> HorizontalBoxProgressElement;
 
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-	TArray<FString> ObjectiveProgressText;
-	
+	TArray<USGHorizontalBoxObjective*> HorizontalBoxProgressElement; 
 private:
+
 	UPROPERTY(VisibleAnywhere)
 	int32 CurrentSubObjectiveStep;
 	UPROPERTY(VisibleAnywhere)
 	int32 ObjectiveID;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	FProgressText ProgressText;
-
-	/*
+	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	ASGGameObjectivesHandler* ObjectiveHandlerPersistent;
-	*/
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	FString ObjectiveDescriptionToolTip = "Default Objective Description Tooltip!";
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	FString ObjectiveCompletedToolTip = "Default Mission Completed ToolTip!";
 
-
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	FString CurrentSubToolTip = "Default CurrentSubToolTip!";
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<FString> ObjectiveSubToolTips;
 	
 	
 
 };
-
