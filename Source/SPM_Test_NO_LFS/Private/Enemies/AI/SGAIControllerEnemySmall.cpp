@@ -40,6 +40,7 @@ void ASGAIControllerEnemySmall::HandleMovement()
 
 	if (CanAttackTarget() && IsFacingTarget())
 	{
+		StopMovement();
 		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
 }
