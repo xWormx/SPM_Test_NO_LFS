@@ -8,9 +8,9 @@ public class SPM_Test_NO_LFS : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "Niagara", "UMG", "GameplayTasks", "AIModule", "NavigationSystem", "Paper2D"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "Niagara", "UMG", "GameplayTasks", "AIModule", "NavigationSystem", "Paper2D", "DeveloperSettings"});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "CableComponent", "SPM_SGUpgradeSystem", "Paper2D", "DeveloperSettings" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "CableComponent", "SPM_SGUpgradeSystem", "Paper2D" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

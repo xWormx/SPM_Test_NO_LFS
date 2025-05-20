@@ -76,10 +76,13 @@ class SPM_TEST_NO_LFS_API USGPickUpSubsystem : public UGameInstanceSubsystem
 protected:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
+	TArray<FEnemyDropInfo> GetEnemyDropInfos(const TSubclassOf<ASGEnemyCharacter>& EnemyClass) const;
+	bool IsValidEnemy(ASGEnemyCharacter* EnemyCharacter);
 public:
-	void DropItem(ASGEnemyCharacter* EnemyCharacter) const;
+	void DropItem(ASGEnemyCharacter* EnemyCharacter);
 
 private:
-	TMap<TSubclassOf<ASGEnemyCharacter>, TArray<FEnemyDropInfo>> EnemyDropMap;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Drops")
+	UDataTable* EnemyDropDataTable = nullptr;
 };
