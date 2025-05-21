@@ -29,8 +29,6 @@ void USGObjectiveHandlerSubSystem::Initialize(FSubsystemCollectionBase& Collecti
 void USGObjectiveHandlerSubSystem::Deinitialize()
 {
 	Super::Deinitialize();
-	ObjectiveToolTipWidget->DeInitialize();
-	ObjectiveToolTipWidget = nullptr;
 }
 
 void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
