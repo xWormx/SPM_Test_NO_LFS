@@ -1,8 +1,11 @@
 #include "Enemies/Managers/SGEnemySpawnPoint.h"
+
+#include "SPM_Test_NO_LFS.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BillboardComponent.h"
+#include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 
 // Public
@@ -49,15 +52,24 @@ ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyChar
 	ActorLocation.Z += ActorExtent.Z/2.f;
 	SpawnedEnemyPtr->SetActorLocationAndRotation(ActorLocation, GetActorRotation());
 
-	if (ObjectiveHandler)
+	/*
+		if (ObjectiveHandler)
+		{
+			ObjectiveHandler->RegisterEnemy(SpawnedEnemyPtr);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("EnemySpawnPoint: Must Assign ObjectiveHandler"));
+		}
+	*/
+	if (ObjectiveHandlerSubSystem)
 	{
-		ObjectiveHandler->RegisterEnemy(SpawnedEnemyPtr);
+		ObjectiveHandlerSubSystem->RegisterEnemy(SpawnedEnemyPtr);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("EnemySpawnPoint: Must Assign ObjectiveHandler"));
 	}
-		
 	return SpawnedEnemyPtr;
 }
 
@@ -65,5 +77,9 @@ ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyChar
 void ASGEnemySpawnPoint::BeginPlay()
 {
 	Super::BeginPlay();
-
+	ObjectiveHandlerSubSystem = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
+	if (ObjectiveHandlerSubSystem == nullptr)
+	{
+		CALLE_LOG(Error, TEXT("SpawnPoint.cpp: ObjectiveHandlerSubSystem wasn't found!"));
+	}
 }
