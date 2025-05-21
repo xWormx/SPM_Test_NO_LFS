@@ -24,7 +24,7 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 
 	if (OverlayVisitTerminal)
 	{
-		//OverlayVisitTerminal->SetVisibility(ESlateVisibility::V);
+		OverlayVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
 	}
 	if (TextBlockVisitTerminal)
 	{

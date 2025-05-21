@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#pragma once
+
 #include "CoreMinimal.h"
 #include "Objectives/SGObjectiveInterface.h"
 #include "SGPickUp.h"

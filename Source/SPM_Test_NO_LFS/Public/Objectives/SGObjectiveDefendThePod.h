@@ -25,10 +25,16 @@ public:
 	ASGObjectiveDefendThePod();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+/*
 	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler) override;
 	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
 	virtual void OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
 	virtual void Update(ASGGameObjectivesHandler* ObjectiveHandler) override;
+*/
+	virtual bool IsCompleted() override;
+	virtual void OnStart() override;
+	virtual void OnCompleted() override;
+	virtual void Update() override;
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_DefendThePod; }
 
 	FOnDefendEventStart OnDefendEventStart;
@@ -68,7 +74,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	bool bDefendedThePod = false;
 
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	float TimeToDefendPodSeconds = 10.0f;
 	
 	UFUNCTION()
