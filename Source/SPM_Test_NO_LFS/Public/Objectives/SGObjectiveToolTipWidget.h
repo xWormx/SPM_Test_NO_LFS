@@ -36,7 +36,7 @@ class SPM_TEST_NO_LFS_API USGObjectiveToolTipWidget : public UUserWidget
 public:
 	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	void Display(FText NewToolTip);
-	
+	void DeInitialize();
 	const bool& GetTimerAnimationFinished() const  { return bTimerAnimationFinished; }
 
 	void PauseAllOngoingAnimations();

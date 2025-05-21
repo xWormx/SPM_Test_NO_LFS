@@ -28,6 +28,7 @@ class SPM_TEST_NO_LFS_API USGObjectiveHandlerSubSystem : public UWorldSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);

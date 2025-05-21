@@ -25,7 +25,8 @@ class SPM_TEST_NO_LFS_API USGGameInstance : public UGameInstance, public ISGISav
 	GENERATED_BODY()
 public:
 	virtual void Init() override;
-
+	void CreateObjectiveToolTip();
+	void CreateHUDTerminal();
 	void SetTerminalWidget(USGTerminalWidget* InWidget) { HUDTerminal = InWidget; }
 	void SetHUDGrapple(USGHUDGrapple* InHUDGrapple) { HUDGrapple = InHUDGrapple; }
 	void SetObjectiveTooltipWidget(USGObjectiveToolTipWidget* InObjectiveTooltipWidget) { ObjectiveToolTipWidget = InObjectiveTooltipWidget; }
