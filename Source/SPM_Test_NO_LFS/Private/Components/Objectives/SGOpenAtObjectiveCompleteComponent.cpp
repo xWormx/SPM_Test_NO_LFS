@@ -1,6 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
+// comment
 #include "Components/Objectives/SGOpenAtObjectiveCompleteComponent.h"
 
 #include "SPM_Test_NO_LFS.h"
