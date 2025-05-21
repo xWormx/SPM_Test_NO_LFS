@@ -111,11 +111,6 @@ void ASGPlayerCharacter::FireGrapple()
 	//GetCharacterMovement()->GravityScale = 0.5;
 }
 
-Ujola6902_GunsComponent* ASGPlayerCharacter::GetGunsComponent()
-{
-	return GunsComponent;
-}
-
 void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* HitComponent, AActor* OtherActor, [[maybe_unused]] UPrimitiveComponent* OtherComp, [[maybe_unused]] FVector NormalImpulse, [[maybe_unused]] const FHitResult& Hit)
 {
 	ASGEnemyCharacter* Enemy = Cast<ASGEnemyCharacter>(OtherActor);

@@ -3,7 +3,6 @@
 #include "jola6902_GunsComponent.h"
 #include "Gear/Weapons/SGGun.h"
 #include "SGWeaponsHUD.h"
-
 #include "InputAction.h"
 #include "EnhancedInputComponent.h"
 #include "Blueprint/UserWidget.h"
@@ -17,8 +16,14 @@ Ujola6902_GunsComponent::Ujola6902_GunsComponent()
 void Ujola6902_GunsComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
+
+	FireGun();
 	UpdateGunsHUD();
+}
+
+const TArray<ASGGun*> Ujola6902_GunsComponent::GetGuns() const
+{
+	return Guns;
 }
 
 // Protected
@@ -33,6 +38,8 @@ void Ujola6902_GunsComponent::BeginPlay()
 	BindActions();
 	SetUpGuns();
 	CreateGunsHUD();
+
+	bCanFire = true;
 }
 
 void Ujola6902_GunsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -49,20 +56,32 @@ void Ujola6902_GunsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Guns.Empty();
 }
 
-// Public
+// Private
 void Ujola6902_GunsComponent::FireGun()
 {
+	if (!bIsFiring || !bCanFire) return;
+	
 	ASGGun* Gun = Guns[CurrentGunIndex];
 	
 	if (Gun)
 	{
+		bCanFire = false;
+		
 		if (Gun->GetAmmoClip() <= 0)
 		{
 			ReloadGun();
 		}
 		
 		Gun->Fire();
+
+		float FireRate = Gun->GetFireRate();
+		GetWorld()->GetTimerManager().SetTimer(CanFireAgainTimer, this, &Ujola6902_GunsComponent::CanFireAgain, FireRate, false);
 	}
+}
+
+void Ujola6902_GunsComponent::CanFireAgain()
+{
+	bCanFire = true;
 }
 
 void Ujola6902_GunsComponent::ReloadGun()
@@ -73,30 +92,25 @@ void Ujola6902_GunsComponent::ReloadGun()
 	}
 }
 
-const ASGGun* Ujola6902_GunsComponent::GetGunRef() const
+void Ujola6902_GunsComponent::OnFireButtonPressed(const FInputActionValue& Value)
 {
-	return Guns[CurrentGunIndex];
+	bIsFiring = true;
 }
 
-void Ujola6902_GunsComponent::SetCurrentGunIndex(const int32 NewIndex)
+void Ujola6902_GunsComponent::OnFireButtonReleased(const FInputActionValue& Value)
 {
-	CurrentGunIndex = NewIndex;
+	bIsFiring = false;
 }
 
-int32 Ujola6902_GunsComponent::GetCurrentGunIndex()
+void Ujola6902_GunsComponent::OnReloadButtonPressed(const FInputActionValue& Value)
 {
-	return CurrentGunIndex;
+	ReloadGun();
 }
 
-const TArray<ASGGun*>& Ujola6902_GunsComponent::GetGuns() const
-{
-	return Guns;
-}
-
-void Ujola6902_GunsComponent::OnKeyPressed(const FInputActionInstance& Instance)
+void Ujola6902_GunsComponent::OnGunIndexKeyPressed(const FInputActionInstance& Instance)
 {
 	const UInputAction* TriggeredAction = Instance.GetSourceAction();
-	const int32* Index = KeyBindings.Find(TriggeredAction);
+	const int32* Index = GunIndexKeyBindings.Find(TriggeredAction);
 	
 	if (Index && *Index >= 0 && *Index < Guns.Num())
 	{
@@ -125,12 +139,11 @@ void Ujola6902_GunsComponent::OnMouseWheelScroll(const FInputActionValue& Value)
 	}
 }
 
-// Private
 void Ujola6902_GunsComponent::ValidateKeyBindings()
 {
 	TArray<UInputAction*> InvalidKeyBindings;
 
-	for (const auto& Pair : KeyBindings)
+	for (const auto& Pair : GunIndexKeyBindings)
 	{
 		if (Pair.Value < 0 || Pair.Value >= Guns.Num())
 		{
@@ -141,7 +154,7 @@ void Ujola6902_GunsComponent::ValidateKeyBindings()
 
 	for (const UInputAction* Key : InvalidKeyBindings)
 	{
-		KeyBindings.Remove(Key);
+		GunIndexKeyBindings.Remove(Key);
 	}
 }
 
@@ -151,14 +164,25 @@ void Ujola6902_GunsComponent::BindActions()
 	{
 		if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PC->InputComponent))
 		{
-			for (const TPair<UInputAction*, int32>& Pair : KeyBindings)
+			for (const TPair<UInputAction*, int32>& Pair : GunIndexKeyBindings)
 			{
-				Input->BindAction(Pair.Key, ETriggerEvent::Triggered, this, &Ujola6902_GunsComponent::OnKeyPressed);
+				Input->BindAction(Pair.Key, ETriggerEvent::Triggered, this, &Ujola6902_GunsComponent::OnGunIndexKeyPressed);
 			}
 
-			if (MouseWheelInputAction)
+			if (MouseWheelScrollInputAction)
 			{
-				Input->BindAction(MouseWheelInputAction, ETriggerEvent::Triggered, this, &Ujola6902_GunsComponent::OnMouseWheelScroll);
+				Input->BindAction(MouseWheelScrollInputAction, ETriggerEvent::Triggered, this, &Ujola6902_GunsComponent::OnMouseWheelScroll);
+			}
+
+			if (FireGunInputAction)
+			{
+				Input->BindAction(FireGunInputAction, ETriggerEvent::Started, this, &Ujola6902_GunsComponent::OnFireButtonPressed);
+				Input->BindAction(FireGunInputAction, ETriggerEvent::Completed, this, &Ujola6902_GunsComponent::OnFireButtonReleased);
+			}
+
+			if (ReloadGunInputAction)
+			{
+				Input->BindAction(ReloadGunInputAction, ETriggerEvent::Triggered, this, &Ujola6902_GunsComponent::OnReloadButtonPressed);
 			}
 		}
 	}

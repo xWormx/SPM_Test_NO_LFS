@@ -49,8 +49,6 @@ void ASGPlayerController::BeginPlay()
 		CrossHair->AddToViewport();
 	}
 
-	bCanFire = true;
-
 	HUDGrapple = CreateWidget<USGHUDGrapple>(this, HUDGrappleClass);
 	if (HUDGrapple)
 	{
@@ -68,15 +66,11 @@ void ASGPlayerController::BeginPlay()
 			UpgradeSystem->BindAttribute(CharacterMovement, TEXT("JumpZVelocity"), TEXT("JumpHeight"), Category);			
 		}		
 	}
-
-	// jola6902_GunsComponent coupling
-	GunsComponent = ThePlayerCharacter->GunsComponent;
 }
 
 void ASGPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	HandleFiring(); // OK att ligga i Tick(), kollar bara 2st bools
 }
 
 void ASGPlayerController::SetupInputComponent()
@@ -94,13 +88,6 @@ void ASGPlayerController::SetupInputComponent()
 	// System
 	Input->BindAction(PauseGameAction, ETriggerEvent::Triggered, this, &ASGPlayerController::PauseGame);
 	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Interact);
-
-	// Shooting
-	Input->BindAction(FireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnFireButtonPressed);
-	Input->BindAction(StopFireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnFireButtonReleased);
-	Input->BindAction(SwapWeapon1InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKeyPressed);
-	Input->BindAction(SwapWeaponMouseWheelInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponMouseWheel);
-	Input->BindAction(ReloadInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnReloadPressed);
 	
 	ULocalPlayer* LocalPlayer = GetLocalPlayer();
 	
@@ -191,63 +178,6 @@ void ASGPlayerController::Grapple(const FInputActionValue& Value)
 		return;
 
 	CurrentPlayer->FireGrapple();
-}
-
-void ASGPlayerController::OnFireButtonPressed(const FInputActionValue& Value)
-{
-	bIsFiring = true;
-}
-
-void ASGPlayerController::OnFireButtonReleased(const FInputActionValue& Value)
-{
-	bIsFiring = false;
-}
-
-void ASGPlayerController::HandleFiring()
-{
-	if (!bIsFiring || !bCanFire) return;
-	FireGun();
-}
-
-void ASGPlayerController::FireGun()
-{
-	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr || GunsComponent == nullptr) return;
-
-	const ASGGun* Gun = GunsComponent->GetGunRef();
-	if (Gun)
-	{
-		bCanFire = false;
-		GunsComponent->FireGun();
-		float FireRate = Gun->GetFireRate();
-		GetWorld()->GetTimerManager().SetTimer(CanFireAgainTimer, this, &ASGPlayerController::CanFireAgain, FireRate, false);
-	}
-}
-
-void ASGPlayerController::CanFireAgain()
-{
-	bCanFire = true;
-}
-
-void ASGPlayerController::OnSwapWeaponKeyPressed(const FInputActionInstance& Instance)
-{
-	if (GunsComponent == nullptr) return;
-	GunsComponent->OnKeyPressed(Instance);
-}
-
-void ASGPlayerController::OnSwapWeaponMouseWheel(const FInputActionValue& Value)
-{
-	if (GunsComponent == nullptr) return;
-	
-	GunsComponent->OnMouseWheelScroll(Value);
-}
-
-void ASGPlayerController::OnReloadPressed(const FInputActionValue& Value)
-{
-	if (GunsComponent == nullptr) return;
-
-	UE_LOG(LogTemp, Warning, TEXT("SGPlayerController::OnReloadPressed()"));
-	GunsComponent->ReloadGun();
 }
 
 ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()
