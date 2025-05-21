@@ -60,18 +60,23 @@ protected:
 	float MaxRange = 5000.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float Damage = 100.f;
+	// How often the Gun can shoot (0.1 = ten shots per second, 2.0 = one shot every other second)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	float FireRate = 0.1f; // Hur ofta vapnet kan skjuta (0.1 = tio skott per sekund, 2.0 = ett skott varannan sekund)
+	float FireRate = 0.1f;
+	// Number of bullets fired at a time in a cone of accuracy (1 pellet with low PelletSpreadAngle = AssaultRifle, Many pellets with high PelletSpreadAngle = Shotgun)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	int NumberOfPellets = 1;
+	// Decides the amount of inaccuracy, or rather the size of the cone that shots are randomly fired in
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float PelletSpreadAngle = 3.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	int32 MagazineSize = 30;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	float ReloadTime = 2.0f;
+	// If false the weapon will never need to be reloaded
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	bool bUsesMagazine = true;
+	// If true the weapon has infinite ammo in stock, can still have a limited clip size (See: bUsesMagazine)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	bool bInfiniteAmmo = true;
 
