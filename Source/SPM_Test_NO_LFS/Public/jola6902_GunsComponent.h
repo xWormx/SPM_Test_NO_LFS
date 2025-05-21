@@ -47,21 +47,25 @@ private:
 	USGWeaponsHUD* GunsHUD;
 	TArray<ASGGun*> Guns;
 	int32 CurrentGunIndex = 0;
-	bool bIsFiring = false;
 	bool bCanFire = false;
+	bool bFireButtonHeld = false;
 	FTimerHandle CanFireAgainTimer;
 
+	// The sibling component to which the Gun mesh will be attached.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	FComponentReference GunsAttachment;
+	// All of your derived BP_Gun classes
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TArray<TSubclassOf<ASGGun>> GunClasses;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TSubclassOf<UUserWidget> GunsHUDWidgetClass;
-	
+
+	// A map of InputActions that correspond to an index in the Guns array
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TMap<UInputAction*, int32> GunIndexKeyBindings;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UInputAction* MouseWheelScrollInputAction;
+	// Enhanced Input only sends Started and Completed events if the input action has the proper trigger type (Hold), and it’s correctly set up in the Input Action asset. This is required.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UInputAction* FireGunInputAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))

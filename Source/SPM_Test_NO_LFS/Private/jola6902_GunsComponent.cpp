@@ -59,7 +59,7 @@ void Ujola6902_GunsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 // Private
 void Ujola6902_GunsComponent::FireGun()
 {
-	if (!bIsFiring || !bCanFire) return;
+	if (!bCanFire || !bFireButtonHeld) return;
 	
 	ASGGun* Gun = Guns[CurrentGunIndex];
 	
@@ -94,12 +94,12 @@ void Ujola6902_GunsComponent::ReloadGun()
 
 void Ujola6902_GunsComponent::OnFireButtonPressed(const FInputActionValue& Value)
 {
-	bIsFiring = true;
+	bFireButtonHeld = true;
 }
 
 void Ujola6902_GunsComponent::OnFireButtonReleased(const FInputActionValue& Value)
 {
-	bIsFiring = false;
+	bFireButtonHeld = false;
 }
 
 void Ujola6902_GunsComponent::OnReloadButtonPressed(const FInputActionValue& Value)
