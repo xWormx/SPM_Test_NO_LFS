@@ -32,6 +32,8 @@ public:
 private:
 	UPROPERTY(EditAnywhere, Category=UPROPERTY)
 	ASGObjectiveBase* ObjectiveToWatchOpen;
+	UPROPERTY(EditAnywhere, Category=UPROPERTY)
+	EObjectiveType ObjectiveTypeToWatch;
 	
 	UFUNCTION()
 	void Open(EObjectiveType ObjectiveType);

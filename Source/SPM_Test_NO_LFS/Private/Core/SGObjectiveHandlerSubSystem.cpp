@@ -24,8 +24,6 @@ void USGObjectiveHandlerSubSystem::Initialize(FSubsystemCollectionBase& Collecti
 	CALLE_LOG(Warning, TEXT("ObjectiveHandler SubSystem Initialize"));
 	
 	FWorldDelegates::OnWorldInitializedActors.AddUObject(this, &USGObjectiveHandlerSubSystem::OnWorldInitialized);
-	
-
 }
 
 void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)

@@ -47,13 +47,8 @@ void USGOpenAtObjectiveCompleteComponent::TickComponent(float DeltaTime, ELevelT
 
 void USGOpenAtObjectiveCompleteComponent::Open(EObjectiveType ObjectiveType)
 {
-	if (ObjectiveToWatchOpen == nullptr)
-	{
-		CALLE_LOG(Error, TEXT("USGOpenAtObjectiveCompleteComponent: ObjectiveToWatchOpen nullptr"))
-		return;
-	}
 	
-	if (ObjectiveType == ObjectiveToWatchOpen->GetObjectiveType())
+	if (ObjectiveType == ObjectiveTypeToWatch)
 	{
 		UStaticMeshComponent* CubeMesh = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 		if (CubeMesh)
