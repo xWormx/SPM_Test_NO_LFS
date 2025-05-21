@@ -53,9 +53,7 @@ private:
 	void HandleFiring();
 	void FireGun();
 	void CanFireAgain();
-	void OnSwapWeaponKey1Pressed(const FInputActionValue& Value);
-	void OnSwapWeaponKey2Pressed(const FInputActionValue& Value);
-	void OnSwapWeaponKey3Pressed(const FInputActionValue& Value);
+	void OnSwapWeaponKeyPressed(const FInputActionInstance& Instance);
 	void OnSwapWeaponMouseWheel(const FInputActionValue& Value);
 	void OnReloadPressed(const FInputActionValue& Value);
 
@@ -78,10 +76,6 @@ private:
 
 	//Added by Basir
 	FTimerHandle DamageEffectTimer;
-	
-	FTimerHandle CanFireAgainTimer;
-	bool bIsFiring = false;
-	bool bCanFire;
 
 	bool bCanInteractWithTerminal = false;
 	bool bWantToInteract = false;
@@ -110,20 +104,6 @@ private:
 	UInputAction* LookAroundInputAction;
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	UInputAction* GrappleInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	UInputAction* FireGunInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	UInputAction* StopFireGunInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	UInputAction* SwapWeapon1InputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	UInputAction* SwapWeapon2InputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	UInputAction* SwapWeapon3InputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	UInputAction* SwapWeaponMouseWheelInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	UInputAction* ReloadInputAction;
 
 	//Added by Basir
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
@@ -161,8 +141,4 @@ private:
 	//Added by Basir
 	UPROPERTY(EditDefaultsOnly, Category = "Score System")
 	int32 KillScorePoint = 10;
-
-	// jola6902_GunsComponent coupling
-	class Ujola6902_GunsComponent* GunsComponent;
-	
 };
