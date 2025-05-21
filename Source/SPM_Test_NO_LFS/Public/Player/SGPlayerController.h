@@ -53,9 +53,7 @@ private:
 	void HandleFiring();
 	void FireGun();
 	void CanFireAgain();
-	void OnSwapWeaponKey1Pressed(const FInputActionValue& Value);
-	void OnSwapWeaponKey2Pressed(const FInputActionValue& Value);
-	void OnSwapWeaponKey3Pressed(const FInputActionValue& Value);
+	void OnSwapWeaponKeyPressed(const FInputActionInstance& Instance);
 	void OnSwapWeaponMouseWheel(const FInputActionValue& Value);
 	void OnReloadPressed(const FInputActionValue& Value);
 

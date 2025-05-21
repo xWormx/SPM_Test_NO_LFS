@@ -70,7 +70,7 @@ void ASGPlayerController::BeginPlay()
 	}
 
 	// jola6902_GunsComponent coupling
-	GunsComponent = ThePlayerCharacter->GetGunsComponent();
+	GunsComponent = ThePlayerCharacter->GunsComponent;
 }
 
 void ASGPlayerController::Tick(float DeltaTime)
@@ -98,9 +98,7 @@ void ASGPlayerController::SetupInputComponent()
 	// Shooting
 	Input->BindAction(FireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnFireButtonPressed);
 	Input->BindAction(StopFireGunInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnFireButtonReleased);
-	Input->BindAction(SwapWeapon1InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey1Pressed);
-	Input->BindAction(SwapWeapon2InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey2Pressed);
-	Input->BindAction(SwapWeapon3InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKey3Pressed);
+	Input->BindAction(SwapWeapon1InputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponKeyPressed);
 	Input->BindAction(SwapWeaponMouseWheelInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnSwapWeaponMouseWheel);
 	Input->BindAction(ReloadInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::OnReloadPressed);
 	
@@ -231,33 +229,17 @@ void ASGPlayerController::CanFireAgain()
 	bCanFire = true;
 }
 
-void ASGPlayerController::OnSwapWeaponKey1Pressed(const FInputActionValue& Value)
+void ASGPlayerController::OnSwapWeaponKeyPressed(const FInputActionInstance& Instance)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Pressed Key 1"));
 	if (GunsComponent == nullptr) return;
-	GunsComponent->SetCurrentGunIndex(0);
-}
-
-void ASGPlayerController::OnSwapWeaponKey2Pressed(const FInputActionValue& Value)
-{
-	//UE_LOG(LogTemp, Warning, TEXT("Pressed Key 2"));
-	if (GunsComponent == nullptr) return;
-	GunsComponent->SetCurrentGunIndex(1);
-}
-
-void ASGPlayerController::OnSwapWeaponKey3Pressed(const FInputActionValue& Value)
-{
-	//UE_LOG(LogTemp, Warning, TEXT("Pressed Key 3"));
-	if (GunsComponent == nullptr) return;
-	GunsComponent->SetCurrentGunIndex(2);
+	GunsComponent->OnKeyPressed(Instance);
 }
 
 void ASGPlayerController::OnSwapWeaponMouseWheel(const FInputActionValue& Value)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Mouse Scroll Wheel"));
 	if (GunsComponent == nullptr) return;
 	
-	GunsComponent->SwapWithMouseWheel(Value);
+	GunsComponent->OnMouseWheelScroll(Value);
 }
 
 void ASGPlayerController::OnReloadPressed(const FInputActionValue& Value)

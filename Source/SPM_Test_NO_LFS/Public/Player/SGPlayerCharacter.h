@@ -7,7 +7,6 @@
 // Forward declarations
 class ASGGun;
 class USGWeaponsHUD;
-class Ujola6902_GunsComponent;
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGPlayerCharacter : public ACharacter
@@ -30,7 +29,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	float GetRage() const { return Rage; };
 	void FireGrapple();
-	Ujola6902_GunsComponent* GetGunsComponent();
+
+	// jola6902_GunsComponent coupling
+	UPROPERTY(VisibleAnywhere)
+	class Ujola6902_GunsComponent* GunsComponent;
 
 protected:
 
@@ -55,8 +57,4 @@ private:
 	class UCameraComponent* CameraComponent;
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USkeletalMeshComponent* WeaponMesh;
-
-	// jola6902_GunsComponent coupling
-	UPROPERTY(VisibleAnywhere)
-	Ujola6902_GunsComponent* GunsComponent;
 };

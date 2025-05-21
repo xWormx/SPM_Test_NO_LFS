@@ -33,6 +33,7 @@ ASGPlayerCharacter::ASGPlayerCharacter()
 		CapsuleComp->OnComponentHit.AddDynamic(this, &ASGPlayerCharacter::OnComponentHit);
 	}
 
+	// jola6902_GunsComponent coupling
 	GunsComponent = CreateDefaultSubobject<Ujola6902_GunsComponent>(TEXT("GunsComponent"));
 }
 

@@ -1,10 +1,12 @@
 // Joel Larsson Wendt | jola6902
 
 #include "jola6902_GunsComponent.h"
-#include "InputActionValue.h"
-#include "SGWeaponsHUD.h"
-#include "Blueprint/UserWidget.h"
 #include "Gear/Weapons/SGGun.h"
+#include "SGWeaponsHUD.h"
+
+#include "InputAction.h"
+#include "EnhancedInputComponent.h"
+#include "Blueprint/UserWidget.h"
 
 // Public
 Ujola6902_GunsComponent::Ujola6902_GunsComponent()
@@ -25,8 +27,12 @@ void Ujola6902_GunsComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Owner = GetOwner();
-	CreateGunsHUD();
+	Guns.SetNum(GunClasses.Num());
+
+	ValidateKeyBindings();
+	BindActions();
 	SetUpGuns();
+	CreateGunsHUD();
 }
 
 void Ujola6902_GunsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -46,8 +52,8 @@ void Ujola6902_GunsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 // Public
 void Ujola6902_GunsComponent::FireGun()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Trying to fire gun at index: %d"), CurrentGunIndex);
 	ASGGun* Gun = Guns[CurrentGunIndex];
+	
 	if (Gun)
 	{
 		if (Gun->GetAmmoClip() <= 0)
@@ -61,9 +67,10 @@ void Ujola6902_GunsComponent::FireGun()
 
 void Ujola6902_GunsComponent::ReloadGun()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SGPlayerCharacter::ReloadGun()"));
-	
-	if (Guns[CurrentGunIndex]) Guns[CurrentGunIndex]->Reload();
+	if (Guns[CurrentGunIndex])
+	{
+		Guns[CurrentGunIndex]->Reload();
+	}
 }
 
 const ASGGun* Ujola6902_GunsComponent::GetGunRef() const
@@ -71,12 +78,12 @@ const ASGGun* Ujola6902_GunsComponent::GetGunRef() const
 	return Guns[CurrentGunIndex];
 }
 
-void Ujola6902_GunsComponent::SetCurrentGunIndex(int8 NewIndex)
+void Ujola6902_GunsComponent::SetCurrentGunIndex(const int32 NewIndex)
 {
 	CurrentGunIndex = NewIndex;
 }
 
-int8 Ujola6902_GunsComponent::GetCurrentGunIndex()
+int32 Ujola6902_GunsComponent::GetCurrentGunIndex()
 {
 	return CurrentGunIndex;
 }
@@ -86,7 +93,23 @@ const TArray<ASGGun*>& Ujola6902_GunsComponent::GetGuns() const
 	return Guns;
 }
 
-void Ujola6902_GunsComponent::SwapWithMouseWheel(const FInputActionValue& Value)
+void Ujola6902_GunsComponent::OnKeyPressed(const FInputActionInstance& Instance)
+{
+	const UInputAction* TriggeredAction = Instance.GetSourceAction();
+	const int32* Index = KeyBindings.Find(TriggeredAction);
+	
+	if (Index && *Index >= 0 && *Index < Guns.Num())
+	{
+		CurrentGunIndex = *Index;
+		UE_LOG(LogTemp, Log, TEXT("jola6902_GunsComponent::OnKeyPressed() | Swapped to weapon index %d via input action %s"), *Index, *TriggeredAction->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("jola6902_GunsComponent::OnKeyPressed() | Invalid gun index %d from input action %s"), *Index, *TriggeredAction->GetName());
+	}
+}
+
+void Ujola6902_GunsComponent::OnMouseWheelScroll(const FInputActionValue& Value)
 {
 	float ScrollValue = Value.Get<float>();
 	
@@ -103,11 +126,70 @@ void Ujola6902_GunsComponent::SwapWithMouseWheel(const FInputActionValue& Value)
 }
 
 // Private
+void Ujola6902_GunsComponent::ValidateKeyBindings()
+{
+	TArray<UInputAction*> InvalidKeyBindings;
+
+	for (const auto& Pair : KeyBindings)
+	{
+		if (Pair.Value < 0 || Pair.Value >= Guns.Num())
+		{
+			UE_LOG(LogTemp, Error, TEXT("jola6902_GunsComponent::ValidateKeyBindings() | Removed invalid binding index %d from input action %s"), Pair.Value, *Pair.Key->GetName());
+			InvalidKeyBindings.Add(Pair.Key);
+		}
+	}
+
+	for (const UInputAction* Key : InvalidKeyBindings)
+	{
+		KeyBindings.Remove(Key);
+	}
+}
+
+void Ujola6902_GunsComponent::BindActions()
+{
+	if (APlayerController* PC = Cast<APlayerController>(Owner->GetInstigatorController()))
+	{
+		if (UEnhancedInputComponent* Input = Cast<UEnhancedInputComponent>(PC->InputComponent))
+		{
+			for (const TPair<UInputAction*, int32>& Pair : KeyBindings)
+			{
+				Input->BindAction(Pair.Key, ETriggerEvent::Triggered, this, &Ujola6902_GunsComponent::OnKeyPressed);
+			}
+
+			if (MouseWheelInputAction)
+			{
+				Input->BindAction(MouseWheelInputAction, ETriggerEvent::Triggered, this, &Ujola6902_GunsComponent::OnMouseWheelScroll);
+			}
+		}
+	}
+}
+
+void Ujola6902_GunsComponent::SetUpGuns()
+{
+	USceneComponent* AttachmentComponent = Cast<USceneComponent>(GunsAttachment.GetComponent(Owner));
+	
+	for (int32 i = 0; i < Guns.Num(); ++i)
+	{
+		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
+		
+		if (Guns[i])
+		{
+			Guns[i]->SetOwner(Owner);
+		}
+		
+		if (AttachmentComponent)
+		{
+			Guns[i]->AttachToComponent(AttachmentComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		}
+	}
+}
+
 void Ujola6902_GunsComponent::CreateGunsHUD()
 {
 	if (GunsHUDWidgetClass)
 	{
 		GunsHUD = CreateWidget<USGWeaponsHUD>(GetWorld(), GunsHUDWidgetClass);
+		
 		if (GunsHUD)
 		{
 			GunsHUD->AddToViewport();
@@ -122,17 +204,5 @@ void Ujola6902_GunsComponent::UpdateGunsHUD()
 		GunsHUD->UpdWeaponName(Guns[CurrentGunIndex]->GetWeaponDisplayName());
 		GunsHUD->UpdAmmoClip(Guns[CurrentGunIndex]->GetAmmoClip());
 		GunsHUD->UpdAmmoStock(Guns[CurrentGunIndex]->GetAmmoStock());
-	}
-}
-
-void Ujola6902_GunsComponent::SetUpGuns()
-{
-	USceneComponent* AttachmentComponent = Cast<USceneComponent>(GunsAttachment.GetComponent(Owner));
-	Guns.SetNum(GunClasses.Num());
-	for (int32 i = 0; i < GunClasses.Num(); ++i)
-	{
-		Guns[i] = GetWorld()->SpawnActor<ASGGun>(GunClasses[i]);
-		if (Guns[i]) Guns[i]->SetOwner(Owner);
-		if (AttachmentComponent) Guns[i]->AttachToComponent(AttachmentComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	}
 }

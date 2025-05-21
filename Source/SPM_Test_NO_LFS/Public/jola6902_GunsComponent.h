@@ -4,6 +4,9 @@
 
 class ASGGun;
 class USGWeaponsHUD;
+class UInputAction;
+struct FInputActionInstance;
+struct FInputActionValue;
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -26,25 +29,32 @@ public:
 	void FireGun();
 	void ReloadGun();
 	const ASGGun* GetGunRef() const;
-	void SetCurrentGunIndex(int8 NewIndex);
-	int8 GetCurrentGunIndex();
+	void SetCurrentGunIndex(const int32 NewIndex);
+	int32 GetCurrentGunIndex();
 	const TArray<ASGGun*>& GetGuns() const;
-	void SwapWithMouseWheel(const struct FInputActionValue& Value);
+	void OnKeyPressed(const FInputActionInstance& Instance);
+	void OnMouseWheelScroll(const FInputActionValue& Value);
 
 private:
+	void ValidateKeyBindings();
+	void BindActions();
+	void SetUpGuns();
 	void CreateGunsHUD();
 	void UpdateGunsHUD();
-	void SetUpGuns();
 
 	AActor* Owner;
 	USGWeaponsHUD* GunsHUD;
 	TArray<ASGGun*> Guns;
-	int8 CurrentGunIndex = 0;
+	int32 CurrentGunIndex = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	FComponentReference GunsAttachment;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TArray<TSubclassOf<ASGGun>> GunClasses;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	TMap<UInputAction*, int32> KeyBindings;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	UInputAction* MouseWheelInputAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TSubclassOf<UUserWidget> GunsHUDWidgetClass;
 };
