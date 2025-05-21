@@ -54,9 +54,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshFloor;
 
-
+	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
+	USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem;
+/*
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class ASGGameObjectivesHandler* GameObjectivesHandler;
+*/
 /*
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	class USGObjectiveToolTipWidget* ObjectiveToolTipWidget;

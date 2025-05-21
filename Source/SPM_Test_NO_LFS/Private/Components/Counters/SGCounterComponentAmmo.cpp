@@ -1,5 +1,6 @@
 ﻿#include "Components/Counters/SGCounterComponentAmmo.h"
 
+#include "jola6902_GunsComponent.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Pickups/SGPickUpAmmo.h"
 #include "Player/SGPlayerCharacter.h"
@@ -23,7 +24,7 @@ void USGCounterComponentAmmo::ProcessPickup(AActor* Pickup)
 		return;
 	}
 
-	for (ASGGun* Gun : OwnerPlayer->GetGuns())
+	for (ASGGun* Gun : OwnerPlayer->GetGunsComponent()->GetGuns())
 	{
 		if (!Ammo->IsCompatibleWithGun(Gun->GetClass()))
 		{
