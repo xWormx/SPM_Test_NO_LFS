@@ -13,7 +13,7 @@ void USGGameInstance::Init()
 {
 	Super::Init();
 
-	LoadGameData(false);
+	//LoadGameData(false);  Working but only for Basirs Test level at the moment
 
 	CreateObjectiveToolTip();
 	CreateHUDTerminal();

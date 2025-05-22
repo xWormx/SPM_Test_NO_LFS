@@ -50,14 +50,14 @@ void ASGPlayerCharacter::BeginPlay()
 
 	USGGameInstance* GameIns = Cast<USGGameInstance>(GetGameInstance());
 
-	if (GameIns)
+	/*if (GameIns)
 	{
 		UseSavedGame(GameIns->GetSaveGame()->PlayerStats);
 	}
 	else
 	{
 		BASIR_LOG(Warning, TEXT("GameInstance was not found!"));
-	}
+	}*/
 	
 	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
 	if (GrapplingHook)
