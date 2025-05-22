@@ -64,7 +64,7 @@ private:
 public:
 	//Saving functionality
 	UFUNCTION(BlueprintCallable)
-	struct FPlayerStats GetPlayerStats() const;
+	struct FPlayerStats GetPlayerStats();
 
 	UFUNCTION(BlueprintCallable)
 	void UseSavedGame(FPlayerStats SavedStats);
