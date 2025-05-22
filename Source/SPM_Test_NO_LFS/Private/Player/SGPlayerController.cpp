@@ -8,6 +8,7 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/SGHealthComponent.h"
+#include "Components/Counters/SGCounterComponentAmmo.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/SGMainHUD.h"
@@ -67,7 +68,11 @@ void ASGPlayerController::BeginPlay()
 			HealthComponent->OnNoHealth.AddDynamic(this, &ASGPlayerController::EnableGameOver);
 			HealthComponent->OnHurt.AddDynamic(this, &ASGPlayerController::PlayTempDamageEffect);
 		}
-
+		if (PlayerCharacter->AmmoComponent)
+		{
+			MainHUD->BindToAmmoEvents(PlayerCharacter->AmmoComponent);
+		}
+		
 	});
 	//TODO: Överväg att flytta till SGPlayerCharacter
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
