@@ -1,18 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Gear/Grapple/SGGrapplingHook.h"
 
-#include "Blueprint/UserWidget.h"
-#include "Core/SGGameInstance.h"
 #include "Gear/Grapple/SGGrappleHeadBase.h"
-#include "Player/SGPlayerController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// Sets default values
 ASGGrapplingHook::ASGGrapplingHook()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -28,11 +21,10 @@ ASGGrapplingHook::ASGGrapplingHook()
 	GrappleHeadPosition->SetupAttachment(GetRootComponent());
 }
 
-// Called when the game starts or when spawned
 void ASGGrapplingHook::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	Head = GetWorld()->SpawnActor<ASGGrappleHeadBase>(GrappleHeadClass);
 	Head->SetActorLocation(GrappleHeadPosition->GetComponentLocation());
 	Head->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
@@ -43,25 +35,24 @@ void ASGGrapplingHook::BeginPlay()
 	SetGrappleVisibility(false);
 }
 
-// Called every frame
 void ASGGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bHUDGrappleInitialized)
-		InitializeHUDGrapple();
+	/*if (!bHUDGrappleInitialized)
+		InitializeHUDGrapple();*/
 
 	FHitResult HitResult;
 	AController* Controller = GetValidController();
-	bool didHit = GrappleTrace(HitResult, Controller);
-	if (!didHit)
+	if (const bool bDidHit = GrappleTrace(HitResult, Controller); !bDidHit)
 	{
-		if (HUDGrapple)
+		/*if (HUDGrapple)
 		{
 			HUDGrapple->PlayValidTargetAnimation();
-		}
+		}*/
+		OnCanGrapple.Broadcast(bDidHit);
 	}
-	
+
 	if (!CanGrapple())
 	{
 		int TimeLeft = GetWorldTimerManager().GetTimerRemaining(GrappleTimerHandle);
@@ -90,13 +81,11 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 			// Annars (när vi är nära målet gör vi det med konstant hastighet)
 			if (DistanceBetweenHeadAndAttachment > 150)
 			{
-				NewHeadPosition = FMath::VInterpTo(Head->GetActorLocation(), AttachmentPoint,
-														DeltaTime, HeadTravelSpeed);	
+				NewHeadPosition = FMath::VInterpTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, HeadTravelSpeed);
 			}
 			else
 			{
-				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint,
-															DeltaTime, 1000);		
+				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, 1000);
 			}
 				
 			Head->SetActorLocation(NewHeadPosition);
@@ -137,6 +126,9 @@ void ASGGrapplingHook::FireGrapple()
 	SetGrappleVisibility(true);
 	Head->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	*/
+
+	OnFireGrapple.Broadcast();
+	OnBeginCooldown.Broadcast(GrappleTimerHandle);
 }
 
 void ASGGrapplingHook::ResetGrapple()
@@ -181,6 +173,7 @@ void ASGGrapplingHook::DisableGrappling()
 	bCanGrapple = false;
 }
 
+/*
 void ASGGrapplingHook::InitializeHUDGrapple()
 {
 	bHUDGrappleInitialized = true;
@@ -190,6 +183,7 @@ void ASGGrapplingHook::InitializeHUDGrapple()
 		UE_LOG(LogTemp, Warning, TEXT("ASGGrapplingHook: Couldn't initialize HUDGrapple!"));
 	}
 }
+*/
 
 AController* ASGGrapplingHook::GetValidController() const
 {
