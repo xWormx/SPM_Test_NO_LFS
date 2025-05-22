@@ -12,6 +12,11 @@ struct FInputActionValue;
 #include "Components/ActorComponent.h"
 #include "jola6902_GunsComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSwitchedGun, int32, GunIndex, ASGGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReload, int32, GunIndex, ASGGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFireGun, int32, GunIndex, ASGGun*, Gun);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnCanFireGun, bool, bCanFireGun, int32, GunIndex, ASGGun*, Gun);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SPM_TEST_NO_LFS_API Ujola6902_GunsComponent : public UActorComponent
 {
@@ -40,11 +45,13 @@ private:
 	void ValidateKeyBindings();
 	void BindActions();
 	void SetUpGuns();
-	void CreateGunsHUD();
-	void UpdateGunsHUD();
+	/*void CreateGunsHUD();
+	void UpdateGunsHUD();*/
 
 	AActor* Owner;
+	/*
 	USGWeaponsHUD* GunsHUD;
+	*/
 	TArray<ASGGun*> Guns;
 	int32 CurrentGunIndex = 0;
 	bool bCanFire = false;
@@ -57,8 +64,8 @@ private:
 	// All of your derived BP_Gun classes
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	TArray<TSubclassOf<ASGGun>> GunClasses;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
-	TSubclassOf<UUserWidget> GunsHUDWidgetClass;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
+	TSubclassOf<UUserWidget> GunsHUDWidgetClass;*/
 
 	// A map of InputActions that correspond to an index in the Guns array
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
@@ -70,4 +77,11 @@ private:
 	UInputAction* FireGunInputAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	UInputAction* ReloadGunInputAction;
+
+public:
+
+	FOnSwitchedGun OnSwitchedGun;
+	FOnReload OnReload;
+	FOnFireGun OnFireGun;
+	FOnCanFireGun OnCanFireGun;
 };
