@@ -51,8 +51,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SaveGameData(bool bAsync);
 
-	UFUNCTION(Blueprintable)
+	UFUNCTION(BlueprintCallable)
 	class USGSaveGame* GetSaveGame() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SavePlayerStats(struct FPlayerStats PlayerStats, const bool bAsync);
 
 	UFUNCTION()
 	void OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData) const;

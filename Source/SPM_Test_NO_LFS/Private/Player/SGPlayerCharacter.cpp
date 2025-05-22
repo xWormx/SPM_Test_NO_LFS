@@ -1,6 +1,7 @@
 #include "Player/SGPlayerCharacter.h"
 
 #include "jola6902_GunsComponent.h"
+
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -8,9 +9,12 @@
 #include "Components/Counters/SGCounterComponentAmmo.h"
 #include "Components/Counters/SGCounterComponentHealth.h"
 #include "Components/Counters/SGCounterComponentOrbs.h"
-#include "Enemies/Characters/SGEnemyCharacter.h"
 
+#include "Core/SGGameInstance.h"
+
+#include "Enemies/Characters/SGEnemyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+
 #include "Player/SGPlayerController.h"
 #include "SaveGame/SGSaveGame.h"
 
@@ -57,6 +61,20 @@ void ASGPlayerCharacter::BeginPlay()
 	GetCharacterMovement()->AirControl = AirControl;
 
 	if ((GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass)))
+
+	USGGameInstance* GameIns = Cast<USGGameInstance>(GetGameInstance());
+
+	/*if (GameIns)
+	{
+		UseSavedGame(GameIns->GetSaveGame()->PlayerStats);
+	}
+	else
+	{
+		BASIR_LOG(Warning, TEXT("GameInstance was not found!"));
+	}*/
+	
+	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
+	if (GrapplingHook)
 	{
 		GrapplingHook->SetActorLocation(GrapplingHookPosition->GetComponentLocation());
 		// Grapplinghooken verkar vara omvänt roterad från början, debugkameran visar att den är riktad bakåt
@@ -93,7 +111,7 @@ void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* Hi
 	Enemy->ApplyPush(PushDirection, PushStrength);
 }
 
-FPlayerStats ASGPlayerCharacter::GetPlayerStats() const
+FPlayerStats ASGPlayerCharacter::GetPlayerStats()
 {
 	FPlayerStats PlayerStats;
 	PlayerStats.PlayerTransform = GetActorTransform();
