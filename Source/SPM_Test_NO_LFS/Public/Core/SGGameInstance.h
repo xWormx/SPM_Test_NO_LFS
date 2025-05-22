@@ -3,19 +3,16 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
-#include "SaveGame/SGSaveGame.h"
-#include "SaveGame/USGISaveGame.h"
+
 #include "SGGameInstance.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameLoaded);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE(FONGameSaved);
 
-class USaveGame;
 class USGTerminalWidget;
 class USGSaveGame;
 
 UCLASS()
-class SPM_TEST_NO_LFS_API USGGameInstance : public UGameInstance, public ISGISaveGame
+class SPM_TEST_NO_LFS_API USGGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 public:
@@ -45,31 +42,30 @@ public:
 	UFUNCTION()
 	void IncreaseDifficultyLevel(int Difficulty);
 
+	//Saving functionality
+		//Functions
+	UFUNCTION(BlueprintCallable)
+	void LoadGameData(bool bAsync);
+
+
+	UFUNCTION(BlueprintCallable)
+	virtual void SaveGameData(bool bAsync);
+
+	UFUNCTION(Blueprintable)
+	class USGSaveGame* GetSaveGame() const;
+
+	UFUNCTION()
+	void OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData) const;
+
+		//Other
+	FOnGameLoaded OnGameLoaded;
+	
 	UPROPERTY(EditAnywhere)
 	USGSaveGame* SavedData;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<USGSaveGame> SaveGameClass;
-
-	UFUNCTION(BlueprintCallable)
-	virtual void LoadGameData_Implementation(bool Async) override;
-
-	UFUNCTION(BlueprintCallable)
-	virtual void SaveGameData_Implementation(bool Async) override;
-
-	UFUNCTION(Blueprintable)
-	class USGSaveGame* GetSaveGame() const;
-
+	
 	UPROPERTY(EditAnywhere)
 	FString SlotName = TEXT("Saved Game 1");
-
-	UFUNCTION()
-	void OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData);
-
-	FPlayerStats PlayerStats;
-
-	FOnGameLoaded OnGameLoaded;
-
-	//FONGameSaved OnGameSaved;
-	
 };

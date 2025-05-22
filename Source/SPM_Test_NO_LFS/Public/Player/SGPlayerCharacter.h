@@ -4,7 +4,6 @@
 #include "GameFramework/Character.h"
 #include "SGPlayerCharacter.generated.h"
 
-
 class USGCounterComponentAmmo;
 class USGCounterComponentOrbs;
 class USGCounterComponentHealth;
@@ -17,6 +16,10 @@ class ASGGun;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGrapplingHookReady, ASGGrapplingHook*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGunComponentReady, Ujola6902_GunsComponent*);
 DECLARE_MULTICAST_DELEGATE(FOnPlayerIsReady);
+
+class ASGPlayerController;
+class USGSaveGame;
+
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGPlayerCharacter : public ACharacter
@@ -86,4 +89,15 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons")
 	USGCounterComponentAmmo* AmmoComponent;
+
+public:
+	//Saving functionality
+	UFUNCTION(BlueprintCallable)
+	struct FPlayerStats GetPlayerStats() const;
+
+	UFUNCTION(BlueprintCallable)
+	void UseSavedGame(FPlayerStats SavedStats);
+
+	ASGPlayerController* PlayerController;
+
 };

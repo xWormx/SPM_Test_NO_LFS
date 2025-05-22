@@ -18,10 +18,8 @@ struct FPlayerStats
 	FTransform PlayerTransform;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<ASGGun> PlayerGun;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<USGHealthComponent> PlayerHealth;
+	int32 ScorePoints;
+	
 };
 
 UCLASS(Blueprintable)
@@ -33,13 +31,4 @@ class SPM_TEST_NO_LFS_API USGSaveGame : public USaveGame
 public:
 	UPROPERTY(EditAnywhere)
 	FPlayerStats PlayerStats;
-
-	/*UFUNCTION(BlueprintCallable)
-	virtual void LoadGameFromSlot();*/
-
-	/*virtual void LoadGameData_Implementation(bool Async) override;
-
-	virtual void SaveGameData_Implementation(bool Async) override;
-
-	virtual FPlayerStats GetGameData_Implementation() override;*/
 };

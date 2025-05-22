@@ -184,12 +184,11 @@ void USGObjectiveHandlerSubSystem::RegisterPodArrival(ASGObjectivePodArrival* Po
 	PodArrival->OnWaitForPodEventEnd.AddDynamic(this, &USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective);
 }
 
-	void USGObjectiveHandlerSubSystem::StartMission()
+void USGObjectiveHandlerSubSystem::StartMission()
 {
 	/*
 		Tilldela varje objective ett ID här så att det kan lagras i ToolTipWidget's TMap så att
 		progresswindow kan hålla koll på alla texter 
-	 
 	 */
 	ObjectiveToolTipWidget->HideVisitTerminal();
 	if (GameObjectives.Num() > 0)
@@ -212,7 +211,7 @@ void USGObjectiveHandlerSubSystem::RegisterPodArrival(ASGObjectivePodArrival* Po
 // TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...
 void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor)
 {
-	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_InvalidObjectiveType;
+	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_None;
 	ISGObjectiveInterface* Objective = Cast<ISGObjectiveInterface>(ObjectiveInterfaceImplementor);
 	if (Objective)
 	{
@@ -226,21 +225,34 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 		return;
 	}
 	// Om fel objectivetype har broadcastat så behöver vi inte uppdatera CurrenObjective.
-	if (CurrentObjective->GetObjectiveType() != IncomingObjectiveType)
+	if ((CurrentObjective->GetObjectiveType() & IncomingObjectiveType) == EObjectiveType::EOT_None)
 		return;
 	
 	CurrentObjective->Update();
 	
 	if (CurrentObjective->IsCompleted())
 	{
-		ObjectiveToolTipWidget->ShowVisitTerminal();
+		
+		
 		ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayAnimationValueCompleted();
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted();
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
-		RemoveCurrentObjective();
+		
 		OnObjectiveCompleted.Broadcast();
 		OnObjectiveCompletedWithType.Broadcast(IncomingObjectiveType);
+
+		if (CurrentObjective->GetObjectiveType() != EObjectiveType::EOT_PodArrival)
+		{
+			RemoveCurrentObjective();
+			ObjectiveToolTipWidget->ShowVisitTerminal();	
+		}
+		else
+		{
+			// Hack för att start FinalSweep efter PodArrival utan att behöva använda terminalen
+			RemoveCurrentObjective();
+			TerminalHUD->OnStartMission.Broadcast();
+		}
 	}
 	else
 	{
