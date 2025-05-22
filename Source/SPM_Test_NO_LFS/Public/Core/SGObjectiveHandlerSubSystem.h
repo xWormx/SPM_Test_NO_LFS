@@ -89,9 +89,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	TArray<ASGPickUpObjectiveCollect*> TargetCollectibles;
-
-		// Ta bort denna funktion, den är till för git test bara
-	void RemoveThisFunctionLater();
 	
 	UFUNCTION()
 	void UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor);
