@@ -135,7 +135,7 @@ void ASGPlayerController::Move(const FInputActionValue& Value)
 	}
 
 	FVector2D AxisValue2D = Value.Get<FVector2D>();
-	FVector Movement = FVector(AxisValue2D.X * PlayerCharacter->MoveSpeed, AxisValue2D.Y * MoveSpeed, 0);
+	FVector Movement = FVector(AxisValue2D.X * PlayerCharacter->MoveSpeed, AxisValue2D.Y * PlayerCharacter->MoveSpeed, 0);
 
 	PlayerCharacter->AddMovementInput(PlayerCharacter->GetActorForwardVector(), Movement.Y);
 	PlayerCharacter->AddMovementInput(PlayerCharacter->GetActorRightVector(), Movement.X);
