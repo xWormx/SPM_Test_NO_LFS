@@ -115,3 +115,20 @@ USGSaveGame* USGGameInstance::GetSaveGame() const
 {
 	return SavedData;
 }
+
+void USGGameInstance::SavePlayerStats(struct FPlayerStats PlayerStats, const bool bAsync)
+{
+	if (!SavedData)
+	{
+		BASIR_LOG(Warning, TEXT("SavedData is NULL!"));
+		SavedData = Cast<USGSaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
+		
+		if (!SavedData)
+		{
+			BASIR_LOG(Warning, TEXT("SavedData is NULL!, aborting save."));
+			return;
+		}
+	}
+	SavedData->PlayerStats = PlayerStats;
+	SaveGameData(bAsync);
+}

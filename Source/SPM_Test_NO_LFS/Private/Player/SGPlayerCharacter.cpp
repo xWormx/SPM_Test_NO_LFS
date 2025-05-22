@@ -1,12 +1,14 @@
 #include "Player/SGPlayerCharacter.h"
 
 #include "jola6902_GunsComponent.h"
-#include "SGWeaponsHUD.h"
-#include "Blueprint/UserWidget.h"
+
+#include "SPM_Test_NO_LFS.h"
+
 #include "Gear/Grapple/SGGrapplingHook.h"
-#include "Gear/Weapons/SGGun.h"
+
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Core/SGGameInstance.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Player/SGPlayerController.h"
 #include "SaveGame/SGSaveGame.h"
@@ -45,6 +47,17 @@ ASGPlayerCharacter::ASGPlayerCharacter()
 void ASGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	USGGameInstance* GameIns = Cast<USGGameInstance>(GetGameInstance());
+
+	if (GameIns)
+	{
+		UseSavedGame(GameIns->GetSaveGame()->PlayerStats);
+	}
+	else
+	{
+		BASIR_LOG(Warning, TEXT("GameInstance was not found!"));
+	}
 	
 	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
 	if (GrapplingHook)
@@ -128,7 +141,7 @@ void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* Hi
 	Enemy->ApplyPush(PushDirection, PushStrength);
 }
 
-FPlayerStats ASGPlayerCharacter::GetPlayerStats() const
+FPlayerStats ASGPlayerCharacter::GetPlayerStats()
 {
 	FPlayerStats PlayerStats;
 	PlayerStats.PlayerTransform = GetActorTransform();
