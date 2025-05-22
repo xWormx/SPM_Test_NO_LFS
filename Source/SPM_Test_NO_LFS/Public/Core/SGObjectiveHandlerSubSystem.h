@@ -48,6 +48,7 @@ public:
 	FOnObjectiveStarted OnObjectiveStarted;
 	FOnObjectiveCompleted OnObjectiveCompleted;
 	FOnObjectiveCompletedWithType OnObjectiveCompletedWithType;
+	FOnObjectiveStartedWithType OnObjectiveStartedWithType;
 
 private:
 	

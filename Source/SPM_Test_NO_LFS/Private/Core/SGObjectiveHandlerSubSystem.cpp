@@ -206,6 +206,7 @@ void USGObjectiveHandlerSubSystem::RegisterPodArrival(ASGObjectivePodArrival* Po
 	TerminalHUD->DisableStartButton();
 	UGameplayStatics::PlaySound2D(this, MissionStartedSound);
 	OnObjectiveStarted.Broadcast();
+	OnObjectiveStartedWithType.Broadcast(CurrentObjective->GetObjectiveType());
 }
 
 // TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...
