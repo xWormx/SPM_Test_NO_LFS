@@ -1,18 +1,18 @@
 #include "Player/SGPlayerCharacter.h"
 
 #include "jola6902_GunsComponent.h"
-#include "UI/Widgets/SGWeaponsHUD.h"
-#include "Blueprint/UserWidget.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
-#include "Gear/Weapons/SGGun.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SGHealthComponent.h"
+#include "Components/Counters/SGCounterComponentAmmo.h"
+#include "Components/Counters/SGCounterComponentHealth.h"
+#include "Components/Counters/SGCounterComponentOrbs.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
-// Sets default values
 ASGPlayerCharacter::ASGPlayerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
@@ -33,17 +33,25 @@ ASGPlayerCharacter::ASGPlayerCharacter()
 		CapsuleComp->OnComponentHit.AddDynamic(this, &ASGPlayerCharacter::OnComponentHit);
 	}
 
-	// jola6902_GunsComponent coupling
-	GunsComponent = CreateDefaultSubobject<Ujola6902_GunsComponent>(TEXT("GunsComponent"));
+	GunsComponent = CreateDefaultSubobject<Ujola6902_GunsComponent>(TEXT("Guns Component"));
+	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("Health Component"));
+	HealthShieldComponent = CreateDefaultSubobject<USGCounterComponentHealth>(TEXT("Health Shield Counter"));
+	OrbsComponent = CreateDefaultSubobject<USGCounterComponentOrbs>(TEXT("Orbs Counter"));
+	AmmoComponent = CreateDefaultSubobject<USGCounterComponentAmmo>(TEXT("Ammo Counter"));
 }
 
-// Called when the game starts or when spawned
+float ASGPlayerCharacter::GetRage() const
+{
+	return Rage;
+}
+
 void ASGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
-	if (GrapplingHook)
+
+	GetCharacterMovement()->AirControl = AirControl;
+
+	if ((GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass)))
 	{
 		GrapplingHook->SetActorLocation(GrapplingHookPosition->GetComponentLocation());
 		// Grapplinghooken verkar vara omvänt roterad från början, debugkameran visar att den är riktad bakåt
@@ -53,21 +61,18 @@ void ASGPlayerCharacter::BeginPlay()
 		GrapplingHook->SetOwner(this);
 		OnGrapplingHookReady.Broadcast(GrapplingHook);
 	}
+
+	if (GunsComponent)
+	{
+		OnGunComponentReady.Broadcast(GunsComponent);
+	}
+
+	OnPlayerIsReady.Broadcast();
  }
 
-
-// Called to bind functionality to input
 void ASGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
-void ASGPlayerCharacter::FireGrapple()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Fire Grapple"));
-	GrapplingHook->FireGrapple();
-	//GetCharacterMovement()->GravityScale = 0.5;
 }
 
 void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* HitComponent, AActor* OtherActor, [[maybe_unused]] UPrimitiveComponent* OtherComp, [[maybe_unused]] FVector NormalImpulse, [[maybe_unused]] const FHitResult& Hit)
