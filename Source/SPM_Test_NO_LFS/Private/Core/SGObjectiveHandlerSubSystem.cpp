@@ -211,7 +211,7 @@ void USGObjectiveHandlerSubSystem::StartMission()
 // TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...
 void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor)
 {
-	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_InvalidObjectiveType;
+	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_None;
 	ISGObjectiveInterface* Objective = Cast<ISGObjectiveInterface>(ObjectiveInterfaceImplementor);
 	if (Objective)
 	{
@@ -225,7 +225,7 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 		return;
 	}
 	// Om fel objectivetype har broadcastat så behöver vi inte uppdatera CurrenObjective.
-	if (CurrentObjective->GetObjectiveType() != IncomingObjectiveType)
+	if ((CurrentObjective->GetObjectiveType() & IncomingObjectiveType) == EObjectiveType::EOT_None)
 		return;
 	
 	CurrentObjective->Update();
@@ -238,17 +238,19 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted();
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
-		RemoveCurrentObjective();
+		
 		OnObjectiveCompleted.Broadcast();
 		OnObjectiveCompletedWithType.Broadcast(IncomingObjectiveType);
 
 		if (CurrentObjective->GetObjectiveType() != EObjectiveType::EOT_PodArrival)
 		{
+			RemoveCurrentObjective();
 			ObjectiveToolTipWidget->ShowVisitTerminal();	
 		}
 		else
 		{
 			// Hack för att start FinalSweep efter PodArrival utan att behöva använda terminalen
+			RemoveCurrentObjective();
 			TerminalHUD->OnStartMission.Broadcast();
 		}
 	}

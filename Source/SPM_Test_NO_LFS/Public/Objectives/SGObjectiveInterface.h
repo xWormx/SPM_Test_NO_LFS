@@ -6,11 +6,17 @@
 #include "UObject/Interface.h"
 #include "SGObjectiveInterface.generated.h"
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, meta = (BitFlags))
 enum class EObjectiveType : uint8
 {
-	EOT_InvalidObjectiveType, EOT_KillAllEnemies, EOT_Collect, EOT_DefendThePod, EOT_PodArrival, EOT_FinalSweep
+	EOT_None           = 0 UMETA(DisplayName = "None"),
+	EOT_KillAllEnemies = 1 << 0 UMETA(DisplayName = "Kill All Enemies"),
+	EOT_Collect        = 1 << 1 UMETA(DisplayName = "Collect"),
+	EOT_DefendThePod   = 1 << 2 UMETA(DisplayName = "Defend the Pod"),
+	EOT_PodArrival     = 1 << 3 UMETA(DisplayName = "Pod Arrival"),
+	EOT_FinalSweep     = 1 << 4 UMETA(DisplayName = "Final Sweep")
 };
+ENUM_CLASS_FLAGS(EObjectiveType)
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class USGObjectiveInterface : public UInterface

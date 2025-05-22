@@ -26,7 +26,7 @@ protected:
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_KillAllEnemies; }
+	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_KillAllEnemies | EObjectiveType::EOT_FinalSweep; }
 	
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnEnemyDied OnEnemyDied;

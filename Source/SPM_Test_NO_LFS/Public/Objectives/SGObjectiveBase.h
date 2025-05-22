@@ -45,7 +45,7 @@ public:
 	virtual FText GetObjectiveDescriptionToolTip();
 	virtual FText GetObjectiveCompletedToolTip();
 	virtual FText GetCurrentSubToolTip();
-	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_InvalidObjectiveType; }
+	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_None; }
 
 
 	void SetObjectiveID(int32 NewObjectiveID) {	ObjectiveID = NewObjectiveID; }
