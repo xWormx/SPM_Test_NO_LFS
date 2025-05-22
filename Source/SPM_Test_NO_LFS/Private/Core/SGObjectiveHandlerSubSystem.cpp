@@ -184,12 +184,11 @@ void USGObjectiveHandlerSubSystem::RegisterPodArrival(ASGObjectivePodArrival* Po
 	PodArrival->OnWaitForPodEventEnd.AddDynamic(this, &USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective);
 }
 
-	void USGObjectiveHandlerSubSystem::StartMission()
+void USGObjectiveHandlerSubSystem::StartMission()
 {
 	/*
 		Tilldela varje objective ett ID här så att det kan lagras i ToolTipWidget's TMap så att
 		progresswindow kan hålla koll på alla texter 
-	 
 	 */
 	ObjectiveToolTipWidget->HideVisitTerminal();
 	if (GameObjectives.Num() > 0)
@@ -233,7 +232,8 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 	
 	if (CurrentObjective->IsCompleted())
 	{
-		ObjectiveToolTipWidget->ShowVisitTerminal();
+		
+		
 		ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayAnimationValueCompleted();
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted();
@@ -241,6 +241,16 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 		RemoveCurrentObjective();
 		OnObjectiveCompleted.Broadcast();
 		OnObjectiveCompletedWithType.Broadcast(IncomingObjectiveType);
+
+		if (CurrentObjective->GetObjectiveType() != EObjectiveType::EOT_PodArrival)
+		{
+			ObjectiveToolTipWidget->ShowVisitTerminal();	
+		}
+		else
+		{
+			// Hack för att start FinalSweep efter PodArrival utan att behöva använda terminalen
+			TerminalHUD->OnStartMission.Broadcast();
+		}
 	}
 	else
 	{

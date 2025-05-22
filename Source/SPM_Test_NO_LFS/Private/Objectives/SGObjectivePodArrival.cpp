@@ -15,7 +15,7 @@ ASGObjectivePodArrival::ASGObjectivePodArrival()
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 
-	MeshToDefend = CreateDefaultSubobject<UStaticMeshComponent>("MeshToDefend");
+	MeshToDefend = CreateDefaultSubobject<USkeletalMeshComponent>("MeshToDefend");
 	MeshToDefend->SetupAttachment(Root);
 
 	SphereInteractArea = CreateDefaultSubobject<USphereComponent>("SphereInteractAArea");
@@ -64,7 +64,7 @@ void ASGObjectivePodArrival::OnStart()
 	HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(ObjectiveProgressText[0]), FText::FromString("Not Completed!")));
 	bLandingZoneSearchStarted = true;
 }
-  
+
 bool ASGObjectivePodArrival::IsCompleted()
 {
 	return bWaitForPodDone;
@@ -80,6 +80,7 @@ void ASGObjectivePodArrival::OnCompleted()
 
 void ASGObjectivePodArrival::Update()
 {
+	
 }
 
 
