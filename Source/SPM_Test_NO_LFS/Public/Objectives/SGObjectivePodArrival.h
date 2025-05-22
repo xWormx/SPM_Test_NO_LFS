@@ -55,8 +55,8 @@ private:
 	USceneComponent* Root;
 	
 	// Mesh for the Pod (or thing to defend) - OR Should this be a separat class with HP and things, with TSubclassOf<>?
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	UStaticMeshComponent* MeshToDefend;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* MeshToDefend;
 
 	// Are the follwing 2 needed?
 	// Mesh for the Pod (or thing to defend)
