@@ -47,7 +47,7 @@ void USGOpenAtObjectiveCompleteComponent::TickComponent(float DeltaTime, ELevelT
 void USGOpenAtObjectiveCompleteComponent::Open(EObjectiveType ObjectiveType)
 {
 	
-	if (ObjectiveType == ObjectiveTypeToWatch)
+	if ((ObjectiveType & ObjectiveTypeToWatch) != EObjectiveType::EOT_None)
 	{
 		UStaticMeshComponent* CubeMesh = Cast<UStaticMeshComponent>(GetOwner()->GetComponentByClass(UStaticMeshComponent::StaticClass()));
 		if (CubeMesh)
