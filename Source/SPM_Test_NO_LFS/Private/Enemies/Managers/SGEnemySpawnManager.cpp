@@ -101,7 +101,8 @@ void ASGEnemySpawnManager::BeginPlay()
 	{
 		ObjectiveHandlerSubSystem->OnObjectiveStartedWithType.AddDynamic(this, &ASGEnemySpawnManager::HandleMissionStart);
 		ObjectiveHandlerSubSystem->OnObjectiveCompletedWithType.AddDynamic(this, &ASGEnemySpawnManager::HandleMissionEnd);
-		
+
+		/*
 		TArray<ASGObjectiveBase*> AllObjectives = ObjectiveHandlerSubSystem->GetAllObjectives();
 		for (ASGObjectiveBase* Objective : AllObjectives)
 		{
@@ -111,6 +112,7 @@ void ASGEnemySpawnManager::BeginPlay()
 				PodArrivalObjective->OnWaitForPodEventStart.AddDynamic(this, &ASGEnemySpawnManager::HandleOnWaitForPodEventStart);
 			}
 		}
+		*/
 	}
 	else
 	{
@@ -340,7 +342,7 @@ void ASGEnemySpawnManager::HandleMissionStart(EObjectiveType ObjectiveType)
 
 		case 1:
 			{
-				MaxEnemiesAlive = 15;
+				MaxEnemiesAlive = 10;
 				TimeBetweenSpawns = 3.f;
 				SpawnMode = ESpawnMode::AtArea;
 				SpawnAreaIndex = 1;
@@ -349,7 +351,7 @@ void ASGEnemySpawnManager::HandleMissionStart(EObjectiveType ObjectiveType)
 
 		case 2:
 			{
-				MaxEnemiesAlive = 25;
+				MaxEnemiesAlive = 10;
 				TimeBetweenSpawns = 1.f;
 				SpawnMode = ESpawnMode::AroundPlayer;
 				break;
@@ -365,13 +367,24 @@ void ASGEnemySpawnManager::HandleMissionEnd(EObjectiveType ObjectiveType)
 	StopSpawning();
 }
 
+/*
 void ASGEnemySpawnManager::HandleOnWaitForPodEventStart()
 {
+	for (int32 i = 0; i < 10; i++)
+	{
+		JOEL_LOG(Error, TEXT("ASGEnemySpawnManager::HandleOnWaitForPodEventStart() | Called!"))
+	}
+	
 	ClearAllEnemies();
 }
 
 void ASGEnemySpawnManager::ClearAllEnemies()
 {
+	for (int32 i = 0; i < 10; i++)
+	{
+		JOEL_LOG(Error, TEXT("ASGEnemySpawnManager::ClearAllEnemies() | Called!"))
+	}
+	
 	TArray<AActor*> AllEnemies;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy"), AllEnemies);
 	
@@ -382,3 +395,4 @@ void ASGEnemySpawnManager::ClearAllEnemies()
 
 	EnemiesAlive = 0;
 }
+*/
