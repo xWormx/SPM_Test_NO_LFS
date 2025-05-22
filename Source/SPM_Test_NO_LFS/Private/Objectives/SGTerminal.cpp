@@ -2,7 +2,6 @@
 
 
 #include "Objectives/SGTerminal.h"
-#include "Objectives/SGTerminal.h"
 
 #include "NiagaraComponent.h"
 #include "Player/SGPlayerController.h"
@@ -10,9 +9,7 @@
 #include "Components/SphereComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/SGGameInstance.h"
-#include "Kismet/GameplayStatics.h"
 #include "PaperSpriteComponent.h"
-#include "PaperSprite.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
 
 // Sets default values
@@ -147,7 +144,7 @@ void ASGTerminal::OpenTerminal()
 		return;
 	}
 		
-	if (!LastInteractingPlayerController->GetCanInteractWithTerminal())
+	if (!LastInteractingPlayerController->CanInteractWithTerminal())
 	{
 		UE_LOG(LogTemp, Error, TEXT("Terminal: Player trying to interact with terminal but is not within range!"));
 		return;
