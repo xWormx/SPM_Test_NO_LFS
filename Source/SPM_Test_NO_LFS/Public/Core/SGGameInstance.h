@@ -1,10 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "Gear/Grapple/SGHUDGrapple.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
 #include "SaveGame/SGSaveGame.h"
 #include "SaveGame/USGISaveGame.h"
@@ -16,9 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameLoaded);
 class USaveGame;
 class USGTerminalWidget;
 class USGSaveGame;
-/**
- * 
- */
+
 UCLASS()
 class SPM_TEST_NO_LFS_API USGGameInstance : public UGameInstance, public ISGISaveGame
 {
@@ -27,13 +22,11 @@ public:
 	virtual void Init() override;
 	void CreateObjectiveToolTip();
 	void CreateHUDTerminal();
-	void SetTerminalWidget(USGTerminalWidget* InWidget) { HUDTerminal = InWidget; }
-	void SetHUDGrapple(USGHUDGrapple* InHUDGrapple) { HUDGrapple = InHUDGrapple; }
-	void SetObjectiveTooltipWidget(USGObjectiveToolTipWidget* InObjectiveTooltipWidget) { ObjectiveToolTipWidget = InObjectiveTooltipWidget; }
-	USGTerminalWidget* GetTerminalWidget() { return HUDTerminal; }
-	USGHUDGrapple* GetHUDGrapple() {	return HUDGrapple; }
-	USGObjectiveToolTipWidget* GetObjectiveTooltipWidget() { return ObjectiveToolTipWidget; }
-	
+	void SetTerminalWidget(USGTerminalWidget* InWidget);
+	void SetObjectiveTooltipWidget(USGObjectiveToolTipWidget* InObjectiveTooltipWidget);
+	USGTerminalWidget* GetTerminalWidget() const;
+	USGObjectiveToolTipWidget* GetObjectiveTooltipWidget() const;
+
 private:
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -41,9 +34,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* HUDTerminal;
-
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-	USGHUDGrapple* HUDGrapple;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveToolTipClass;
@@ -56,7 +46,7 @@ public:
 	void IncreaseDifficultyLevel(int Difficulty);
 
 	UPROPERTY(EditAnywhere)
-	class USGSaveGame* SavedData;
+	USGSaveGame* SavedData;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<USGSaveGame> SaveGameClass;

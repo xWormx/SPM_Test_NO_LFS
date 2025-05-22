@@ -1,8 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Core/SGGameInstance.h"
-
 #include "SPM_Test_NO_LFS.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -48,7 +44,25 @@ inline void USGGameInstance::CreateHUDTerminal()
 	}
 }
 
-void USGGameInstance::IncreaseDifficultyLevel(int Difficulty)
+void USGGameInstance::SetTerminalWidget(USGTerminalWidget* InWidget)
+{
+	HUDTerminal = InWidget;
+}
+
+void USGGameInstance::SetObjectiveTooltipWidget(USGObjectiveToolTipWidget* InObjectiveTooltipWidget)
+{ ObjectiveToolTipWidget = InObjectiveTooltipWidget; }
+
+USGTerminalWidget* USGGameInstance::GetTerminalWidget() const
+{
+	return HUDTerminal;
+}
+
+USGObjectiveToolTipWidget* USGGameInstance::GetObjectiveTooltipWidget() const
+{
+	return ObjectiveToolTipWidget;
+}
+
+void USGGameInstance::IncreaseDifficultyLevel([[maybe_unused]] int Difficulty)
 {
 	if (const USGUpgradeSubsystem* UpgradeSubsystem = GetSubsystem<USGUpgradeSubsystem>())
 	{
