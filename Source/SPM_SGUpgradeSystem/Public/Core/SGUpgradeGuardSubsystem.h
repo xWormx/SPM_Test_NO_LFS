@@ -38,10 +38,10 @@ protected:
 private:
 
 	UPROPERTY()
-	float Count = 200.0f;
+	float Count = 10.0f;
 
 	UPROPERTY()
-	float DefaultValue = 200.0f;
+	float DefaultValue = 10.0f;
 
 	FDelegateHandle PostLevelLoadHandle;
 

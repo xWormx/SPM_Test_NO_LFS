@@ -63,7 +63,7 @@ private:
 	const ASGEnemySpawnPoint* GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const;
 	const TSubclassOf<ASGEnemyCharacter> GetRandomEnemyType() const;
 	void CheckIfDespawnCandidate(ASGEnemyCharacter* Enemy);
-	void ClearAllEnemies();
+	//void ClearAllEnemies();
 	
 	UFUNCTION()
 	void HandleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -77,8 +77,8 @@ private:
 	void HandleMissionStart(EObjectiveType ObjectiveType);
 	UFUNCTION()
 	void HandleMissionEnd(EObjectiveType ObjectiveType);
-	UFUNCTION()
-	void HandleOnWaitForPodEventStart();
+	//UFUNCTION()
+	//void HandleOnWaitForPodEventStart();
 	USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem;
 	int32 MissionsCompleted = 0;
 	FOnObjectiveStartedWithType OnObjectiveStartedWithType;
