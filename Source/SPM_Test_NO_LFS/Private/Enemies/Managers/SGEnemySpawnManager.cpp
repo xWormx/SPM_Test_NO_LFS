@@ -1,5 +1,8 @@
 #include "Enemies/Managers/SGEnemySpawnManager.h"
+
+#include "SPM_Test_NO_LFS.h"
 #include "Components/SphereComponent.h"
+#include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Enemies/Managers/SGEnemySpawnPoint.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Player/SGPlayerCharacter.h"
@@ -98,8 +101,20 @@ void ASGEnemySpawnManager::BeginPlay()
 		ObjectiveDefendThePod->OnDefendEventStart.AddDynamic(this, &ASGEnemySpawnManager::HandleDefendEventStart);
 		ObjectiveDefendThePod->OnDefendEventEnd.AddDynamic(this, &ASGEnemySpawnManager::HandleDefendEventEnd);
 	}
-	
-	StartSpawning();
+
+	ObjectiveHandlerSubSystem = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
+	if (ObjectiveHandlerSubSystem)
+	{
+		ObjectiveHandlerSubSystem->OnObjectiveStartedWithType.AddDynamic(this, &ASGEnemySpawnManager::HandleFirstMissionStart);
+		ObjectiveHandlerSubSystem->OnObjectiveCompletedWithType.AddDynamic(this, &ASGEnemySpawnManager::HandleFirstMissionEnd);
+	}
+	else
+	{
+		for (int32 i = 0; i < 10; ++i)
+		{
+			JOEL_LOG(Error, TEXT("SGEnemySpawnManager::BeginPlay() | Can't find ObjectiveHandlerSubSystem, unable to start spawning!"))
+		}
+	}
 }
 
 // Private functions
@@ -315,4 +330,25 @@ void ASGEnemySpawnManager::HandleDefendEventEnd(UObject* ObjectiveInterfaceImple
 	SpawnMode = DefaultSpawnMode;
 	MaxEnemiesAlive = DefaultMaxEnemiesAlive;
 	TimeBetweenSpawns = DefaultTimeBetweenSpawns;
+}
+
+void ASGEnemySpawnManager::HandleFirstMissionStart(EObjectiveType ObjectiveType)
+{
+	JOEL_LOG(Warning, TEXT("HandleFirstMissionStart triggered!"));
+	
+	if (bFirstMissionCompleted) return;
+
+	JOEL_LOG(Warning, TEXT("HandleFirstMissionStart run!"));
+	
+	SpawnMode = ESpawnMode::AtArea;
+	SpawnAreaIndex = 0;
+	StartSpawning();
+}
+
+void ASGEnemySpawnManager::HandleFirstMissionEnd(EObjectiveType ObjectiveType)
+{
+	if (bFirstMissionCompleted) return;
+
+	bFirstMissionCompleted = true;
+	SpawnMode = ESpawnMode::AroundPlayer;
 }
