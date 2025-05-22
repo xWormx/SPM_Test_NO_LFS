@@ -2,6 +2,7 @@
 
 #include "jola6902_GunsComponent.h"
 #include "SPM_Test_NO_LFS.h"
+#include "Components/Counters/SGCounterComponentAmmo.h"
 #include "Core/SGGameInstance.h"
 #include "UI/Widgets/SGHUDGrapple.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
@@ -48,12 +49,22 @@ void ASGMainHUD::BindWeaponEvents(Ujola6902_GunsComponent* GunsComponent)
 	{
 		return;
 	}
-
 	GunsComponent->OnSwitchedGun.AddDynamic(this, &ASGMainHUD::OnSwitchedGun);
 	GunsComponent->OnFireGun.AddDynamic(this, &ASGMainHUD::OnFireGun);
 	GunsComponent->OnReload.AddDynamic(this, &ASGMainHUD::OnReload);
 	GunsComponent->OnCanFireGun.AddDynamic(this, &ASGMainHUD::OnCanFireGun);
+
+	WeaponsWidget->SetAvailableWeapons(GunsComponent->GetGuns());
 	OnSwitchedGun(0, GunsComponent->GetGuns()[0]);
+}
+
+void ASGMainHUD::BindToAmmoEvents(USGCounterComponentAmmo* AmmoComponent)
+{
+	if (!AmmoComponent)
+	{
+		return;
+	}
+	AmmoComponent->OnPickedUpAmmo.AddDynamic(this, &ASGMainHUD::OnPickedUpAmmo);
 }
 
 //----GRAPPLING
@@ -80,24 +91,29 @@ void ASGMainHUD::OnCanGrapple(bool bCanGrapple)
 
 void ASGMainHUD::OnSwitchedGun(const int32 GunIndex, ASGGun* Gun)
 {
-	WeaponsWidget->UpdWeaponName(Gun->GetWeaponDisplayName());
-	WeaponsWidget->UpdAmmoClip(Gun->GetAmmoClip());
-	WeaponsWidget->UpdAmmoStock(Gun->GetAmmoStock());
+	WeaponsWidget->OnWeaponChanged(GunIndex);
 }
 
 void ASGMainHUD::OnFireGun(const int32 GunIndex, ASGGun* Gun)
 {
 	EMMA_LOG(Log, TEXT("❤️Firing gun %d"), GunIndex);
+	WeaponsWidget->UpdateWeapon(GunIndex, Gun);
 }
 
 void ASGMainHUD::OnReload(const int32 GunIndex, ASGGun* Gun)
 {
 	EMMA_LOG(Log, TEXT("❤️Reloading gun %d"), GunIndex);
+	WeaponsWidget->UpdateWeapon(GunIndex, Gun);
 }
 
 void ASGMainHUD::OnCanFireGun(bool bCanFire, int32 GunIndex, ASGGun* Gun)
 {
 	EMMA_LOG(Log, TEXT("❤️Can fire gun %d: %s"), GunIndex, bCanFire ? TEXT("true") : TEXT("false"));
+}
+
+void ASGMainHUD::OnPickedUpAmmo(const int32 AmmoAmount, ASGGun* Gun)
+{
+	WeaponsWidget->UpdateAmmo(AmmoAmount, Gun);
 }
 
 template <typename T>

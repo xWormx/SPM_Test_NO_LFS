@@ -5,6 +5,7 @@
 #include "GameFramework/HUD.h"
 #include "SGMainHUD.generated.h"
 
+class USGCounterComponentAmmo;
 class USGWeaponsHUD;
 class USGTerminalWidget;
 class USGObjectiveToolTipWidget;
@@ -23,8 +24,8 @@ public:
 	T* CreateAndAddToViewPort(const TSubclassOf<T>& WidgetClass, bool Add = true);
 
 	void BindToGrappleEvents(ASGGrapplingHook* GrapplingHook);
-
 	void BindWeaponEvents(Ujola6902_GunsComponent* GunsComponent);
+	void BindToAmmoEvents(USGCounterComponentAmmo* AmmoComponent);
 
 protected:
 //------------GEAR------------
@@ -89,4 +90,7 @@ public:
 
 	UFUNCTION()
 	void OnCanFireGun(bool bCanFire, int32 GunIndex, ASGGun* Gun);
+
+	UFUNCTION()
+	void OnPickedUpAmmo(int32 AmmoAmount, ASGGun* Gun);
 };
