@@ -111,21 +111,16 @@ bool ASGAIControllerEnemyBase::IsFacingTarget() const
 	{
 		return false;
 	}
+
 	float ToleranceDegree = 70.f;
 
-	FVector ControlledEnemyDirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).
-		GetSafeNormal();
-	FVector AttackTargetDirectionToEnemy = -ControlledEnemyDirectionToTarget;
+	FVector DirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
+	FVector ForwardVector = ControlledEnemy->GetActorForwardVector();
 
-	FVector ForwardControlledEnemy = ControlledEnemy->GetActorForwardVector();
-	FVector ForwardAttackTarget = AttackTarget->GetActorForwardVector();
-
-	float DotControlledEnemy = FVector::DotProduct(ForwardControlledEnemy, ControlledEnemyDirectionToTarget);
-	float DotAttackTarget = FVector::DotProduct(ForwardAttackTarget, AttackTargetDirectionToEnemy);
-
+	float DotProduct = FVector::DotProduct(ForwardVector, DirectionToTarget);
 	float DotTolerance = FMath::Cos(FMath::DegreesToRadians(ToleranceDegree));
 
-	return (DotControlledEnemy >= DotTolerance && DotAttackTarget >= DotTolerance);
+	return DotProduct >= DotTolerance;
 }
 
 void ASGAIControllerEnemyBase::RotateTowardsTargetWhileNotMoving()

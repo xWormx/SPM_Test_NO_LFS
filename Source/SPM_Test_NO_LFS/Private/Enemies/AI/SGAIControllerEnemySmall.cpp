@@ -24,7 +24,7 @@ void ASGAIControllerEnemySmall::HandleMovement()
 
 	float DistanceToPlayer = FVector::Dist(PlayerLocation, Location);
 	
-
+	
 	if (DistanceToPlayer < AcceptanceRadius)
 	{
 		FVector DirectionAwayFromPlayer = (Location - PlayerLocation).GetSafeNormal();
@@ -38,9 +38,9 @@ void ASGAIControllerEnemySmall::HandleMovement()
 		MoveToActor(AttackTarget, AcceptanceRadius);
 	}
 
-	if (CanAttackTarget() && IsFacingTarget())
+	if (CanAttackTarget() )
 	{
-		StopMovement();
+		//StopMovement();
 		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
 }
@@ -70,4 +70,9 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 	
 	RotateTowardsTargetWhileNotMoving();
 	
+}
+
+bool ASGAIControllerEnemySmall::CanAttackTarget() const
+{
+	return Super::CanAttackTarget() & IsFacingTarget();
 }
