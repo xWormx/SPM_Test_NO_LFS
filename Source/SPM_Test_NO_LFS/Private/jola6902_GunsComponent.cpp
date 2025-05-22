@@ -5,6 +5,7 @@
 #include "UI/Widgets/SGWeaponsHUD.h"
 #include "InputAction.h"
 #include "EnhancedInputComponent.h"
+#include "SPM_Test_NO_LFS.h"
 #include "Blueprint/UserWidget.h"
 
 // Public
@@ -98,17 +99,17 @@ void Ujola6902_GunsComponent::ReloadGun()
 	}
 }
 
-void Ujola6902_GunsComponent::OnFireButtonPressed(const FInputActionValue& Value)
+void Ujola6902_GunsComponent::OnFireButtonPressed([[maybe_unused]] const FInputActionValue& Value)
 {
 	bFireButtonHeld = true;
 }
 
-void Ujola6902_GunsComponent::OnFireButtonReleased(const FInputActionValue& Value)
+void Ujola6902_GunsComponent::OnFireButtonReleased([[maybe_unused]] const FInputActionValue& Value)
 {
 	bFireButtonHeld = false;
 }
 
-void Ujola6902_GunsComponent::OnReloadButtonPressed(const FInputActionValue& Value)
+void Ujola6902_GunsComponent::OnReloadButtonPressed([[maybe_unused]] const FInputActionValue& Value)
 {
 	ReloadGun();
 }
@@ -121,13 +122,13 @@ void Ujola6902_GunsComponent::OnGunIndexKeyPressed(const FInputActionInstance& I
 	if (Index && *Index >= 0 && *Index < Guns.Num())
 	{
 		CurrentGunIndex = *Index;
-		UE_LOG(LogTemp, Log, TEXT("jola6902_GunsComponent::OnKeyPressed() | Swapped to weapon index %d via input action %s"), *Index, *TriggeredAction->GetName());
+		JOEL_LOG(Log, TEXT("jola6902_GunsComponent::OnKeyPressed() | Swapped to weapon index %d via input action %s"), *Index, *TriggeredAction->GetName());
 
 		OnSwitchedGun.Broadcast(CurrentGunIndex, Guns[CurrentGunIndex]);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("jola6902_GunsComponent::OnKeyPressed() | Invalid gun index %d from input action %s"), *Index, *TriggeredAction->GetName());
+		JOEL_LOG(Error, TEXT("jola6902_GunsComponent::OnKeyPressed() | Invalid gun index %d from input action %s"), *Index, *TriggeredAction->GetName());
 	}
 }
 
@@ -157,7 +158,7 @@ void Ujola6902_GunsComponent::ValidateKeyBindings()
 	{
 		if (Pair.Value < 0 || Pair.Value >= Guns.Num())
 		{
-			UE_LOG(LogTemp, Error, TEXT("jola6902_GunsComponent::ValidateKeyBindings() | Removed invalid binding index %d from input action %s"), Pair.Value, *Pair.Key->GetName());
+			JOEL_LOG(Error, TEXT("jola6902_GunsComponent::ValidateKeyBindings() | Removed invalid binding index %d from input action %s"), Pair.Value, *Pair.Key->GetName());
 			InvalidKeyBindings.Add(Pair.Key);
 		}
 	}
