@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/SGObjectiveHandlerSubSystem.h"
 #include "GameFramework/Actor.h"
 #include "SGEnemySpawnManager.generated.h"
 
@@ -73,6 +74,16 @@ private:
 	UFUNCTION()
 	void HandleDefendEventEnd(UObject* ObjectiveInterfaceImplementor);
 
+	// First Mission
+	UFUNCTION()
+	void HandleFirstMissionStart(EObjectiveType ObjectiveType);
+	UFUNCTION()
+	void HandleFirstMissionEnd(EObjectiveType ObjectiveType);
+	class USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem;
+	bool bFirstMissionCompleted = false;
+	FOnObjectiveStartedWithType OnObjectiveStartedWithType;
+	FOnObjectiveCompletedWithType OnObjectiveCompletedWithType;
+	
 	bool bSpawningIsActive = false;
 	TArray<AActor*> AllEnemySpawnPoints;
 	ASGPlayerCharacter* PlayerCharacter;
@@ -113,4 +124,5 @@ private:
 	ESpawnMode SpawnMode = ESpawnMode::Everywhere;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="design", meta=(AllowPrivateAccess="true"))
 	class ASGObjectiveDefendThePod* ObjectiveDefendThePod;
+	
 };
