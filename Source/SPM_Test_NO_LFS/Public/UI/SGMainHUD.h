@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "jola6902_GunsComponent.h"
 #include "GameFramework/HUD.h"
 #include "SGMainHUD.generated.h"
 
@@ -9,6 +10,7 @@ class USGTerminalWidget;
 class USGObjectiveToolTipWidget;
 class ASGGrapplingHook;
 class USGHUDGrapple;
+class ASGGun;
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGMainHUD : public AHUD
@@ -22,8 +24,10 @@ public:
 
 	void BindToGrappleEvents(ASGGrapplingHook* GrapplingHook);
 
+	void BindWeaponEvents(Ujola6902_GunsComponent* GunsComponent);
+
 protected:
-	//------------GEAR------------
+//------------GEAR------------
 	//----WEAPONS
 	UPROPERTY(EditAnywhere, Category ="Uproperty - HUD")
 	TSubclassOf<USGWeaponsHUD> WeaponsClass;
@@ -38,7 +42,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<USGHUDGrapple> GrappleCrossHairWidget;
 
-	//------------OBJECTIVES------------
+//------------OBJECTIVES------------
 	//----MISSION INFO
 	UPROPERTY(EditAnywhere, Category ="Uproperty - HUD")
 	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveClass;
@@ -53,7 +57,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<USGTerminalWidget> TerminalWidget;
 
-	//------------HUD------------
+//------------HUD------------
 	//----CONTAINER
 	UPROPERTY(EditDefaultsOnly, Category = "Uproperty - HUD")
 	TSubclassOf<UUserWidget> HUDClass;
@@ -62,6 +66,8 @@ protected:
 	TWeakObjectPtr<UUserWidget> HUDWidget;
 
 public:
+
+//----GRAPPLING
 	UFUNCTION()
 	void OnBeginGrappleCooldown(FTimerHandle& GrappleTimerHandle);
 
@@ -70,4 +76,17 @@ public:
 
 	UFUNCTION()
 	void OnCanGrapple(bool bCanGrapple);
+
+//----WEAPONS
+	UFUNCTION()
+	void OnSwitchedGun(int32 GunIndex, ASGGun* Gun);
+
+	UFUNCTION()
+	void OnFireGun(int32 GunIndex, ASGGun* Gun);
+
+	UFUNCTION()
+	void OnReload(int32 GunIndex, ASGGun* Gun);
+
+	UFUNCTION()
+	void OnCanFireGun(bool bCanFire, int32 GunIndex, ASGGun* Gun);
 };

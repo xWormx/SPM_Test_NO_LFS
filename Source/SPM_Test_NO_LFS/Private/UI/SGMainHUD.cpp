@@ -1,10 +1,12 @@
 ﻿#include "UI/SGMainHUD.h"
+
+#include "jola6902_GunsComponent.h"
 #include "SPM_Test_NO_LFS.h"
 #include "Core/SGGameInstance.h"
 #include "UI/Widgets/SGHUDGrapple.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
-#include "Objectives/SGTerminalWidget.h"
-#include "Objectives/SGObjectiveToolTipWidget.h"
+#include "UI/Widgets/SGWeaponsHUD.h"
+#include "Gear/Weapons/SGGun.h"
 
 void ASGMainHUD::BeginPlay()
 {
@@ -14,8 +16,8 @@ void ASGMainHUD::BeginPlay()
 	//ObjectiveWidget = CreateAndAddToViewPort<USGObjectiveToolTipWidget>(ObjectiveClass);
 
 	GrappleCrossHairWidget = CreateAndAddToViewPort<USGHUDGrapple>(GrappleCrossHairClass);
+	WeaponsWidget = CreateAndAddToViewPort<USGWeaponsHUD>(WeaponsClass);
 	HUDWidget = CreateAndAddToViewPort<UUserWidget>(HUDClass);
-
 	/*if (USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance()))
 	{
 		TerminalWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -34,11 +36,27 @@ void ASGMainHUD::BindToGrappleEvents(ASGGrapplingHook* GrapplingHook)
 	{
 		return;
 	}
+
 	GrapplingHook->OnFireGrapple.AddDynamic(this, &ASGMainHUD::OnFireGrapple);
 	GrapplingHook->OnCanGrapple.AddDynamic(this, &ASGMainHUD::OnCanGrapple);
 	GrapplingHook->OnBeginCooldown.AddDynamic(this, &ASGMainHUD::OnBeginGrappleCooldown);
 }
 
+void ASGMainHUD::BindWeaponEvents(Ujola6902_GunsComponent* GunsComponent)
+{
+	if (!GunsComponent)
+	{
+		return;
+	}
+
+	GunsComponent->OnSwitchedGun.AddDynamic(this, &ASGMainHUD::OnSwitchedGun);
+	GunsComponent->OnFireGun.AddDynamic(this, &ASGMainHUD::OnFireGun);
+	GunsComponent->OnReload.AddDynamic(this, &ASGMainHUD::OnReload);
+	GunsComponent->OnCanFireGun.AddDynamic(this, &ASGMainHUD::OnCanFireGun);
+	OnSwitchedGun(0, GunsComponent->GetGuns()[0]);
+}
+
+//----GRAPPLING
 void ASGMainHUD::OnBeginGrappleCooldown(FTimerHandle& GrappleTimerHandle)
 {
 	const float TimeRemaining = GetWorld()->GetTimerManager().GetTimerRemaining(GrappleTimerHandle);
@@ -56,6 +74,30 @@ void ASGMainHUD::OnCanGrapple(bool bCanGrapple)
 	{
 		GrappleCrossHairWidget->PlayValidTargetAnimation();
 	}
+}
+
+//----WEAPONS
+
+void ASGMainHUD::OnSwitchedGun(const int32 GunIndex, ASGGun* Gun)
+{
+	WeaponsWidget->UpdWeaponName(Gun->GetWeaponDisplayName());
+	WeaponsWidget->UpdAmmoClip(Gun->GetAmmoClip());
+	WeaponsWidget->UpdAmmoStock(Gun->GetAmmoStock());
+}
+
+void ASGMainHUD::OnFireGun(const int32 GunIndex, ASGGun* Gun)
+{
+	EMMA_LOG(Log, TEXT("❤️Firing gun %d"), GunIndex);
+}
+
+void ASGMainHUD::OnReload(const int32 GunIndex, ASGGun* Gun)
+{
+	EMMA_LOG(Log, TEXT("❤️Reloading gun %d"), GunIndex);
+}
+
+void ASGMainHUD::OnCanFireGun(bool bCanFire, int32 GunIndex, ASGGun* Gun)
+{
+	EMMA_LOG(Log, TEXT("❤️Can fire gun %d: %s"), GunIndex, bCanFire ? TEXT("true") : TEXT("false"));
 }
 
 template <typename T>
