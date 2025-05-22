@@ -95,18 +95,22 @@ void ASGEnemySpawnManager::BeginPlay()
 
 	DespawnTriggerSphere->OnComponentBeginOverlap.AddDynamic(this, &ASGEnemySpawnManager::HandleBeginOverlap);
 	DespawnTriggerSphere->OnComponentEndOverlap.AddDynamic(this, &ASGEnemySpawnManager::HandleEndOverlap);
-	
-	if (ObjectiveDefendThePod)
-	{
-		ObjectiveDefendThePod->OnDefendEventStart.AddDynamic(this, &ASGEnemySpawnManager::HandleDefendEventStart);
-		ObjectiveDefendThePod->OnDefendEventEnd.AddDynamic(this, &ASGEnemySpawnManager::HandleDefendEventEnd);
-	}
 
 	ObjectiveHandlerSubSystem = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
 	if (ObjectiveHandlerSubSystem)
 	{
-		ObjectiveHandlerSubSystem->OnObjectiveStartedWithType.AddDynamic(this, &ASGEnemySpawnManager::HandleFirstMissionStart);
-		ObjectiveHandlerSubSystem->OnObjectiveCompletedWithType.AddDynamic(this, &ASGEnemySpawnManager::HandleFirstMissionEnd);
+		ObjectiveHandlerSubSystem->OnObjectiveStartedWithType.AddDynamic(this, &ASGEnemySpawnManager::HandleMissionStart);
+		ObjectiveHandlerSubSystem->OnObjectiveCompletedWithType.AddDynamic(this, &ASGEnemySpawnManager::HandleMissionEnd);
+		
+		TArray<ASGObjectiveBase*> AllObjectives = ObjectiveHandlerSubSystem->GetAllObjectives();
+		for (ASGObjectiveBase* Objective : AllObjectives)
+		{
+			if (Objective->GetClass() == TSubclassOf<ASGObjectivePodArrival>())
+			{
+				ASGObjectivePodArrival* PodArrivalObjective = Cast<ASGObjectivePodArrival>(Objective);
+				PodArrivalObjective->OnWaitForPodEventStart.AddDynamic(this, &ASGEnemySpawnManager::HandleOnWaitForPodEventStart);
+			}
+		}
 	}
 	else
 	{
@@ -315,40 +319,66 @@ void ASGEnemySpawnManager::HandleEndOverlap(UPrimitiveComponent* OverlappedComp,
 	}
 }
 
-void ASGEnemySpawnManager::HandleDefendEventStart()
+void ASGEnemySpawnManager::HandleMissionStart(EObjectiveType ObjectiveType)
 {
-	if (EnemySpawnPointGroups.Num() <= 0) return;
+	if (EnemySpawnPointGroups.Num() <= 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SGEnemySpawnManager::HandleMissionStart() requires SpawnPointGroups to be set up!"));
+		return;
+	}
 	
-	SpawnMode = ESpawnMode::AtArea;
-	SpawnAreaIndex = 0;
-	MaxEnemiesAlive = MaxEnemiesAliveDefendThePod;
-	TimeBetweenSpawns = 0.5f;
-}
+	switch (MissionsCompleted)
+	{
+		case 0:
+			{
+				MaxEnemiesAlive = 5;
+				TimeBetweenSpawns = 3.f;
+				SpawnMode = ESpawnMode::AtArea;
+				SpawnAreaIndex = 0;
+				break;
+			}
 
-void ASGEnemySpawnManager::HandleDefendEventEnd(UObject* ObjectiveInterfaceImplementor)
-{
-	SpawnMode = DefaultSpawnMode;
-	MaxEnemiesAlive = DefaultMaxEnemiesAlive;
-	TimeBetweenSpawns = DefaultTimeBetweenSpawns;
-}
+		case 1:
+			{
+				MaxEnemiesAlive = 15;
+				TimeBetweenSpawns = 3.f;
+				SpawnMode = ESpawnMode::AtArea;
+				SpawnAreaIndex = 1;
+				break;
+			}
 
-void ASGEnemySpawnManager::HandleFirstMissionStart(EObjectiveType ObjectiveType)
-{
-	JOEL_LOG(Warning, TEXT("HandleFirstMissionStart triggered!"));
+		case 2:
+			{
+				MaxEnemiesAlive = 25;
+				TimeBetweenSpawns = 1.f;
+				SpawnMode = ESpawnMode::AroundPlayer;
+				break;
+			}
+	}
 	
-	if (bFirstMissionCompleted) return;
-
-	JOEL_LOG(Warning, TEXT("HandleFirstMissionStart run!"));
-	
-	SpawnMode = ESpawnMode::AtArea;
-	SpawnAreaIndex = 0;
 	StartSpawning();
 }
 
-void ASGEnemySpawnManager::HandleFirstMissionEnd(EObjectiveType ObjectiveType)
+void ASGEnemySpawnManager::HandleMissionEnd(EObjectiveType ObjectiveType)
 {
-	if (bFirstMissionCompleted) return;
+	MissionsCompleted++;
+	StopSpawning();
+}
 
-	bFirstMissionCompleted = true;
-	SpawnMode = ESpawnMode::AroundPlayer;
+void ASGEnemySpawnManager::HandleOnWaitForPodEventStart()
+{
+	ClearAllEnemies();
+}
+
+void ASGEnemySpawnManager::ClearAllEnemies()
+{
+	TArray<AActor*> AllEnemies;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy"), AllEnemies);
+	
+	for (AActor* Actor : AllEnemies)
+	{
+		GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(Actor);
+	}
+
+	EnemiesAlive = 0;
 }
