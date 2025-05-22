@@ -4,9 +4,12 @@
 #include "GameFramework/Character.h"
 #include "SGPlayerCharacter.generated.h"
 
-// Forward declarations
+
+class ASGGrapplingHook;
 class ASGGun;
 class USGWeaponsHUD;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGrapplingHookReady, ASGGrapplingHook*);
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGPlayerCharacter : public ACharacter
@@ -14,23 +17,18 @@ class SPM_TEST_NO_LFS_API ASGPlayerCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ASGPlayerCharacter();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+public:
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	float GetRage() const { return Rage; };
 	void FireGrapple();
 
-	// jola6902_GunsComponent coupling
+	// jola6902_GunsComponent
 	UPROPERTY(VisibleAnywhere)
 	class Ujola6902_GunsComponent* GunsComponent;
 
@@ -48,7 +46,7 @@ private:
 	USceneComponent* GrapplingHookPosition;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TSubclassOf<class ASGGrapplingHook> GrapplingHookClass;
+	TSubclassOf<ASGGrapplingHook> GrapplingHookClass;
 
 	UPROPERTY()
 	ASGGrapplingHook* GrapplingHook;
@@ -57,4 +55,7 @@ private:
 	class UCameraComponent* CameraComponent;
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USkeletalMeshComponent* WeaponMesh;
+
+public:
+	FOnGrapplingHookReady OnGrapplingHookReady;
 };

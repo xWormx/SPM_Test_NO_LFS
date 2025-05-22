@@ -1,7 +1,7 @@
 #include "Player/SGPlayerCharacter.h"
 
 #include "jola6902_GunsComponent.h"
-#include "SGWeaponsHUD.h"
+#include "UI/Widgets/SGWeaponsHUD.h"
 #include "Blueprint/UserWidget.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Gear/Weapons/SGGun.h"
@@ -50,52 +50,11 @@ void ASGPlayerCharacter::BeginPlay()
 		// Så vi roterar den 180 grader för att den ska vara riktad framåt från början.
 		GrapplingHook->AddActorLocalRotation(FRotator(0, 180, 0));
 		GrapplingHook->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
-		GrapplingHook->SetOwner(this);	
+		GrapplingHook->SetOwner(this);
+		OnGrapplingHookReady.Broadcast(GrapplingHook);
 	}
-}
+ }
 
-// Called every frame
-void ASGPlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	
-/*
-	if (GrapplingHook->HeadAttached())
-	{
-		FVector NewPosition = FMath::VInterpTo(GetActorLocation(),
-			GrapplingHook->GetAttachmentPoint(),
-			GetWorld()->GetDeltaSeconds(),
-			GrapplingHook->GetDragSpeed());
-		
-		UE_LOG(LogTemp, Warning, TEXT("DELTASECONDS: %f"), DeltaTime);
-		float DistanceToGrapplePoint = FVector::Distance(GrapplingHook->GetAttachmentPoint(), NewPosition); 
-		UE_LOG(LogTemp, Warning, TEXT("Grapple Location: %f"), DistanceToGrapplePoint);
-
-		if (DistanceToGrapplePoint < 150)
-		{
-			GrapplingHook->ResetGrapple();
-			// Om hook riktningen är uppåt så lägg till lite extra kraft uppåt!
-			if (GrapplingHook->GetGrappleDirectionNormalized().Z > 0)
-			{
-				FVector Impuls = GrapplingHook->GetGrappleDirectionNormalized() * 80000;
-				float ExtraUpwardsImpuls = 50000;
-				Impuls.Z += ExtraUpwardsImpuls;
-				GetCharacterMovement()->AddImpulse(Impuls);	
-			}
-			else
-			{
-				FVector Impuls = GrapplingHook->GetGrappleDirectionNormalized() * 80000;
-				GetCharacterMovement()->AddImpulse(Impuls);
-			}
-			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, GrapplingHook->GetGrappleDirectionNormalized().ToString());
-		}
-		else
-		{			
-			SetActorLocation(NewPosition);
-		}			
-	}
-	*/
-}
 
 // Called to bind functionality to input
 void ASGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
