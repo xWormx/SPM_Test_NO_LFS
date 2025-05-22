@@ -23,8 +23,7 @@ public:
 	virtual void SetupInputComponent() override;
 	void SetCanInteractWithTerminal(const bool bInteract);
 	void SetWantToInteractWithTerminal(const bool bInteract);
-	bool GetCanInteractWithTerminal() const;
-	bool GetWantToInteractWithTerminal() const;
+	bool CanInteractWithTerminal() const;
 
 //----Start: Added by Basir
 	void UpgradeScorePoint();
@@ -44,14 +43,6 @@ private:
 	void Interact(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
 	void Grapple(const FInputActionValue& Value);
-	void OnFireButtonPressed(const FInputActionValue& Value);
-	void OnFireButtonReleased(const FInputActionValue& Value);
-	void HandleFiring();
-	void FireGun();
-	void CanFireAgain();
-	void OnSwapWeaponKeyPressed(const FInputActionInstance& Instance);
-	void OnSwapWeaponMouseWheel(const FInputActionValue& Value);
-	void OnReloadPressed(const FInputActionValue& Value);
 
 	ASGPlayerCharacter* GetValidPlayerCharacter();
 
@@ -62,10 +53,10 @@ private:
 	void RestartGame();
 
 	UFUNCTION(BlueprintCallable)
-	void EnableGameOver();
+	void EnableGameOver(float NewHealth);
 
 	UFUNCTION(BlueprintCallable)
-	void PlayTempDamageEffect();
+	void PlayTempDamageEffect(float NewHealth);
 
 	void RemoveDamageEffect();
 
@@ -75,10 +66,7 @@ private:
 	bool bCanInteractWithTerminal = false;
 	bool bWantToInteract = false;
 
-
 public:
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	float MoveSpeed = 5;
 
 	FOnInteract OnInteract;
 
@@ -87,40 +75,44 @@ private:
 	UPROPERTY()
 	ASGPlayerCharacter* PlayerCharacter;
 
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	UPROPERTY(EditAnywhere, Category = "UProperty - Player | Input")
 	class UInputMappingContext* InputMapping;
 
 	// INPUT
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Movement")
 	UInputAction* MoveInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Movement")
 	UInputAction* JumpInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	UInputAction* InteractInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Movement")
 	UInputAction* LookAroundInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Interaction")
+	UInputAction* InteractInputAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Interaction")
 	UInputAction* GrappleInputAction;
 
 //----Start: Added by Basir
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | UI")
 	UInputAction* PauseGameAction;
 
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Menus")
 	UUserWidget* PauseMenu;
 
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Menus")
 	UUserWidget* GameOverMenu;
 
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Hurt Effect")
 	UUserWidget* TempDamageEffect;
 
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Hurt Effect")
 	TSubclassOf<UCameraShakeBase> TempDamageEffectCameraShake;
 
 	int32 ScorePoint = 0;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Score System")
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Score System")
 	int32 KillScorePoint = 10;
 //----End: Added By Basir
 };
