@@ -12,6 +12,7 @@
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGTerminalWidget.h"
+#include "UI/SGMainHUD.h"
 
 void ASGPlayerController::UpgradeScorePoint()
 {
@@ -37,40 +38,33 @@ void ASGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	ThePlayerCharacter = GetValidPlayerCharacter();
-	if (ThePlayerCharacter == nullptr)
+	PlayerCharacter = GetValidPlayerCharacter();
+	if (PlayerCharacter == nullptr)
+	{
 		return;
-	
-	ThePlayerCharacter->GetCharacterMovement()->AirControl = 1.f;
-
-	UUserWidget* CrossHair = CreateWidget<UUserWidget>(this, HUDClass);
-	if (CrossHair)
-	{
-		CrossHair->AddToViewport();
 	}
 
-	HUDGrapple = CreateWidget<USGHUDGrapple>(this, HUDGrappleClass);
-	if (HUDGrapple)
+	PlayerCharacter->GetCharacterMovement()->AirControl = 1.f;
+
+	ASGMainHUD* MainHUD = Cast<ASGMainHUD>(GetHUD());
+	PlayerCharacter->OnGrapplingHookReady.AddLambda([MainHUD](ASGGrapplingHook* GrapplingHook)
 	{
-		Cast<USGGameInstance>(GetWorld()->GetGameInstance())->SetHUDGrapple(HUDGrapple);
-		HUDGrapple->AddToViewport();
-	}
+		if (MainHUD && GrapplingHook)
+		{
+			MainHUD->BindToGrappleEvents(GrapplingHook);
+		}
+	});
 
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
-		FName MovementSpeed = TEXT("MoveSpeed");
-		FName Category = TEXT("Player");
+		const FName MovementSpeed = TEXT("MoveSpeed");
+		const FName Category = TEXT("Player");
 		UpgradeSystem->BindAttribute(this, MovementSpeed, MovementSpeed, Category);
 		if (UCharacterMovementComponent* CharacterMovement = Cast<UCharacterMovementComponent>(GetCharacter()->GetMovementComponent()))
 		{
 			UpgradeSystem->BindAttribute(CharacterMovement, TEXT("JumpZVelocity"), TEXT("JumpHeight"), Category);			
 		}		
 	}
-}
-
-void ASGPlayerController::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 void ASGPlayerController::SetupInputComponent()
@@ -88,108 +82,111 @@ void ASGPlayerController::SetupInputComponent()
 	// System
 	Input->BindAction(PauseGameAction, ETriggerEvent::Triggered, this, &ASGPlayerController::PauseGame);
 	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Interact);
-	
-	ULocalPlayer* LocalPlayer = GetLocalPlayer();
-	
-	if (LocalPlayer == nullptr)
+
+	if (!ensure(GetLocalPlayer()))
 	{
-		UE_LOG(LogTemp, Error, TEXT("No Local Player"));
 		return;
 	}
 
-	UEnhancedInputLocalPlayerSubsystem* InputSubsytem = LocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-
-	if (InputSubsytem == nullptr)
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	if (!ensure(InputSubsystem) || !ensure(InputMapping))
 	{
-		UE_LOG(LogTemp, Error, TEXT("No Local Player Subsystem"));
 		return;
 	}
 
-	if (InputMapping == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("No Input Mapping"));
-		return;
-	}
+	InputSubsystem->AddMappingContext(InputMapping, 0);
+}
 
-	InputSubsytem->AddMappingContext(InputMapping, 0);
+void ASGPlayerController::SetCanInteractWithTerminal(const bool bInteract)
+{
+	bCanInteractWithTerminal = bInteract;
+}
+
+void ASGPlayerController::SetWantToInteractWithTerminal(const bool bInteract)
+{
+	bWantToInteract = bInteract;
+}
+
+bool ASGPlayerController::GetCanInteractWithTerminal() const
+{
+	return bCanInteractWithTerminal;
+}
+
+bool ASGPlayerController::GetWantToInteractWithTerminal() const
+{
+	return bWantToInteract;
 }
 
 
 void ASGPlayerController::Move(const FInputActionValue& Value)
 {
-	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr)
+	if (!GetValidPlayerCharacter())
+	{
 		return;
+	}
 
 	FVector2D AxisValue2D = Value.Get<FVector2D>();
 	FVector Movement = FVector(AxisValue2D.X * MoveSpeed, AxisValue2D.Y * MoveSpeed, 0);
-	CurrentPlayer->AddMovementInput(CurrentPlayer->GetActorForwardVector(), Movement.Y);
-	CurrentPlayer->AddMovementInput(CurrentPlayer->GetActorRightVector(), Movement.X);
+
+	PlayerCharacter->AddMovementInput(PlayerCharacter->GetActorForwardVector(), Movement.Y);
+	PlayerCharacter->AddMovementInput(PlayerCharacter->GetActorRightVector(), Movement.X);
 }
 
 void ASGPlayerController::Jump(const FInputActionValue& Value)
 {
-	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr)
+	if (!GetValidPlayerCharacter())
+	{
 		return;
-	
-	bool Jump = Value.Get<bool>();
-	if (Jump)
-	{
-		CurrentPlayer->bPressedJump = true;
 	}
-	else
-	{
-		CurrentPlayer->bPressedJump = false;
-	}
-	UE_LOG(LogTemp, Warning, TEXT("Jump: + %hhd"), Value.Get<bool>());
+	PlayerCharacter->bPressedJump = Value.Get<bool>();
 }
 
 void ASGPlayerController::Interact(const FInputActionValue& Value)
 {
-	if (!bCanInteractWithTerminal)
+	if (!bCanInteractWithTerminal || !GetValidPlayerCharacter())
+	{
 		return;
-
-	
-	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr)
-		return;
+	}
 	// Denna funktion kanske int ebehövs om vi ändå broadcastar via delegate?
 	SetWantToInteractWithTerminal(true);
 	OnInteract.Broadcast();
-	UE_LOG(LogTemp, Warning, TEXT("Interact: Rage = %f"), CurrentPlayer->GetRage());
+	UE_LOG(LogTemp, Warning, TEXT("Interact: Rage = %f"), PlayerCharacter->GetRage());
 }
 
 void ASGPlayerController::LookAround(const FInputActionValue& Value)
 {
-	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr)
+	if (!GetValidPlayerCharacter())
+	{
 		return;
+	}
 
 	FVector2D AxisValue2D = Value.Get<FVector2D>();
-	CurrentPlayer->AddControllerPitchInput(AxisValue2D.Y);
-	CurrentPlayer->AddControllerYawInput(AxisValue2D.X);
+	PlayerCharacter->AddControllerPitchInput(AxisValue2D.Y);
+	PlayerCharacter->AddControllerYawInput(AxisValue2D.X);
 }
 
 void ASGPlayerController::Grapple(const FInputActionValue& Value)
 {
-	ASGPlayerCharacter* CurrentPlayer = GetValidPlayerCharacter();
-	if (CurrentPlayer == nullptr)
+	if (!GetValidPlayerCharacter())
+	{
 		return;
+	}
 
-	CurrentPlayer->FireGrapple();
+	PlayerCharacter->FireGrapple();
 }
 
 ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()
 {
-	ASGPlayerCharacter* CurrentPlayer = Cast<ASGPlayerCharacter>(GetPawn());
-	if (CurrentPlayer == nullptr)
+	if (!PlayerCharacter)
+	{
+		PlayerCharacter = Cast<ASGPlayerCharacter>(GetPawn());
+	}
+	if (!ensure(PlayerCharacter))
 	{
 		UE_LOG(LogTemp, Error, TEXT("ACJPlayerCharacter was nullptr"));
-		return nullptr;
 	}
-	
-	return CurrentPlayer;
+
+	return PlayerCharacter;
 }
 
 //Added by Basir 
