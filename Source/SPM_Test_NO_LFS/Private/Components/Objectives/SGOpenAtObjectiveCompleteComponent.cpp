@@ -30,7 +30,6 @@ void USGOpenAtObjectiveCompleteComponent::BeginPlay()
 	if (ObjectiveHandlerSubSystem)
 	{
 		ObjectiveHandlerSubSystem->OnObjectiveCompletedWithType.AddDynamic(this, &USGOpenAtObjectiveCompleteComponent::Open);
-		ObjectiveHandlerSubSystem->OnObjectiveCompletedWithType.AddDynamic(this, &USGOpenAtObjectiveCompleteComponent::Open);
 	}
 	
 }

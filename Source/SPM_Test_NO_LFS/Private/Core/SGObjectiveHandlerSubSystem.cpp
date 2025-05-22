@@ -26,17 +26,32 @@ void USGObjectiveHandlerSubSystem::Initialize(FSubsystemCollectionBase& Collecti
 	FWorldDelegates::OnWorldInitializedActors.AddUObject(this, &USGObjectiveHandlerSubSystem::OnWorldInitialized);
 }
 
+void USGObjectiveHandlerSubSystem::Deinitialize()
+{
+	Super::Deinitialize();
+}
+
 void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
 	USGGameInstance* GameInstance = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
 	if (GameInstance)
 	{
+		GameInstance->CreateObjectiveToolTip();
+		GameInstance->CreateHUDTerminal();
 		ObjectiveToolTipWidget = GameInstance->GetObjectiveTooltipWidget();
 		if (ObjectiveToolTipWidget)
 		{
+			
 			ObjectiveToolTipWidget->SetOwningPlayer(GetWorld()->GetFirstPlayerController());
-			ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!i
+			
+			if (!ObjectiveToolTipWidget->IsInViewport())
+			{
+				ObjectiveToolTipWidget->RemoveFromParent();
+				ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!i
+			}
+				
+			
 			ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 			ObjectiveToolTipWidget->ShowVisitTerminal();
 			ObjectiveToolTipWidget->HideToolTipScaleBox();	
@@ -169,7 +184,7 @@ void USGObjectiveHandlerSubSystem::RegisterPodArrival(ASGObjectivePodArrival* Po
 	PodArrival->OnWaitForPodEventEnd.AddDynamic(this, &USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective);
 }
 
-void USGObjectiveHandlerSubSystem::StartMission()
+	void USGObjectiveHandlerSubSystem::StartMission()
 {
 	/*
 		Tilldela varje objective ett ID här så att det kan lagras i ToolTipWidget's TMap så att
@@ -191,6 +206,7 @@ void USGObjectiveHandlerSubSystem::StartMission()
 	TerminalHUD->DisableStartButton();
 	UGameplayStatics::PlaySound2D(this, MissionStartedSound);
 	OnObjectiveStarted.Broadcast();
+	OnObjectiveStartedWithType.Broadcast(CurrentObjective->GetObjectiveType());
 }
 
 // TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...

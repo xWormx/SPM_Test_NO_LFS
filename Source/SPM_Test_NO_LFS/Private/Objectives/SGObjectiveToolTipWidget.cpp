@@ -110,6 +110,13 @@ void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 	}), 0.05f, true);
 }
 
+void USGObjectiveToolTipWidget::DeInitialize()
+{
+	HorizontalObjectiveList.Empty();
+	CurrentHorizontalBoxObjectiveElement = nullptr;
+	RemoveFromParent();
+}
+
 void USGObjectiveToolTipWidget::PauseAllOngoingAnimations()
 {
 	for (USGHorizontalBoxObjective* HorizontalBoxObject : HorizontalObjectiveList)

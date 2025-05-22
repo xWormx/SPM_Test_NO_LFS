@@ -30,8 +30,7 @@ public:
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	UPROPERTY(EditAnywhere, Category=UPROPERTY)
-	ASGObjectiveBase* ObjectiveToWatchOpen;
+	
 	UPROPERTY(EditAnywhere, Category=UPROPERTY)
 	EObjectiveType ObjectiveTypeToWatch;
 	
