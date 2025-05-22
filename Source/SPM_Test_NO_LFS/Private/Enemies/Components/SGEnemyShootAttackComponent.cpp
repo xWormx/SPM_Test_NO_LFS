@@ -43,7 +43,7 @@ void USGEnemyShootAttackComponent::PerformAttack(AActor* Target)
 		return;
 	}
 
-    FVector SpawnLocation = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector() * 20.f;
+    FVector SpawnLocation = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector() * 60.f;
 	
     FVector Direction = (Target->GetActorLocation() - SpawnLocation).GetSafeNormal();
     FRotator SpawnRotation = Direction.Rotation();
