@@ -13,6 +13,8 @@ void USGGameInstance::Init()
 {
 	Super::Init();
 
+	LoadGameData(false);
+
 	CreateObjectiveToolTip();
 	CreateHUDTerminal();
 	
@@ -57,17 +59,15 @@ void USGGameInstance::IncreaseDifficultyLevel(int Difficulty)
 	}
 }
 
-void USGGameInstance::LoadGameData_Implementation(bool Async)
+void USGGameInstance::LoadGameData(bool bAsync)
 {
-	ISGISaveGame::LoadGameData_Implementation(Async);
-
 	if (!UGameplayStatics::DoesSaveGameExist(SlotName, 0))
 	{
 		SavedData = Cast<USGSaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
 	}
 	else
 	{
-		if (Async)
+		if (bAsync)
 		{
 			FAsyncLoadGameFromSlotDelegate AsyncLoadGameFromSlotDelegate;
 			AsyncLoadGameFromSlotDelegate.BindUObject(this, &USGGameInstance::OnSaveGameLoaded);
@@ -86,11 +86,9 @@ void USGGameInstance::LoadGameData_Implementation(bool Async)
 }
 
 
-void USGGameInstance::SaveGameData_Implementation(bool Async)
+void USGGameInstance::SaveGameData(bool bAsync)
 {
-	ISGISaveGame::SaveGameData_Implementation(Async);
-
-	if (Async)
+	if (bAsync)
 	{
 		UGameplayStatics::AsyncSaveGameToSlot(SavedData, SlotName, 0); 
 	}
@@ -101,11 +99,10 @@ void USGGameInstance::SaveGameData_Implementation(bool Async)
 }
 
 
-void USGGameInstance::OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData)
+void USGGameInstance::OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData) const
 {
-	if (USGSaveGame* SaveGame = Cast<USGSaveGame>(LoadedGameData))
+	if (Cast<USGSaveGame>(LoadedGameData))
 	{
-		//PlayerStats = SaveGame->PlayerStats;
 		OnGameLoaded.Broadcast();
 	}
 	else
@@ -114,7 +111,7 @@ void USGGameInstance::OnSaveGameLoaded(const FString& TheSlotName, const int32 U
 	}
 }
 
-class USGSaveGame* USGGameInstance::GetSaveGame() const
+USGSaveGame* USGGameInstance::GetSaveGame() const
 {
 	return SavedData;
 }

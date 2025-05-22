@@ -4,9 +4,11 @@
 #include "GameFramework/Character.h"
 #include "SGPlayerCharacter.generated.h"
 
+class ASGPlayerController;
 // Forward declarations
 class ASGGun;
 class USGWeaponsHUD;
+class USGSaveGame;
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGPlayerCharacter : public ACharacter
@@ -55,6 +57,19 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category="design")
 	class UCameraComponent* CameraComponent;
+	
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USkeletalMeshComponent* WeaponMesh;
+
+public:
+	//Saving functionality
+	UFUNCTION(BlueprintCallable)
+	struct FPlayerStats GetPlayerStats() const;
+
+	UFUNCTION(BlueprintCallable)
+	void UseSavedGame(FPlayerStats SavedStats);
+
+	ASGPlayerController* PlayerController;
+
+	
 };

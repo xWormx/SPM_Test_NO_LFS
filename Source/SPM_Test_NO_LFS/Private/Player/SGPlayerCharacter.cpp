@@ -8,12 +8,16 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Player/SGPlayerController.h"
+#include "SaveGame/SGSaveGame.h"
 
 // Sets default values
 ASGPlayerCharacter::ASGPlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	PlayerController = Cast<ASGPlayerController>(GetController());
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
@@ -123,3 +127,30 @@ void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* Hi
 	PushDirection.Z = 0;
 	Enemy->ApplyPush(PushDirection, PushStrength);
 }
+
+FPlayerStats ASGPlayerCharacter::GetPlayerStats() const
+{
+	FPlayerStats PlayerStats;
+	PlayerStats.PlayerTransform = GetActorTransform();
+
+	if (PlayerController)
+	{
+		PlayerStats.ScorePoints = PlayerController->GetScorePoint();
+	}
+	else
+	{
+		PlayerStats.ScorePoints = 0;
+	}
+	return PlayerStats;
+}
+
+void ASGPlayerCharacter::UseSavedGame(FPlayerStats SavedStats)
+{
+	SetActorTransform(SavedStats.PlayerTransform);
+	if (PlayerController)
+	{
+		PlayerController->SetScorePoint(SavedStats.ScorePoints);
+	}
+}
+
+
