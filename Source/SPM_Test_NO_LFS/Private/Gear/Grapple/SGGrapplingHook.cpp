@@ -255,7 +255,7 @@ void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
 
 void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTime)
 {
-	if (Character == nullptr)
+	if (Character == nullptr || !HeadAttached())
 		return;
 	
 	if (HeadAttached())
@@ -265,9 +265,7 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 												GetWorld()->GetDeltaSeconds(),
 												GetDragSpeed());
 		
-		UE_LOG(LogTemp, Warning, TEXT("DELTASECONDS: %f"), DeltaTime);
 		float DistanceToGrapplePoint = FVector::Distance(GetAttachmentPoint(), NewPosition); 
-		UE_LOG(LogTemp, Warning, TEXT("Grapple Location: %f"), DistanceToGrapplePoint);
 
 		if (DistanceToGrapplePoint < GrappleReleaseDistance)
 		{
@@ -280,8 +278,9 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 			if (GetGrappleDirectionNormalized().Z > 0)
 				Impuls.Z += ExtraUpwardsImpuls;
 
-			Impuls /= DeltaTime;
-			Character->GetCharacterMovement()->Launch(Impuls);
+			Impuls *= DeltaTime * 10000;
+			//Character->GetCharacterMovement()->Launch(Impuls);
+			Character->LaunchCharacter(Impuls, true, true);
 			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, GetGrappleDirectionNormalized().ToString());
 		}
 		else
