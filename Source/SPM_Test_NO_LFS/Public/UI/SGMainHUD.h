@@ -75,22 +75,4 @@ public:
 	UFUNCTION()
 	void OnFireGrapple();
 
-	UFUNCTION()
-	void OnCanGrapple(bool bCanGrapple);
-
-//----WEAPONS
-	UFUNCTION()
-	void OnSwitchedGun(int32 GunIndex, ASGGun* Gun);
-
-	UFUNCTION()
-	void OnFireGun(int32 GunIndex, ASGGun* Gun);
-
-	UFUNCTION()
-	void OnReload(int32 GunIndex, ASGGun* Gun);
-
-	UFUNCTION()
-	void OnCanFireGun(bool bCanFire, int32 GunIndex, ASGGun* Gun);
-
-	UFUNCTION()
-	void OnPickedUpAmmo(int32 AmmoAmount, ASGGun* Gun);
 };

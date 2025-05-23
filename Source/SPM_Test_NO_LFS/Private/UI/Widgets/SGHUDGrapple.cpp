@@ -8,7 +8,7 @@ void USGHUDGrapple::NativeConstruct()
 	Super::NativeConstruct();
 }
 
-void USGHUDGrapple::PlayValidTargetAnimation()
+void USGHUDGrapple::PlayValidTargetAnimation(bool bPlay)
 {
 	PlayAnimation(ValidTargetAnimation);
 }

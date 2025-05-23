@@ -11,7 +11,9 @@ class SPM_TEST_NO_LFS_API USGHUDGrapple : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
-	void PlayValidTargetAnimation();
+
+	UFUNCTION()
+	void PlayValidTargetAnimation(bool bPlay);
 
 protected:
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))

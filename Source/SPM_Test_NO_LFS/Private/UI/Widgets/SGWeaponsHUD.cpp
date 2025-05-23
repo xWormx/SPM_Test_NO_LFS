@@ -14,16 +14,16 @@ void USGWeaponsHUD::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	UDataTable* WeaponDataTable = Cast<UDataTable>(GetDefault<USGDeveloperSettings>()->WeaponUIDataTable.TryLoad());
+	WeaponsDataTable = Cast<UDataTable>(GetDefault<USGDeveloperSettings>()->WeaponUIDataTable.TryLoad());
 
-	if (!WeaponDataTable)
+	if (!WeaponsDataTable)
 	{
 		EMMA_LOG(Error, TEXT("❤️WeaponDataTable is null"));
 		return;
 	}
 
 	TArray<FWeaponData*> WeaponData;
-	WeaponDataTable->GetAllRows<FWeaponData>(TEXT("WeaponData"), WeaponData);
+	WeaponsDataTable->GetAllRows<FWeaponData>(TEXT("WeaponData"), WeaponData);
 
 	ConstructWeaponEntries(WeaponData);
 }
@@ -54,6 +54,12 @@ void USGWeaponsHUD::ConstructWeaponEntries(const TArray<FWeaponData*>& WeaponDat
 void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 {
 	EMMA_LOG(Log, TEXT("❤️SetAvailableWeapons"));
+
+	if (WeaponEntries.Num() == 0)
+	{
+		EMMA_LOG(Error, TEXT("❤️WeaponEntries is empty"));
+		return;
+	}
 	for (int i = 0; i < WeaponEntries.Num(); ++i)
 	{
 		if (!Weapons.IsValidIndex(i))
@@ -87,13 +93,17 @@ void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 	}
 }
 
-void USGWeaponsHUD::OnWeaponChanged(const int32 WeaponIndex)
+void USGWeaponsHUD::ChangeWeapon(const int32 WeaponIndex, ASGGun* Gun)
 {
 	if (!WeaponEntries.IsValidIndex(WeaponIndex))
 	{
 		EMMA_LOG(Error, TEXT("❤️WeaponIndex is out of range %d"), WeaponIndex);
 		return;
 	}
+
+	FColor SelectedColor = FColor::White;
+	FColor UnselectedColor = FColor(128, 128, 128);
+
 	for (int32 i = 0; i < WeaponEntries.Num(); ++i)
 	{
 		USGWeaponEntry* WeaponEntry = WeaponEntries[i];
@@ -125,19 +135,23 @@ void USGWeaponsHUD::UpdateWeapon(int32 WeaponIndex, ASGGun* Gun)
 	WeaponEntry->AmmoClipTextBlock->SetColorAndOpacity(GetAmmoColor(Gun->GetAmmoClip()));
 }
 
-void USGWeaponsHUD::UpdateAmmo([[maybe_unused]] const int32 AmmoAmount, ASGGun* Gun)
+void USGWeaponsHUD::UpdateAmmo(int32 AmmoAmount, ASGGun* Gun)
 {
 	FName WeaponNameKey = FName(*Gun->GetWeaponDisplayName().ToString());
 	TObjectPtr<USGWeaponEntry>* WeaponEntry = WeaponEntriesMap.Find(WeaponNameKey);
-	if (!WeaponEntry)
+	/*if (!WeaponEntry)
 	{
 		EMMA_LOG(Error, TEXT("❤️WeaponEntry is null"));
 		return;
 	}
+	*/
 
+	WeaponEntry->Get()->SetIsEnabled(true);
 	const int32 ClipAmmo = Gun->GetAmmoClip();
 	WeaponEntry->Get()->AmmoStockTextBlock->SetText(GetAmmoClipText(ClipAmmo));
 	WeaponEntry->Get()->AmmoStockTextBlock->SetColorAndOpacity(GetAmmoColor(ClipAmmo));
+	WeaponEntry->Get()->SetIsEnabled(false);
+
 }
 
 FColor USGWeaponsHUD::GetAmmoColor(const int32 ClipAmmo)

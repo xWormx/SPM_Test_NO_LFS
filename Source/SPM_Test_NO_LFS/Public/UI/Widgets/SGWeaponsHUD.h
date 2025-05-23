@@ -24,7 +24,7 @@ public:
 	void SetAvailableWeapons(const TArray<ASGGun*>& Weapons);
 
 	UFUNCTION()
-	void OnWeaponChanged(int32 WeaponIndex);
+	void ChangeWeapon(int32 WeaponIndex, ASGGun* Gun);
 
 	UFUNCTION()
 	void UpdateWeapon(int32 WeaponIndex, ASGGun* Gun);
@@ -46,7 +46,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UVerticalBox> WeaponEntriesBox;
 
-	UPROPERTY(EditAnywhere, Category="Upgrades")
+	UPROPERTY(EditAnywhere)
 	TSubclassOf<USGWeaponEntry> EntryTileClass;
 
 	TArray<TObjectPtr<USGWeaponEntry>> WeaponEntries;
@@ -64,4 +64,7 @@ protected:
 private:
 	static FColor GetAmmoColor(int32 ClipAmmo);
 	static FText GetAmmoClipText(int32 ClipAmmo);
+
+	UPROPERTY()
+	UDataTable* WeaponsDataTable = nullptr;
 };
