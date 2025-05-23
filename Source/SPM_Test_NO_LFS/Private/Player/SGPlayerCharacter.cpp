@@ -1,6 +1,7 @@
 #include "Player/SGPlayerCharacter.h"
 
 #include "jola6902_GunsComponent.h"
+#include "SPM_Test_NO_LFS.h"
 
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Camera/CameraComponent.h"
@@ -22,21 +23,20 @@
 ASGPlayerCharacter::ASGPlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	PlayerController = Cast<ASGPlayerController>(GetController());
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
-	
+
 	if (WeaponMesh && CameraComponent)
 	{
 		CameraComponent->SetupAttachment(RootComponent);
 		WeaponMesh->SetupAttachment(CameraComponent);
 	}
-	
+
 	GrapplingHookPosition = CreateDefaultSubobject<USceneComponent>(TEXT("GrapplingHookPosition"));
 	GrapplingHookPosition->SetupAttachment(GetRootComponent());
 
-    if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
+	if (UCapsuleComponent* CapsuleComp = GetCapsuleComponent())
 	{
 		CapsuleComp->SetNotifyRigidBodyCollision(true); // Enable hit events
 		CapsuleComp->OnComponentHit.AddDynamic(this, &ASGPlayerCharacter::OnComponentHit);
@@ -58,13 +58,13 @@ void ASGPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerController = Cast<ASGPlayerController>(GetController());
+
 	GetCharacterMovement()->AirControl = AirControl;
 
-	if ((GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass)))
+	/*USGGameInstance* GameIns = Cast<USGGameInstance>(GetGameInstance());
 
-	USGGameInstance* GameIns = Cast<USGGameInstance>(GetGameInstance());
-
-	/*if (GameIns)
+	if (GameIns)
 	{
 		UseSavedGame(GameIns->GetSaveGame()->PlayerStats);
 	}
@@ -72,9 +72,8 @@ void ASGPlayerCharacter::BeginPlay()
 	{
 		BASIR_LOG(Warning, TEXT("GameInstance was not found!"));
 	}*/
-	
-	GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass);
-	if (GrapplingHook)
+
+	if ((GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass)))
 	{
 		GrapplingHook->SetActorLocation(GrapplingHookPosition->GetComponentLocation());
 		// Grapplinghooken verkar vara omvänt roterad från början, debugkameran visar att den är riktad bakåt
@@ -101,15 +100,16 @@ void ASGPlayerCharacter::BeginPlay()
 	}
 
 	OnPlayerIsReady.Broadcast(this);
-
- }
+}
 
 void ASGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* HitComponent, AActor* OtherActor, [[maybe_unused]] UPrimitiveComponent* OtherComp, [[maybe_unused]] FVector NormalImpulse, [[maybe_unused]] const FHitResult& Hit)
+void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* HitComponent, AActor* OtherActor,
+                                        [[maybe_unused]] UPrimitiveComponent* OtherComp,
+                                        [[maybe_unused]] FVector NormalImpulse, [[maybe_unused]] const FHitResult& Hit)
 {
 	ASGEnemyCharacter* Enemy = Cast<ASGEnemyCharacter>(OtherActor);
 	if (!Enemy)
@@ -131,20 +131,24 @@ FPlayerStats ASGPlayerCharacter::GetPlayerStats()
 	{
 		PlayerStats.ScorePoints = PlayerController->GetScorePoint();
 	}
-	else
+	
+	if (HealthComponent)
 	{
-		PlayerStats.ScorePoints = 0;
+		PlayerStats.Health = HealthComponent->GetCurrentHealth();
 	}
 	return PlayerStats;
 }
 
 void ASGPlayerCharacter::UseSavedGame(FPlayerStats SavedStats)
 {
-	SetActorTransform(SavedStats.PlayerTransform);
+	//SetActorTransform(SavedStats.PlayerTransform);
 	if (PlayerController)
 	{
 		PlayerController->SetScorePoint(SavedStats.ScorePoints);
 	}
+
+	if (HealthComponent)
+	{
+		HealthComponent->SetCurrentHealth(SavedStats.Health);
+	}
 }
-
-

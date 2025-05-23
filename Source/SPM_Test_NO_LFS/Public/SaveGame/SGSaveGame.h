@@ -1,13 +1,10 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Core/SGUpgradeSubsystem.h"
 #include "GameFramework/SaveGame.h"
-#include "USGISaveGame.h"
 #include "SGSaveGame.generated.h"
 
-
-class USGHealthComponent;
-class ASGGun;
 
 USTRUCT(Blueprintable)
 struct FPlayerStats
@@ -19,6 +16,9 @@ struct FPlayerStats
 
 	UPROPERTY(EditAnywhere)
 	int32 ScorePoints;
+
+	UPROPERTY(EditAnywhere)
+	float Health;
 	
 };
 
@@ -31,4 +31,7 @@ class SPM_TEST_NO_LFS_API USGSaveGame : public USaveGame
 public:
 	UPROPERTY(EditAnywhere)
 	FPlayerStats PlayerStats;
+
+	UPROPERTY(EditAnywhere)
+	struct FSGSavedAttributes UpgradeSystemSavedAttributes;
 };

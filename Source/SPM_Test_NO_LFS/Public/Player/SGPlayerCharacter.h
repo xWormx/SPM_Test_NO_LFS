@@ -93,6 +93,7 @@ public:
 	USGCounterComponentAmmo* AmmoComponent;
 
 public:
+//----Start: Added by Basir
 	//Saving functionality
 	UFUNCTION(BlueprintCallable)
 	struct FPlayerStats GetPlayerStats();
@@ -101,5 +102,5 @@ public:
 	void UseSavedGame(FPlayerStats SavedStats);
 
 	ASGPlayerController* PlayerController;
-
+//----End: Added by Basir
 };

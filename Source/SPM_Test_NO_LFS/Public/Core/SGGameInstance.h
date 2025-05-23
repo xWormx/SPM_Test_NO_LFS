@@ -47,7 +47,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void LoadGameData(bool bAsync);
 
-
 	UFUNCTION(BlueprintCallable)
 	virtual void SaveGameData(bool bAsync);
 
@@ -55,7 +54,10 @@ public:
 	class USGSaveGame* GetSaveGame() const;
 
 	UFUNCTION(BlueprintCallable)
-	void SavePlayerStats(struct FPlayerStats PlayerStats, const bool bAsync);
+	void SavePlayerStats(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, const bool bAsync);
+
+	/*UFUNCTION(BlueprintCallable)
+	void SaveUpgradeStats(struct FSGSavedAttributes UpgradesStats, const bool bAsync);*/
 
 	UFUNCTION()
 	void OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData) const;
@@ -71,4 +73,7 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	FString SlotName = TEXT("Saved Game 1");
+
+	UPROPERTY(EditAnywhere)
+	class USGUpgradeSubsystem* UpgradeSubSystem;
 };

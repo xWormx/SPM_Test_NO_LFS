@@ -9,7 +9,9 @@ void USGGameInstance::Init()
 {
 	Super::Init();
 
-	//LoadGameData(false);  Working but only for Basirs Test level at the moment
+	LoadGameData(false);
+
+	//GetSubsystem<USGUpgradeSubsystem>()->LoadPersistentUpgrades(SavedData->UpgradeSystemSavedAttributes);
 
 	CreateObjectiveToolTip();
 	CreateHUDTerminal();
@@ -130,7 +132,7 @@ USGSaveGame* USGGameInstance::GetSaveGame() const
 	return SavedData;
 }
 
-void USGGameInstance::SavePlayerStats(struct FPlayerStats PlayerStats, const bool bAsync)
+void USGGameInstance::SavePlayerStats(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, const bool bAsync)
 {
 	if (!SavedData)
 	{
@@ -144,5 +146,6 @@ void USGGameInstance::SavePlayerStats(struct FPlayerStats PlayerStats, const boo
 		}
 	}
 	SavedData->PlayerStats = PlayerStats;
+	SavedData->UpgradeSystemSavedAttributes = UpgradeStats;
 	SaveGameData(bAsync);
 }
