@@ -92,13 +92,16 @@ void ASGPlayerCharacter::BeginPlay()
 
 	if (HealthComponent)
 	{
-		OnPlayerIsReady.Broadcast();
+		OnPlayerIsReady.Broadcast(this);
 	}
 
 	if (AmmoComponent)
 	{
 		OnAmmoComponentReady.Broadcast(AmmoComponent);
 	}
+
+	OnPlayerIsReady.Broadcast(this);
+
  }
 
 void ASGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

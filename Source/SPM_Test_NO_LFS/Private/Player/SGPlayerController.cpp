@@ -68,9 +68,9 @@ void ASGPlayerController::BeginPlay()
 			MainHUD->BindToAmmoEvents(AmmoComponent);
 		}
 	});
-	PlayerCharacter->OnPlayerIsReady.AddLambda([this]
+	PlayerCharacter->OnPlayerIsReady.AddLambda([this](ASGPlayerCharacter* PlayerChar)
 	{
-		if (USGHealthComponent* HealthComponent = PlayerCharacter->HealthComponent)
+		if (USGHealthComponent* HealthComponent = PlayerChar->HealthComponent)
 		{
 			HealthComponent->OnNoHealth.AddDynamic(this, &ASGPlayerController::EnableGameOver);
 			HealthComponent->OnHurt.AddDynamic(this, &ASGPlayerController::PlayTempDamageEffect);

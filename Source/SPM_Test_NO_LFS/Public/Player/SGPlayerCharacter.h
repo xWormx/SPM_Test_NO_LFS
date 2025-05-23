@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "SGPlayerCharacter.generated.h"
 
+class ASGPlayerCharacter;
 class USGCounterComponentAmmo;
 class USGCounterComponentOrbs;
 class USGCounterComponentHealth;
@@ -16,7 +17,7 @@ class ASGGun;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGrapplingHookReady, ASGGrapplingHook*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGunComponentReady, Ujola6902_GunsComponent*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoComponentReady, USGCounterComponentAmmo*);
-DECLARE_MULTICAST_DELEGATE(FOnPlayerIsReady);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerIsReady, ASGPlayerCharacter*);
 
 class ASGPlayerController;
 class USGSaveGame;
