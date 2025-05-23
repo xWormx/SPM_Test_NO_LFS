@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "GameFramework/Actor.h"
+#include "Objectives/SGObjectivePodArrival.h"
 #include "SGEnemySpawnManager.generated.h"
 
 class ASGEnemySpawnPoint;
@@ -62,6 +63,7 @@ private:
 	const ASGEnemySpawnPoint* GetRandomSpawnPoint(TArray<AActor*> SpawnPointArray) const;
 	const TSubclassOf<ASGEnemyCharacter> GetRandomEnemyType() const;
 	void CheckIfDespawnCandidate(ASGEnemyCharacter* Enemy);
+	//void ClearAllEnemies();
 	
 	UFUNCTION()
 	void HandleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -69,20 +71,19 @@ private:
 	UFUNCTION()
 	void HandleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	UFUNCTION()
-	void HandleDefendEventStart();
-	UFUNCTION()
-	void HandleDefendEventEnd(UObject* ObjectiveInterfaceImplementor);
 
 	// First Mission
 	UFUNCTION()
-	void HandleFirstMissionStart(EObjectiveType ObjectiveType);
+	void HandleMissionStart(EObjectiveType ObjectiveType);
 	UFUNCTION()
-	void HandleFirstMissionEnd(EObjectiveType ObjectiveType);
-	class USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem;
-	bool bFirstMissionCompleted = false;
+	void HandleMissionEnd(EObjectiveType ObjectiveType);
+	//UFUNCTION()
+	//void HandleOnWaitForPodEventStart();
+	USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem;
+	int32 MissionsCompleted = 0;
 	FOnObjectiveStartedWithType OnObjectiveStartedWithType;
 	FOnObjectiveCompletedWithType OnObjectiveCompletedWithType;
+	FOnWaitForPodEventStart OnWaitForPodEventStart;
 	
 	bool bSpawningIsActive = false;
 	TArray<AActor*> AllEnemySpawnPoints;
