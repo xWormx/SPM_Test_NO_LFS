@@ -90,7 +90,15 @@ void ASGPlayerCharacter::BeginPlay()
 		OnGunComponentReady.Broadcast(GunsComponent);
 	}
 
-	OnPlayerIsReady.Broadcast();
+	if (HealthComponent)
+	{
+		OnPlayerIsReady.Broadcast();
+	}
+
+	if (AmmoComponent)
+	{
+		OnAmmoComponentReady.Broadcast(AmmoComponent);
+	}
  }
 
 void ASGPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

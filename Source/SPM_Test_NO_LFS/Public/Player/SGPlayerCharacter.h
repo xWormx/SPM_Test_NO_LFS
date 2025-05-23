@@ -15,11 +15,11 @@ class ASGGun;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGrapplingHookReady, ASGGrapplingHook*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnGunComponentReady, Ujola6902_GunsComponent*);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoComponentReady, USGCounterComponentAmmo*);
 DECLARE_MULTICAST_DELEGATE(FOnPlayerIsReady);
 
 class ASGPlayerController;
 class USGSaveGame;
-
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGPlayerCharacter : public ACharacter
@@ -71,6 +71,7 @@ public:
 	FOnPlayerIsReady OnPlayerIsReady;
 	FOnGunComponentReady OnGunComponentReady;
 	FOnGrapplingHookReady OnGrapplingHookReady;
+	FOnAmmoComponentReady OnAmmoComponentReady;
 
 	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons")
 	Ujola6902_GunsComponent* GunsComponent;

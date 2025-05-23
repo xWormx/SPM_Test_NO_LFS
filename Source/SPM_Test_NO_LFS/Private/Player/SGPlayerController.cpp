@@ -36,7 +36,7 @@ int32 ASGPlayerController::GetScorePoint() const
 void ASGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	PlayerCharacter = GetValidPlayerCharacter();
 	if (!PlayerCharacter)
 	{
@@ -61,18 +61,24 @@ void ASGPlayerController::BeginPlay()
 		}
 	});
 
-	PlayerCharacter->OnPlayerIsReady.AddLambda([&]
+	PlayerCharacter->OnAmmoComponentReady.AddLambda([MainHUD](USGCounterComponentAmmo* AmmoComponent)
+	{
+		if (MainHUD && AmmoComponent)
+		{
+			MainHUD->BindToAmmoEvents(AmmoComponent);
+		}
+	});
+	PlayerCharacter->OnPlayerIsReady.AddLambda([this]
 	{
 		if (USGHealthComponent* HealthComponent = PlayerCharacter->HealthComponent)
 		{
 			HealthComponent->OnNoHealth.AddDynamic(this, &ASGPlayerController::EnableGameOver);
 			HealthComponent->OnHurt.AddDynamic(this, &ASGPlayerController::PlayTempDamageEffect);
 		}
-		if (PlayerCharacter->AmmoComponent)
+		/*if (PlayerCharacter->AmmoComponent)
 		{
 			MainHUD->BindToAmmoEvents(PlayerCharacter->AmmoComponent);
-		}
-		
+		}*/
 	});
 	//TODO: Överväg att flytta till SGPlayerCharacter
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
