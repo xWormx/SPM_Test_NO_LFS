@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Border.h"
 #include "SGWeaponEntry.generated.h"
 
 class UTextBlock;
@@ -16,6 +17,9 @@ public:
 	virtual void NativeConstruct() override;
 
 protected:
+	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess="true"))
+	TObjectPtr<UBorder> EmptyAmmoBorder;
+
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget, AllowPrivateAccess="true"))
 	TObjectPtr<UImage> WeaponIcon;
 
