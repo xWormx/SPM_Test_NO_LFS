@@ -53,13 +53,12 @@ void USGWeaponsHUD::ConstructWeaponEntries(const TArray<FWeaponData*>& WeaponDat
 
 void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 {
-	EMMA_LOG(Log, TEXT("❤️SetAvailableWeapons"));
-
 	if (WeaponEntries.Num() == 0)
 	{
-		EMMA_LOG(Error, TEXT("❤️WeaponEntries is empty"));
 		return;
 	}
+
+	// Assign weapons to entries
 	for (int i = 0; i < WeaponEntries.Num(); ++i)
 	{
 		if (!Weapons.IsValidIndex(i))
@@ -70,7 +69,6 @@ void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 		ASGGun* Gun = Weapons[i];
 		if (!WeaponEntry || !Gun)
 		{
-			EMMA_LOG(Error, TEXT("❤️WeaponEntry or Gun is null"));
 			continue;
 		}
 		FText WeaponName = Gun->GetWeaponDisplayName();
@@ -91,8 +89,20 @@ void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 		FName WeaponNameKey = FName(*WeaponName.ToString());
 		WeaponEntriesMap.Add(WeaponNameKey, WeaponEntry);
 	}
-}
 
+	// Remove entries without assigned weapons (iterate in reverse)
+	for (int i = WeaponEntries.Num() - 1; i >= 0; --i)
+	{
+		if (!Weapons.IsValidIndex(i) || !Weapons[i])
+		{
+			if (WeaponEntries[i])
+			{
+				WeaponEntries[i]->RemoveFromParent();
+			}
+			WeaponEntries.RemoveAt(i);
+		}
+	}
+}
 void USGWeaponsHUD::ChangeWeapon(const int32 WeaponIndex, ASGGun* Gun)
 {
 	if (!WeaponEntries.IsValidIndex(WeaponIndex))
@@ -100,10 +110,6 @@ void USGWeaponsHUD::ChangeWeapon(const int32 WeaponIndex, ASGGun* Gun)
 		EMMA_LOG(Error, TEXT("❤️WeaponIndex is out of range %d"), WeaponIndex);
 		return;
 	}
-
-	FColor SelectedColor = FColor::White;
-	FColor UnselectedColor = FColor(128, 128, 128);
-
 	for (int32 i = 0; i < WeaponEntries.Num(); ++i)
 	{
 		USGWeaponEntry* WeaponEntry = WeaponEntries[i];
