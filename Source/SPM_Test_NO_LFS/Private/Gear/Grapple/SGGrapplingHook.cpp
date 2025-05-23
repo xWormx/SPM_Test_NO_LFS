@@ -221,9 +221,24 @@ bool ASGGrapplingHook::GrappleTrace(FHitResult& OutHitResult, AController* Contr
 	Head->SetActorRotation(ViewRotation);
 	//DrawDebugPoint(GetWorld(), TraceEnd, 25, FColor::Red, false, 8);
 	// Detta är basically SphereTraceByChannel
-	return GetWorld()->SweepSingleByChannel(OutHitResult, ViewLocation, TraceEnd,
+
+	
+
+	// LineTrace för att kunna hooka när man är nära väggar
+	FHitResult LineHitResult;
+	bool LineHit = GetWorld()->LineTraceSingleByChannel(LineHitResult,ViewLocation, TraceEnd,
+														ECC_GameTraceChannel1);
+
+	// SphereTrace för att det ska vara lättare att träffa med hooken
+	bool SphereHitResult = GetWorld()->SweepSingleByChannel(OutHitResult, ViewLocation, TraceEnd,
 												FQuat::Identity, ECC_GameTraceChannel1,
 													FCollisionShape::MakeSphere(30));
+
+	// Om LineHit träffar vill vi alltid anden för mer preciserad hook
+	if (LineHit)
+		OutHitResult = LineHitResult;
+	
+	return (LineHit || SphereHitResult);
 }
 
 void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
