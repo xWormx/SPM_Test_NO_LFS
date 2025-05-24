@@ -1,7 +1,6 @@
 #include "Player/SGPlayerCharacter.h"
 
 #include "jola6902_GunsComponent.h"
-#include "SPM_Test_NO_LFS.h"
 
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Camera/CameraComponent.h"
@@ -10,8 +9,6 @@
 #include "Components/Counters/SGCounterComponentAmmo.h"
 #include "Components/Counters/SGCounterComponentHealth.h"
 #include "Components/Counters/SGCounterComponentOrbs.h"
-
-#include "Core/SGGameInstance.h"
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -81,24 +78,10 @@ void ASGPlayerCharacter::BeginPlay()
 		GrapplingHook->AddActorLocalRotation(FRotator(0, 180, 0));
 		GrapplingHook->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
 		GrapplingHook->SetOwner(this);
-		OnGrapplingHookReady.Broadcast(GrapplingHook);
 	}
 
-	if (GunsComponent)
-	{
-		OnGunComponentReady.Broadcast(GunsComponent);
-	}
 
-	if (HealthComponent)
-	{
-		OnPlayerIsReady.Broadcast(this);
-	}
-
-	if (AmmoComponent)
-	{
-		OnAmmoComponentReady.Broadcast(AmmoComponent);
-	}
-
+	//Used by the PlayerController to bind the HUD to the PlayerCharacter's components, which waits until the PlayerCharacter is ready.
 	OnPlayerIsReady.Broadcast(this);
 }
 

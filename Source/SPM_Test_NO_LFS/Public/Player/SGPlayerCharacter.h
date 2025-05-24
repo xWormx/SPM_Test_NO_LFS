@@ -14,9 +14,6 @@ class Ujola6902_GunsComponent;
 class ASGGrapplingHook;
 class ASGGun;
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnGrapplingHookReady, ASGGrapplingHook*);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnGunComponentReady, Ujola6902_GunsComponent*);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoComponentReady, USGCounterComponentAmmo*);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerIsReady, ASGPlayerCharacter*);
 
 class ASGPlayerController;
@@ -70,12 +67,12 @@ private:
 
 public:
 	FOnPlayerIsReady OnPlayerIsReady;
-	FOnGunComponentReady OnGunComponentReady;
-	FOnGrapplingHookReady OnGrapplingHookReady;
-	FOnAmmoComponentReady OnAmmoComponentReady;
 
 	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons")
 	Ujola6902_GunsComponent* GunsComponent;
+
+	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons")
+	USGCounterComponentAmmo* AmmoComponent;
 
 	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | GrapplingHook", meta = (ToolTip = "Created during BeginPlay"))
 	ASGGrapplingHook* GrapplingHook;
@@ -88,9 +85,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Orbs")
 	USGCounterComponentOrbs* OrbsComponent;
-
-	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons")
-	USGCounterComponentAmmo* AmmoComponent;
 
 public:
 //----Start: Added by Basir

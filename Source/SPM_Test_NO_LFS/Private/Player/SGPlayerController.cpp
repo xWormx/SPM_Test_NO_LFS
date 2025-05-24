@@ -13,26 +13,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "UI/SGMainHUD.h"
 
-void ASGPlayerController::UpgradeScorePoint()
-{
-	ScorePoint += KillScorePoint;
-}
-
-void ASGPlayerController::ClearScorePoint()
-{
-	ScorePoint = 0;
-}
-
-void ASGPlayerController::SetScorePoint(int32 NewScorePoint)
-{
-	ScorePoint = NewScorePoint;
-}
-
-int32 ASGPlayerController::GetScorePoint() const
-{
-	return ScorePoint;
-}
-
 void ASGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -42,45 +22,43 @@ void ASGPlayerController::BeginPlay()
 	{
 		return;
 	}
-	//PlayerCharacter->GetCharacterMovement()->AirControl = 1.f;
 
-	ASGMainHUD* MainHUD = Cast<ASGMainHUD>(GetHUD());
-	PlayerCharacter->OnGrapplingHookReady.AddLambda([MainHUD](ASGGrapplingHook* GrapplingHook)
+	/* In shipping builds, the PlayerController is created first, then the HUD, and then the PlayerCharacter.
+	 * At this point, PlayerCharacter isn't null because the pawn has been spawned and possessed, but its BeginPlay hasn't yet completed.
+	 * Sooo basically, we wait until the PlayerCharacter (and its components) are ready before binding the HUD to its components different events.*/
+	PlayerCharacter->OnPlayerIsReady.AddLambda([this](ASGPlayerCharacter* CurrentPlayer)
 	{
-		if (MainHUD && GrapplingHook)
-		{
-			MainHUD->BindToGrappleEvents(GrapplingHook);
-		}
-	});
+		ASGMainHUD* MainHUD = Cast<ASGMainHUD>(GetHUD());
 
-	PlayerCharacter->OnGunComponentReady.AddLambda([MainHUD](Ujola6902_GunsComponent* GunsComponent)
-	{
-		if (MainHUD && GunsComponent)
+		if (!MainHUD)
 		{
-			MainHUD->BindWeaponEvents(GunsComponent);
+			return;
 		}
-	});
 
-	PlayerCharacter->OnAmmoComponentReady.AddLambda([MainHUD](USGCounterComponentAmmo* AmmoComponent)
-	{
-		if (MainHUD && AmmoComponent)
+		if (CurrentPlayer->GrapplingHook)
 		{
-			MainHUD->BindToAmmoEvents(AmmoComponent);
+			MainHUD->BindToGrappleEvents(CurrentPlayer->GrapplingHook);
 		}
-	});
-	PlayerCharacter->OnPlayerIsReady.AddLambda([this](ASGPlayerCharacter* PlayerChar)
-	{
-		if (USGHealthComponent* HealthComponent = PlayerChar->HealthComponent)
+
+		if (CurrentPlayer->GunsComponent)
 		{
+			MainHUD->BindWeaponEvents(CurrentPlayer->GunsComponent);
+		}
+
+		if (CurrentPlayer->AmmoComponent)
+		{
+			MainHUD->BindToAmmoEvents(CurrentPlayer->AmmoComponent);
+		}
+
+		if (CurrentPlayer->HealthComponent)
+		{
+			USGHealthComponent* HealthComponent = CurrentPlayer->HealthComponent;
 			HealthComponent->OnNoHealth.AddDynamic(this, &ASGPlayerController::EnableGameOver);
 			HealthComponent->OnHurt.AddDynamic(this, &ASGPlayerController::PlayTempDamageEffect);
 		}
-		/*if (PlayerCharacter->AmmoComponent)
-		{
-			MainHUD->BindToAmmoEvents(PlayerCharacter->AmmoComponent);
-		}*/
 	});
-	//TODO: Överväg att flytta till SGPlayerCharacter
+
+	//TODO: Consider moving this to SGPlayerCharacter
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
 		const FName MovementSpeed = TEXT("MoveSpeed");
@@ -123,21 +101,7 @@ void ASGPlayerController::SetupInputComponent()
 	InputSubsystem->AddMappingContext(InputMapping, 0);
 }
 
-void ASGPlayerController::SetCanInteractWithTerminal(const bool bInteract)
-{
-	bCanInteractWithTerminal = bInteract;
-}
-
-void ASGPlayerController::SetWantToInteractWithTerminal(const bool bInteract)
-{
-	bWantToInteract = bInteract;
-}
-
-bool ASGPlayerController::CanInteractWithTerminal() const
-{
-	return bCanInteractWithTerminal;
-}
-
+//---- MOVEMENT
 void ASGPlayerController::Move(const FInputActionValue& Value)
 {
 	if (!GetValidPlayerCharacter())
@@ -193,6 +157,7 @@ void ASGPlayerController::Grapple([[maybe_unused]] const FInputActionValue& Valu
 	PlayerCharacter->GrapplingHook->FireGrapple();
 }
 
+//---- HELPERS
 ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()
 {
 	if (!PlayerCharacter)
@@ -205,7 +170,24 @@ ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()
 	return PlayerCharacter;
 }
 
-//Added by Basir 
+//---- TERMINAL INTERACTION
+void ASGPlayerController::SetCanInteractWithTerminal(const bool bInteract)
+{
+	bCanInteractWithTerminal = bInteract;
+}
+
+void ASGPlayerController::SetWantToInteractWithTerminal(const bool bInteract)
+{
+	bWantToInteract = bInteract;
+}
+
+bool ASGPlayerController::CanInteractWithTerminal() const
+{
+	return bCanInteractWithTerminal;
+}
+
+
+//---- Added by Basir
 void ASGPlayerController::PauseGame()
 {
 	SetPause(true);
@@ -272,4 +254,24 @@ void ASGPlayerController::RemoveDamageEffect()
 	{
 		TempDamageEffect->RemoveFromParent();
 	}
+}
+
+void ASGPlayerController::UpgradeScorePoint()
+{
+	ScorePoint += KillScorePoint;
+}
+
+void ASGPlayerController::ClearScorePoint()
+{
+	ScorePoint = 0;
+}
+
+void ASGPlayerController::SetScorePoint(int32 NewScorePoint)
+{
+	ScorePoint = NewScorePoint;
+}
+
+int32 ASGPlayerController::GetScorePoint() const
+{
+	return ScorePoint;
 }

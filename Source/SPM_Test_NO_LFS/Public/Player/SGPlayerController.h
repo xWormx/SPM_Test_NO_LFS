@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -21,9 +19,6 @@ class SPM_TEST_NO_LFS_API ASGPlayerController : public APlayerController
 
 public:
 	virtual void SetupInputComponent() override;
-	void SetCanInteractWithTerminal(const bool bInteract);
-	void SetWantToInteractWithTerminal(const bool bInteract);
-	bool CanInteractWithTerminal() const;
 
 //----Start: Added by Basir
 	void UpgradeScorePoint();
@@ -67,8 +62,11 @@ private:
 	bool bWantToInteract = false;
 
 public:
-
 	FOnInteract OnInteract;
+
+	void SetCanInteractWithTerminal(const bool bInteract);
+	void SetWantToInteractWithTerminal(const bool bInteract);
+	bool CanInteractWithTerminal() const;
 
 private:
 
