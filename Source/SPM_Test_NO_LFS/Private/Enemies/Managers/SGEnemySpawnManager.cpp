@@ -20,7 +20,8 @@ ASGEnemySpawnManager::ASGEnemySpawnManager()
 	DespawnTriggerSphere->SetSphereRadius(DespawnTriggerRadius);
 	DespawnTriggerSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	DespawnTriggerSphere->SetCollisionResponseToAllChannels(ECR_Ignore);
-	DespawnTriggerSphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	DespawnTriggerSphere->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Overlap);
+	DespawnTriggerSphere->SetCollisionResponseToChannel(ECC_EngineTraceChannel5, ECR_Overlap);
 	DespawnTriggerSphere->SetGenerateOverlapEvents(true);
 	DespawnTriggerSphere->SetHiddenInGame(true);
 	DespawnTriggerSphere->bDrawOnlyIfSelected = false;
