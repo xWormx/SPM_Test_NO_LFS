@@ -69,13 +69,10 @@ void ASGMainHUD::BindWeaponEvents(Ujola6902_GunsComponent* GunsComponent)
 
 void ASGMainHUD::BindToAmmoEvents(USGCounterComponentAmmo* AmmoComponent)
 {
-	/*
 	if (!AmmoComponent)
 	{
 		return;
 	}
-	*/
-
 	if (!WeaponsWidget.IsValid() || WeaponsWidget.IsStale())
 	{
 		WeaponsWidget = CreateAndAddToViewPort<USGWeaponsHUD>(WeaponsClass);
