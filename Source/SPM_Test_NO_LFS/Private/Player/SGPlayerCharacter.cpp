@@ -131,17 +131,25 @@ FPlayerStats ASGPlayerCharacter::GetPlayerStats()
 	{
 		PlayerStats.ScorePoints = PlayerController->GetScorePoint();
 	}
+	else
+	{
+		PlayerStats.ScorePoints = 0;
+	}
 	
 	if (HealthComponent)
 	{
 		PlayerStats.Health = HealthComponent->GetCurrentHealth();
+	}
+	else
+	{
+		PlayerStats.Health = 0;
 	}
 	return PlayerStats;
 }
 
 void ASGPlayerCharacter::UseSavedGame(FPlayerStats SavedStats)
 {
-	//SetActorTransform(SavedStats.PlayerTransform);
+	SetActorTransform(SavedStats.PlayerTransform);
 	if (PlayerController)
 	{
 		PlayerController->SetScorePoint(SavedStats.ScorePoints);

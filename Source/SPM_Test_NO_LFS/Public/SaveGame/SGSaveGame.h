@@ -10,6 +10,13 @@ USTRUCT(Blueprintable)
 struct FPlayerStats
 {
 	GENERATED_BODY()
+
+	FPlayerStats()
+	{
+		PlayerTransform = FTransform::Identity;
+		ScorePoints = 0;
+		Health = 0;
+	}
 	
 	UPROPERTY(EditAnywhere)
 	FTransform PlayerTransform;
