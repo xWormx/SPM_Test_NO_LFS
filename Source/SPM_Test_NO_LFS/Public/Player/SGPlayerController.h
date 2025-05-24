@@ -73,7 +73,10 @@ private:
 	UPROPERTY()
 	ASGPlayerCharacter* PlayerCharacter;
 
-	UPROPERTY(EditAnywhere, Category = "UProperty - Player | Input")
+	UPROPERTY(EditAnywhere, Category = "UProperty - Player | Input ", meta = (AllowPrivateAccess = "true", ToolTip = "Mouse sensitivity for looking around. Higher values mean faster camera movement."))
+	float MouseSensitivity = 0.75f;
+
+	UPROPERTY(EditAnywhere, Category = "UProperty - Player | Input ")
 	class UInputMappingContext* InputMapping;
 
 	// INPUT

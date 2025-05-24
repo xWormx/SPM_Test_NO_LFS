@@ -79,7 +79,7 @@ void ASGPlayerController::SetupInputComponent()
 
 	// Movement
 	Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Move);
-	Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Jump);
+	Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, PlayerCharacter, &ACharacter::Jump);
 	Input->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::LookAround);
 	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Grapple);
 
@@ -143,8 +143,8 @@ void ASGPlayerController::LookAround(const FInputActionValue& Value)
 	}
 
 	FVector2D AxisValue2D = Value.Get<FVector2D>();
-	PlayerCharacter->AddControllerPitchInput(AxisValue2D.Y);
-	PlayerCharacter->AddControllerYawInput(AxisValue2D.X);
+	PlayerCharacter->AddControllerPitchInput(AxisValue2D.Y * MouseSensitivity);
+	PlayerCharacter->AddControllerYawInput(AxisValue2D.X * MouseSensitivity);
 }
 
 void ASGPlayerController::Grapple([[maybe_unused]] const FInputActionValue& Value)
@@ -165,7 +165,6 @@ ASGPlayerCharacter* ASGPlayerController::GetValidPlayerCharacter()
 		PlayerCharacter = Cast<ASGPlayerCharacter>(GetPawn());
 		ensure(PlayerCharacter);
 	}
-
 
 	return PlayerCharacter;
 }
