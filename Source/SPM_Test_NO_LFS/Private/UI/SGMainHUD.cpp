@@ -7,6 +7,7 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "UI/Widgets/SGWeaponsHUD.h"
 #include "Gear/Weapons/SGGun.h"
+#include "UI/Widgets/SGDifficultyBarWidget.h"
 
 void ASGMainHUD::BeginPlay()
 {
@@ -25,6 +26,11 @@ void ASGMainHUD::BeginPlay()
 	if (!HUDWidget.IsValid())
 	{
 		HUDWidget = CreateAndAddToViewPort<UUserWidget>(HUDClass);
+	}
+
+	if (!DifficultyWidget.IsValid())
+	{
+		DifficultyWidget = CreateAndAddToViewPort<USGDifficultyBarWidget>(DifficultyClass);
 	}
 }
 

@@ -15,6 +15,8 @@ void USGGameInstance::Init()
 
 	CreateObjectiveToolTip();
 	CreateHUDTerminal();
+
+	OnDifficultyIncreased.AddDynamic(this, &USGGameInstance::IncreaseDifficultyLevel);
 	
 	EMMA_LOG(Warning, TEXT("Här är Emmas Log!"));
 	BASIR_LOG(Warning, TEXT("Här är Basirs Log!"));

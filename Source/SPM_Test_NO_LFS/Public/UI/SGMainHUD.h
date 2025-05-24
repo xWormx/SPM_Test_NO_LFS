@@ -5,6 +5,7 @@
 #include "GameFramework/HUD.h"
 #include "SGMainHUD.generated.h"
 
+class USGDifficultyBarWidget;
 class USGCounterComponentAmmo;
 class USGWeaponsHUD;
 class USGTerminalWidget;
@@ -60,12 +61,19 @@ protected:
 
 //------------HUD------------
 	//----CONTAINER
-	UPROPERTY(EditDefaultsOnly, Category = "Uproperty - HUD")
+	UPROPERTY(EditAnywhere, Category = "Uproperty - HUD")
 	TSubclassOf<UUserWidget> HUDClass;
 
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<UUserWidget> HUDWidget;
+	
+//----DIFFICULTY BAR
+	UPROPERTY(EditAnywhere, Category = "Uproperty - HUD")
+	TSubclassOf<USGDifficultyBarWidget> DifficultyClass;
 
+	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
+	TWeakObjectPtr<USGDifficultyBarWidget> DifficultyWidget;
+	
 public:
 
 //----GRAPPLING
