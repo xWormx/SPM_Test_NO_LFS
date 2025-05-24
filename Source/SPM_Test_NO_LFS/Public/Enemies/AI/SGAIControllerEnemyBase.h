@@ -35,9 +35,6 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void SetAttackTarget(AActor* NewAttackTarget);
-
-	UFUNCTION(BlueprintCallable)
-	virtual void SetControlledCharacter(ASGEnemyCharacter* NewControlledEnemy);
 	
 	UFUNCTION(BlueprintCallable)
 	virtual float GetAcceptanceRadius() const;
@@ -56,7 +53,8 @@ protected:
 
 	UPROPERTY(EditAnywhere,  Category= "Combat", meta = (AllowPrivateAccess = true))
 	TObjectPtr<AActor> AttackTarget;
-	
+
+	UPROPERTY(EditAnywhere, Category= "Combat", meta = (AllowPrivateAccess = true))
 	TObjectPtr<ASGEnemyCharacter> ControlledEnemy;
 
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))

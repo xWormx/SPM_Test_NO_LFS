@@ -14,6 +14,7 @@
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemyBase::BeginPlay()
@@ -77,12 +78,6 @@ void ASGAIControllerEnemyBase::SetAttackTarget(AActor* NewAttackTarget)
 {
 	AttackTarget = NewAttackTarget;
 }
-
-void ASGAIControllerEnemyBase::SetControlledCharacter(ASGEnemyCharacter* NewControlledEnemy)
-{
-	ControlledEnemy = NewControlledEnemy;
-}
-
 
 float ASGAIControllerEnemyBase::GetAcceptanceRadius() const
 {
@@ -208,13 +203,10 @@ void ASGAIControllerEnemyBase::SetInitialValues()
 
 void ASGAIControllerEnemyBase::UpdatePatrolPoints()
 {
-	for (AActor* Target : PatrolPoints)
+	PatrolPoints.RemoveAll( [this] (AActor* PatrolPoint)
 	{
-		if (!CanReachTarget(Target))
-		{
-			PatrolPoints.Remove(Target);
-		}
-	}
+		return !CanReachTarget(PatrolPoint);
+	});
 }
 
 ASGEnemyPatrolPoint* ASGAIControllerEnemyBase::GetPatrolPoint()
