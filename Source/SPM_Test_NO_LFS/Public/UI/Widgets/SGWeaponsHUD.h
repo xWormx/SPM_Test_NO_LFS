@@ -31,6 +31,7 @@ public:
 
 	UFUNCTION()
 	void UpdateAmmo(int32 AmmoAmount, ASGGun* Gun);
+	void UpdateEntryAmmo(int32 AmmoClip, USGWeaponEntry* WeaponEntry);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapons")
 	void UpdWeaponName(const FText& Name);

@@ -1,7 +1,6 @@
 #include "UI/Widgets/SGWeaponsHUD.h"
 
 #include "SPM_Test_NO_LFS.h"
-#include "Components/HorizontalBox.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
@@ -18,7 +17,6 @@ void USGWeaponsHUD::NativeConstruct()
 
 	if (!WeaponsDataTable)
 	{
-		EMMA_LOG(Error, TEXT("❤️WeaponDataTable is null"));
 		return;
 	}
 
@@ -39,11 +37,9 @@ void USGWeaponsHUD::ConstructWeaponEntries(const TArray<FWeaponData*>& WeaponDat
 	{
 		if (!Data)
 		{
-			EMMA_LOG(Error, TEXT("❤️WeaponData is null"));
 			continue;
 		}
 
-		EMMA_LOG(Log, TEXT("❤️WeaponData"));
 		USGWeaponEntry* WeaponEntry = CreateWidget<USGWeaponEntry>(this, EntryTileClass.Get());
 		WeaponEntry->WeaponIcon->SetBrushFromTexture(Data->WeaponIcon.LoadSynchronous());
 		WeaponEntriesBox->AddChild(WeaponEntry);
@@ -58,7 +54,6 @@ void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 		return;
 	}
 
-	// Assign weapons to entries
 	for (int i = 0; i < WeaponEntries.Num(); ++i)
 	{
 		if (!Weapons.IsValidIndex(i))
@@ -76,17 +71,18 @@ void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 		const int32 AmmoStock = Gun->GetAmmoStock();
 
 		WeaponEntry->WeaponNameTextBlock->SetText(WeaponName);
-		WeaponEntry->AmmoClipTextBlock->SetText(GetAmmoClipText(AmmoClip));
-		WeaponEntry->EmptyAmmoBorder->SetBrushColor(GetAmmoColor(AmmoClip));
-		if (AmmoStock >= 0)
-		{
-			WeaponEntry->AmmoStockTextBlock->SetVisibility(ESlateVisibility::Collapsed);
-		}
-		else
+		UpdateEntryAmmo(AmmoClip, WeaponEntry);
+
+		if (AmmoStock < 0)
 		{
 			static const FText InfiniteAmmoStock = FText::FromString(TEXT("/∞"));
 			WeaponEntry->AmmoStockTextBlock->SetText(InfiniteAmmoStock);
 		}
+		else
+		{
+			WeaponEntry->AmmoStockTextBlock->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
 		FName WeaponNameKey = FName(*WeaponName.ToString());
 		WeaponEntriesMap.Add(WeaponNameKey, WeaponEntry);
 	}
@@ -96,6 +92,7 @@ void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 	{
 		if (!Weapons.IsValidIndex(i) || !Weapons[i])
 		{
+			//Alternatively use Visibility::Collapsed if spot should be used for e.g. Lenade Grauncher
 			if (WeaponEntries[i])
 			{
 				WeaponEntries[i]->RemoveFromParent();
@@ -104,7 +101,8 @@ void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 		}
 	}
 }
-void USGWeaponsHUD::ChangeWeapon(const int32 WeaponIndex, ASGGun* Gun)
+
+void USGWeaponsHUD::ChangeWeapon(const int32 WeaponIndex, [[maybe_unused]] ASGGun* Gun)
 {
 	if (!WeaponEntries.IsValidIndex(WeaponIndex))
 	{
@@ -134,13 +132,10 @@ void USGWeaponsHUD::UpdateWeapon(int32 WeaponIndex, ASGGun* Gun)
 		return;
 	}
 
-	WeaponEntry->AmmoClipTextBlock->SetText(GetAmmoClipText(Gun->GetAmmoClip()));
-//	WeaponEntry->AmmoClipTextBlock->SetColorAndOpacity(GetAmmoColor(Gun->GetAmmoClip()));
-	WeaponEntry->EmptyAmmoBorder->SetBrushColor(GetAmmoColor(Gun->GetAmmoClip()));
-
+	UpdateEntryAmmo(Gun->GetAmmoClip(), WeaponEntry.Get());
 }
 
-void USGWeaponsHUD::UpdateAmmo(int32 AmmoAmount, ASGGun* Gun)
+void USGWeaponsHUD::UpdateAmmo([[maybe_unused]] int32 AmmoAmount, ASGGun* Gun)
 {
 	FName WeaponNameKey = FName(*Gun->GetWeaponDisplayName().ToString());
 	TObjectPtr<USGWeaponEntry>* WeaponEntry = WeaponEntriesMap.Find(WeaponNameKey);
@@ -151,19 +146,24 @@ void USGWeaponsHUD::UpdateAmmo(int32 AmmoAmount, ASGGun* Gun)
 
 	WeaponEntry->Get()->SetIsEnabled(true);
 	const int32 ClipAmmo = Gun->GetAmmoClip();
-	WeaponEntry->Get()->AmmoStockTextBlock->SetText(GetAmmoClipText(ClipAmmo));
-//	WeaponEntry->Get()->AmmoStockTextBlock->SetColorAndOpacity(GetAmmoColor(ClipAmmo));
-	WeaponEntry->Get()->EmptyAmmoBorder->SetBrushColor(GetAmmoColor(ClipAmmo));
+	UpdateEntryAmmo(ClipAmmo, WeaponEntry->Get());
 	WeaponEntry->Get()->SetIsEnabled(false);
-
 }
 
+void USGWeaponsHUD::UpdateEntryAmmo(const int32 AmmoClip, USGWeaponEntry* WeaponEntry)
+{
+	if (!WeaponEntry)
+	{
+		return;
+	}
+	WeaponEntry->AmmoClipTextBlock->SetText(GetAmmoClipText(AmmoClip));
+	WeaponEntry->EmptyAmmoBorder->SetBrushColor(GetAmmoColor(AmmoClip));
+}
 FColor USGWeaponsHUD::GetAmmoColor(const int32 ClipAmmo)
 {
-	//static constexpr FColor GrayColor = FColor(128, 128, 128);
-	static constexpr FColor RedColor = FColor(255, 0, 0, 45);
-	static constexpr FColor Transparent = FColor(0, 0, 0, 45);
-	return ClipAmmo != 0 ? Transparent : RedColor;
+	static constexpr FColor OutOfAmmoColor = FColor(255, 0, 0, 45);
+	static constexpr FColor DefaultColor = FColor(0, 0, 0, 45);
+	return ClipAmmo != 0 ? DefaultColor : OutOfAmmoColor;
 }
 
 FText USGWeaponsHUD::GetAmmoClipText(const int32 ClipAmmo)
