@@ -30,7 +30,7 @@ ASGEnemyProjectile::ASGEnemyProjectile()
 	ProjectileMovement->InitialSpeed = MaxSpeed;
 	ProjectileMovement->MaxSpeed = MaxSpeed;
 	ProjectileMovement->bRotationFollowsVelocity = true;
-	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->bShouldBounce = false;
 
 	InitialLifeSpan = LifeSpan;
 
@@ -47,11 +47,6 @@ void ASGEnemyProjectile::BeginPlay()
 void ASGEnemyProjectile::OnProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->ActorHasTag("Projectile") || OtherActor->ActorHasTag("Enemy"))
-	{
-		return;
-	}
-
 	if (OtherActor)
 	{
 		UGameplayStatics::ApplyDamage(OtherActor, Damage, GetOwner()->GetInstigatorController(), this, DamageTypeClass);

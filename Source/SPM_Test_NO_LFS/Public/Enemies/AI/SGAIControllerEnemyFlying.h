@@ -58,8 +58,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float HoverInterpSpeed = 5.0f;
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	TArray<AActor*> MoveToPoints;
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	ASGEnemyMoveToPoint* CurrentMoveToPoint = nullptr;
 
 	bool bHasFoundTarget = true;
@@ -69,5 +71,4 @@ private:
 	struct FTimerHandle HoverZTimerHandle;
 
 	FVector CurrentLocation;
-	
 };
