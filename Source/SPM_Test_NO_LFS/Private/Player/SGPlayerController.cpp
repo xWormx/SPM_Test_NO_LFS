@@ -79,7 +79,7 @@ void ASGPlayerController::SetupInputComponent()
 
 	// Movement
 	Input->BindAction(MoveInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Move);
-	Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, PlayerCharacter, &ACharacter::Jump);
+	Input->BindAction(JumpInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Jump);
 	Input->BindAction(LookAroundInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::LookAround);
 	Input->BindAction(GrappleInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Grapple);
 

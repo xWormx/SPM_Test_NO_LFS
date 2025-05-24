@@ -6,6 +6,7 @@
 
 #include "SGGameInstance.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDifficultyIncreased, int, NewDifficultLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameLoaded);
 
 class USGTerminalWidget;
@@ -39,11 +40,12 @@ private:
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 
 public:
+	FOnDifficultyIncreased OnDifficultyIncreased;
+	
 	UFUNCTION()
 	void IncreaseDifficultyLevel(int Difficulty);
 
 	//Saving functionality
-		//Functions
 	UFUNCTION(BlueprintCallable)
 	void LoadGameData(bool bAsync);
 
