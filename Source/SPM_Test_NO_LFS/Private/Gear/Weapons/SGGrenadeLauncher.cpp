@@ -1,3 +1,5 @@
+// Joel Larsson Wendt || jola6902
+
 #include "../../../Public/Gear/Weapons/SGGrenadeLauncher.h"
 #include "NiagaraFunctionLibrary.h"
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"

@@ -1,3 +1,5 @@
+// Joel Larsson Wendt || jola6902
+
 #pragma once
 
 #include "CoreMinimal.h"
