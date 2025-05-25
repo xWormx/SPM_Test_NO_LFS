@@ -1,3 +1,5 @@
+// Joel Larsson Wendt || jola6902
+
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"

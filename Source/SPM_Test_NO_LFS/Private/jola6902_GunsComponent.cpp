@@ -1,4 +1,4 @@
-// Joel Larsson Wendt | jola6902
+// Joel Larsson Wendt || jola6902
 
 #include "jola6902_GunsComponent.h"
 #include "Gear/Weapons/SGGun.h"

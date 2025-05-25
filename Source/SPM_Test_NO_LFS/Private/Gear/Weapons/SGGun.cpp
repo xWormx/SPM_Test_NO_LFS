@@ -1,3 +1,5 @@
+// Joel Larsson Wendt || jola6902
+
 #include "Gear/Weapons/SGGun.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
