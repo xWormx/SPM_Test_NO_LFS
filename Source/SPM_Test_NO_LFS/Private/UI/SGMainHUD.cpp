@@ -3,16 +3,23 @@
 #include "jola6902_GunsComponent.h"
 #include "SPM_Test_NO_LFS.h"
 #include "Components/Counters/SGCounterComponentAmmo.h"
+#include "Core/SGGameInstance.h"
+#include "Core/SGObjectiveHandlerSubSystem.h"
 #include "UI/Widgets/SGHUDGrapple.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "UI/Widgets/SGWeaponsHUD.h"
 #include "Gear/Weapons/SGGun.h"
+#include "Kismet/GameplayStatics.h"
+#include "Objectives/SGTerminal.h"
 #include "UI/Widgets/SGDifficultyBarWidget.h"
+
+static bool HasFirstQuestStarted = false;
 
 void ASGMainHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
+	HasFirstQuestStarted = false;
 	if (!GrappleCrossHairWidget.IsValid())
 	{
 		GrappleCrossHairWidget = CreateAndAddToViewPort<USGHUDGrapple>(GrappleCrossHairClass);
@@ -31,7 +38,22 @@ void ASGMainHUD::BeginPlay()
 	if (!DifficultyWidget.IsValid())
 	{
 		DifficultyWidget = CreateAndAddToViewPort<USGDifficultyBarWidget>(DifficultyClass);
+		DifficultyWidget->PauseDifficultyBar(true);
+		DifficultyWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::WaitForObjectiveToolTipAnimation);
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
+
+	Cast<USGGameInstance>(GetWorld()->GetGameInstance())->GetTerminalWidget()->OnVisibilityChanged.AddDynamic(this, &ASGMainHUD::OnTerminalVisibilityChanged);
+}
+
+void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
+	ObjectiveHandler->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::PlayAndShow);
+
+	Super::EndPlay(EndPlayReason);
 }
 
 void ASGMainHUD::BindToGrappleEvents(ASGGrapplingHook* GrapplingHook)
@@ -103,12 +125,13 @@ void ASGMainHUD::PauseAndHide()
 	{
 		HUDWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
-	if (DifficultyWidget.IsValid())
+	if (DifficultyWidget.IsValid() && HasFirstQuestStarted)
 	{
 		DifficultyWidget->PauseDifficultyBar(true);
 		DifficultyWidget->SetVisibility(ESlateVisibility::Hidden);
-
 	}
+
+	GetGameInstance<USGGameInstance>()->GetObjectiveTooltipWidget()->SetVisibility(ESlateVisibility::Hidden);
 
 }
 
@@ -126,11 +149,56 @@ void ASGMainHUD::PlayAndShow()
 	{
 		HUDWidget->SetVisibility(ESlateVisibility::Visible);
 	}
-	if (DifficultyWidget.IsValid())
+	if (DifficultyWidget.IsValid() && HasFirstQuestStarted)
 	{
 		DifficultyWidget->PauseDifficultyBar(false);
 		DifficultyWidget->SetVisibility(ESlateVisibility::Visible);
 	}
+    GetGameInstance<USGGameInstance>()->GetObjectiveTooltipWidget()->SetVisibility(ESlateVisibility::Visible);
+}
+
+void ASGMainHUD::OnTerminalVisibilityChanged(ESlateVisibility NewVisibility)
+{
+	if (NewVisibility == ESlateVisibility::Visible)
+	{
+		PauseAndHide();
+	}
+	else if (NewVisibility == ESlateVisibility::Hidden || NewVisibility == ESlateVisibility::Collapsed)
+	{
+		PlayAndShow();
+	}
+}
+
+void ASGMainHUD::StartDifficultyBar()
+{
+	HasFirstQuestStarted = true;
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::StartDifficultyBar);
+}
+
+void ASGMainHUD::WaitForObjectiveToolTipAnimation()
+{
+	//🤡
+	if (WeaponsWidget.IsValid())
+	{
+		WeaponsWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (GrappleCrossHairWidget.IsValid())
+	{
+		GrappleCrossHairWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (HUDWidget.IsValid())
+	{
+		HUDWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (DifficultyWidget.IsValid() && !HasFirstQuestStarted)
+	{
+		DifficultyWidget->PauseDifficultyBar(true);
+		DifficultyWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	 GetGameInstance<USGGameInstance>()->GetObjectiveTooltipWidget()->SetVisibility(ESlateVisibility::Visible);
+	//🤡
+	FTimerHandle ObjectiveToolTipAnimationTimer;
+	GetWorld()->GetTimerManager().SetTimer(ObjectiveToolTipAnimationTimer, this, &ASGMainHUD::PlayAndShow, 5.f, false);
 }
 
 //----GRAPPLING
