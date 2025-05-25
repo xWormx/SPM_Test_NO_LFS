@@ -76,8 +76,6 @@ protected:
 
 	bool IsStuck();
 
-	//FVector FirstStartLocation = FVector::ZeroVector;
-
 	bool bIsFirstStartLocationSet = false;
 
 	//Used in IsStuck()
@@ -96,10 +94,12 @@ protected:
 
 	void SetInitialValues();
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	TArray<AActor*> PatrolPoints;
 
 	void UpdatePatrolPoints();
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	class ASGEnemyPatrolPoint* CurrentPatrolPoint = nullptr;
 
 	ASGEnemyPatrolPoint* GetPatrolPoint();
