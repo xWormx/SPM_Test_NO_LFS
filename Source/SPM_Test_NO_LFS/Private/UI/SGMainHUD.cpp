@@ -89,6 +89,50 @@ void ASGMainHUD::BindToAmmoEvents(USGCounterComponentAmmo* AmmoComponent)
 
 }
 
+void ASGMainHUD::PauseAndHide()
+{
+	if (WeaponsWidget.IsValid())
+	{
+		WeaponsWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (GrappleCrossHairWidget.IsValid())
+	{
+		GrappleCrossHairWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (HUDWidget.IsValid())
+	{
+		HUDWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	if (DifficultyWidget.IsValid())
+	{
+		DifficultyWidget->PauseDifficultyBar(true);
+		DifficultyWidget->SetVisibility(ESlateVisibility::Hidden);
+
+	}
+
+}
+
+void ASGMainHUD::PlayAndShow()
+{
+	if (WeaponsWidget.IsValid())
+	{
+		WeaponsWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (GrappleCrossHairWidget.IsValid())
+	{
+		GrappleCrossHairWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (HUDWidget.IsValid())
+	{
+		HUDWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	if (DifficultyWidget.IsValid())
+	{
+		DifficultyWidget->PauseDifficultyBar(false);
+		DifficultyWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
 //----GRAPPLING
 void ASGMainHUD::OnBeginGrappleCooldown(FTimerHandle& GrappleTimerHandle)
 {

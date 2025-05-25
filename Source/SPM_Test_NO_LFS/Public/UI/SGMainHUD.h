@@ -28,6 +28,10 @@ public:
 	void BindWeaponEvents(Ujola6902_GunsComponent* GunsComponent);
 	void BindToAmmoEvents(USGCounterComponentAmmo* AmmoComponent);
 
+	void PauseAndHide();
+
+	UFUNCTION(BlueprintCallable, Category = "UFunction - HUD") // Tillfälligt används av BP-scriptet i PlayerController
+	void PlayAndShow();
 protected:
 //------------GEAR------------
 	//----WEAPONS
