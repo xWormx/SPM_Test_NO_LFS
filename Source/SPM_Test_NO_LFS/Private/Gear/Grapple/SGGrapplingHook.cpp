@@ -140,7 +140,7 @@ void ASGGrapplingHook::ResetGrapple()
 		return;
 	}
 	
-	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 1.0f;
+	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 2.0f;
 	// TODO (Calle): Friction borde resettas när man INTE ÄR I LUFTEN LÄNGRE, så att man kan glida på väggar
 	// annars fastnar man i dem.
 	//Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;

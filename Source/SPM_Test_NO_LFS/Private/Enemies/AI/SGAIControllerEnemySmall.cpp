@@ -6,8 +6,6 @@
 #include "Enemies/AI/SGAIControllerEnemyBig.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyShootAttackComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
-#include "Navigation/PathFollowingComponent.h"
 
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
 {
