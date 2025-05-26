@@ -1,3 +1,5 @@
+// Joel Larsson Wendt || jola6902
+
 #include "Enemies/Managers/SGEnemySpawnPoint.h"
 
 #include "SPM_Test_NO_LFS.h"

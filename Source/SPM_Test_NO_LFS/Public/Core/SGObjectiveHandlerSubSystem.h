@@ -52,7 +52,6 @@ public:
 
 private:
 	
-	
 	void OnWorldInitialized(const UWorld::FActorsInitializedParams& Params);
 
 	void ReadObjectives();
@@ -66,21 +65,22 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* TerminalHUD;
-/*
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveToolTipClass;
-*/	
+
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 	
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TArray<ASGObjectiveBase*> GameObjectives;
 
+	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+	TArray<ASGObjectiveBase*> ObjectivesCompleted;
+
 	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
 	USGDataAssetObjective* ObjectiveDataAsset;
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	ASGObjectiveBase* CurrentObjective;
+	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	ASGObjectiveBase* LastCompletedObjective;
 

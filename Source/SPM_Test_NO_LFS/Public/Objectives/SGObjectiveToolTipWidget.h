@@ -56,7 +56,6 @@ public:
 	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective() { return CurrentHorizontalBoxObjectiveElement; }
 	TArray<USGHorizontalBoxObjective*> GetHorizontalBoxObjectiveList() {return HorizontalObjectiveList; }
 
-//	FOnDifficultyChanged OnDifficultyChanged;
 protected:
 	
 	virtual void NativeConstruct() override;

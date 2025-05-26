@@ -3,7 +3,6 @@
 
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Core/SGGameInstance.h"
-#include "Objectives/SGGameObjectivesHandler.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Objectives/SGObjectiveBase.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
@@ -37,6 +36,7 @@ void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
 	USGGameInstance* GameInstance = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
 	if (GameInstance)
 	{
+		// Måste skapa om dessa för att de ska synas, annars kommer OjbectiveTooltip vara kopplad till en Viewport i en annan level.
 		GameInstance->CreateObjectiveToolTip();
 		GameInstance->CreateHUDTerminal();
 		ObjectiveToolTipWidget = GameInstance->GetObjectiveTooltipWidget();
@@ -48,9 +48,8 @@ void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
 			if (!ObjectiveToolTipWidget->IsInViewport())
 			{
 				ObjectiveToolTipWidget->RemoveFromParent();
-				ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!i
+				ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!
 			}
-				
 			
 			ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 			ObjectiveToolTipWidget->ShowVisitTerminal();
@@ -186,10 +185,6 @@ void USGObjectiveHandlerSubSystem::RegisterPodArrival(ASGObjectivePodArrival* Po
 
 void USGObjectiveHandlerSubSystem::StartMission()
 {
-	/*
-		Tilldela varje objective ett ID här så att det kan lagras i ToolTipWidget's TMap så att
-		progresswindow kan hålla koll på alla texter 
-	 */
 	ObjectiveToolTipWidget->HideVisitTerminal();
 	if (GameObjectives.Num() > 0)
 		CurrentObjective = GameObjectives[0];
@@ -232,8 +227,6 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 	
 	if (CurrentObjective->IsCompleted())
 	{
-		
-		
 		ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayAnimationValueCompleted();
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted();
@@ -265,6 +258,7 @@ void USGObjectiveHandlerSubSystem::RemoveCurrentObjective()
 	// Ta bort avklarat objective från Arrayen
 	if (GameObjectives.Num() > 0)
 	{
+		ObjectivesCompleted.Add(CurrentObjective);
 		GameObjectives.RemoveAt(0);
 		if (GameObjectives.Num() <= 0)
 		{

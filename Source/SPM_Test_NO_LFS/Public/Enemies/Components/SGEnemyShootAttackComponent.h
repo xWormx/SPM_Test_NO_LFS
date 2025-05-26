@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SGEnemyAttackComponentBase.h"
+#include "SGEnemyProjectile.h"
 #include "SGEnemyShootAttackComponent.generated.h"
 
 
@@ -26,6 +27,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class ASGEnemyProjectile> ProjectileClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class ASGEnemyProjectile* Projectile;
+	
 
 protected:
 	virtual void PerformAttack(AActor* Target) override;

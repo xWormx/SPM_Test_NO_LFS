@@ -48,6 +48,9 @@ public:
 
 	FTimerHandle JumpTimerHandle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
+	float JumpHorizontalSpeed = 600.f;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USGHealthComponent> HealthComponent;

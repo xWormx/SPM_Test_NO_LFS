@@ -40,7 +40,6 @@ void ASGAIControllerEnemySmall::HandleMovement()
 
 	if (CanAttackTarget() )
 	{
-		//StopMovement();
 		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
 }
@@ -64,7 +63,6 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 	}
 	else
 	{
-		//MoveToLocation(FirstStartLocation);
 		Patrol();
 	}
 	

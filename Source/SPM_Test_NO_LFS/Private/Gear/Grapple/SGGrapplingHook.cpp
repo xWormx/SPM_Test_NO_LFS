@@ -213,11 +213,7 @@ bool ASGGrapplingHook::GrappleTrace(FHitResult& OutHitResult, AController* Contr
 	GrappleDirection = TraceEnd - ViewLocation;
 	GrappleDirection.Normalize();
 	Head->SetActorRotation(ViewRotation);
-	//DrawDebugPoint(GetWorld(), TraceEnd, 25, FColor::Red, false, 8);
-	// Detta är basically SphereTraceByChannel
-
 	
-
 	// LineTrace för att kunna hooka när man är nära väggar
 	FHitResult LineHitResult;
 	bool LineHit = GetWorld()->LineTraceSingleByChannel(LineHitResult,ViewLocation, TraceEnd,
@@ -244,7 +240,7 @@ void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
 	// För att karaktären inte ska bromsas när den dras mot väggar
 	Character->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
 	Character->GetCharacterMovement()->bUseSeparateBrakingFriction = true;
-	Character->GetCharacterMovement()->GravityScale = 0.2f;
+	Character->GetCharacterMovement()->GravityScale = 0.6f;
 }
 
 void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTime)
@@ -266,14 +262,14 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 			ResetGrapple();
 
 			FVector Impuls = FVector::ZeroVector;
-			Impuls = GetGrappleDirectionNormalized() * ImpulsAtArrival;
-			
+			FVector Direction = (AttachmentPoint - PointOfDeparture).GetSafeNormal();
+			Impuls = Direction * ImpulsAtArrival;
+
 			// Om hook riktningen är uppåt så lägg till lite extra kraft uppåt!
 			if (GetGrappleDirectionNormalized().Z > 0)
 				Impuls.Z += ExtraUpwardsImpuls;
 
 			Impuls *= DeltaTime * 10000;
-			//Character->GetCharacterMovement()->Launch(Impuls);
 			Character->LaunchCharacter(Impuls, true, true);
 			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, GetGrappleDirectionNormalized().ToString());
 		}
