@@ -50,7 +50,6 @@ void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
 				ObjectiveToolTipWidget->RemoveFromParent();
 				ObjectiveToolTipWidget->AddToViewport(5); // Should be lower than TerminalWidget!
 			}
-				
 			
 			ObjectiveToolTipWidget->SetVisibility(ESlateVisibility::HitTestInvisible);
 			ObjectiveToolTipWidget->ShowVisitTerminal();

@@ -58,7 +58,7 @@ void USGDifficultyBarWidget::UpdateDifficultyBar(const float InDeltaTime)
 
 		const float OverlayPositionX = Overlay->GetCachedGeometry().GetAbsolutePosition().X;
 
-		if (OverlayPositionX < TriggerAbsolutePosition && OverlayPositionX < 0.0f)
+		if (OverlayPositionX < TriggerAbsolutePosition && OverlayPositionX > 0.0f)
 		{
 			ChangeDifficulty(DifficultyIndex);
 		}

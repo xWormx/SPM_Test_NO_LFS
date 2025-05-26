@@ -91,6 +91,8 @@ protected:
 
 //------------PLAYER STATS
 	//----HEALTH
+
+/*
 	UPROPERTY(EditAnywhere, Category = "Uproperty - HUD")
 	TSubclassOf<USGProgressTrackerWidget> ProgressTrackerClass;
 
@@ -106,6 +108,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<USGStatTrackerWidget> OrbsTrackerWidget;
+*/
 public:
 
 //----GRAPPLING
