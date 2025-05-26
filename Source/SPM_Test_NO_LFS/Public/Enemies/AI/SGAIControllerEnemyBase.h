@@ -110,6 +110,8 @@ protected:
 
 	void PatrolDelay();
 
+	FTimerHandle PatrolDelayTimerHandle;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 };

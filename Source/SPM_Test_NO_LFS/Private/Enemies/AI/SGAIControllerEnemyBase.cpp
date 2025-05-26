@@ -240,6 +240,12 @@ bool ASGAIControllerEnemyBase::HasReachedCurrentPatrolPoint(float Tolerance) con
 
 void ASGAIControllerEnemyBase::Patrol()
 {
+	if (IsStuck())
+	{
+		UpdatePatrolPoints();
+		CurrentPatrolPoint = GetPatrolPoint();
+	}
+	
 	if (!CurrentPatrolPoint || HasReachedCurrentPatrolPoint(200.f))
 	{
 		CurrentPatrolPoint = GetPatrolPoint();
@@ -260,21 +266,7 @@ void ASGAIControllerEnemyBase::Patrol()
 
 void ASGAIControllerEnemyBase::PatrolDelay()
 {
-	if (IsStuck())
-	{
-		UpdatePatrolPoints();
-		CurrentPatrolPoint = GetPatrolPoint();
-	}
-	
-	FTimerHandle PatrolDelayTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(
-		PatrolDelayTimerHandle,
-		this,
-		&ASGAIControllerEnemyBase::Patrol,
-		4.f,
-		false
-	);
-	
+	Patrol();
 }
 
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)

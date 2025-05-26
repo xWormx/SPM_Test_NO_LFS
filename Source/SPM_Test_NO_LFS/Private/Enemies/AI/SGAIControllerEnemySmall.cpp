@@ -63,9 +63,17 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 	}
 	else
 	{
-		Patrol();
+		if (!GetWorld()->GetTimerManager().IsTimerActive(PatrolDelayTimerHandle))
+		{
+			GetWorld()->GetTimerManager().SetTimer(
+				PatrolDelayTimerHandle,
+				this,
+				&ASGAIControllerEnemySmall::PatrolDelay,
+				5.f,
+				false
+			);
+		}
 	}
-	
 	RotateTowardsTargetWhileNotMoving();
 	
 }

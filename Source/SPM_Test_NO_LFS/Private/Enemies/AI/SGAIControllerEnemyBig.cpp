@@ -46,7 +46,16 @@ void ASGAIControllerEnemyBig::HandleMovement()
 	}
 	else
 	{
-		Patrol();
+		if (!GetWorld()->GetTimerManager().IsTimerActive(PatrolDelayTimerHandle))
+		{
+			GetWorld()->GetTimerManager().SetTimer(
+				PatrolDelayTimerHandle,
+				this,
+				&ASGAIControllerEnemyBig::PatrolDelay,
+				5.f,
+				false
+			);
+		}
 	}
 }
 
