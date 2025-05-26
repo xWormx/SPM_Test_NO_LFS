@@ -47,10 +47,15 @@ protected:
 private:
 	
 	FTimerHandle HealthBufferTimerHandle;
+
+	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties")
+	float HealthBufferTimerInterval = 0.75f;
+
 	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties")
 	float HealthBufferDecreaseRate = 1.0f; // Mängd att minska med per sekund om buffert är aktiv
 	
 	UFUNCTION()
 	void DecreaseHealthBuffer(float Amount);
 	void StartHealthBufferTimer();
+
  };
