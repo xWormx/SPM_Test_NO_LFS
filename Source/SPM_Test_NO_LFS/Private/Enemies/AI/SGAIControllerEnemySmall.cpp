@@ -10,6 +10,7 @@
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemySmall::BeginPlay()

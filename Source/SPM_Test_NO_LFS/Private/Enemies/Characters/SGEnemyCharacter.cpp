@@ -12,8 +12,8 @@
 ASGEnemyCharacter::ASGEnemyCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.5f;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
-
 	Tags.Add("Enemy");
 }
 
@@ -25,6 +25,9 @@ void ASGEnemyCharacter::BeginPlay()
 	{
 		HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
 	}
+
+	const float AnimationRate = FMath::FRandRange(0.8f, 1.2f);
+	GetMesh()->GlobalAnimRateScale = AnimationRate;
 	
 	if (USGUpgradeSubsystem* UpgradeSubsystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
@@ -63,6 +66,7 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 	UCharacterMovementComponent* MovementComp = GetCharacterMovement();
 	MovementComp->bOrientRotationToMovement = false;
 	MovementComp->bUseControllerDesiredRotation = false;
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Ignore);
 	GetCharacterMovement()->bUseRVOAvoidance = false;
 
 	const float BaseJumpZVelocity = MovementComp->JumpZVelocity;
@@ -91,7 +95,7 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 		JumpTimerHandle,
 		this,
 		&ASGEnemyCharacter::AdjustJumpRotation,
-		2.0f,
+		1.0f,
 		false
 	);
 }
@@ -101,6 +105,7 @@ void ASGEnemyCharacter::AdjustJumpRotation()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	GetCharacterMovement()->bUseRVOAvoidance = true;
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Block);
 }
 
 void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)
