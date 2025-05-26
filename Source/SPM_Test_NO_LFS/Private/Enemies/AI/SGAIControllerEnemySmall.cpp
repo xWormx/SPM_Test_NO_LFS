@@ -3,9 +3,11 @@
 
 #include "Enemies/AI/SGAIControllerEnemySmall.h"
 
+#include "Enemies/AI/SGAIControllerEnemyBig.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyShootAttackComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Navigation/PathFollowingComponent.h"
 
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
 {
@@ -37,11 +39,6 @@ void ASGAIControllerEnemySmall::HandleMovement()
 	{
 		MoveToActor(AttackTarget, AcceptanceRadius);
 	}
-
-	if (CanAttackTarget() )
-	{
-		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
-	}
 }
 
 
@@ -56,9 +53,18 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 			return;
 		}
 	}
+	
+	RotateTowardsTargetWhileNotMoving();
+	
+	if (CanAttackTarget())
+	{
+		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
+	}
 
 	if (CanReachTarget(AttackTarget))
 	{
+		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayTimerHandle);
+		bShouldPatrol = false;
 		HandleMovement();
 	}
 	else
@@ -69,13 +75,20 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 				PatrolDelayTimerHandle,
 				this,
 				&ASGAIControllerEnemySmall::PatrolDelay,
-				5.f,
+				3.f,
 				false
 			);
 		}
+		if (bShouldPatrol)
+		{
+			Patrol();
+		}
+		else
+		{
+			SetAttackTargetLocation();
+			MoveToLocation(AttackTargetLocation);
+		}
 	}
-	RotateTowardsTargetWhileNotMoving();
-	
 }
 
 bool ASGAIControllerEnemySmall::CanAttackTarget() const
