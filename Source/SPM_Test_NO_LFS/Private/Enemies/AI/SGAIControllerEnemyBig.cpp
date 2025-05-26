@@ -7,6 +7,7 @@
 #include "Enemies/Components/SGEnemyMeleAttackComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Navigation/PathFollowingComponent.h"
 
 ASGAIControllerEnemyBig::ASGAIControllerEnemyBig()
 {
@@ -35,6 +36,9 @@ void ASGAIControllerEnemyBig::HandleMovement()
 
 	if (CanReachTarget(AttackTarget))
 	{
+		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayTimerHandle);
+		bShouldPatrol = false;
+
 		if (CanAttackTarget())
 		{
 			ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
@@ -52,11 +56,21 @@ void ASGAIControllerEnemyBig::HandleMovement()
 				PatrolDelayTimerHandle,
 				this,
 				&ASGAIControllerEnemyBig::PatrolDelay,
-				5.f,
+				3.f,
 				false
 			);
 		}
+		if (bShouldPatrol)
+		{
+			Patrol();
+		}
+		else
+		{
+			SetAttackTargetLocation();
+			MoveToLocation(AttackTargetLocation);
+		}
 	}
+
 }
 
 void ASGAIControllerEnemyBig::Tick(float DeltaTime)
@@ -65,21 +79,3 @@ void ASGAIControllerEnemyBig::Tick(float DeltaTime)
 	HandleMovement();
 	RotateTowardsTargetWhileNotMoving();
 }
-
-/*void ASGAIControllerEnemyBig::JumpToLocation(const FVector& Destination)
-{
-	if (!ControlledEnemy) return;
-
-	FVector CurrentLocation = ControlledEnemy->GetActorLocation();
-	FVector ToTarget = Destination - CurrentLocation;
-
-	// Add vertical lift manually
-	FVector JumpVelocity = ToTarget.GetSafeNormal() * 600.f; // Forward speed
-	JumpVelocity.Z = 420.f; // Vertical lift — tweak as needed
-
-	// Optional: face the jump direction
-	FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, Destination);
-	ControlledEnemy->SetActorRotation(NewRotation);
-
-	ControlledEnemy->LaunchCharacter(JumpVelocity, true, true);
-}*/
