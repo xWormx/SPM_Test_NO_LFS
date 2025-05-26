@@ -1,6 +1,6 @@
-# 🚀 SPM_Test_NO_LFS
+# 🚀 Crazy Jack: Demon Extermination
 
-Welcome to **SPM_Test_NO_LFS** — a no-holds-barred exploration of code, chaos, and curiosity. This is a school project, but we're taking the scenic route through the unexpected, the unexplored, and the "what ifs."
+Welcome to **Crazy Jack: Demon Extermination** — a no-holds-barred exploration of code, chaos, and curiosity.
 
 ---
 
