@@ -17,7 +17,7 @@ class SPM_TEST_NO_LFS_API USGObjectiveConfigKillEmAll : public USGObjectiveConfi
 
 	UPROPERTY(EditAnywhere)
 	int EnemiesToKill;
-
+	
 	virtual void ApplyData(ASGObjectiveBase* Objective) override
 	{
 		Super::ApplyData(Objective);

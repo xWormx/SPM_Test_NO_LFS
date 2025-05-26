@@ -185,9 +185,13 @@ void USGObjectiveHandlerSubSystem::RegisterPodArrival(ASGObjectivePodArrival* Po
 
 void USGObjectiveHandlerSubSystem::StartMission()
 {
-	ObjectiveToolTipWidget->HideVisitTerminal();
 	if (GameObjectives.Num() > 0)
 		CurrentObjective = GameObjectives[0];
+
+	if ((CurrentObjective->GetObjectiveType() & EObjectiveType::EOT_FinalSweep) != EObjectiveType::EOT_None)
+		ObjectiveToolTipWidget->PlayEscapeWithPodAnimation("Escape with the pod when ready!");
+	else
+		ObjectiveToolTipWidget->HideVisitTerminal();
 	
 	if (CurrentObjective == nullptr)
 	{

@@ -220,6 +220,19 @@ void USGObjectiveToolTipWidget::HideVisitTerminal()
 	StopAnimation(AnimationVisitTerminal);
 }
 
+void USGObjectiveToolTipWidget::SetMissionAlertText(FString NewText)
+{
+	TextBlockVisitTerminal->SetText(FText::FromString(NewText));
+}
+
+void USGObjectiveToolTipWidget::PlayEscapeWithPodAnimation(FString TextToDisplay)
+{
+	OverlayVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
+	TextBlockVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
+	SetMissionAlertText(TextToDisplay);
+	PlayAnimation(AnimationEscapeWithPod, 0, 0);
+}
+
 void USGObjectiveToolTipWidget::ShowMissionVerticalBox()
 {
 	VerticalBoxMission->SetVisibility(ESlateVisibility::HitTestInvisible);
@@ -262,7 +275,6 @@ void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 		FString StrToDisplay = StringToolTip.Mid(0, CharIndex);
 		ToolTip->SetText(FText::FromString(StrToDisplay));
 		UGameplayStatics::PlaySound2D(GetWorld(), TextClickSound);
-		UE_LOG(LogTemp, Error, TEXT("%s"), *StrToDisplay);
 	}
 	else
 	{
