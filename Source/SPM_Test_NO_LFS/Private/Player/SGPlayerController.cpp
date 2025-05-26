@@ -190,7 +190,7 @@ bool ASGPlayerController::CanInteractWithTerminal() const
 void ASGPlayerController::PauseGame()
 {
 	SetPause(true);
-
+	Cast<ASGMainHUD>(GetHUD())->PauseAndHide();
 	if (!PauseMenu)
 	{
 		return;
@@ -213,6 +213,7 @@ void ASGPlayerController::RestartGame()
 void ASGPlayerController::EnableGameOver([[maybe_unused]] float NewHealth)
 {
 	SetPause(true);
+	Cast<ASGMainHUD>(GetHUD())->PauseAndHide();
 
 	if (!GameOverMenu)
 	{

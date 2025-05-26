@@ -196,13 +196,12 @@ void ASGAIControllerEnemyBase::SetInitialValues()
 	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGEnemyPatrolPoint::StaticClass(), PatrolPoints);
-
 	UpdatePatrolPoints();
 }
 
 void ASGAIControllerEnemyBase::UpdatePatrolPoints()
 {
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGEnemyPatrolPoint::StaticClass(), PatrolPoints);
 	PatrolPoints.RemoveAll( [this] (AActor* PatrolPoint)
 	{
 		return !CanReachTarget(PatrolPoint);
@@ -215,11 +214,11 @@ ASGEnemyPatrolPoint* ASGAIControllerEnemyBase::GetPatrolPoint()
 	{
 		return nullptr;
 	}
-	INT32 index = FMath::RandRange(0, PatrolPoints.Num() - 1);
+	int32 Index = FMath::RandRange(0, PatrolPoints.Num() - 1);
 
-	if (!PatrolPoints[index]) { return nullptr; }
+	if (!PatrolPoints[Index]) { return nullptr; }
 
-	CurrentPatrolPoint = Cast<ASGEnemyPatrolPoint>(PatrolPoints[index]);
+	CurrentPatrolPoint = Cast<ASGEnemyPatrolPoint>(PatrolPoints[Index]);
 	
 	if (CurrentPatrolPoint)
 	{
@@ -255,12 +254,26 @@ void ASGAIControllerEnemyBase::Patrol()
 	if (CurrentPatrolPoint)
 	{
 		MoveToActor(CurrentPatrolPoint);
-		/*if (!CanReachTarget(CurrentPatrolPoint))
-		{
-			//BASIR_DEBUG(TEXT("Move to Patrol Point"), FColor::Blue, 3.f);
-			UpdatePatrolPoints();
-		}*/
 	}
+	
+}
+
+void ASGAIControllerEnemyBase::PatrolDelay()
+{
+	if (IsStuck())
+	{
+		UpdatePatrolPoints();
+		CurrentPatrolPoint = GetPatrolPoint();
+	}
+	
+	FTimerHandle PatrolDelayTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		PatrolDelayTimerHandle,
+		this,
+		&ASGAIControllerEnemyBase::Patrol,
+		4.f,
+		false
+	);
 	
 }
 

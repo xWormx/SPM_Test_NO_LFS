@@ -5,6 +5,8 @@
 #include "GameFramework/HUD.h"
 #include "SGMainHUD.generated.h"
 
+class USGProgressTrackerWidget;
+class USGStatTrackerWidget;
 class USGDifficultyBarWidget;
 class USGCounterComponentAmmo;
 class USGWeaponsHUD;
@@ -20,6 +22,7 @@ class SPM_TEST_NO_LFS_API ASGMainHUD : public AHUD
 	GENERATED_BODY()
 public:
 	virtual void BeginPlay() override;
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	template<typename T = UUserWidget>
 	T* CreateAndAddToViewPort(const TSubclassOf<T>& WidgetClass, bool Add = true);
@@ -28,6 +31,18 @@ public:
 	void BindWeaponEvents(Ujola6902_GunsComponent* GunsComponent);
 	void BindToAmmoEvents(USGCounterComponentAmmo* AmmoComponent);
 
+	void PauseAndHide();
+
+	UFUNCTION(BlueprintCallable, Category = "UFunction - HUD") // Tillfälligt används av BP-scriptet i PlayerController
+	void PlayAndShow();
+	UFUNCTION() // Tillfälligt används för att kolla när terminaln är öppen eller stängd
+	void OnTerminalVisibilityChanged(ESlateVisibility NewVisibility);
+
+	UFUNCTION() // Tillfälligt för att kolla första gången spelaren startar ett mission
+	void StartDifficultyBar();
+
+	UFUNCTION() // Tillfälligt för att gömma vissa widgets så de inte överlappar medan nya questet visas och kör sin animation
+	void WaitForObjectiveToolTipAnimation();
 protected:
 //------------GEAR------------
 	//----WEAPONS
@@ -67,13 +82,30 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<UUserWidget> HUDWidget;
 	
-//----DIFFICULTY BAR
+	//----DIFFICULTY BAR
 	UPROPERTY(EditAnywhere, Category = "Uproperty - HUD")
 	TSubclassOf<USGDifficultyBarWidget> DifficultyClass;
 
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<USGDifficultyBarWidget> DifficultyWidget;
-	
+
+//------------PLAYER STATS
+	//----HEALTH
+	UPROPERTY(EditAnywhere, Category = "Uproperty - HUD")
+	TSubclassOf<USGProgressTrackerWidget> ProgressTrackerClass;
+
+	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
+	TWeakObjectPtr<USGProgressTrackerWidget> HealthTrackerWidget;
+
+	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
+	TWeakObjectPtr<USGProgressTrackerWidget> ShieldTrackerWidget;
+
+	//----ORBS
+	UPROPERTY(EditAnywhere, Category = "Uproperty - HUD")
+	TSubclassOf<USGStatTrackerWidget> StatTrackerClass;
+
+	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
+	TWeakObjectPtr<USGStatTrackerWidget> OrbsTrackerWidget;
 public:
 
 //----GRAPPLING

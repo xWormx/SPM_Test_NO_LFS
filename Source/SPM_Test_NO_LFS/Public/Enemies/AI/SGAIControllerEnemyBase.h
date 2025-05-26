@@ -106,7 +106,9 @@ protected:
 
 	bool HasReachedCurrentPatrolPoint(float Tolerance) const;
 
-	virtual void Patrol();
+	void Patrol();
+
+	void PatrolDelay();
 
 public:
 	virtual void Tick(float DeltaTime) override;

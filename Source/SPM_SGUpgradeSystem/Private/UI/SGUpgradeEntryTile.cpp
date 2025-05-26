@@ -25,7 +25,7 @@ void USGUpgradeEntryTile::SetupEntry(const FSGUpgradeEntry& Entry)
 	// SET TEXT
 	UpgradeText->SetText( FText::Format(FText::FromString("{0}:"), EntryName));
 	UpgradeCurrentValueText->SetText(FText::Format(FText::FromString("{0}"), EntryCurrentValue));
-	UpgradeMultiplierText->SetText(FText::Format(FText::FromString(": +{0}"), EntryMultiplier));
+	UpgradeMultiplierText->SetText(FText::Format(FText::FromString("+{0}"), EntryMultiplier));
 	UpgradeCostText->SetText(FText::Format(FText::FromString("{0}"), EntryCost));
 	UpgradeLevelText->SetText(MaxNumberOfUpgrades);
 
