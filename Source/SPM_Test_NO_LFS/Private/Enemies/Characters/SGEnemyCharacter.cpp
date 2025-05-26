@@ -5,6 +5,7 @@
 #include "Components/SGHealthComponent.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 #include "Utils/SGPickUpSubsystem.h"
@@ -49,6 +50,11 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 
 	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
 	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth());
+
+	if (DeathSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(DeathSound, GetMesh(), "DeathSound");
+	}
 }
 
 void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

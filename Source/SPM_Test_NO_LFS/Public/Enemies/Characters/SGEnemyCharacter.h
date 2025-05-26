@@ -62,7 +62,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "UFunction - Enemy")
 	void ApplyPush(const FVector& PushDirection, float PushStrength = 500.f);
 
-
-
+	UPROPERTY(EditAnywhere, Category = "SoundFX")
+	class USoundBase* DeathSound;
+	
 };
 
