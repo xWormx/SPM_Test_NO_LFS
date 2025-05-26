@@ -22,7 +22,7 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-
+	
 	virtual bool CanAttackTarget() const override;
 	
 };

@@ -5,26 +5,23 @@
 
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
-#include "SPM_Test_NO_LFS.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Navigation/SGEnemyPatrolPoint.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	//PrimaryActorTick.TickInterval = 0.5f;
+	PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	/*AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());*/
-
+	
 	FTimerHandle TimerHandle;
-
 	GetWorld()->GetTimerManager().SetTimer(
 		TimerHandle,
 		this,
@@ -46,11 +43,6 @@ bool ASGAIControllerEnemyBase::CanAttackTarget() const
 	const float DistanceToPlayer = FVector::Dist(TargetLocation, Location);
 
 	const bool bCanAttackTarget = DistanceToPlayer < AttackRange;
-
-	/*if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Distance to player: %f"), DistanceToPlayer));
-	}*/
 
 	return bCanAttackTarget;
 }
@@ -120,14 +112,14 @@ bool ASGAIControllerEnemyBase::IsFacingTarget() const
 
 void ASGAIControllerEnemyBase::RotateTowardsTargetWhileNotMoving()
 {
-	if (!ControlledEnemy)
+	if (!ControlledEnemy || ControlledEnemy->GetMovementComponent()->Velocity.Size() > 150.f)
 	{
 		return;
 	}
 
-	float VelocityThreshhold = 150.0f;
+	float VelocityThreshold = 150.0f;
 
-	if (ControlledEnemy->GetVelocity().Size() > VelocityThreshhold)
+	if (ControlledEnemy->GetVelocity().Size() > VelocityThreshold)
 	{
 		return;
 	}
@@ -183,7 +175,6 @@ bool ASGAIControllerEnemyBase::IsStuck()
 
 	bool bIsStuck = DistanceMoved < StuckDistanceThreshold;
 
-	// Updating for next checking
 	LastLocationCheck = CurrentLocation;
 	LastLocationCheckTime = CurrentTime;
 	bWasStuckLastChecked = bIsStuck;
@@ -194,6 +185,7 @@ bool ASGAIControllerEnemyBase::IsStuck()
 void ASGAIControllerEnemyBase::SetInitialValues()
 {
 	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	
 	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
 
 	UpdatePatrolPoints();
@@ -240,6 +232,12 @@ bool ASGAIControllerEnemyBase::HasReachedCurrentPatrolPoint(float Tolerance) con
 
 void ASGAIControllerEnemyBase::Patrol()
 {
+	if (IsStuck())
+	{
+		UpdatePatrolPoints();
+		CurrentPatrolPoint = GetPatrolPoint();
+	}
+	
 	if (!CurrentPatrolPoint || HasReachedCurrentPatrolPoint(200.f))
 	{
 		CurrentPatrolPoint = GetPatrolPoint();
@@ -260,40 +258,30 @@ void ASGAIControllerEnemyBase::Patrol()
 
 void ASGAIControllerEnemyBase::PatrolDelay()
 {
-	if (IsStuck())
+	if (!AttackTarget || CanReachTarget(AttackTarget))
 	{
-		UpdatePatrolPoints();
-		CurrentPatrolPoint = GetPatrolPoint();
+		return;
+	}
+	bShouldPatrol = true;
+}
+
+void ASGAIControllerEnemyBase::SetAttackTargetLocation()
+{
+	if (!AttackTarget || !ControlledEnemy)
+	{
+		return;
 	}
 	
-	FTimerHandle PatrolDelayTimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(
-		PatrolDelayTimerHandle,
-		this,
-		&ASGAIControllerEnemyBase::Patrol,
-		4.f,
-		false
-	);
+	FVector NewAttackTargetLocation = FVector(
+		AttackTarget->GetActorLocation().X,
+		AttackTarget->GetActorLocation().Y,
+		ControlledEnemy->GetActorLocation().Z
+		);
 	
+	AttackTargetLocation = NewAttackTargetLocation;
 }
 
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	/*if (!AttackTarget)
-	{
-		AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	}
-
-	if (!ControlledEnemy)
-	{
-		ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
-	}
-
-	if (ControlledEnemy && !bIsFirstStartLocationSet)
-	{
-		FirstStartLocation = ControlledEnemy->GetActorLocation();
-		bIsFirstStartLocationSet = true;
-	}*/
 }

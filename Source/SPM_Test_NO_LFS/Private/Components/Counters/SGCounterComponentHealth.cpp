@@ -1,5 +1,6 @@
 ﻿#include "Components/Counters/SGCounterComponentHealth.h"
 
+#include "SPM_Test_NO_LFS.h"
 #include "Components/SGHealthComponent.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Pickups/SGPickUpHealthPack.h"
@@ -44,6 +45,15 @@ void USGCounterComponentHealth::BeginPlay()
 	}
 }
 
+void USGCounterComponentHealth::ProcessPickup(AActor* Pickup)
+{
+	if (ASGPickUpHealthPack* HealthPacket = Cast<ASGPickUpHealthPack>(Pickup))
+	{
+		IncreaseHealth(HealthPacket->GetPickupValue());
+		HealthPacket->OnPickup();
+	}
+}
+
 void USGCounterComponentHealth::IncreaseHealth(const float Amount)
 {
 	const float CurrentHealth = HealthComponent->GetCurrentHealth();
@@ -56,44 +66,14 @@ void USGCounterComponentHealth::IncreaseHealth(const float Amount)
 	}
 	else if (CurrentHealth + Amount > MaxHealth)
 	{
-		HealthBuffer += (CurrentHealth + Amount) - MaxHealth; //Överför överskott till buffert		
+		HealthBuffer += CurrentHealth + Amount - MaxHealth; //Överför överskott till shield
 		HealthComponent->Heal(MaxHealth);
+		StartHealthBufferTimer();
 	}
 	else
 	{
 		HealthComponent->Heal(Amount);
 	}	
-}
-
-void USGCounterComponentHealth::UseHealthBuffer(const float Amount)
-{
-	if (HealthBuffer <= 0)
-	{
-		return;
-	}
-	
-	const float CurrentHealth = HealthComponent->GetCurrentHealth();
-	HealthBuffer -= Amount;
-	
-	if (HealthBuffer < 0 && CurrentHealth > 0)
-	{
-		HealthComponent->SetCurrentHealth(CurrentHealth + HealthBuffer); //Överför underskott till HealthComponent
-		HealthBuffer = 0;
-	}
-	else
-	{
-		HealthComponent->Heal(Amount);
-	}
-	
-}
-
-void USGCounterComponentHealth::ProcessPickup(AActor* Pickup)
-{
-	if (ASGPickUpHealthPack* HealthPacket = Cast<ASGPickUpHealthPack>(Pickup))
-	{
-		IncreaseHealth(HealthPacket->GetPickupValue());
-		HealthPacket->OnPickup();
-	}
 }
 
 void USGCounterComponentHealth::StartHealthBufferTimer()
@@ -104,7 +84,7 @@ void USGCounterComponentHealth::StartHealthBufferTimer()
 	}
 	FTimerDelegate TimerDelegate;
 	TimerDelegate.BindUObject(this, &USGCounterComponentHealth::DecreaseHealthBuffer, HealthBufferDecreaseRate);
-	GetWorld()->GetTimerManager().SetTimer(HealthBufferTimerHandle, TimerDelegate, HealthBufferDecreaseRate, true);
+	GetWorld()->GetTimerManager().SetTimer(HealthBufferTimerHandle, TimerDelegate, HealthBufferTimerInterval, true);
 }
 
 void USGCounterComponentHealth::DecreaseHealthBuffer(const float Amount)
@@ -120,18 +100,28 @@ void USGCounterComponentHealth::DecreaseHealthBuffer(const float Amount)
 	}
 	else
 	{
-		UseHealthBuffer(Amount);
+		HealthBuffer -= Amount;
 	}
+}
 
-	/*if (HealthBuffer > 0)
+void USGCounterComponentHealth::UseHealthBuffer(const float Amount)
+{
+	if (HealthBuffer <= 0)
 	{
-		UseHealthBuffer(Amount);
+		return;
+	}
+	const float CurrentHealth = HealthComponent->GetCurrentHealth();
+	HealthBuffer -= Amount;
+
+	if (HealthBuffer < 0 && CurrentHealth > 0)
+	{
+		HealthComponent->SetCurrentHealth(CurrentHealth + HealthBuffer); //Överför underskott till HealthComponent
+		HealthBuffer = 0;
 	}
 	else
 	{
-		HealthBuffer = 0;
-		GetWorld()->GetTimerManager().ClearTimer(HealthBufferTimerHandle);
-	}*/
+		HealthComponent->Heal(Amount);
+	}
 }
 
 float USGCounterComponentHealth::GetCurrentHealth() const

@@ -66,8 +66,6 @@ protected:
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
 	bool bShouldAlwaysChaseTarget = false;
 
-	bool bIsAttacking = false;
-
 	virtual bool IsFacingTarget() const;
 
 	virtual void RotateTowardsTargetWhileNotMoving();
@@ -75,8 +73,6 @@ protected:
 	bool CanReachTarget(AActor* Target) const;
 
 	bool IsStuck();
-
-	bool bIsFirstStartLocationSet = false;
 
 	//Used in IsStuck()
 	FVector LastLocationCheck = FVector::ZeroVector;
@@ -109,6 +105,14 @@ protected:
 	void Patrol();
 
 	void PatrolDelay();
+
+	FTimerHandle PatrolDelayTimerHandle;
+
+	bool bShouldPatrol = false;
+
+	FVector AttackTargetLocation = FVector::ZeroVector;
+
+	void SetAttackTargetLocation();
 
 public:
 	virtual void Tick(float DeltaTime) override;

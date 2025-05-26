@@ -10,7 +10,7 @@
 ASGEnemyCharacterFlying::ASGEnemyCharacterFlying()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.TickInterval = 0.5f;
 	AttackComponent = CreateDefaultSubobject<USGEnemyChargeAttackComponent>(TEXT("ChargeAttackComponent"));
 
 	GetCharacterMovement()->DefaultLandMovementMode = MOVE_Flying;

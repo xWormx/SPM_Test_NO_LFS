@@ -1,9 +1,11 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
 #include "SPM_Test_NO_LFS.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SGHealthComponent.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 #include "Utils/SGPickUpSubsystem.h"
@@ -11,8 +13,8 @@
 ASGEnemyCharacter::ASGEnemyCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.5f;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
-
 	Tags.Add("Enemy");
 }
 
@@ -24,6 +26,9 @@ void ASGEnemyCharacter::BeginPlay()
 	{
 		HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
 	}
+
+	const float AnimationRate = FMath::FRandRange(0.8f, 1.2f);
+	GetMesh()->GlobalAnimRateScale = AnimationRate;
 	
 	if (USGUpgradeSubsystem* UpgradeSubsystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
@@ -45,6 +50,11 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 
 	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
 	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth());
+
+	if (DeathSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(DeathSound, GetMesh(), "DeathSound");
+	}
 }
 
 void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -62,6 +72,8 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 	UCharacterMovementComponent* MovementComp = GetCharacterMovement();
 	MovementComp->bOrientRotationToMovement = false;
 	MovementComp->bUseControllerDesiredRotation = false;
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Ignore);
+	GetCharacterMovement()->bUseRVOAvoidance = false;
 
 	const float BaseJumpZVelocity = MovementComp->JumpZVelocity;
 
@@ -78,7 +90,7 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 		VerticalLaunchVelocity += HeightDifference * 2.f;
 	}
 
-	LaunchVelocity.Z = VerticalLaunchVelocity;
+	LaunchVelocity.Z = VerticalLaunchVelocity * 1.5f;
 	
 	const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, Destination);
 	SetActorRotation(LookAtRotation);
@@ -98,6 +110,8 @@ void ASGEnemyCharacter::AdjustJumpRotation()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bUseRVOAvoidance = true;
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Block);
 }
 
 void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)
