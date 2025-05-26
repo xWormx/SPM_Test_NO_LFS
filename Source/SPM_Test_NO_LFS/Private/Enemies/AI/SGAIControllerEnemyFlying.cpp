@@ -13,6 +13,7 @@
 ASGAIControllerEnemyFlying::ASGAIControllerEnemyFlying()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemyFlying::BeginPlay()
