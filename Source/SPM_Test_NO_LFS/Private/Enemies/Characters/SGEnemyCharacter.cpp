@@ -1,6 +1,7 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
 #include "SPM_Test_NO_LFS.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SGHealthComponent.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -62,6 +63,7 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 	UCharacterMovementComponent* MovementComp = GetCharacterMovement();
 	MovementComp->bOrientRotationToMovement = false;
 	MovementComp->bUseControllerDesiredRotation = false;
+	GetCharacterMovement()->bUseRVOAvoidance = false;
 
 	const float BaseJumpZVelocity = MovementComp->JumpZVelocity;
 
@@ -78,7 +80,7 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 		VerticalLaunchVelocity += HeightDifference * 2.f;
 	}
 
-	LaunchVelocity.Z = VerticalLaunchVelocity;
+	LaunchVelocity.Z = VerticalLaunchVelocity * 1.5f;
 	
 	const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, Destination);
 	SetActorRotation(LookAtRotation);
@@ -89,7 +91,7 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 		JumpTimerHandle,
 		this,
 		&ASGEnemyCharacter::AdjustJumpRotation,
-		1.0f,
+		2.0f,
 		false
 	);
 }
@@ -98,6 +100,7 @@ void ASGEnemyCharacter::AdjustJumpRotation()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bUseRVOAvoidance = true;
 }
 
 void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)
