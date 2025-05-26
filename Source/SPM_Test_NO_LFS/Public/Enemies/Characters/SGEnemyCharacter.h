@@ -41,10 +41,10 @@ public:
 	USGEnemyAttackComponentBase* GetAttackComponent() const;
 
 	UFUNCTION(BlueprintCallable)
-	void JumpToLocation(const FVector Destination);
+	virtual void JumpToLocation(const FVector Destination);
 
 	UFUNCTION(BlueprintCallable)
-	void AdjustJumpRotation();
+	virtual void AdjustJumpRotation();
 
 	FTimerHandle JumpTimerHandle;
 
