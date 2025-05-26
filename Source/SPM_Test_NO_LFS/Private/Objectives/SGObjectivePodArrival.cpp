@@ -2,6 +2,9 @@
 
 // comment
 #include "Objectives/SGObjectivePodArrival.h"
+
+#include "LevelSequencePlayer.h"
+#include "MovieSceneSequencePlaybackSettings.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
 #include "Player/SGPlayerCharacter.h"
 #include "Components/SphereComponent.h"
@@ -15,17 +18,17 @@ ASGObjectivePodArrival::ASGObjectivePodArrival()
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 
-	MeshToDefend = CreateDefaultSubobject<USkeletalMeshComponent>("MeshToDefend");
-	MeshToDefend->SetupAttachment(Root);
+	MeshPod = CreateDefaultSubobject<USkeletalMeshComponent>("MeshPod");
+	MeshPod->SetupAttachment(Root);
 
 	SphereInteractArea = CreateDefaultSubobject<USphereComponent>("SphereInteractAArea");
-	SphereInteractArea->SetupAttachment(MeshToDefend);
+	SphereInteractArea->SetupAttachment(Root);
 	
-	MeshRestrictiveFloor = CreateDefaultSubobject<UStaticMeshComponent>("MeshRestrictiveFloor");
-	MeshRestrictiveFloor->SetupAttachment(MeshToDefend);
+	MeshLandingZone = CreateDefaultSubobject<UStaticMeshComponent>("MeshLandingZone");
+	MeshLandingZone->SetupAttachment(Root);
 
 	SphereRestrictiveArea = CreateDefaultSubobject<USphereComponent>("SphereRestrictiveArea");
-	SphereRestrictiveArea->SetupAttachment(MeshRestrictiveFloor);
+	SphereRestrictiveArea->SetupAttachment(MeshLandingZone);
 }
 
 void ASGObjectivePodArrival::BeginPlay()
@@ -34,6 +37,7 @@ void ASGObjectivePodArrival::BeginPlay()
 	SphereInteractArea->OnComponentBeginOverlap.AddDynamic(this, &ASGObjectivePodArrival::StartMainPhase);
 	SphereRestrictiveArea->OnComponentBeginOverlap.AddDynamic(this, &ASGObjectivePodArrival::UnPauseMainPhase);
 	SphereRestrictiveArea->OnComponentEndOverlap.AddDynamic(this, &ASGObjectivePodArrival::PauseMainPhase);
+	
 }
 
 void ASGObjectivePodArrival::Tick(float DeltaTime)
@@ -67,6 +71,9 @@ void ASGObjectivePodArrival::OnStart()
 
 bool ASGObjectivePodArrival::IsCompleted()
 {
+	if (AnimationPodOpen)
+		MeshPod->PlayAnimation(AnimationPodOpen, false);
+		
 	return bWaitForPodDone;
 }
 

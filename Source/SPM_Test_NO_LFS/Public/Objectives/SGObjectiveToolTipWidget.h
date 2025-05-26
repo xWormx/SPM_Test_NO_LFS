@@ -45,6 +45,8 @@ public:
 	void ResumeAllOngoingAnimations();
 	void ShowVisitTerminal();
 	void HideVisitTerminal();
+	void SetMissionAlertText(FString NewText);
+	void PlayEscapeWithPodAnimation(FString TextToDisplay);
 	void ShowMissionVerticalBox();
 	void HideMissionVerticalBox();
 	void ShowToolTipScaleBox();
@@ -107,6 +109,9 @@ protected:
 	UWidgetAnimation* AnimationVisitTerminal;
 	float AnimationVisitTerminalPauseTime;
 	bool bAnimationVisitTerminalWasPaused;
+
+	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* AnimationEscapeWithPod;
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	USoundBase* TextClickSound;

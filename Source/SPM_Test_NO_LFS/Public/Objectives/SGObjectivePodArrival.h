@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "LevelSequence.h"
 #include "Objectives/SGObjectiveBase.h"
 #include "SGObjectivePodArrival.generated.h"
 
+class ULevelSequencePlayer;
+class ALevelSequenceActor;
 class USphereComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWaitForPodEventStart);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWaitForPodEventEnd, UObject*, ObjectiveInterfaceImplementor);
@@ -54,14 +57,14 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USceneComponent* Root;
 	
-	// Mesh for the Pod (or thing to defend) - OR Should this be a separat class with HP and things, with TSubclassOf<>?
+	// Mesh for the Pod
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* MeshToDefend;
+	USkeletalMeshComponent* MeshPod;
 
-	// Are the follwing 2 needed?
-	// Mesh for the Pod (or thing to defend)
+
+	// Mesh for the LandingZone (or thing to defend)
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	UStaticMeshComponent* MeshRestrictiveFloor;
+	UStaticMeshComponent* MeshLandingZone;
 
 	// If Player goes outside this area the objective will Pause
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -70,6 +73,9 @@ private:
 	// Sphere for the area in which the player must be standing for the quest to activate
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	USphereComponent* SphereInteractArea;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta=(AllowPrivateAccess=true))
+	UAnimationAsset* AnimationPodOpen;
 	
 	// Timer for the objective
 	FTimerHandle TimerHandle;
