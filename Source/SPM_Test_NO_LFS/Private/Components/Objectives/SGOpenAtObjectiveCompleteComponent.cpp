@@ -6,6 +6,7 @@
 #include "SPM_Test_NO_LFS.h"
 #include "Core/SGGameInstance.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
+#include "Kismet/GameplayStatics.h"
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Objectives/SGObjectiveBase.h"
 
@@ -54,6 +55,10 @@ void USGOpenAtObjectiveCompleteComponent::Open(EObjectiveType ObjectiveType)
 		{
 			CubeMesh->SetVisibility(false);
 			CubeMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			if (SoundOpen)
+			{
+				UGameplayStatics::PlaySound2D(GetWorld(), SoundOpen);
+			}
 		}
 	}
 }
