@@ -54,8 +54,9 @@ void ASGObjectivePodArrival::Tick(float DeltaTime)
 				int Minutes = TimeLeft / 60;
 				int Seconds = TimeLeft - (Minutes * 60);
 				FString TimeLeftStr = FString::Printf(TEXT("%02d : %02d"), Minutes, Seconds);
-		
-				HorizontalBoxProgressElement[1]->SetValue(FText::FromString(TimeLeftStr));
+
+				int ProgressStep = GetCurrentProgressStep();
+				HorizontalBoxProgressElement[ProgressStep]->SetValue(FText::FromString(TimeLeftStr));
 			}
 		}
 	}
@@ -80,9 +81,8 @@ bool ASGObjectivePodArrival::IsCompleted()
 void ASGObjectivePodArrival::OnCompleted()
 {
 	Super::OnCompleted();
-	HorizontalBoxProgressElement[1]->ShowSucceed();
-	HorizontalBoxProgressElement[1]->SetKeyAndValueOpacity(0.5);
-	HorizontalBoxProgressElement[1]->SetValue(FText::FromString("Pod is here!"));
+
+	SetCurrentProgressElementCompleted("Pod is here!");
 }
 
 void ASGObjectivePodArrival::Update()
@@ -90,29 +90,27 @@ void ASGObjectivePodArrival::Update()
 	
 }
 
-
 void ASGObjectivePodArrival::StartMainPhase(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
 	if (Player)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("PLAYER IS BY THE POD START DEFENDING!"));	
-		//if (GetObjectiveHandler() && !bDefendEventStarted)
 		if (ObjectiveHandlerSubSystem && !bWaitForPodEventStarted && bLandingZoneSearchStarted)
 		{
 			bWaitForPodEventStarted = true;
 			bWaitForPodEventPaused = false;
-			//GetObjectiveHandler()->GetObjectiveToolTipWidget()->Display(GetCurrentSubToolTip());
 			ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->Display(GetCurrentSubToolTip());
+
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &ASGObjectivePodArrival::OnTimeIsOut, TimeToWaitForPodPodSeconds, false);
-			AdvanceCurrentObjectiveStep();
+
 			if (HorizontalBoxProgressElement.IsEmpty())
 				return;
-			HorizontalBoxProgressElement[0]->ShowSucceed();
-			HorizontalBoxProgressElement[0]->SetValue(FText::FromString("Completed!"));
-			HorizontalBoxProgressElement[0]->SetKeyAndValueOpacity(0.5);
 			
-			//HorizontalBoxProgressElement.Add(GetObjectiveHandler()->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString("Defend the Pod!"), FText::FromString(TEXT("00 : 00"))));
+			SetCurrentProgressElementCompleted("Completed!");
+
+			AdvanceCurrentObjectiveStep();
+			
 			HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(ObjectiveProgressText[1]), FText::FromString(TEXT("00 : 00"))));
 
 			OnWaitForPodEventStart.Broadcast();
@@ -122,10 +120,10 @@ void ASGObjectivePodArrival::StartMainPhase(UPrimitiveComponent* OverlappedCompo
 
 void ASGObjectivePodArrival::OnTimeIsOut()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Time is out to defend the pod, success or loss?"));
-	//GetObjectiveHandler()->GetObjectiveToolTipWidget()->Display(GetObjectiveCompletedToolTip());
 	ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->Display(GetObjectiveCompletedToolTip());
+	
 	bWaitForPodDone = true;
+	
 	OnWaitForPodEventEnd.Broadcast(this);
 }
 
@@ -134,18 +132,20 @@ void ASGObjectivePodArrival::PauseMainPhase(UPrimitiveComponent* OverlappedCompo
 	ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
 	if (Player == nullptr)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("%s (Pause): Wasn't not the Player!"), *GetActorLabel());
 		return;
 	}
 		
 	if (bWaitForPodEventStarted && !bWaitForPodDone)
 	{
-		HorizontalBoxProgressElement[1]->SetValue(FText::FromString("Return to Pod!"));
-		HorizontalBoxProgressElement[1]->PlayUpdateValueAnimation();
+		int ProgressStep = GetCurrentProgressStep();
+		HorizontalBoxProgressElement[ProgressStep]->SetValue(FText::FromString("Return to Pod!"));
+		HorizontalBoxProgressElement[ProgressStep]->PlayUpdateValueAnimation();
+		
 		bWaitForPodEventPaused = true;
+		
 		GetWorldTimerManager().PauseTimer(TimerHandle);
+		
 		OnWaitForPodEventPaused.Broadcast();
-		UE_LOG(LogTemp, Warning, TEXT("WAIT FOR POD PAUSED!"));
 	}
 		
 }
@@ -155,16 +155,18 @@ void ASGObjectivePodArrival::UnPauseMainPhase(UPrimitiveComponent* OverlappedCom
 	ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
 	if (Player == nullptr)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("%s (UnPause): Wasn't not the Player!"), *GetActorLabel());
 		return;
 	}
 	
 	if (bWaitForPodEventStarted && !bWaitForPodDone)
 	{
-		HorizontalBoxProgressElement[1]->PlayUpdateValueAnimation();
+		int ProgressStep = GetCurrentProgressStep();
+		HorizontalBoxProgressElement[ProgressStep]->PlayUpdateValueAnimation();
+		
 		bWaitForPodEventPaused = false;
+		
 		GetWorldTimerManager().UnPauseTimer(TimerHandle);
+		
 		OnWaitForPodEventUnPaused.Broadcast();
-		UE_LOG(LogTemp, Warning, TEXT("WAIT FOR POD UNPAUSED!"));
 	}
 }

@@ -7,6 +7,7 @@
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGGameObjectivesHandler.h"
+#include "Objectives/SGHorizontalBoxObjective.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
 // Sets default values
 ASGObjectiveBase::ASGObjectiveBase()
@@ -15,7 +16,6 @@ ASGObjectiveBase::ASGObjectiveBase()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
 void ASGObjectiveBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -26,7 +26,6 @@ void ASGObjectiveBase::BeginPlay()
 	}
 }
 
-// Called every frame
 void ASGObjectiveBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -36,39 +35,15 @@ void ASGObjectiveBase::ActivateObjective()
 {
 	bIsActivated = true;
 }
-/*
-void ASGObjectiveBase::OnStart(ASGGameObjectivesHandler* ObjectivesHandler)
-{
-	if (ObjectivesHandler == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ASGObjectiveBase::OnStart - ObjectivesHandler was nullptr!"));
-		return;
-	}
-	
-	//SetObjectiveHandler(ObjectivesHandler);
-	if (!ObjectiveSubToolTips.IsEmpty())
-		CurrentSubToolTip = ObjectiveSubToolTips[0];
-	//DisplayStartToolTip(ObjectivesHandler->GetObjectiveToolTipWidget());
-	DisplayStartToolTip(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget());
-	CurrentSubObjectiveStep = 1;
 
-	OnObjectiveStart.Broadcast(this);
-}
-
-void ASGObjectiveBase::OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
-{
-	//DisplayEndToolTip(ObjectiveHandler->GetObjectiveToolTipWidget());
-	DisplayEndToolTip(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget());
-	
-}
-*/
 void ASGObjectiveBase::OnStart()
 {
 	if (!ObjectiveSubToolTips.IsEmpty())
 		CurrentSubToolTip = ObjectiveSubToolTips[0];
-	//DisplayStartToolTip(ObjectivesHandler->GetObjectiveToolTipWidget());
+
 	DisplayStartToolTip(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget());
-	CurrentSubObjectiveStep = 1;
+
+	CurrentSubObjectiveStep = 0;
 
 	OnObjectiveStart.Broadcast(this);
 }
@@ -77,6 +52,12 @@ void ASGObjectiveBase::OnCompleted()
 {
 	DisplayEndToolTip(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget());
 }
+
+void ASGObjectiveBase::Update()
+{
+	
+}
+
 void ASGObjectiveBase::DisplayStartToolTip(USGObjectiveToolTipWidget* ToolTipWidget)
 {
 	ToolTipWidget->Display(GetObjectiveDescriptionToolTip());
@@ -101,12 +82,17 @@ void ASGObjectiveBase::SetCurrentProgressText(FString NewCurrentProgressText)
 {
 	if (ProgressText.SubText.IsEmpty())
 	{
-		//UE_LOG(LogTemp, Error, TEXT("Progress SubText (Whole array) was empty in Objective: %s"), *GetActorLabel())
 		return;
-
 	}
-	ProgressText.SubText[GetCurrentProgressStep() - 1] = NewCurrentProgressText;
-	//GetObjectiveHandler()->GetObjectiveToolTipWidget()->SetProgressWindowText(this);
+	ProgressText.SubText[GetCurrentProgressStep()] = NewCurrentProgressText;
+}
+
+void ASGObjectiveBase::SetCurrentProgressElementCompleted(FString InTextCompleted)
+{
+	int ProgressStep = GetCurrentProgressStep(); 
+	HorizontalBoxProgressElement[ProgressStep]->ShowSucceed();
+	HorizontalBoxProgressElement[ProgressStep]->SetValue(FText::FromString(InTextCompleted));
+	HorizontalBoxProgressElement[ProgressStep]->SetKeyAndValueOpacity(0.5);
 }
 
 FText ASGObjectiveBase::GetObjectiveDescriptionToolTip()

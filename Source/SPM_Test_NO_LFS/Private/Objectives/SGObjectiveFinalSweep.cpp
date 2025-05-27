@@ -49,7 +49,7 @@ void ASGObjectiveFinalSweep::Update()
 	Super::Update();
 	IncrementEnemiesKilled();
 	FString StrEnemiesKilled = FString::Printf(TEXT("%d"), CurrentEnemiesKilled);
-	HorizontalBoxProgressElement[0]->SetValue(FText::FromString(StrEnemiesKilled));
+	HorizontalBoxProgressElement[GetCurrentProgressStep()]->SetValue(FText::FromString(StrEnemiesKilled));
 }
 
 void ASGObjectiveFinalSweep::IncrementEnemiesKilled()
