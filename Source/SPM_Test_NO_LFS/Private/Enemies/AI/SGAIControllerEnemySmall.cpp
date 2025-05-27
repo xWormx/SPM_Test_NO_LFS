@@ -3,9 +3,11 @@
 
 #include "Enemies/AI/SGAIControllerEnemySmall.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Enemies/AI/SGAIControllerEnemyBig.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyShootAttackComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
 {
@@ -43,6 +45,24 @@ void ASGAIControllerEnemySmall::HandleMovement()
 
 void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 {
+	if (!ControlledEnemy)
+	{
+		return;
+	}
+
+	if (!ControlledEnemy->IsActorTickEnabled())
+	{
+		ControlledEnemy->GetCapsuleComponent()->SetEnableGravity(false);
+		ControlledEnemy->GetCharacterMovement()->GravityScale = 0.f;
+		ControlledEnemy->GetCharacterMovement()->StopMovementImmediately();
+		return;
+	}
+
+	if (ControlledEnemy->IsActorTickEnabled())
+	{
+		ControlledEnemy->GetCharacterMovement()->GravityScale = 1.f;
+	}
+	
 	Super::Tick(DeltaTime);
 
 	if (!bShouldAlwaysChaseTarget)
