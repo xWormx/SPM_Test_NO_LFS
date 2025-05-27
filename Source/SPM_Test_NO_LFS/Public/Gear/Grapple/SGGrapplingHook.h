@@ -8,6 +8,10 @@
 #include "CableComponent.h"
 #include "SGGrapplingHook.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireGrapple);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCanGrapple, bool, bCanGrapple);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBeginCooldown, FTimerHandle&, GrappleTimerHandle);
+
 class USGHUDGrapple;
 
 UCLASS()
@@ -35,14 +39,13 @@ public:
 	void SetCoolDown(float NewCoolDown) { HookCooldown = NewCoolDown; }
 	void EnableGrappling();
 	void DisableGrappling();
-	void InitializeHUDGrapple();
+	//void InitializeHUDGrapple();
 	bool CanGrapple() const { return bCanGrapple; }
 	bool HeadAttached() const { return bHeadAttached; }
 	bool PlayerWantToTravel() const { return bStartTravel; }
 	FVector GetAttachmentPoint() const { return AttachmentPoint; }
 	FVector GetGrappleDirectionNormalized() const { return GrappleDirection; }
 	float GetDragSpeed() const { return DragSpeed; }
-	
 	
 private:
 
@@ -107,11 +110,10 @@ private:
 	bool bDidGrapple = false;
 	bool bCanGrapple = true;
 	bool bStartTravel = false;
-	
+
 	FVector AttachmentPoint = FVector::ZeroVector;
 	FVector PointOfDeparture = FVector::ZeroVector;
 	FVector GrappleDirection = FVector::ZeroVector;
-
 	
 	AController* GetValidController() const;
 	bool GrappleTrace(FHitResult& OutHitResult, AController* Controller);
@@ -119,4 +121,9 @@ private:
 	void UpdatePlayerPosition(ACharacter* Character, float DeltaTime);
 	bool AttachGrapple(AController* Controller,FHitResult& HitResult);
 	void TravelDirectly(ACharacter* Character, FHitResult& HitResult);
+
+public:
+	FOnCanGrapple OnCanGrapple;
+	FOnFireGrapple OnFireGrapple;
+	FOnBeginCooldown OnBeginCooldown;
 };

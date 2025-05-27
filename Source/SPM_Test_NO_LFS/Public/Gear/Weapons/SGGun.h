@@ -1,3 +1,5 @@
+// Joel Larsson Wendt || jola6902
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -37,7 +39,7 @@ protected:
 	USkeletalMeshComponent* Mesh;
 	UPROPERTY(VisibleAnywhere, Category="design")
 	USceneComponent* ShootParticlesPoint;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="design", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="design", meta=(AllowPrivateAccess="true"))
 	int32 Ammo = 1;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="design", meta=(AllowPrivateAccess="true"))
 	int32 CurrentMagazineAmmo = 30;

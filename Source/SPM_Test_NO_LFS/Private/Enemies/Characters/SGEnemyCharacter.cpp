@@ -1,9 +1,11 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
 #include "SPM_Test_NO_LFS.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SGHealthComponent.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 #include "Utils/SGPickUpSubsystem.h"
@@ -11,8 +13,8 @@
 ASGEnemyCharacter::ASGEnemyCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.5f;
 	HealthComponent = CreateDefaultSubobject<USGHealthComponent>(TEXT("HealthComponent"));
-
 	Tags.Add("Enemy");
 }
 
@@ -24,6 +26,9 @@ void ASGEnemyCharacter::BeginPlay()
 	{
 		HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
 	}
+
+	const float AnimationRate = FMath::FRandRange(0.8f, 1.2f);
+	GetMesh()->GlobalAnimRateScale = AnimationRate;
 	
 	if (USGUpgradeSubsystem* UpgradeSubsystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
@@ -32,6 +37,8 @@ void ASGEnemyCharacter::BeginPlay()
 		UpgradeSubsystem->BindAttribute(HealthComponent, MaxHealth, TEXT("EnemyHealth"), Category);
 		UpgradeSubsystem->BindDependentAttribute(HealthComponent, TEXT("CurrentHealth"), false, HealthComponent, MaxHealth);
 	}
+
+	
 }
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
@@ -43,6 +50,11 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 
 	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
 	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth());
+
+	if (DeathSound)
+	{
+		UGameplayStatics::SpawnSoundAttached(DeathSound, GetMesh(), "DeathSound");
+	}
 }
 
 void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -57,33 +69,49 @@ USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent() const
 
 void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 {
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	FVector CurrentLocation = GetActorLocation();
-	FVector ToTarget = Destination - CurrentLocation;
+	UCharacterMovementComponent* MovementComp = GetCharacterMovement();
+	MovementComp->bOrientRotationToMovement = false;
+	MovementComp->bUseControllerDesiredRotation = false;
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Ignore);
+	GetCharacterMovement()->bUseRVOAvoidance = false;
 
+	const float BaseJumpZVelocity = MovementComp->JumpZVelocity;
+
+	const FVector StartLocation = GetActorLocation();
+	const FVector DirectionToTarget = (Destination - StartLocation).GetSafeNormal();
 	
-	FVector JumpVelocity = ToTarget.GetSafeNormal() * 600.f; 
-	JumpVelocity.Z = 420.f; 
+	FVector LaunchVelocity = DirectionToTarget * JumpHorizontalSpeed;
 	
-	FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(CurrentLocation, Destination);
-	SetActorRotation(NewRotation);
+	const float HeightDifference = Destination.Z - StartLocation.Z;
+	float VerticalLaunchVelocity = BaseJumpZVelocity;
 
-	LaunchCharacter(JumpVelocity, true, true);
+	if (HeightDifference > 0.f)
+	{
+		VerticalLaunchVelocity += HeightDifference * 2.f;
+	}
 
+	LaunchVelocity.Z = VerticalLaunchVelocity * 1.5f;
+	
+	const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, Destination);
+	SetActorRotation(LookAtRotation);
+	
+	LaunchCharacter(LaunchVelocity, true, true);
+	
 	GetWorld()->GetTimerManager().SetTimer(
 		JumpTimerHandle,
 		this,
 		&ASGEnemyCharacter::AdjustJumpRotation,
-		1.f,
+		1.0f,
 		false
-		);
+	);
 }
 
 void ASGEnemyCharacter::AdjustJumpRotation()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bUseRVOAvoidance = true;
+	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Block);
 }
 
 void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)

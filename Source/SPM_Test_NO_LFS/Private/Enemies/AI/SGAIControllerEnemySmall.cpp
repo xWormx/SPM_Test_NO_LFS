@@ -3,13 +3,14 @@
 
 #include "Enemies/AI/SGAIControllerEnemySmall.h"
 
+#include "Enemies/AI/SGAIControllerEnemyBig.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyShootAttackComponent.h"
-#include "GameFramework/PawnMovementComponent.h"
 
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemySmall::BeginPlay()
@@ -24,7 +25,7 @@ void ASGAIControllerEnemySmall::HandleMovement()
 
 	float DistanceToPlayer = FVector::Dist(PlayerLocation, Location);
 	
-
+	
 	if (DistanceToPlayer < AcceptanceRadius)
 	{
 		FVector DirectionAwayFromPlayer = (Location - PlayerLocation).GetSafeNormal();
@@ -36,12 +37,6 @@ void ASGAIControllerEnemySmall::HandleMovement()
 	else
 	{
 		MoveToActor(AttackTarget, AcceptanceRadius);
-	}
-
-	if (CanAttackTarget() && IsFacingTarget())
-	{
-		StopMovement();
-		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
 	}
 }
 
@@ -57,17 +52,45 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 			return;
 		}
 	}
+	
+	RotateTowardsTargetWhileNotMoving();
+	
+	if (CanAttackTarget())
+	{
+		ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
+	}
 
 	if (CanReachTarget(AttackTarget))
 	{
+		GetWorld()->GetTimerManager().ClearTimer(PatrolDelayTimerHandle);
+		bShouldPatrol = false;
 		HandleMovement();
 	}
 	else
 	{
-		//MoveToLocation(FirstStartLocation);
-		Patrol();
+		if (!GetWorld()->GetTimerManager().IsTimerActive(PatrolDelayTimerHandle))
+		{
+			GetWorld()->GetTimerManager().SetTimer(
+				PatrolDelayTimerHandle,
+				this,
+				&ASGAIControllerEnemySmall::PatrolDelay,
+				3.f,
+				false
+			);
+		}
+		if (bShouldPatrol)
+		{
+			Patrol();
+		}
+		else
+		{
+			SetAttackTargetLocation();
+			MoveToLocation(AttackTargetLocation);
+		}
 	}
-	
-	RotateTowardsTargetWhileNotMoving();
-	
+}
+
+bool ASGAIControllerEnemySmall::CanAttackTarget() const
+{
+	return Super::CanAttackTarget() & IsFacingTarget();
 }

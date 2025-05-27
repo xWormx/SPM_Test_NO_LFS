@@ -5,25 +5,23 @@
 
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
-#include "SPM_Test_NO_LFS.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Navigation/SGEnemyPatrolPoint.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-	/*AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());*/
-
+	
 	FTimerHandle TimerHandle;
-
 	GetWorld()->GetTimerManager().SetTimer(
 		TimerHandle,
 		this,
@@ -45,11 +43,6 @@ bool ASGAIControllerEnemyBase::CanAttackTarget() const
 	const float DistanceToPlayer = FVector::Dist(TargetLocation, Location);
 
 	const bool bCanAttackTarget = DistanceToPlayer < AttackRange;
-
-	/*if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Distance to player: %f"), DistanceToPlayer));
-	}*/
 
 	return bCanAttackTarget;
 }
@@ -78,12 +71,6 @@ void ASGAIControllerEnemyBase::SetAttackTarget(AActor* NewAttackTarget)
 	AttackTarget = NewAttackTarget;
 }
 
-void ASGAIControllerEnemyBase::SetControlledCharacter(ASGEnemyCharacter* NewControlledEnemy)
-{
-	ControlledEnemy = NewControlledEnemy;
-}
-
-
 float ASGAIControllerEnemyBase::GetAcceptanceRadius() const
 {
 	return AcceptanceRadius;
@@ -111,33 +98,28 @@ bool ASGAIControllerEnemyBase::IsFacingTarget() const
 	{
 		return false;
 	}
+
 	float ToleranceDegree = 70.f;
 
-	FVector ControlledEnemyDirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).
-		GetSafeNormal();
-	FVector AttackTargetDirectionToEnemy = -ControlledEnemyDirectionToTarget;
+	FVector DirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
+	FVector ForwardVector = ControlledEnemy->GetActorForwardVector();
 
-	FVector ForwardControlledEnemy = ControlledEnemy->GetActorForwardVector();
-	FVector ForwardAttackTarget = AttackTarget->GetActorForwardVector();
-
-	float DotControlledEnemy = FVector::DotProduct(ForwardControlledEnemy, ControlledEnemyDirectionToTarget);
-	float DotAttackTarget = FVector::DotProduct(ForwardAttackTarget, AttackTargetDirectionToEnemy);
-
+	float DotProduct = FVector::DotProduct(ForwardVector, DirectionToTarget);
 	float DotTolerance = FMath::Cos(FMath::DegreesToRadians(ToleranceDegree));
 
-	return (DotControlledEnemy >= DotTolerance && DotAttackTarget >= DotTolerance);
+	return DotProduct >= DotTolerance;
 }
 
 void ASGAIControllerEnemyBase::RotateTowardsTargetWhileNotMoving()
 {
-	if (!ControlledEnemy)
+	if (!ControlledEnemy || ControlledEnemy->GetMovementComponent()->Velocity.Size() > 150.f)
 	{
 		return;
 	}
 
-	float VelocityThreshhold = 150.0f;
+	float VelocityThreshold = 150.0f;
 
-	if (ControlledEnemy->GetVelocity().Size() > VelocityThreshhold)
+	if (ControlledEnemy->GetVelocity().Size() > VelocityThreshold)
 	{
 		return;
 	}
@@ -193,7 +175,6 @@ bool ASGAIControllerEnemyBase::IsStuck()
 
 	bool bIsStuck = DistanceMoved < StuckDistanceThreshold;
 
-	// Updating for next checking
 	LastLocationCheck = CurrentLocation;
 	LastLocationCheckTime = CurrentTime;
 	bWasStuckLastChecked = bIsStuck;
@@ -204,22 +185,19 @@ bool ASGAIControllerEnemyBase::IsStuck()
 void ASGAIControllerEnemyBase::SetInitialValues()
 {
 	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	
 	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
-
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGEnemyPatrolPoint::StaticClass(), PatrolPoints);
 
 	UpdatePatrolPoints();
 }
 
 void ASGAIControllerEnemyBase::UpdatePatrolPoints()
 {
-	for (AActor* Target : PatrolPoints)
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGEnemyPatrolPoint::StaticClass(), PatrolPoints);
+	PatrolPoints.RemoveAll( [this] (AActor* PatrolPoint)
 	{
-		if (!CanReachTarget(Target))
-		{
-			PatrolPoints.Remove(Target);
-		}
-	}
+		return !CanReachTarget(PatrolPoint);
+	});
 }
 
 ASGEnemyPatrolPoint* ASGAIControllerEnemyBase::GetPatrolPoint()
@@ -228,11 +206,11 @@ ASGEnemyPatrolPoint* ASGAIControllerEnemyBase::GetPatrolPoint()
 	{
 		return nullptr;
 	}
-	INT32 index = FMath::RandRange(0, PatrolPoints.Num() - 1);
+	int32 Index = FMath::RandRange(0, PatrolPoints.Num() - 1);
 
-	if (!PatrolPoints[index]) { return nullptr; }
+	if (!PatrolPoints[Index]) { return nullptr; }
 
-	CurrentPatrolPoint = Cast<ASGEnemyPatrolPoint>(PatrolPoints[index]);
+	CurrentPatrolPoint = Cast<ASGEnemyPatrolPoint>(PatrolPoints[Index]);
 	
 	if (CurrentPatrolPoint)
 	{
@@ -254,6 +232,12 @@ bool ASGAIControllerEnemyBase::HasReachedCurrentPatrolPoint(float Tolerance) con
 
 void ASGAIControllerEnemyBase::Patrol()
 {
+	if (IsStuck())
+	{
+		UpdatePatrolPoints();
+		CurrentPatrolPoint = GetPatrolPoint();
+	}
+	
 	if (!CurrentPatrolPoint || HasReachedCurrentPatrolPoint(200.f))
 	{
 		CurrentPatrolPoint = GetPatrolPoint();
@@ -268,32 +252,36 @@ void ASGAIControllerEnemyBase::Patrol()
 	if (CurrentPatrolPoint)
 	{
 		MoveToActor(CurrentPatrolPoint);
-		/*if (!CanReachTarget(CurrentPatrolPoint))
-		{
-			//BASIR_DEBUG(TEXT("Move to Patrol Point"), FColor::Blue, 3.f);
-			UpdatePatrolPoints();
-		}*/
 	}
 	
+}
+
+void ASGAIControllerEnemyBase::PatrolDelay()
+{
+	if (!AttackTarget || CanReachTarget(AttackTarget))
+	{
+		return;
+	}
+	bShouldPatrol = true;
+}
+
+void ASGAIControllerEnemyBase::SetAttackTargetLocation()
+{
+	if (!AttackTarget || !ControlledEnemy)
+	{
+		return;
+	}
+	
+	FVector NewAttackTargetLocation = FVector(
+		AttackTarget->GetActorLocation().X,
+		AttackTarget->GetActorLocation().Y,
+		ControlledEnemy->GetActorLocation().Z
+		);
+	
+	AttackTargetLocation = NewAttackTargetLocation;
 }
 
 void ASGAIControllerEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	/*if (!AttackTarget)
-	{
-		AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	}
-
-	if (!ControlledEnemy)
-	{
-		ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
-	}
-
-	if (ControlledEnemy && !bIsFirstStartLocationSet)
-	{
-		FirstStartLocation = ControlledEnemy->GetActorLocation();
-		bIsFirstStartLocationSet = true;
-	}*/
 }

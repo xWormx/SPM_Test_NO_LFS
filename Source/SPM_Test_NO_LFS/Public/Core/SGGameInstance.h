@@ -1,19 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "Gear/Grapple/SGHUDGrapple.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
 
 #include "SGGameInstance.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDifficultyIncreased, int, NewDifficultLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameLoaded);
 
 class USGTerminalWidget;
 class USGSaveGame;
-
 
 UCLASS()
 class SPM_TEST_NO_LFS_API USGGameInstance : public UGameInstance
@@ -23,13 +20,11 @@ public:
 	virtual void Init() override;
 	void CreateObjectiveToolTip();
 	void CreateHUDTerminal();
-	void SetTerminalWidget(USGTerminalWidget* InWidget) { HUDTerminal = InWidget; }
-	void SetHUDGrapple(USGHUDGrapple* InHUDGrapple) { HUDGrapple = InHUDGrapple; }
-	void SetObjectiveTooltipWidget(USGObjectiveToolTipWidget* InObjectiveTooltipWidget) { ObjectiveToolTipWidget = InObjectiveTooltipWidget; }
-	USGTerminalWidget* GetTerminalWidget() { return HUDTerminal; }
-	USGHUDGrapple* GetHUDGrapple() {	return HUDGrapple; }
-	USGObjectiveToolTipWidget* GetObjectiveTooltipWidget() { return ObjectiveToolTipWidget; }
-	
+	void SetTerminalWidget(USGTerminalWidget* InWidget);
+	void SetObjectiveTooltipWidget(USGObjectiveToolTipWidget* InObjectiveTooltipWidget);
+	USGTerminalWidget* GetTerminalWidget() const;
+	USGObjectiveToolTipWidget* GetObjectiveTooltipWidget() const;
+
 private:
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -38,9 +33,6 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGTerminalWidget* HUDTerminal;
 
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-	USGHUDGrapple* HUDGrapple;
-
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	TSubclassOf<USGObjectiveToolTipWidget> ObjectiveToolTipClass;
 	
@@ -48,20 +40,26 @@ private:
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
 
 public:
+	FOnDifficultyIncreased OnDifficultyIncreased;
+	
 	UFUNCTION()
 	void IncreaseDifficultyLevel(int Difficulty);
-	
-	
+
 	//Saving functionality
-		//Functions
 	UFUNCTION(BlueprintCallable)
 	void LoadGameData(bool bAsync);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void SaveGameData(bool bAsync);
 
-	UFUNCTION(Blueprintable)
+	UFUNCTION(BlueprintCallable)
 	class USGSaveGame* GetSaveGame() const;
+
+	UFUNCTION(BlueprintCallable)
+	void SavePlayerStats(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, const bool bAsync);
+
+	/*UFUNCTION(BlueprintCallable)
+	void SaveUpgradeStats(struct FSGSavedAttributes UpgradesStats, const bool bAsync);*/
 
 	UFUNCTION()
 	void OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData) const;
@@ -77,4 +75,7 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	FString SlotName = TEXT("Saved Game 1");
+
+	UPROPERTY(EditAnywhere)
+	class USGUpgradeSubsystem* UpgradeSubSystem;
 };

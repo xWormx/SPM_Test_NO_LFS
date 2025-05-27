@@ -32,6 +32,7 @@ void USGCounterComponentAmmo::ProcessPickup(AActor* Pickup)
 		}
 
 		Gun->AddAmmo(Ammo->GetPickupValue());
+		OnPickedUpAmmo.Broadcast(Ammo->GetPickupValue(), Gun);
 		break; //Ta bort denna om flera vapen kan använda samma ammo
 	}
 

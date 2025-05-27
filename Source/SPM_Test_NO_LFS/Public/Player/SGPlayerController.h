@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -7,40 +5,32 @@
 #include "GameFramework/PlayerController.h"
 #include "SGPlayerController.generated.h"
 
-class USGHUDGrapple;
 class USGTerminalWidget;
+class UCameraShakeBase;
+class UUserWidget;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 
 class ASGPlayerCharacter;
-/**
- * 
- */
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 
 public:
-	FOnInteract OnInteract;
-	
 	virtual void SetupInputComponent() override;
-	void SetCanInteractWithTerminal(bool bInteract) { bCanInteractWithTerminal = bInteract; }
-	void SetWantToInteractWithTerminal(bool bInteract) { bWantToInteract = bInteract; }
-	bool GetCanInteractWithTerminal() { return bCanInteractWithTerminal; }
-	bool GetWantToInteractWithTerminal() { return bWantToInteract; }
 
-	//Added by Basir
+//----Start: Added by Basir
 	void UpgradeScorePoint();
 	void ClearScorePoint();
 	void SetScorePoint(int32 NewScorePoint);
 
-	//Added by Basir
 	UFUNCTION(BlueprintCallable, Category = "Score System")
 	int32 GetScorePoint() const;
+//----End: Added By Basir
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
 
 private:
 	void Move(const FInputActionValue& Value);
@@ -48,97 +38,82 @@ private:
 	void Interact(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
 	void Grapple(const FInputActionValue& Value);
-	void OnFireButtonPressed(const FInputActionValue& Value);
-	void OnFireButtonReleased(const FInputActionValue& Value);
-	void HandleFiring();
-	void FireGun();
-	void CanFireAgain();
-	void OnSwapWeaponKeyPressed(const FInputActionInstance& Instance);
-	void OnSwapWeaponMouseWheel(const FInputActionValue& Value);
-	void OnReloadPressed(const FInputActionValue& Value);
 
-	//Added by Basir
+	ASGPlayerCharacter* GetValidPlayerCharacter();
+
+//----Start: Added by Basir
 	void PauseGame();
 
-	//Added by Basir
 	UFUNCTION(BlueprintCallable)
 	void RestartGame();
 
-	//Added by Basir
 	UFUNCTION(BlueprintCallable)
-	void EnableGameOver();
+	void EnableGameOver(float NewHealth);
 
-	//Added by Basir
 	UFUNCTION(BlueprintCallable)
-	void PlayTempDamageEffect();
+	void PlayTempDamageEffect(float NewHealth);
 
 	void RemoveDamageEffect();
 
-	//Added by Basir
 	FTimerHandle DamageEffectTimer;
+//----End: Added By Basir
 
 	bool bCanInteractWithTerminal = false;
 	bool bWantToInteract = false;
-	
-	ASGPlayerCharacter* GetValidPlayerCharacter();
-	ASGPlayerCharacter* ThePlayerCharacter;
-
-	USGHUDGrapple* GetHUDGrapple() { return HUDGrapple; }
 
 public:
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
-	float MoveSpeed = 5;
+	FOnInteract OnInteract;
+
+	void SetCanInteractWithTerminal(const bool bInteract);
+	void SetWantToInteractWithTerminal(const bool bInteract);
+	bool CanInteractWithTerminal() const;
+
 private:
-	
-	UPROPERTY(EditAnywhere, Category = UPROPERTY)
+
+	UPROPERTY()
+	ASGPlayerCharacter* PlayerCharacter;
+
+	UPROPERTY(EditAnywhere, Category = "UProperty - Player | Input ", meta = (AllowPrivateAccess = "true", ToolTip = "Mouse sensitivity for looking around. Higher values mean faster camera movement."))
+	float MouseSensitivity = 0.75f;
+
+	UPROPERTY(EditAnywhere, Category = "UProperty - Player | Input ")
 	class UInputMappingContext* InputMapping;
 
 	// INPUT
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Movement")
 	UInputAction* MoveInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Movement")
 	UInputAction* JumpInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	UInputAction* InteractInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Movement")
 	UInputAction* LookAroundInputAction;
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Interaction")
+	UInputAction* InteractInputAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Interaction")
 	UInputAction* GrappleInputAction;
 
-	//Added by Basir
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
+//----Start: Added by Basir
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | UI")
 	UInputAction* PauseGameAction;
 
-	// HUD
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	TSubclassOf<UUserWidget> HUDClass;
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Menus")
+	UUserWidget* PauseMenu;
 
-	//Added by Basir
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	class UUserWidget* PauseMenu;
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Menus")
+	UUserWidget* GameOverMenu;
 
-	//Added by Basir
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	class UUserWidget* GameOverMenu;
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Hurt Effect")
+	UUserWidget* TempDamageEffect;
 
-	//Added by Basir
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	class UUserWidget* TempDamageEffect;
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Hurt Effect")
+	TSubclassOf<UCameraShakeBase> TempDamageEffectCameraShake;
 
-	//Added by Basir
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	TSubclassOf<class UCameraShakeBase> TempDamageEffectCameraShake;
-
-	UPROPERTY(EditDefaultsOnly, Category = UPROPERTY)
-	TSubclassOf<UUserWidget> HUDGrappleClass;
-	
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-	USGHUDGrapple* HUDGrapple;
-
-	//Added by Basir
 	int32 ScorePoint = 0;
 
-	//Added by Basir
-	UPROPERTY(EditDefaultsOnly, Category = "Score System")
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Score System")
 	int32 KillScorePoint = 10;
+//----End: Added By Basir
 };

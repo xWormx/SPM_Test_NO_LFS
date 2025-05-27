@@ -13,6 +13,7 @@
 ASGAIControllerEnemyFlying::ASGAIControllerEnemyFlying()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemyFlying::BeginPlay()
@@ -129,6 +130,24 @@ ASGEnemyMoveToPoint* ASGAIControllerEnemyFlying::GetClosestMoveToPoint()
 	return nullptr;
 }
 
+ASGEnemyMoveToPoint* ASGAIControllerEnemyFlying::GetRandomMoveToPoint() const
+{
+	if (MoveToPoints.IsEmpty())
+	{
+		return nullptr;
+	}
+
+	int32 Index = FMath::RandRange(0, MoveToPoints.Num() - 1);
+
+	ASGEnemyMoveToPoint* MoveToPoint = Cast<ASGEnemyMoveToPoint>(MoveToPoints[Index]);
+
+	if (MoveToPoint)
+	{
+		return MoveToPoint;
+	}
+	return nullptr;
+}
+
 FVector ASGAIControllerEnemyFlying::GetClosestMoveToPointLocation()
 {
 	ASGEnemyMoveToPoint* Closest = nullptr;
@@ -207,10 +226,21 @@ void ASGAIControllerEnemyFlying::SearchForTarget()
 	{
 		bHasFoundTarget = true;
 	}
+
+	if (IsStuck() || MoveToPoints.Num() == 1)
+	{
+		UpdateMoveToPoints();
+	}
 	if (!CurrentMoveToPoint || HasReachedCurrentMoveToPoint(400.f))
 	{
-		CurrentMoveToPoint = GetClosestMoveToPoint();
+		CurrentMoveToPoint = GetRandomMoveToPoint();
 	}
+
+	/*if (!LineOfSightTo(CurrentMoveToPoint))
+	{
+		UpdateMoveToPoints();
+		CurrentMoveToPoint = GetClosestMoveToPoint();
+	}*/
 
 	if (CurrentMoveToPoint)
 	{
@@ -253,6 +283,18 @@ FVector ASGAIControllerEnemyFlying::GetFallbackChaseLocation() const
 	);
 
 	return bFound ? ProjectedLocation.Location : EnemyLocation;
+}
+
+void ASGAIControllerEnemyFlying::UpdateMoveToPoints()
+{
+	MoveToPoints.Empty();
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGEnemyMoveToPoint::StaticClass(), MoveToPoints);
+	
+	MoveToPoints.RemoveAll( [this] (AActor* MoveToPoint)
+	{
+		return !LineOfSightTo(MoveToPoint);
+	});
 }
 
 void ASGAIControllerEnemyFlying::Tick(float DeltaTime)

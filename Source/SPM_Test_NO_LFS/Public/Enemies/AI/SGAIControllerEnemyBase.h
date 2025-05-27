@@ -35,9 +35,6 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void SetAttackTarget(AActor* NewAttackTarget);
-
-	UFUNCTION(BlueprintCallable)
-	virtual void SetControlledCharacter(ASGEnemyCharacter* NewControlledEnemy);
 	
 	UFUNCTION(BlueprintCallable)
 	virtual float GetAcceptanceRadius() const;
@@ -56,7 +53,8 @@ protected:
 
 	UPROPERTY(EditAnywhere,  Category= "Combat", meta = (AllowPrivateAccess = true))
 	TObjectPtr<AActor> AttackTarget;
-	
+
+	UPROPERTY(EditAnywhere, Category= "Combat", meta = (AllowPrivateAccess = true))
 	TObjectPtr<ASGEnemyCharacter> ControlledEnemy;
 
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
@@ -68,8 +66,6 @@ protected:
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
 	bool bShouldAlwaysChaseTarget = false;
 
-	bool bIsAttacking = false;
-
 	virtual bool IsFacingTarget() const;
 
 	virtual void RotateTowardsTargetWhileNotMoving();
@@ -77,10 +73,6 @@ protected:
 	bool CanReachTarget(AActor* Target) const;
 
 	bool IsStuck();
-
-	//FVector FirstStartLocation = FVector::ZeroVector;
-
-	bool bIsFirstStartLocationSet = false;
 
 	//Used in IsStuck()
 	FVector LastLocationCheck = FVector::ZeroVector;
@@ -98,17 +90,29 @@ protected:
 
 	void SetInitialValues();
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	TArray<AActor*> PatrolPoints;
 
 	void UpdatePatrolPoints();
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	class ASGEnemyPatrolPoint* CurrentPatrolPoint = nullptr;
 
 	ASGEnemyPatrolPoint* GetPatrolPoint();
 
 	bool HasReachedCurrentPatrolPoint(float Tolerance) const;
 
-	virtual void Patrol();
+	void Patrol();
+
+	void PatrolDelay();
+
+	FTimerHandle PatrolDelayTimerHandle;
+
+	bool bShouldPatrol = false;
+
+	FVector AttackTargetLocation = FVector::ZeroVector;
+
+	void SetAttackTargetLocation();
 
 public:
 	virtual void Tick(float DeltaTime) override;

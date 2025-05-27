@@ -6,8 +6,10 @@
 #include "SGUpgradeSubsystem.generated.h"
 
 //Spara attribut mellan levels
+USTRUCT(Blueprintable)
 struct FSGUpgradePersistentData
 {
+	GENERATED_BODY()
 	FName PropertyName;
 	FName RowName;
 	FName Category;
@@ -15,8 +17,10 @@ struct FSGUpgradePersistentData
 	float InitialValue;
 };
 
+USTRUCT(Blueprintable)
 struct FSGDependentUpgradePersistentData
 {
+	GENERATED_BODY()
 	FString ClassNameKey;
 	FName PropertyName;
 	float InitialValue;
@@ -24,6 +28,14 @@ struct FSGDependentUpgradePersistentData
 	FString TargetClassNameKey;
 	FName TargetPropertyName;
 	FSGUpgradePersistentData Dependency;
+};
+
+USTRUCT(Blueprintable)
+struct FSGSavedAttributes
+{
+	GENERATED_BODY()
+	TMap<FString, TArray<FSGUpgradePersistentData>> PersistentUpgradesByClass;
+	TMap<FString, TArray<FSGDependentUpgradePersistentData>> PersistentDependenciesByClass;
 };
 
 struct FSGAUpgradeResult
@@ -129,6 +141,8 @@ private:
 
 protected:
 	void OnPreLevelChange(const FString& String);
+	void SavePersistentUpgrades();
+
 	void OnPostLevelChange(UWorld* World);
 	void ReconnectAttributes();
 	void ProcessObjectForReconnection(UObject* Object);
@@ -143,4 +157,15 @@ private:
 	FSGAUpgradeResult AttemptUpgrade(const FSGAttributeData& AttributeData, const FSGAttribute& TargetAttribute) const;
 	void AnnounceUpgrade(const FSGAUpgradeResult& UpgradeResult) const;
 	bool IsValidProperty(const FProperty* Property) const;
+
+public:
+	/// @brief Load all persistent upgrades from the previous level or from last play session. Used when loading save files.
+	/// @param SavedAttributes containing all attributes to loaded and reconnected in the current level
+	UFUNCTION(BlueprintCallable)
+	void LoadPersistentUpgrades(const FSGSavedAttributes& SavedAttributes);
+
+	/// @brief Save all persistent upgrades to be used in the next level or save file. Used when saving the game.
+	/// @return FSGSavedAttributes containing all attributes to be saved and reconnected in the next level
+	UFUNCTION(BlueprintCallable)
+	FSGSavedAttributes GetPersistentUpgrades() const;
 };

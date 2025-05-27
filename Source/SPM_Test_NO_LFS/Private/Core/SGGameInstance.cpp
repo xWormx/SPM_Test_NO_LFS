@@ -1,8 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Core/SGGameInstance.h"
-
 #include "SPM_Test_NO_LFS.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -15,8 +11,12 @@ void USGGameInstance::Init()
 
 	LoadGameData(false);
 
+	//GetSubsystem<USGUpgradeSubsystem>()->LoadPersistentUpgrades(SavedData->UpgradeSystemSavedAttributes);
+
 	CreateObjectiveToolTip();
 	CreateHUDTerminal();
+
+	OnDifficultyIncreased.AddDynamic(this, &USGGameInstance::IncreaseDifficultyLevel);
 	
 	EMMA_LOG(Warning, TEXT("Här är Emmas Log!"));
 	BASIR_LOG(Warning, TEXT("Här är Basirs Log!"));
@@ -50,7 +50,25 @@ inline void USGGameInstance::CreateHUDTerminal()
 	}
 }
 
-void USGGameInstance::IncreaseDifficultyLevel(int Difficulty)
+void USGGameInstance::SetTerminalWidget(USGTerminalWidget* InWidget)
+{
+	HUDTerminal = InWidget;
+}
+
+void USGGameInstance::SetObjectiveTooltipWidget(USGObjectiveToolTipWidget* InObjectiveTooltipWidget)
+{ ObjectiveToolTipWidget = InObjectiveTooltipWidget; }
+
+USGTerminalWidget* USGGameInstance::GetTerminalWidget() const
+{
+	return HUDTerminal;
+}
+
+USGObjectiveToolTipWidget* USGGameInstance::GetObjectiveTooltipWidget() const
+{
+	return ObjectiveToolTipWidget;
+}
+
+void USGGameInstance::IncreaseDifficultyLevel([[maybe_unused]] int Difficulty)
 {
 	if (const USGUpgradeSubsystem* UpgradeSubsystem = GetSubsystem<USGUpgradeSubsystem>())
 	{
@@ -114,4 +132,22 @@ void USGGameInstance::OnSaveGameLoaded(const FString& TheSlotName, const int32 U
 USGSaveGame* USGGameInstance::GetSaveGame() const
 {
 	return SavedData;
+}
+
+void USGGameInstance::SavePlayerStats(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, const bool bAsync)
+{
+	if (!SavedData)
+	{
+		BASIR_LOG(Warning, TEXT("SavedData is NULL!"));
+		SavedData = Cast<USGSaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
+		
+		if (!SavedData)
+		{
+			BASIR_LOG(Warning, TEXT("SavedData is NULL!, aborting save."));
+			return;
+		}
+	}
+	SavedData->PlayerStats = PlayerStats;
+	SavedData->UpgradeSystemSavedAttributes = UpgradeStats;
+	SaveGameData(bAsync);
 }

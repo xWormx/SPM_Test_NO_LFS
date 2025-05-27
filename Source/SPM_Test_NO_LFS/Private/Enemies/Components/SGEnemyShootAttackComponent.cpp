@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utils/SGObjectPoolSubsystem.h"
 
 
 // Sets default values for this component's properties
@@ -43,7 +44,8 @@ void USGEnemyShootAttackComponent::PerformAttack(AActor* Target)
 		return;
 	}
 
-    FVector SpawnLocation = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector() * 20.f;
+    //FVector SpawnLocation = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector() * 60.f;
+	FVector SpawnLocation = OwnerCharacter->GetActorLocation() + OwnerCharacter->GetActorForwardVector();
 	
     FVector Direction = (Target->GetActorLocation() - SpawnLocation).GetSafeNormal();
     FRotator SpawnRotation = Direction.Rotation();
@@ -57,7 +59,14 @@ void USGEnemyShootAttackComponent::PerformAttack(AActor* Target)
 	{
 		UGameplayStatics::SpawnSoundAttached(ShootSound, OwnerCharacter->GetMesh(), TEXT("ShootSound"));
 	}
-	
+
+	/*TSubclassOf<AActor> DropClass = TSubclassOf<ASGEnemyProjectile>();
+
+	Projectile = Cast<ASGEnemyProjectile>(
+		GetWorld()->GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->GetPooledObject(DropClass)
+		);*/
+
+	//Projectile = GetWorld()->GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->GetPooledObject(EnemyProjectileClass);
     GetWorld()->SpawnActor<ASGEnemyProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, SpawnParams);
 	
 }

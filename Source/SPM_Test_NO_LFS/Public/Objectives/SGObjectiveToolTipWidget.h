@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SGObjectiveToolTipWidget.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDifficultyChanged, int, NewDifficultLevel);
+//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDifficultyChanged, int, NewDifficultLevel);
 
 class UOverlay;
 class UTextBlock;
@@ -34,7 +34,9 @@ class SPM_TEST_NO_LFS_API USGObjectiveToolTipWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	
+	//void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 	void Display(FText NewToolTip);
 	void DeInitialize();
 	const bool& GetTimerAnimationFinished() const  { return bTimerAnimationFinished; }
@@ -43,6 +45,8 @@ public:
 	void ResumeAllOngoingAnimations();
 	void ShowVisitTerminal();
 	void HideVisitTerminal();
+	void SetMissionAlertText(FString NewText);
+	void PlayEscapeWithPodAnimation(FString TextToDisplay);
 	void ShowMissionVerticalBox();
 	void HideMissionVerticalBox();
 	void ShowToolTipScaleBox();
@@ -54,7 +58,6 @@ public:
 	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective() { return CurrentHorizontalBoxObjectiveElement; }
 	TArray<USGHorizontalBoxObjective*> GetHorizontalBoxObjectiveList() {return HorizontalObjectiveList; }
 
-	FOnDifficultyChanged OnDifficultyChanged;
 protected:
 	
 	virtual void NativeConstruct() override;
@@ -84,14 +87,17 @@ protected:
 	UVerticalBox* VerticalBoxMission;
 
 	// Difficulty Progress Bar
-	UPROPERTY(EditAnywhere)
+	/*UPROPERTY(EditAnywhere)
 	TSubclassOf<USGDifficultyBarWidget> DifficultyBarWidgetClass;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USGDifficultyBarWidget* DifficultyBarWidget;
+
 	UPROPERTY(VisibleAnywhere)
 	float DifficultyBarOffsetLeft = 0.0f;
+
 	UPROPERTY(VisibleAnywhere)
-	int DifficultLevel = 0;
+	int DifficultLevel = 0;*/
 	
 	//Animations
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
@@ -104,6 +110,9 @@ protected:
 	float AnimationVisitTerminalPauseTime;
 	bool bAnimationVisitTerminalWasPaused;
 
+	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
+	UWidgetAnimation* AnimationEscapeWithPod;
+
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	USoundBase* TextClickSound;
 	
@@ -115,10 +124,10 @@ private:
 	bool bTimerAnimationFinished = false;
 	FVector2D ScaleBoxTimerFinalPosition;
 	FVector2D ScaleBoxTimerFinalSize;
-	void UpdateDifficultyBar(float InDeltaTime);
+	//void UpdateDifficultyBar(float InDeltaTime);
 	void SetToolTipText(FText NewToolTip);
-	bool LastDifficultNotReached();
-	bool LastDifficultBoxNotCenteredAtTrigger();
+	//bool LastDifficultNotReached();
+	//bool LastDifficultBoxNotCenteredAtTrigger();
 
 	UFUNCTION()
 	void DisplayCharByChar(const FString& StringToolTip);
@@ -127,10 +136,10 @@ private:
 	UFUNCTION()
 	void OnEndHideToolTipAnimation();
 
-	UPROPERTY(EditAnywhere, Category=UPROPERTY)
+	/*UPROPERTY(EditAnywhere, Category=UPROPERTY)
 	USoundBase* SoundWarningDifficultLevel;
 	UPROPERTY(EditAnywhere, Category=UPROPERTY)
-	USoundBase* SoundAlarmBell;
+	USoundBase* SoundAlarmBell;*/
 	
 	FWidgetAnimationDynamicEvent EndTimerAnimation;
 	FWidgetAnimationDynamicEvent EndMoveToolTipToProgressWindowAnimation;

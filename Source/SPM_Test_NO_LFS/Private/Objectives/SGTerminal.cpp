@@ -2,7 +2,6 @@
 
 
 #include "Objectives/SGTerminal.h"
-#include "Objectives/SGTerminal.h"
 
 #include "NiagaraComponent.h"
 #include "Player/SGPlayerController.h"
@@ -10,9 +9,7 @@
 #include "Components/SphereComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/SGGameInstance.h"
-#include "Kismet/GameplayStatics.h"
 #include "PaperSpriteComponent.h"
-#include "PaperSprite.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
 
 // Sets default values
@@ -143,13 +140,13 @@ void ASGTerminal::OpenTerminal()
 	
 	if (LastInteractingPlayerController == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("LastInteractingPlayerController was nullptr from: %s"), *GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("LastInteractingPlayerController was nullptr from: %s"), *GetName());
 		return;
 	}
 		
-	if (!LastInteractingPlayerController->GetCanInteractWithTerminal())
+	if (!LastInteractingPlayerController->CanInteractWithTerminal())
 	{
-		UE_LOG(LogTemp, Error, TEXT("Terminal: Player trying to interact with terminal but is not within range!"));
+		//UE_LOG(LogTemp, Error, TEXT("Terminal: Player trying to interact with terminal but is not within range!"));
 		return;
 	}
 	
@@ -168,7 +165,7 @@ void ASGTerminal::OpenTerminal()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Terminal needs a ObjectiveHandlerSubSystem!"));
+		//UE_LOG(LogTemp, Error, TEXT("Terminal needs a ObjectiveHandlerSubSystem!"));
 	}
 
 	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
@@ -209,13 +206,13 @@ void ASGTerminal::SetAlertInactive()
 
 void ASGTerminal::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnOverlapBegin"));
+	//UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnOverlapBegin"));
 	if (OtherActor != nullptr)
 	{
 		ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
 		if (Player == nullptr)
 			return;
-		UE_LOG(LogTemp, Warning, TEXT("Player Overlapped!"));
+		//UE_LOG(LogTemp, Warning, TEXT("Player Overlapped!"));
 		
 		ASGPlayerController* PlayerController = Cast<ASGPlayerController>(Player->GetController());
 		if (PlayerController == nullptr)
@@ -228,13 +225,13 @@ void ASGTerminal::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 
 void ASGTerminal::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnOverlapEnd"));
+	//UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnOverlapEnd"));
 	if (OtherActor != nullptr)
 	{
 		ASGPlayerCharacter* Player = Cast<ASGPlayerCharacter>(OtherActor);
 		if (Player == nullptr)
 			return;
-		UE_LOG(LogTemp, Warning, TEXT("Player Overlapped Ended!"));
+		//UE_LOG(LogTemp, Warning, TEXT("Player Overlapped Ended!"));
 		
 		ASGPlayerController* PlayerController = Cast<ASGPlayerController>(Player->GetController());
 		if (PlayerController == nullptr)
@@ -250,7 +247,7 @@ void ASGTerminal::InitializeHUD()
 	USGGameInstance* GameInstance = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
 	if (!GameInstance)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ASGTerminal: Couldn't find a GameInstance!"));
+		//UE_LOG(LogTemp, Error, TEXT("ASGTerminal: Couldn't find a GameInstance!"));
 		return;
 	}
 
@@ -274,7 +271,7 @@ void ASGTerminal::InitializeHUD()
 
 void ASGTerminal::OnComponentHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnComponentHit"));
+	//UE_LOG(LogTemp, Warning, TEXT("ASGTerminal::OnComponentHit"));
 
 }
 

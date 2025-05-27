@@ -30,6 +30,8 @@ protected:
 
 	ASGEnemyMoveToPoint* GetClosestMoveToPoint();
 
+	ASGEnemyMoveToPoint* GetRandomMoveToPoint() const;
+
 	FVector GetClosestMoveToPointLocation();
 
 	bool HasReachedCurrentMoveToPoint(float Tolerance) const;
@@ -39,6 +41,8 @@ protected:
 	virtual void SearchForTarget();
 
 	FVector GetFallbackChaseLocation() const;
+
+	virtual void UpdateMoveToPoints();
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -58,8 +62,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float HoverInterpSpeed = 5.0f;
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	TArray<AActor*> MoveToPoints;
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
 	ASGEnemyMoveToPoint* CurrentMoveToPoint = nullptr;
 
 	bool bHasFoundTarget = true;
@@ -69,5 +75,4 @@ private:
 	struct FTimerHandle HoverZTimerHandle;
 
 	FVector CurrentLocation;
-	
 };

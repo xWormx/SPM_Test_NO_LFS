@@ -1,18 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Gear/Grapple/SGGrapplingHook.h"
 
-#include "Blueprint/UserWidget.h"
-#include "Core/SGGameInstance.h"
 #include "Gear/Grapple/SGGrappleHeadBase.h"
-#include "Player/SGPlayerController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// Sets default values
 ASGGrapplingHook::ASGGrapplingHook()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -28,11 +21,10 @@ ASGGrapplingHook::ASGGrapplingHook()
 	GrappleHeadPosition->SetupAttachment(GetRootComponent());
 }
 
-// Called when the game starts or when spawned
 void ASGGrapplingHook::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	Head = GetWorld()->SpawnActor<ASGGrappleHeadBase>(GrappleHeadClass);
 	Head->SetActorLocation(GrappleHeadPosition->GetComponentLocation());
 	Head->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
@@ -43,25 +35,24 @@ void ASGGrapplingHook::BeginPlay()
 	SetGrappleVisibility(false);
 }
 
-// Called every frame
 void ASGGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bHUDGrappleInitialized)
-		InitializeHUDGrapple();
+	/*if (!bHUDGrappleInitialized)
+		InitializeHUDGrapple();*/
 
 	FHitResult HitResult;
 	AController* Controller = GetValidController();
-	bool didHit = GrappleTrace(HitResult, Controller);
-	if (!didHit)
+	if (const bool bDidHit = GrappleTrace(HitResult, Controller); !bDidHit)
 	{
-		if (HUDGrapple)
+		/*if (HUDGrapple)
 		{
 			HUDGrapple->PlayValidTargetAnimation();
-		}
+		}*/
+		OnCanGrapple.Broadcast(bDidHit);
 	}
-	
+
 	if (!CanGrapple())
 	{
 		int TimeLeft = GetWorldTimerManager().GetTimerRemaining(GrappleTimerHandle);
@@ -90,13 +81,11 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 			// Annars (när vi är nära målet gör vi det med konstant hastighet)
 			if (DistanceBetweenHeadAndAttachment > 150)
 			{
-				NewHeadPosition = FMath::VInterpTo(Head->GetActorLocation(), AttachmentPoint,
-														DeltaTime, HeadTravelSpeed);	
+				NewHeadPosition = FMath::VInterpTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, HeadTravelSpeed);
 			}
 			else
 			{
-				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint,
-															DeltaTime, 1000);		
+				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, 1000);
 			}
 				
 			Head->SetActorLocation(NewHeadPosition);
@@ -137,6 +126,9 @@ void ASGGrapplingHook::FireGrapple()
 	SetGrappleVisibility(true);
 	Head->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	*/
+
+	OnFireGrapple.Broadcast();
+	OnBeginCooldown.Broadcast(GrappleTimerHandle);
 }
 
 void ASGGrapplingHook::ResetGrapple()
@@ -148,7 +140,7 @@ void ASGGrapplingHook::ResetGrapple()
 		return;
 	}
 	
-	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 1.0f;
+	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 2.0f;
 	// TODO (Calle): Friction borde resettas när man INTE ÄR I LUFTEN LÄNGRE, så att man kan glida på väggar
 	// annars fastnar man i dem.
 	//Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
@@ -181,6 +173,7 @@ void ASGGrapplingHook::DisableGrappling()
 	bCanGrapple = false;
 }
 
+/*
 void ASGGrapplingHook::InitializeHUDGrapple()
 {
 	bHUDGrappleInitialized = true;
@@ -190,6 +183,7 @@ void ASGGrapplingHook::InitializeHUDGrapple()
 		UE_LOG(LogTemp, Warning, TEXT("ASGGrapplingHook: Couldn't initialize HUDGrapple!"));
 	}
 }
+*/
 
 AController* ASGGrapplingHook::GetValidController() const
 {
@@ -219,11 +213,22 @@ bool ASGGrapplingHook::GrappleTrace(FHitResult& OutHitResult, AController* Contr
 	GrappleDirection = TraceEnd - ViewLocation;
 	GrappleDirection.Normalize();
 	Head->SetActorRotation(ViewRotation);
-	//DrawDebugPoint(GetWorld(), TraceEnd, 25, FColor::Red, false, 8);
-	// Detta är basically SphereTraceByChannel
-	return GetWorld()->SweepSingleByChannel(OutHitResult, ViewLocation, TraceEnd,
+	
+	// LineTrace för att kunna hooka när man är nära väggar
+	FHitResult LineHitResult;
+	bool LineHit = GetWorld()->LineTraceSingleByChannel(LineHitResult,ViewLocation, TraceEnd,
+														ECC_GameTraceChannel1);
+
+	// SphereTrace för att det ska vara lättare att träffa med hooken
+	bool SphereHitResult = GetWorld()->SweepSingleByChannel(OutHitResult, ViewLocation, TraceEnd,
 												FQuat::Identity, ECC_GameTraceChannel1,
 													FCollisionShape::MakeSphere(30));
+
+	// Om LineHit träffar vill vi alltid anden för mer preciserad hook
+	if (LineHit)
+		OutHitResult = LineHitResult;
+	
+	return (LineHit || SphereHitResult);
 }
 
 void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
@@ -235,12 +240,12 @@ void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
 	// För att karaktären inte ska bromsas när den dras mot väggar
 	Character->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
 	Character->GetCharacterMovement()->bUseSeparateBrakingFriction = true;
-	Character->GetCharacterMovement()->GravityScale = 0.2f;
+	Character->GetCharacterMovement()->GravityScale = 0.6f;
 }
 
 void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTime)
 {
-	if (Character == nullptr)
+	if (Character == nullptr || !HeadAttached())
 		return;
 	
 	if (HeadAttached())
@@ -250,23 +255,22 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 												GetWorld()->GetDeltaSeconds(),
 												GetDragSpeed());
 		
-		UE_LOG(LogTemp, Warning, TEXT("DELTASECONDS: %f"), DeltaTime);
 		float DistanceToGrapplePoint = FVector::Distance(GetAttachmentPoint(), NewPosition); 
-		UE_LOG(LogTemp, Warning, TEXT("Grapple Location: %f"), DistanceToGrapplePoint);
 
 		if (DistanceToGrapplePoint < GrappleReleaseDistance)
 		{
 			ResetGrapple();
 
 			FVector Impuls = FVector::ZeroVector;
-			Impuls = GetGrappleDirectionNormalized() * ImpulsAtArrival;
-			
+			FVector Direction = (AttachmentPoint - PointOfDeparture).GetSafeNormal();
+			Impuls = Direction * ImpulsAtArrival;
+
 			// Om hook riktningen är uppåt så lägg till lite extra kraft uppåt!
 			if (GetGrappleDirectionNormalized().Z > 0)
 				Impuls.Z += ExtraUpwardsImpuls;
 
-			Impuls /= DeltaTime;
-			Character->GetCharacterMovement()->Launch(Impuls);
+			Impuls *= DeltaTime * 10000;
+			Character->LaunchCharacter(Impuls, true, true);
 			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, GetGrappleDirectionNormalized().ToString());
 		}
 		else

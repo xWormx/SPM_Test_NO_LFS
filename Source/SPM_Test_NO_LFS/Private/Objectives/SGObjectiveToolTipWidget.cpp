@@ -15,7 +15,7 @@
 #include "Components/VerticalBoxSlot.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "Objectives/SGDifficultyBarWidget.h"
+#include "UI/Widgets/SGDifficultyBarWidget.h"
 #include "Objectives/SGObjectiveBase.h"
 
 void USGObjectiveToolTipWidget::NativeConstruct()
@@ -30,6 +30,7 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 	{
 		TextBlockVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
 	}
+	/*
 	if (DifficultyBarWidgetClass)
 	{
 		DifficultyBarWidget = Cast<USGDifficultyBarWidget>(CreateWidget<USGDifficultyBarWidget>(this, DifficultyBarWidgetClass));
@@ -39,6 +40,7 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 			DifficultyBarWidget->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
+*/
 }
 
 void USGObjectiveToolTipWidget::AddProgressTextElement(FText KeyText, FText ValueText)
@@ -160,7 +162,7 @@ void USGObjectiveToolTipWidget::ResumeAllOngoingAnimations()
 	
 }
 
-void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
+/*void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 {
 	DifficultyBarOffsetLeft += DifficultyBarWidget->GetDifficultBarScrollSpeed()*InDeltaTime;
 	DifficultyBarWidget->MoveOverlaysLeft(DifficultyBarOffsetLeft);
@@ -184,25 +186,25 @@ void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
 		}
 		index++;
 	}
-}
+}*/
 
 void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
 {
 	ToolTip->SetText(NewToolTip);
 }
 
-bool USGObjectiveToolTipWidget::LastDifficultNotReached()
+/*bool USGObjectiveToolTipWidget::LastDifficultNotReached()
 {
 	float LastOverlayAbsolutePosition = DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsolutePosition().X;
 	float WhereToStop = DifficultyBarWidget->GetTriggerAbsolutePositionX() - DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsoluteSize().X / 2;
 
 	return (LastOverlayAbsolutePosition >= WhereToStop) && (LastOverlayAbsolutePosition >= 0);
-}
+}*/
 
-bool USGObjectiveToolTipWidget::LastDifficultBoxNotCenteredAtTrigger()
+/*bool USGObjectiveToolTipWidget::LastDifficultBoxNotCenteredAtTrigger()
 {
 	return DifficultLevel != DifficultyBarWidget->GetOverlays().Num();
-}
+}*/
 
 void USGObjectiveToolTipWidget::ShowVisitTerminal()
 {
@@ -216,6 +218,19 @@ void USGObjectiveToolTipWidget::HideVisitTerminal()
 	OverlayVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
 	TextBlockVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
 	StopAnimation(AnimationVisitTerminal);
+}
+
+void USGObjectiveToolTipWidget::SetMissionAlertText(FString NewText)
+{
+	TextBlockVisitTerminal->SetText(FText::FromString(NewText));
+}
+
+void USGObjectiveToolTipWidget::PlayEscapeWithPodAnimation(FString TextToDisplay)
+{
+	OverlayVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
+	TextBlockVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
+	SetMissionAlertText(TextToDisplay);
+	PlayAnimation(AnimationEscapeWithPod, 0, 0);
 }
 
 void USGObjectiveToolTipWidget::ShowMissionVerticalBox()
@@ -238,20 +253,20 @@ void USGObjectiveToolTipWidget::HideToolTipScaleBox()
 	ScaleBoxToolTip->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+/*void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
 
-	if(LastDifficultNotReached() || LastDifficultBoxNotCenteredAtTrigger())
+	/*if(LastDifficultNotReached() || LastDifficultBoxNotCenteredAtTrigger())
 	{
 		UpdateDifficultyBar(InDeltaTime);	
 	}
 	else
 	{
 		int i = 0;
-	}
+	}#1#
 	
-}
+}*/
 
 void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 {
@@ -260,7 +275,6 @@ void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 		FString StrToDisplay = StringToolTip.Mid(0, CharIndex);
 		ToolTip->SetText(FText::FromString(StrToDisplay));
 		UGameplayStatics::PlaySound2D(GetWorld(), TextClickSound);
-		UE_LOG(LogTemp, Error, TEXT("%s"), *StrToDisplay);
 	}
 	else
 	{
@@ -269,15 +283,13 @@ void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 	}
 }
 
-
 void USGObjectiveToolTipWidget::OnEndMoveToolTipAnimation()
 {
 	StopAnimation(AnimationToolTipOutOfWindow);
 }
 
 void USGObjectiveToolTipWidget::OnEndHideToolTipAnimation()
-{
-	
+{	
 	ScaleBoxToolTip->SetRenderTranslation(FVector2D(0.0f, 0.0f));
 	ScaleBoxToolTip->SetVisibility(ESlateVisibility::Hidden);
 }

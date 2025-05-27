@@ -25,16 +25,10 @@ void ASGEnemyNavLink::BeginPlay()
 
 void ASGEnemyNavLink::OnSmartLinkReachedHandler(AActor* MovingActor, const FVector& DestinationPoint)
 {
-
 	if (ASGEnemyCharacter* Character = Cast<ASGEnemyCharacter>(MovingActor))
 	{
-		if (ASGAIControllerEnemyBase* AIController = Cast<ASGAIControllerEnemyBase>(Character->GetController()))
-		{
-			Character->JumpToLocation(DestinationPoint);
-			//AIController->bIsJumping = true;
-		}
+		Character->JumpToLocation(DestinationPoint);
 	}
-	
 }
 
 
