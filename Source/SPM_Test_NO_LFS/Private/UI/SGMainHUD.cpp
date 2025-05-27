@@ -90,6 +90,7 @@ void ASGMainHUD::BindWeaponEvents(Ujola6902_GunsComponent* GunsComponent)
 	GunsComponent->OnSwitchedGun.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::ChangeWeapon);
 	GunsComponent->OnFireGun.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateWeapon);
 	GunsComponent->OnReload.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateWeapon);
+//	GunsComponent->OnReload.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::ReloadWeapon);
 
 	WeaponsWidget->SetAvailableWeapons(GunsComponent->GetGuns());
 	WeaponsWidget->ChangeWeapon(0, GunsComponent->GetGuns()[0]);
@@ -182,10 +183,6 @@ void ASGMainHUD::WaitForObjectiveToolTipAnimation()
 	{
 		WeaponsWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
-	if (GrappleCrossHairWidget.IsValid())
-	{
-		GrappleCrossHairWidget->SetVisibility(ESlateVisibility::Hidden);
-	}
 	if (HUDWidget.IsValid())
 	{
 		HUDWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -198,7 +195,7 @@ void ASGMainHUD::WaitForObjectiveToolTipAnimation()
 	 GetGameInstance<USGGameInstance>()->GetObjectiveTooltipWidget()->SetVisibility(ESlateVisibility::Visible);
 	//🤡
 	FTimerHandle ObjectiveToolTipAnimationTimer;
-	GetWorld()->GetTimerManager().SetTimer(ObjectiveToolTipAnimationTimer, this, &ASGMainHUD::PlayAndShow, 5.f, false);
+	GetWorld()->GetTimerManager().SetTimer(ObjectiveToolTipAnimationTimer, this, &ASGMainHUD::PlayAndShow, 2.f, false);
 }
 
 //----GRAPPLING
