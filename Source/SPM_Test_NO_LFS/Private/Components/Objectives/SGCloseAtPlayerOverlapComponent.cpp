@@ -4,6 +4,7 @@
 #include "Components/Objectives/SGCloseAtPlayerOverlapComponent.h"
 
 #include "Core/SGObjectiveHandlerSubSystem.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/SGPlayerCharacter.h"
 
 // Sets default values for this component's properties
@@ -49,6 +50,10 @@ void USGCloseAtPlayerOverlapComponent::Close(UPrimitiveComponent* OverlappedComp
 	{
 		CubeMesh->SetVisibility(true);
 		CubeMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		if (SoundClose)
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), SoundClose);
+		}
 	}
 }
 

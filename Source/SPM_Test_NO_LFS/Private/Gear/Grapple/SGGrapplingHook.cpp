@@ -38,18 +38,12 @@ void ASGGrapplingHook::BeginPlay()
 void ASGGrapplingHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	/*if (!bHUDGrappleInitialized)
-		InitializeHUDGrapple();*/
-
+	
 	FHitResult HitResult;
 	AController* Controller = GetValidController();
+	
 	if (const bool bDidHit = GrappleTrace(HitResult, Controller); !bDidHit)
 	{
-		/*if (HUDGrapple)
-		{
-			HUDGrapple->PlayValidTargetAnimation();
-		}*/
 		OnCanGrapple.Broadcast(bDidHit);
 	}
 
@@ -114,7 +108,9 @@ void ASGGrapplingHook::FireGrapple()
 	if (!bDidAttach)
 		return;
 	
+	// Skulle kunna ha andra beteenden än att färdas direkt mot punkten.
 	TravelDirectly(Controller->GetCharacter(), HitResult);
+	
 	//DisableGrappling();
 	/*
 	GetWorldTimerManager().SetTimer(GrappleTimerHandle, this, &ASGGrapplingHook::EnableGrappling, HookCooldown);
@@ -173,21 +169,8 @@ void ASGGrapplingHook::DisableGrappling()
 	bCanGrapple = false;
 }
 
-/*
-void ASGGrapplingHook::InitializeHUDGrapple()
-{
-	bHUDGrappleInitialized = true;
-	HUDGrapple = Cast<USGGameInstance>(GetWorld()->GetGameInstance())->GetHUDGrapple();
-	if (HUDGrapple == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ASGGrapplingHook: Couldn't initialize HUDGrapple!"));
-	}
-}
-*/
-
 AController* ASGGrapplingHook::GetValidController() const
 {
-	//DrawDebugCamera(GetWorld(), GetActorLocation(), GetActorRotation(), 90, 2, FColor::Blue, false, 8);
 	APawn* GrappleOwner = Cast<APawn>(GetOwner());
 	if (GrappleOwner == nullptr)
 	{
@@ -214,7 +197,7 @@ bool ASGGrapplingHook::GrappleTrace(FHitResult& OutHitResult, AController* Contr
 	GrappleDirection.Normalize();
 	Head->SetActorRotation(ViewRotation);
 	
-	// LineTrace för att kunna hooka när man är nära väggar
+	// LineTrace för att kunna hooka när man är nära väggar men också få den mest precisa hookpunkten
 	FHitResult LineHitResult;
 	bool LineHit = GetWorld()->LineTraceSingleByChannel(LineHitResult,ViewLocation, TraceEnd,
 														ECC_GameTraceChannel1);
@@ -224,7 +207,7 @@ bool ASGGrapplingHook::GrappleTrace(FHitResult& OutHitResult, AController* Contr
 												FQuat::Identity, ECC_GameTraceChannel1,
 													FCollisionShape::MakeSphere(30));
 
-	// Om LineHit träffar vill vi alltid anden för mer preciserad hook
+	// Om LineHit träffar vill vi alltid använda den för mer preciserad hook
 	if (LineHit)
 		OutHitResult = LineHitResult;
 	
@@ -235,7 +218,7 @@ void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
 {
 	if (Character == nullptr)
 		return;
-	// Skjuter upp karaktären när hooken avlossas för att få ett bra momentum
+	// Skjuter upp karaktären när hooken avlossas för att få ett bra momentum och att karaktären inte dras mot marken
 	Character->LaunchCharacter(FVector(0, 0, 300), true, true);
 	// För att karaktären inte ska bromsas när den dras mot väggar
 	Character->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
@@ -271,7 +254,6 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 
 			Impuls *= DeltaTime * 10000;
 			Character->LaunchCharacter(Impuls, true, true);
-			GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, GetGrappleDirectionNormalized().ToString());
 		}
 		else
 		{			
@@ -300,13 +282,18 @@ void ASGGrapplingHook::TravelDirectly(ACharacter* Character, FHitResult& HitResu
 {
 	UGameplayStatics::PlaySound2D(this, GrappleFireSound);
 	DisableGrappling();
+	
 	GetWorldTimerManager().SetTimer(GrappleTimerHandle, this, &ASGGrapplingHook::EnableGrappling, HookCooldown);
 	StartCharacterLaunch(Character);
+	
 	bDidGrapple = true;
 	bStartTravel = true;
+	
 	AttachmentPoint = HitResult.ImpactPoint;
 	PointOfDeparture = GetActorLocation();
+	
 	SetGrappleVisibility(true);
+	
 	Head->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 }
 
