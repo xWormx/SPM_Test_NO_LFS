@@ -22,9 +22,8 @@ bool ASGObjectiveKillEmAll::IsCompleted()
 void ASGObjectiveKillEmAll::OnCompleted()
 {
 	Super::OnCompleted();
-	HorizontalBoxProgressElement[0]->ShowSucceed();
-	HorizontalBoxProgressElement[0]->SetKeyAndValueOpacity(0.5);
-	HorizontalBoxProgressElement[0]->SetValue(FText::FromString("Completed!"));
+
+	SetCurrentProgressElementCompleted("Completed!");
 }
 
 void ASGObjectiveKillEmAll::Update()
