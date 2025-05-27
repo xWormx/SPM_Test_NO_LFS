@@ -30,6 +30,9 @@ public:
 	void UpdateWeapon(int32 WeaponIndex, ASGGun* Gun);
 
 	UFUNCTION()
+	void ReloadWeapon(int32 WeaponIndex, ASGGun* Gun);
+
+	UFUNCTION()
 	void UpdateAmmo(int32 AmmoAmount, ASGGun* Gun);
 	void UpdateEntryAmmo(int32 AmmoClip, USGWeaponEntry* WeaponEntry);
 
@@ -63,7 +66,8 @@ protected:
 	TObjectPtr<UTextBlock> AmmoStockTextBlock;*/
 
 private:
-	static FColor GetAmmoColor(int32 ClipAmmo);
+	static FColor GetAmmoStatusBorderColor(int32 ClipAmmo);
+	static FColor GetAmmoStateChangeColor(int32 ClipAmmo);
 	static FText GetAmmoClipText(int32 ClipAmmo);
 
 	UPROPERTY()

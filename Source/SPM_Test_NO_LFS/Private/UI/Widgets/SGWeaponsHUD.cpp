@@ -131,21 +131,72 @@ void USGWeaponsHUD::UpdateWeapon(int32 WeaponIndex, ASGGun* Gun)
 	{
 		return;
 	}
-
 	UpdateEntryAmmo(Gun->GetAmmoClip(), WeaponEntry.Get());
 }
 
+void USGWeaponsHUD::ReloadWeapon(int32 WeaponIndex, ASGGun* Gun)
+{
+	if (!Gun)
+	{
+		return;
+	}
+
+	TObjectPtr<USGWeaponEntry> WeaponEntry = WeaponEntries[WeaponIndex];
+	if (!WeaponEntry)
+	{
+		return;
+	}
+	static const FText ReloadingText = FText::FromString(TEXT("Reloading..."));
+	WeaponEntry.Get()->AmmoClipTextBlock->SetText(ReloadingText);
+
+	int32 AmmoClip = Gun->GetAmmoClip();
+	FTimerDelegate ReloadDelegate;
+	FTimerHandle ReloadTimerHandle;
+	ReloadDelegate.BindLambda([WeaponEntry, Gun, this, AmmoClip, &ReloadTimerHandle]
+	{
+		if (AmmoClip < Gun->GetAmmoClip())
+		{
+			WeaponEntry.Get()->WeaponNameTextBlock->SetText(Gun->GetWeaponDisplayName());
+			UpdateEntryAmmo(Gun->GetAmmoClip(), WeaponEntry.Get());
+			GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
+		}
+	});
+
+	constexpr float ReloadTime = 0.1f; // Gun->GetReloadTime();
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, ReloadDelegate, ReloadTime, true);
+}
 void USGWeaponsHUD::UpdateAmmo([[maybe_unused]] int32 AmmoAmount, ASGGun* Gun)
 {
+	if (!Gun)
+	{
+		return;
+	}
+
 	FName WeaponNameKey = FName(*Gun->GetWeaponDisplayName().ToString());
 	TObjectPtr<USGWeaponEntry>* WeaponEntry = WeaponEntriesMap.Find(WeaponNameKey);
 	if (!WeaponEntry)
 	{
  		return;
 	}
+	const int32 ClipAmmo = Gun->GetAmmoClip();
+
+	FTimerDelegate AmmoUpdateDelegate;
+	FTimerHandle AmmoUpdateTimerHandle;
+	AmmoUpdateDelegate.BindLambda([WeaponEntry, this]
+	{
+		WeaponEntry->Get()->AmmoClipTextBlock->SetColorAndOpacity(GetAmmoStateChangeColor(0));
+	});
+	GetWorld()->GetTimerManager().SetTimer(AmmoUpdateTimerHandle, AmmoUpdateDelegate, 1.f, false);
+
+	if (WeaponEntry->Get()->GetIsEnabled())
+	{
+		WeaponEntry->Get()->AmmoClipTextBlock->SetColorAndOpacity(GetAmmoStateChangeColor(ClipAmmo));
+		UpdateEntryAmmo(ClipAmmo, WeaponEntry->Get());
+		return;
+	}
 
 	WeaponEntry->Get()->SetIsEnabled(true);
-	const int32 ClipAmmo = Gun->GetAmmoClip();
+	WeaponEntry->Get()->AmmoClipTextBlock->SetColorAndOpacity(GetAmmoStateChangeColor(ClipAmmo));
 	UpdateEntryAmmo(ClipAmmo, WeaponEntry->Get());
 	WeaponEntry->Get()->SetIsEnabled(false);
 }
@@ -157,13 +208,21 @@ void USGWeaponsHUD::UpdateEntryAmmo(const int32 AmmoClip, USGWeaponEntry* Weapon
 		return;
 	}
 	WeaponEntry->AmmoClipTextBlock->SetText(GetAmmoClipText(AmmoClip));
-	WeaponEntry->EmptyAmmoBorder->SetBrushColor(GetAmmoColor(AmmoClip));
+	WeaponEntry->EmptyAmmoBorder->SetBrushColor(GetAmmoStatusBorderColor(AmmoClip));
 }
-FColor USGWeaponsHUD::GetAmmoColor(const int32 ClipAmmo)
+
+FColor USGWeaponsHUD::GetAmmoStatusBorderColor(const int32 ClipAmmo)
 {
 	static constexpr FColor OutOfAmmoColor = FColor(255, 0, 0, 45);
 	static constexpr FColor DefaultColor = FColor(0, 0, 0, 45);
 	return ClipAmmo != 0 ? DefaultColor : OutOfAmmoColor;
+}
+
+FColor USGWeaponsHUD::GetAmmoStateChangeColor(const int32 ClipAmmo)
+{
+	static constexpr FColor IncreasedAmmo = FColor(25, 155, 25, 255);
+	static constexpr FColor DefaultColor = FColor(222, 222, 222, 255);
+	return ClipAmmo != 0 ? IncreasedAmmo : DefaultColor;
 }
 
 FText USGWeaponsHUD::GetAmmoClipText(const int32 ClipAmmo)
