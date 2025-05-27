@@ -52,6 +52,10 @@ void USGObjectiveSequenceComponent::PlaySequence(EObjectiveType ObjectiveType)
 			);
 		LandingSequencePlayer->Play();
 		int i = 0;
+		if (SoundDuringSequence)
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), SoundDuringSequence);
+		}
 	}
 }
 
