@@ -9,6 +9,7 @@
 #include "Player/SGPlayerCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
+#include "Kismet/GameplayStatics.h"
 #include "Objectives/SGHorizontalBoxObjective.h"
 
 
@@ -37,7 +38,6 @@ void ASGObjectivePodArrival::BeginPlay()
 	SphereInteractArea->OnComponentBeginOverlap.AddDynamic(this, &ASGObjectivePodArrival::StartMainPhase);
 	SphereRestrictiveArea->OnComponentBeginOverlap.AddDynamic(this, &ASGObjectivePodArrival::UnPauseMainPhase);
 	SphereRestrictiveArea->OnComponentEndOverlap.AddDynamic(this, &ASGObjectivePodArrival::PauseMainPhase);
-	
 }
 
 void ASGObjectivePodArrival::Tick(float DeltaTime)
@@ -45,7 +45,6 @@ void ASGObjectivePodArrival::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (bWaitForPodEventStarted && !bWaitForPodEventPaused)
 	{
-		//if (GetObjectiveHandler()->GetObjectiveToolTipWidget()->GetTimerAnimationFinished() || true)
 		if (ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetTimerAnimationFinished() || true)
 		{
 			float TimeLeft = GetWorldTimerManager().GetTimerRemaining(TimerHandle);
