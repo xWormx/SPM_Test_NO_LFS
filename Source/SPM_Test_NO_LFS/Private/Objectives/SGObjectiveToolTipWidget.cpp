@@ -99,13 +99,11 @@ USGHorizontalBoxObjective* USGObjectiveToolTipWidget::GetHorizontalBoxAtIndex(in
 
 void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 {
-	FString Str = "HEJ";
 	SetVisibility(ESlateVisibility::HitTestInvisible);
 	SetRenderOpacity(1.0f);
 	ScaleBoxToolTip->SetVisibility(ESlateVisibility::HitTestInvisible);
 	PlayAnimation(AnimationToolTipOutOfWindow, 0, 1);
 	//ToolTip->SetText(NewToolTip);
-	// = false;
 	GetWorld()->GetTimerManager().SetTimer(CharByCharTimer, FTimerDelegate::CreateLambda([this, NewToolTip]()
 	{
 		DisplayCharByChar(NewToolTip.ToString());	
@@ -192,19 +190,6 @@ void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
 {
 	ToolTip->SetText(NewToolTip);
 }
-
-/*bool USGObjectiveToolTipWidget::LastDifficultNotReached()
-{
-	float LastOverlayAbsolutePosition = DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsolutePosition().X;
-	float WhereToStop = DifficultyBarWidget->GetTriggerAbsolutePositionX() - DifficultyBarWidget->GetOverlays().Last()->GetCachedGeometry().GetAbsoluteSize().X / 2;
-
-	return (LastOverlayAbsolutePosition >= WhereToStop) && (LastOverlayAbsolutePosition >= 0);
-}*/
-
-/*bool USGObjectiveToolTipWidget::LastDifficultBoxNotCenteredAtTrigger()
-{
-	return DifficultLevel != DifficultyBarWidget->GetOverlays().Num();
-}*/
 
 void USGObjectiveToolTipWidget::ShowVisitTerminal()
 {

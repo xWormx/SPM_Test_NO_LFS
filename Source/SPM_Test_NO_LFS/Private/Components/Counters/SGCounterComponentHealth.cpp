@@ -30,6 +30,7 @@ void USGCounterComponentHealth::BeginPlay()
 	if (HealthComponent)
 	{
 		HealthComponent->OnNoHealth.AddDynamic(this, &USGCounterComponentHealth::UseHealthBuffer);
+		HealthComponent->OnHurt.AddDynamic(this, &USGCounterComponentHealth::StartHealthBuffer);
 	}
 
 	if (USGUpgradeSubsystem* UpgradeSystem = GetOwner()->GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
@@ -76,8 +77,30 @@ void USGCounterComponentHealth::IncreaseHealth(const float Amount)
 	}	
 }
 
+void USGCounterComponentHealth::StartHealthBuffer(float NewHealth)
+{
+	if (HealthBuffer > HealthBufferCapacity)
+	{
+		HealthBuffer = HealthBufferCapacity;
+	}
+	if (HealthBufferTimerInterval <= 0.f)
+	{
+		float Damage = HealthComponent->GetMaxHealth() - NewHealth;
+		DecreaseHealthBuffer(HealthBuffer - Damage < 0.f ? HealthBuffer : Damage);
+	}
+}
+
 void USGCounterComponentHealth::StartHealthBufferTimer()
 {
+	if (HealthBuffer > HealthBufferCapacity)
+	{
+		HealthBuffer = HealthBufferCapacity;
+	}
+	if (HealthBufferTimerInterval <= 0.f)
+	{
+		DecreaseHealthBuffer(HealthBuffer);
+	}
+
 	if (GetWorld()->GetTimerManager().IsTimerActive(HealthBufferTimerHandle))
 	{
 		return;
@@ -98,7 +121,7 @@ void USGCounterComponentHealth::DecreaseHealthBuffer(const float Amount)
 	{
 		UseHealthBuffer(Amount);
 	}
-	else
+	else if (HealthBufferTimerInterval > 0.f)
 	{
 		HealthBuffer -= Amount;
 	}

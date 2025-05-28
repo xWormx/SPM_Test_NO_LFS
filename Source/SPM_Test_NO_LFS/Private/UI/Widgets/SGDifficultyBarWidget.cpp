@@ -69,7 +69,7 @@ void USGDifficultyBarWidget::ChangeDifficulty(const int32 NextDifficultyLevel)
 {
 	CurrentDifficultyLevel = NextDifficultyLevel;
 
-	static const USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance());
+	const USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance());
 	GameInstance->OnDifficultyIncreased.Broadcast(CurrentDifficultyLevel);
 	
 	PlayAnimation(AnimationShowWarningMessage);

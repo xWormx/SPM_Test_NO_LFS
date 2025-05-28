@@ -7,6 +7,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "AIController.h"
 #include "NavigationSystem.h"
+#include "Components/CapsuleComponent.h"
 #include "Enemies/Navigation/SGEnemyMoveToPoint.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -299,6 +300,16 @@ void ASGAIControllerEnemyFlying::UpdateMoveToPoints()
 
 void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 {
+
+	if (!ControlledEnemy)
+	{
+		return;
+	}
+
+	if (!ControlledEnemy->IsActorTickEnabled())
+	{
+		return;
+	}
 	Super::Tick(DeltaTime);
 
 	/*if (LineOfSightTo(AttackTarget))

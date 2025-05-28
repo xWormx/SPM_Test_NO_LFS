@@ -18,6 +18,9 @@ public:
 	void IncreaseHealth(float Amount);
 
 	UFUNCTION(BlueprintCallable, Category = "UProperty - Counter Component")
+	void StartHealthBuffer(float NewHealth);
+
+	UFUNCTION(BlueprintCallable, Category = "UProperty - Counter Component")
 	void UseHealthBuffer(float Amount);
 
 	//TODO: Eventuellt ta bort - är bara en redirector till HealthComponent
@@ -31,27 +34,25 @@ public:
 	float GetBufferCapacity() const;
 
 protected:
-
 	virtual void BeginPlay() override;
-	
 	virtual void ProcessPickup(AActor* Pickup) override;
 
-	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties")
+	UPROPERTY(VisibleAnywhere, Category = "UProperty - Counter Properties")
 	USGHealthComponent* HealthComponent;
 	
-	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties| Shield", meta = (AllowPrivateAccess = "true"))
 	float HealthBuffer = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties| Shield", meta = (AllowPrivateAccess = "true"))
 	float HealthBufferCapacity = 100.0f; 
+
 private:
-	
 	FTimerHandle HealthBufferTimerHandle;
 
-	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties")
-	float HealthBufferTimerInterval = 0.75f;
+	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties|Countdown Timer")
+	float HealthBufferTimerInterval = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = "UProperty - Counter Properties")
+	UPROPERTY(VisibleAnywhere, Category = "UProperty - Counter Properties|Countdown Timer")
 	float HealthBufferDecreaseRate = 1.0f; // Mängd att minska med per sekund om buffert är aktiv
 	
 	UFUNCTION()
