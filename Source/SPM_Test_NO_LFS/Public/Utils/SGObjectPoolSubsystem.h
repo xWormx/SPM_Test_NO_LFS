@@ -1,26 +1,9 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "ObjectPoolData/SGActorPool.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "SGObjectPoolSubsystem.generated.h"
-
-USTRUCT(BlueprintType, Category = "ActorPool")
-struct FActorPool
-{
-	GENERATED_BODY()
-
-	FActorPool() {}
-	explicit FActorPool(const TArray<AActor*>& InActors) : Actors(InActors) {}
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors", meta = (AllowPrivateAccess = "true"))
-	int DefaultPoolGrowthSize = 5;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors")
-	TArray<AActor*> Actors;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Pooled Actors")
-	bool bPersistAcrossLevels = true;
-};
 
 UCLASS()
 class SPM_TEST_NO_LFS_API USGObjectPoolSubsystem : public UGameInstanceSubsystem
@@ -43,7 +26,7 @@ private:
 	void CleanupAllPools();
 
 	void ExpandPool(const TSubclassOf<AActor>& ObjectClass, int32 AdditionalSize);
-	void AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, int32 Size, TArray<AActor*>& Actors);
+	void AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, int32 Size, FActorPool& Pool);
 
 	void PerformPoolMaintenance();
 

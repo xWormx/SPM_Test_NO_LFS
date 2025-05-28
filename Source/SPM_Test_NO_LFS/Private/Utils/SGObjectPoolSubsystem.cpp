@@ -1,9 +1,5 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Utils/SGObjectPoolSubsystem.h"
-
-#include "Utils/SGUtilObjectPoolManager.h"
+﻿#include "Utils/SGObjectPoolSubsystem.h"
+#include "SPM_Test_NO_LFS.h"
 
 void USGObjectPoolSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -26,11 +22,8 @@ void USGObjectPoolSubsystem::InitializePool(const TSubclassOf<AActor>& ObjectCla
 		return;
 	}
 
-	TArray<AActor*> NewPool;
-	AddActorsToPool(ObjectClass, PoolSize, NewPool);
-
-	FActorPool NewPoolStruct(NewPool);
-	NewPoolStruct.bPersistAcrossLevels = bPersistAcrossLevels;
+	FActorPool NewPoolStruct;
+	AddActorsToPool(ObjectClass, PoolSize, NewPoolStruct);
 	Pools.Add(ObjectClass, NewPoolStruct);
 }
 
@@ -56,10 +49,7 @@ AActor* USGObjectPoolSubsystem::GetPooledObject(TSubclassOf<AActor>& ObjectClass
 	{
 		if (Object && IsValid(Object) && !Object->IsActorTickEnabled())
 		{
-			Object->SetActorEnableCollision(true);
-			Object->SetActorHiddenInGame(false);
-			Object->SetActorTickEnabled(true);
-
+			Pool.ActorTemplate.ApplyToActorRuntime(Object, true);
 			Object->SetActorLocation(FVector(0, 0, 0));
 
 			return Object;
@@ -76,7 +66,7 @@ void USGObjectPoolSubsystem::ReturnObjectToPool(AActor* Object)
 	{
 		return;
 	}
-	 if(!Pools.Contains(Object->GetClass()))
+	if(!Pools.Contains(Object->GetClass()))
 	{
 		InitializePool(Object->GetClass(), InitialSize);
 	}
@@ -84,11 +74,9 @@ void USGObjectPoolSubsystem::ReturnObjectToPool(AActor* Object)
 	{
 		Pools[Object->GetClass()].Actors.Add(Object);
 	}
-
-	Object->SetActorEnableCollision(false);
-	Object->SetActorHiddenInGame(true);
-	Object->SetActorTickEnabled(false);
-	Object->SetActorLocation(FVector(0, 0, -10000)); // Quick fix
+	FActorPool& Pool = Pools[Object->GetClass()];
+	Pool.ActorTemplate.ApplyToActorRuntime(Object, false);
+	Object->SetActorLocation(Pool.PoolLocation); // Quick fix
 }
 
 int32 USGObjectPoolSubsystem::GetPoolSize(const TSubclassOf<AActor>& ObjectClass) const
@@ -137,10 +125,10 @@ void USGObjectPoolSubsystem::ExpandPool(const TSubclassOf<AActor>& ObjectClass, 
 	}
 
 	FActorPool& Pool = Pools[ObjectClass];
-	AddActorsToPool(ObjectClass, AdditionalSize, Pool.Actors);
+	AddActorsToPool(ObjectClass, AdditionalSize, Pool);
 }
 
-void USGObjectPoolSubsystem::AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, const int32 Size, TArray<AActor*>& Actors)
+void USGObjectPoolSubsystem::AddActorsToPool(const TSubclassOf<AActor>& ObjectClass, const int32 Size, FActorPool& Pool)
 {
 	UWorld* World = GetWorld();
 	if (!World)
@@ -148,32 +136,30 @@ void USGObjectPoolSubsystem::AddActorsToPool(const TSubclassOf<AActor>& ObjectCl
 		return;
 	}
 
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
 	// För att undvika collision vid spawn
 	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(FVector(0, 0, -10000));
+	SpawnTransform.SetLocation(Pool.PoolLocation);
 
 	for (int i = 0; i < Size; ++i)
 	{
-		FVector Offset = FVector(100*i, 100*i, 0);
-		FVector SpawnLocation = SpawnTransform.GetLocation() + Offset;
+		const double OffsetValue = 100*i;
+		const FVector Offset = FVector(OffsetValue, OffsetValue, 0);
+		const FVector SpawnLocation = SpawnTransform.GetLocation() + Offset;
 		SpawnTransform.SetLocation(SpawnLocation);
 
-		AActor* NewObject = World->SpawnActor<AActor>(ObjectClass, SpawnTransform, SpawnParams);
-
-		if (NewObject && IsValid(NewObject))
+		AActor* NewObject = World->SpawnActor<AActor>(ObjectClass, SpawnTransform, Pool.SpawnParams);
+		if (!NewObject || !IsValid(NewObject))
 		{
-			NewObject->SetActorEnableCollision(false);
-			NewObject->SetActorHiddenInGame(true);
-			NewObject->SetActorTickEnabled(false);
-			Actors.Add(NewObject);
+			EMMA_LOG(Error, TEXT("Failed to spawn %s for object pool."), *ObjectClass->GetName());
+			continue; // Skip if spawn failed
 		}
-		else
+		if (i == 0 && Pool.Actors.IsEmpty())
 		{
-			UE_LOG(LogTemp, Error, TEXT("Failed to spawn %s for object pool."), *ObjectClass->GetName());
+			EMMA_LOG(Log, TEXT("Creating template for %s"), *ObjectClass->GetName());
+			Pool.ActorTemplate.MakeTemplateOfActorRuntime(NewObject);
 		}
+		Pool.ActorTemplate.ApplyToActorRuntime(NewObject, false);
+		Pool.Actors.Add(NewObject);
 	}
 }
 
@@ -188,7 +174,7 @@ void USGObjectPoolSubsystem::PerformPoolMaintenance()
 			AActor* Actor = Pool.Actors[i];
 			if (!Actor || !IsValid(Actor) || Actor->IsPendingKillPending())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Removed invalid actor from pool for class %s"), *PoolPair.Key->GetName());
+				EMMA_LOG(Warning, TEXT("Removed invalid actor from pool for class %s"), *PoolPair.Key->GetName());
 				Pool.Actors.RemoveAt(i);
 			}
 		}
