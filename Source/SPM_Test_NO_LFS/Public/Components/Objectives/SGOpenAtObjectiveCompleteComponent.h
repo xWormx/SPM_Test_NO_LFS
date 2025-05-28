@@ -33,6 +33,9 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category=UPROPERTY)
 	EObjectiveType ObjectiveTypeToWatch;
+
+	UPROPERTY(EditAnywhere, Category=UPROPERTY)
+	USoundBase* SoundOpen;
 	
 	UFUNCTION()
 	void Open(EObjectiveType ObjectiveType);

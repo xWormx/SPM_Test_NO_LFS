@@ -3,8 +3,10 @@
 
 #include "Enemies/AI/SGAIControllerEnemyBig.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyMeleAttackComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
@@ -76,6 +78,23 @@ void ASGAIControllerEnemyBig::HandleMovement()
 
 void ASGAIControllerEnemyBig::Tick(float DeltaTime)
 {
+	if (!ControlledEnemy)
+	{
+		return;
+	}
+
+	if (!ControlledEnemy->IsActorTickEnabled())
+	{
+		ControlledEnemy->GetCapsuleComponent()->SetEnableGravity(false);
+		ControlledEnemy->GetCharacterMovement()->GravityScale = 0.f;
+		ControlledEnemy->GetCharacterMovement()->StopMovementImmediately();
+		return;
+	}
+
+	if (ControlledEnemy->IsActorTickEnabled())
+	{
+		ControlledEnemy->GetCharacterMovement()->GravityScale = 1.f;
+	}
 	Super::Tick(DeltaTime);
 	HandleMovement();
 	RotateTowardsTargetWhileNotMoving();

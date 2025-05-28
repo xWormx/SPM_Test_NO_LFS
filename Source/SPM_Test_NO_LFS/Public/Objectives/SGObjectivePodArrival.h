@@ -61,7 +61,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* MeshPod;
 
-
+	// Mesh for the Pod
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* MeshEscapePod;
+	
 	// Mesh for the LandingZone (or thing to defend)
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
 	UStaticMeshComponent* MeshLandingZone;
