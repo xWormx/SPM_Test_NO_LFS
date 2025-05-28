@@ -37,11 +37,13 @@ public:
 	virtual void Deinitialize() override;
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);
 	void RegisterCollectible(ASGPickUpObjectiveCollect* Collectible);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
 	void RegisterDefendThePod(ASGObjectiveDefendThePod* DefendThePod);
 	void RegisterPodArrival(ASGObjectivePodArrival* PodArrival);
+	
 	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() const {return ObjectiveToolTipWidget;}
 	bool GetCurrentObjectiveIsActive() const { return CurrentObjective != nullptr; }
 	EObjectiveType GetCurrentObjectiveType() const { return CurrentObjective->GetObjectiveType(); }
@@ -49,7 +51,6 @@ public:
 	ASGObjectiveBase* GetLastCompletedObjective() const { return LastCompletedObjective; }
 	EObjectiveType GetLastCompletedObjectiveType() const { return LastCompletedObjective->GetObjectiveType(); }
 	TArray<ASGObjectiveBase*> GetAllObjectives() const { return GameObjectives; }
-
 	
 	FOnObjectiveStarted OnObjectiveStarted;
 	FOnObjectiveCompleted OnObjectiveCompleted;

@@ -223,6 +223,7 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 		UE_LOG(LogTemp, Warning, TEXT("CurrentObjective is nullptr!"));
 		return;
 	}
+	
 	// Om fel objectivetype har broadcastat så behöver vi inte uppdatera CurrenObjective.
 	if ((CurrentObjective->GetObjectiveType() & IncomingObjectiveType) == EObjectiveType::EOT_None)
 		return;
