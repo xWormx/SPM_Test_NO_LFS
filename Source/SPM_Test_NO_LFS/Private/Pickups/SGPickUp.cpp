@@ -8,7 +8,7 @@ ASGPickUp::ASGPickUp()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("PickUpArea"));
-	CollisionSphere->SetSphereRadius(100.0f);
+	CollisionSphere->SetSphereRadius(200.0f);
 	CollisionSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionSphere->SetCollisionResponseToAllChannels(ECR_Overlap);
 	RootComponent = CollisionSphere;
