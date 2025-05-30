@@ -3,7 +3,6 @@
 void SDefaultButtonWidget::Construct(const FArguments& InArgs)
 {
 	ButtonData = InArgs._InButtonData;
-	//const FName StyleSetName = ButtonData.StyleSetName.IsNone() ? FName("DefaultButtonStyle") : ButtonData.StyleSetName;
 
 	ChildSlot
 	[

@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "jola6902_GunsComponent.h"
 #include "GameFramework/HUD.h"
+#include "Widgets/SWeakWidget.h"
 #include "SGMainHUD.generated.h"
 
 class USGProgressTrackerWidget;
@@ -22,7 +23,7 @@ class SPM_TEST_NO_LFS_API ASGMainHUD : public AHUD
 	GENERATED_BODY()
 public:
 	virtual void BeginPlay() override;
-	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	template<typename T = UUserWidget>
 	T* CreateAndAddToViewPort(const TSubclassOf<T>& WidgetClass, bool Add = true);
@@ -90,25 +91,12 @@ protected:
 	TWeakObjectPtr<USGDifficultyBarWidget> DifficultyWidget;
 
 //------------PLAYER STATS
-	//----HEALTH
 
-/*
-	UPROPERTY(EditAnywhere, Category = "Uproperty - HUD")
-	TSubclassOf<USGProgressTrackerWidget> ProgressTrackerClass;
+	/*TSharedPtr<class SDefaultButtonWidget> DefaultButtonWidgetSlate;
+	TSharedPtr<SWeakWidget> DefaultButtonWidget;*/
 
-	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
-	TWeakObjectPtr<USGProgressTrackerWidget> HealthTrackerWidget;
-
-	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
-	TWeakObjectPtr<USGProgressTrackerWidget> ShieldTrackerWidget;
-
-	//----ORBS
-	UPROPERTY(EditAnywhere, Category = "Uproperty - HUD")
-	TSubclassOf<USGStatTrackerWidget> StatTrackerClass;
-
-	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
-	TWeakObjectPtr<USGStatTrackerWidget> OrbsTrackerWidget;
-*/
+	TSharedPtr<class SDefaultMenu> DefaultSlateMenuWidget;
+	TSharedPtr<SWeakWidget> DefaultMenuWidget;
 public:
 
 //----GRAPPLING

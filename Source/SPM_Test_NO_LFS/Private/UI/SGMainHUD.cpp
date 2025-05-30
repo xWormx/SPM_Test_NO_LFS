@@ -11,7 +11,11 @@
 #include "Gear/Weapons/SGGun.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGTerminal.h"
+#include "UI/SlateWidgets/DefaultButton.h"
 #include "UI/Widgets/SGDifficultyBarWidget.h"
+#include "Components/Widget.h"
+#include "UI/SlateWidgets/DefaultMenu.h"
+#include "Widgets/SWeakWidget.h"
 
 static bool HasFirstQuestStarted = false;
 
@@ -46,6 +50,45 @@ void ASGMainHUD::BeginPlay()
 	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
 
 	Cast<USGGameInstance>(GetWorld()->GetGameInstance())->GetTerminalWidget()->OnVisibilityChanged.AddDynamic(this, &ASGMainHUD::OnTerminalVisibilityChanged);
+	
+
+	/*FButtonData ButtonData = FButtonData();
+	ButtonData.ButtonText = FText::FromString("Start Game");
+	ButtonData.OnClicked.BindLambda([this]{EMMA_LOG(Warning, TEXT("❤️Start Game Button Clicked!")); PlayAndShow(); return FReply::Handled(); });
+	
+	DefaultButtonWidgetSlate = SNew(SDefaultButtonWidget).InButtonData(ButtonData);
+	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(DefaultButtonWidget, SWeakWidget).PossiblyNullContent(DefaultButtonWidgetSlate.ToSharedRef()));*/
+	FButtonData ButtonDataStartGame = FButtonData();
+	ButtonDataStartGame.ButtonText = FText::FromString("Start Game");
+	ButtonDataStartGame.OnClicked.BindLambda([this]
+	{
+		EMMA_LOG(Warning, TEXT("❤️Start Game Button Clicked!"));		
+		GEngine->GameViewport->RemoveViewportWidgetContent(DefaultMenuWidget.ToSharedRef());
+		PlayAndShow();
+		return FReply::Handled();
+	});
+
+	FButtonData ButtonDataQuitGame = FButtonData();
+	ButtonDataQuitGame.ButtonText = FText::FromString("Quit Game");
+	ButtonDataQuitGame.OnClicked.BindLambda([this]
+	{
+		EMMA_LOG(Warning, TEXT("❤️Quit Game Button Clicked!"));
+		if (GEngine)
+		{
+			GEngine->GameViewport->RemoveAllViewportWidgets();
+			PlayerOwner.Get()->ConsoleCommand("quit");
+		}
+		return FReply::Handled();
+	});
+
+	FTextData TextData = FTextData();
+	TextData.Text = FText::FromString("Main Menu");
+	
+	DefaultSlateMenuWidget = SNew(SDefaultMenu)
+		.InTextData(TextData)
+		.InButtonDataArray( { ButtonDataStartGame, ButtonDataQuitGame });
+	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(DefaultMenuWidget, SWeakWidget).PossiblyNullContent(DefaultSlateMenuWidget.ToSharedRef()));
+	PauseAndHide();
 }
 
 void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
