@@ -1,5 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-// comment
+/*
+
+Written by
+----------------------
+- Carl-Johan Larson Eliasson
+- cael7567
+	
+*/
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -58,8 +65,8 @@ private:
 	USceneComponent* Root;
 	
 	// Mesh for the Pod
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* MeshPod;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
+	//USkeletalMeshComponent* MeshPod;
 
 	// Mesh for the Pod
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
