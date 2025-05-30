@@ -60,7 +60,10 @@ public:
 	void HideToolTipScaleBox();
 	
 	void AddProgressTextElement(FText KeyText, FText ValueText);
+	void AddProgressTextElementCompleted(FText KeyText, FText ValueText);
+	
 	USGHorizontalBoxObjective* CreateProgressTextElement(FText KeyText, FText ValueText);
+	USGHorizontalBoxObjective* CreateProgressTextElementCompleted(FText KeyText, FText ValueText);
 	USGHorizontalBoxObjective* GetHorizontalBoxAtIndex(int32 index);
 	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective() { return CurrentHorizontalBoxObjectiveElement; }
 	TArray<USGHorizontalBoxObjective*> GetHorizontalBoxObjectiveList() {return HorizontalObjectiveList; }
@@ -92,19 +95,6 @@ protected:
 	USGHorizontalBoxObjective* CurrentHorizontalBoxObjectiveElement;
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UVerticalBox* VerticalBoxMission;
-
-	// Difficulty Progress Bar
-	/*UPROPERTY(EditAnywhere)
-	TSubclassOf<USGDifficultyBarWidget> DifficultyBarWidgetClass;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	USGDifficultyBarWidget* DifficultyBarWidget;
-
-	UPROPERTY(VisibleAnywhere)
-	float DifficultyBarOffsetLeft = 0.0f;
-
-	UPROPERTY(VisibleAnywhere)
-	int DifficultLevel = 0;*/
 	
 	//Animations
 	UPROPERTY(BlueprintReadWrite, Transient, meta=(BindWidgetAnim))
@@ -131,10 +121,8 @@ private:
 	bool bTimerAnimationFinished = false;
 	FVector2D ScaleBoxTimerFinalPosition;
 	FVector2D ScaleBoxTimerFinalSize;
-	//void UpdateDifficultyBar(float InDeltaTime);
+	
 	void SetToolTipText(FText NewToolTip);
-	//bool LastDifficultNotReached();
-	//bool LastDifficultBoxNotCenteredAtTrigger();
 
 	UFUNCTION()
 	void DisplayCharByChar(const FString& StringToolTip);
@@ -142,11 +130,6 @@ private:
 	void OnEndMoveToolTipAnimation();
 	UFUNCTION()
 	void OnEndHideToolTipAnimation();
-
-	/*UPROPERTY(EditAnywhere, Category=UPROPERTY)
-	USoundBase* SoundWarningDifficultLevel;
-	UPROPERTY(EditAnywhere, Category=UPROPERTY)
-	USoundBase* SoundAlarmBell;*/
 	
 	FWidgetAnimationDynamicEvent EndTimerAnimation;
 	FWidgetAnimationDynamicEvent EndMoveToolTipToProgressWindowAnimation;

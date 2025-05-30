@@ -65,8 +65,8 @@ private:
 	USceneComponent* Root;
 	
 	// Mesh for the Pod
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* MeshPod;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
+	//USkeletalMeshComponent* MeshPod;
 
 	// Mesh for the Pod
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
