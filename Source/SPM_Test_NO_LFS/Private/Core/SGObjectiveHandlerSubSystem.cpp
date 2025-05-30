@@ -2,6 +2,8 @@
 // comment
 
 #include "Core/SGObjectiveHandlerSubSystem.h"
+
+#include "JsonObjectConverter.h"
 #include "Core/SGGameInstance.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Objectives/SGObjectiveBase.h"
@@ -15,6 +17,7 @@
 #include "Objectives/SGObjectiveConfig.h"
 #include "Objectives/SGObjectiveDefendThePod.h"
 #include "Objectives/SGObjectivePodArrival.h"
+#include "Player/SGPlayerController.h"
 
 
 void USGObjectiveHandlerSubSystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -33,16 +36,66 @@ void USGObjectiveHandlerSubSystem::Deinitialize()
 void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
+	InitializeObjectiveToolTip();
+	ReadObjectiveDataAsset();
+	//UE_LOG(LogTemp, Warning, TEXT("ObjectiveHandler: Instance is of class %s, address: %p"), *GetClass()->GetName(), this);
+
+
+	ASGPlayerController* Controller = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (Controller)
+	{
+		if (!Controller->OnTestButtonPressed.IsAlreadyBound(this, &USGObjectiveHandlerSubSystem::OnTestButtonPressed))
+			Controller->OnTestButtonPressed.AddDynamic(this, &USGObjectiveHandlerSubSystem::OnTestButtonPressed);
+	}
+}
+
+bool USGObjectiveHandlerSubSystem::ShouldCreateSubsystem(UObject* Outer) const
+{
+	if (this->GetClass()->IsInBlueprint() && Super::ShouldCreateSubsystem(Outer))
+	{
+		return true;
+	}
+	return false;
+}
+
+void USGObjectiveHandlerSubSystem::OnLoadGame(FObjectiveSaveData SaveData)
+{
+	InitializeObjectiveToolTip();
+	ReadObjectiveDataAsset();
+	
+	if (GameObjectives.Num() >  0)
+	{
+		for (int i = 0; i < SaveData.ObjectiveIndex; i++)	
+		{
+			ObjectiveSaveData.Add(GameObjectives[i]->Save());
+		}
+	}
+}
+
+void USGObjectiveHandlerSubSystem::OnTestButtonPressed()
+{
+	FObjectiveSaveData Data;
+	Data.ObjectiveIndex = 2;
+	
+	OnLoadGame(Data);
+}
+
+void USGObjectiveHandlerSubSystem::OnWorldInitialized(const UWorld::FActorsInitializedParams& Params)
+{
+	
+}
+
+void USGObjectiveHandlerSubSystem::InitializeObjectiveToolTip()
+{
 	USGGameInstance* GameInstance = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
 	if (GameInstance)
 	{
-		// Måste skapa om dessa för att de ska synas, annars kommer OjbectiveTooltip vara kopplad till en Viewport i en annan level.
+		// Måste skapa om dessa för att de ska synas, annars kommer ObjectiveTooltip vara kopplad till en Viewport i en annan level.
 		GameInstance->CreateObjectiveToolTip();
 		GameInstance->CreateHUDTerminal();
 		ObjectiveToolTipWidget = GameInstance->GetObjectiveTooltipWidget();
 		if (ObjectiveToolTipWidget)
 		{
-			
 			ObjectiveToolTipWidget->SetOwningPlayer(GetWorld()->GetFirstPlayerController());
 			
 			if (!ObjectiveToolTipWidget->IsInViewport())
@@ -56,45 +109,9 @@ void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
 			ObjectiveToolTipWidget->HideToolTipScaleBox();	
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("ObjectiveHandler: Instance is of class %s, address: %p"), *GetClass()->GetName(), this);
-	if (ObjectiveDataAsset == nullptr)
-	{
-		CALLE_LOG(Error, TEXT("ObjectiveDataAsset is null"));
-	}
-	else
-	{
-		for (USGObjectiveConfig* Config : ObjectiveDataAsset->ObjectiveConfigs)
-		{
-			if (!Config || !*Config->ObjectiveClass)
-				continue;
-
-			FActorSpawnParameters SpawnParams;
-			ASGObjectiveBase* SpawnedObjective = GetWorld()->SpawnActor<ASGObjectiveBase>(Config->ObjectiveClass, SpawnParams);
-			if (SpawnedObjective)
-			{
-				Config->ApplyData(SpawnedObjective);
-				UE_LOG(LogTemp, Log, TEXT("Spawned and configured objective: %s"), *SpawnedObjective->GetName());
-				GameObjectives.Add(SpawnedObjective);
-			}
-		}
-	}
 }
 
-bool USGObjectiveHandlerSubSystem::ShouldCreateSubsystem(UObject* Outer) const
-{
-	if (this->GetClass()->IsInBlueprint() && Super::ShouldCreateSubsystem(Outer))
-	{
-		return true;
-	}
-	return false;
-}
-
-void USGObjectiveHandlerSubSystem::OnWorldInitialized(const UWorld::FActorsInitializedParams& Params)
-{
-	//ReadObjectives();
-}
-
-void USGObjectiveHandlerSubSystem::ReadObjectives()
+void USGObjectiveHandlerSubSystem::ReadObjectiveDataAsset()
 {
 	if (ObjectiveDataAsset == nullptr)
 	{
@@ -102,22 +119,27 @@ void USGObjectiveHandlerSubSystem::ReadObjectives()
 	}
 	else
 	{
-		for (USGObjectiveConfig* Config : ObjectiveDataAsset->ObjectiveConfigs)
+		if (GameObjectives.IsEmpty())
 		{
-			if (!Config || !*Config->ObjectiveClass)
-				continue;
-
-			FActorSpawnParameters SpawnParams;
-			ASGObjectiveBase* SpawnedObjective = GetWorld()->SpawnActor<ASGObjectiveBase>(Config->ObjectiveClass, SpawnParams);
-			if (SpawnedObjective)
+			for (USGObjectiveConfig* Config : ObjectiveDataAsset->ObjectiveConfigs)
 			{
-				Config->ApplyData(SpawnedObjective);
-				UE_LOG(LogTemp, Log, TEXT("Spawned and configured objective: %s"), *SpawnedObjective->GetName());
-				GameObjectives.Add(SpawnedObjective);
-			}
+				if (!Config || !*Config->ObjectiveClass)
+					continue;
+
+				FActorSpawnParameters SpawnParams;
+				ASGObjectiveBase* SpawnedObjective = GetWorld()->SpawnActor<ASGObjectiveBase>(Config->ObjectiveClass, SpawnParams);
+				if (SpawnedObjective)
+				{
+					Config->ApplyData(SpawnedObjective);
+					UE_LOG(LogTemp, Log, TEXT("Spawned and configured objective: %s"), *SpawnedObjective->GetName());
+					GameObjectives.Add(SpawnedObjective);
+				}
+			}	
 		}
 	}
 }
+
+
 void USGObjectiveHandlerSubSystem::RegisterEnemy(ASGEnemyCharacter* Enemy)
 {
 	if (Enemy == nullptr)
@@ -223,6 +245,7 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 		UE_LOG(LogTemp, Warning, TEXT("CurrentObjective is nullptr!"));
 		return;
 	}
+	
 	// Om fel objectivetype har broadcastat så behöver vi inte uppdatera CurrenObjective.
 	if ((CurrentObjective->GetObjectiveType() & IncomingObjectiveType) == EObjectiveType::EOT_None)
 		return;
@@ -234,6 +257,7 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 		ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayAnimationValueCompleted();
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted();
+		ObjectivesCompleted.Add(CurrentObjective);
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
 		
 		OnObjectiveCompleted.Broadcast();

@@ -30,39 +30,6 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 	{
 		TextBlockVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
 	}
-	/*
-	if (DifficultyBarWidgetClass)
-	{
-		DifficultyBarWidget = Cast<USGDifficultyBarWidget>(CreateWidget<USGDifficultyBarWidget>(this, DifficultyBarWidgetClass));
-		if (DifficultyBarWidget)
-		{
-			DifficultyBarWidget->AddToViewport();
-			DifficultyBarWidget->SetVisibility(ESlateVisibility::Visible);
-		}
-	}
-*/
-}
-
-void USGObjectiveToolTipWidget::AddProgressTextElement(FText KeyText, FText ValueText)
-{
-	const float DPI = UWidgetLayoutLibrary::GetViewportScale(this);
-	FMargin VerticalPadding = FMargin(80,10,80,0);
-	USGHorizontalBoxObjective* NewHorizontalBox = CreateWidget<USGHorizontalBoxObjective>(this, HorizontalBoxObjectiveClass);
-	NewHorizontalBox->SetKey(KeyText);
-	NewHorizontalBox->SetValue(ValueText);
-	NewHorizontalBox->SetValue(ValueText);
-	NewHorizontalBox->HideFail();
-	NewHorizontalBox->HideSucceed();
-	
-	// Returnerar Sloten så vi kan sätta allignment och padding på den.
-	UVerticalBoxSlot* VerticalBoxSlot = VerticalBoxMission->AddChildToVerticalBox(NewHorizontalBox);
-	VerticalBoxSlot->SetPadding(VerticalPadding);
-	VerticalBoxSlot->SetHorizontalAlignment(HAlign_Fill);
-	VerticalBoxSlot->SetVerticalAlignment(VAlign_Fill);
-	NewHorizontalBox->PlayAnimationKeyStartObjective();
-	HorizontalObjectiveList.Add(NewHorizontalBox);
-	CurrentHorizontalBoxObjectiveElement = NewHorizontalBox;
-	
 }
 
 USGHorizontalBoxObjective* USGObjectiveToolTipWidget::CreateProgressTextElement(FText KeyText, FText ValueText)
@@ -87,6 +54,28 @@ USGHorizontalBoxObjective* USGObjectiveToolTipWidget::CreateProgressTextElement(
 	return NewHorizontalBox;
 }
 
+USGHorizontalBoxObjective* USGObjectiveToolTipWidget::CreateProgressTextElementCompleted(FText KeyText, FText ValueText)
+{
+	const float DPI = UWidgetLayoutLibrary::GetViewportScale(this);
+	FMargin VerticalPadding = FMargin(80,10,80,0);
+	USGHorizontalBoxObjective* NewHorizontalBox = CreateWidget<USGHorizontalBoxObjective>(this, HorizontalBoxObjectiveClass);
+	NewHorizontalBox->SetKey(KeyText);
+	NewHorizontalBox->SetValue(ValueText);
+	NewHorizontalBox->HideFail();
+	NewHorizontalBox->ShowSucceed();
+	NewHorizontalBox->SetKeyOpacity(0.5f);
+	NewHorizontalBox->SetValueOpacity(0.5f);
+	
+	// Returnerar Sloten så vi kan sätta allignment och padding på den.
+	UVerticalBoxSlot* VerticalBoxSlot = VerticalBoxMission->AddChildToVerticalBox(NewHorizontalBox);
+	VerticalBoxSlot->SetPadding(VerticalPadding);
+	VerticalBoxSlot->SetHorizontalAlignment(HAlign_Fill);
+	VerticalBoxSlot->SetVerticalAlignment(VAlign_Fill);
+	HorizontalObjectiveList.Add(NewHorizontalBox);
+	CurrentHorizontalBoxObjectiveElement = NewHorizontalBox;
+	
+	return NewHorizontalBox;
+}
 USGHorizontalBoxObjective* USGObjectiveToolTipWidget::GetHorizontalBoxAtIndex(int32 index)
 {
 	if (HorizontalObjectiveList.IsValidIndex(index))
@@ -160,32 +149,6 @@ void USGObjectiveToolTipWidget::ResumeAllOngoingAnimations()
 	
 }
 
-/*void USGObjectiveToolTipWidget::UpdateDifficultyBar(float InDeltaTime)
-{
-	DifficultyBarOffsetLeft += DifficultyBarWidget->GetDifficultBarScrollSpeed()*InDeltaTime;
-	DifficultyBarWidget->MoveOverlaysLeft(DifficultyBarOffsetLeft);
-	int index = 0;
-
-	float FirstElementPosition = DifficultyBarWidget->GetOverlays()[0]->GetCachedGeometry().GetAbsolutePosition().X; 
-	float TriggerAbsolutePosition = DifficultyBarWidget->GetTriggerAbsolutePositionX();
-	
-	for (UOverlay* overlay : DifficultyBarWidget->GetOverlays())
-	{
-		if (overlay->GetCachedGeometry().GetAbsolutePosition().X < TriggerAbsolutePosition &&
-			overlay->GetCachedGeometry().GetAbsolutePosition().X > 0.0f)
-		{
-			if (index+1 > DifficultLevel)
-			{
-				DifficultLevel = index+1;
-				OnDifficultyChanged.Broadcast(DifficultLevel);
-				UGameplayStatics::PlaySound2D(GetWorld(), SoundWarningDifficultLevel);
-				UGameplayStatics::PlaySound2D(GetWorld(), SoundAlarmBell);
-			}
-		}
-		index++;
-	}
-}*/
-
 void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
 {
 	ToolTip->SetText(NewToolTip);
@@ -237,21 +200,6 @@ void USGObjectiveToolTipWidget::HideToolTipScaleBox()
 {
 	ScaleBoxToolTip->SetVisibility(ESlateVisibility::Hidden);
 }
-
-/*void USGObjectiveToolTipWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	Super::NativeTick(MyGeometry, InDeltaTime);
-
-	/*if(LastDifficultNotReached() || LastDifficultBoxNotCenteredAtTrigger())
-	{
-		UpdateDifficultyBar(InDeltaTime);	
-	}
-	else
-	{
-		int i = 0;
-	}#1#
-	
-}*/
 
 void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 {

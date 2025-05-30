@@ -1,3 +1,11 @@
+/*
+
+Written by
+----------------------
+- Carl-Johan Larson Eliasson
+- cael7567
+	
+*/
 #pragma once
 
 #include "CoreMinimal.h"

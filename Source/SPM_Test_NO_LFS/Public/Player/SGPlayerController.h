@@ -9,6 +9,7 @@ class USGTerminalWidget;
 class UCameraShakeBase;
 class UUserWidget;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTestButtonPressed);
 
 class ASGPlayerCharacter;
 
@@ -38,7 +39,7 @@ private:
 	void Interact(const FInputActionValue& Value);
 	void LookAround(const FInputActionValue& Value);
 	void Grapple(const FInputActionValue& Value);
-
+	void TestButtonPressed(const FInputActionValue& Value);
 	ASGPlayerCharacter* GetValidPlayerCharacter();
 
 //----Start: Added by Basir
@@ -63,7 +64,8 @@ private:
 
 public:
 	FOnInteract OnInteract;
-
+	FOnTestButtonPressed OnTestButtonPressed;
+	
 	void SetCanInteractWithTerminal(const bool bInteract);
 	void SetWantToInteractWithTerminal(const bool bInteract);
 	bool CanInteractWithTerminal() const;
@@ -95,6 +97,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Interaction")
 	UInputAction* GrappleInputAction;
 
+	//----Start: Added by Basir
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Interaction")
+	UInputAction* TestButtonAction;
+	
+	//----End: Added by Basir
+	
 //----Start: Added by Basir
 	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | UI")
 	UInputAction* PauseGameAction;

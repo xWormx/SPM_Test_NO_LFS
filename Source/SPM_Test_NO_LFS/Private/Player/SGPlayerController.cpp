@@ -87,6 +87,9 @@ void ASGPlayerController::SetupInputComponent()
 	Input->BindAction(PauseGameAction, ETriggerEvent::Triggered, this, &ASGPlayerController::PauseGame);
 	Input->BindAction(InteractInputAction, ETriggerEvent::Triggered, this, &ASGPlayerController::Interact);
 
+	// Calle: TestButton
+	Input->BindAction(TestButtonAction, ETriggerEvent::Triggered, this, &ASGPlayerController::TestButtonPressed);
+
 	if (!ensure(GetLocalPlayer()))
 	{
 		return;
@@ -155,6 +158,11 @@ void ASGPlayerController::Grapple([[maybe_unused]] const FInputActionValue& Valu
 	}
 
 	PlayerCharacter->GrapplingHook->FireGrapple();
+}
+
+void ASGPlayerController::TestButtonPressed(const FInputActionValue& Value)
+{
+	OnTestButtonPressed.Broadcast();
 }
 
 //---- HELPERS
