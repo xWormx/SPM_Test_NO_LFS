@@ -1,5 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-// comment
+/*
+
+- Written by
+----------------------
+- Carl-Johan Larson Eliasson
+- cael7567
+	
+*/
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,6 +15,7 @@
 #include "Engine/Engine.h"
 #include "SGObjectiveHandlerSubSystem.generated.h"
 
+class FOnTestButtonPressed;
 class ASGObjectivePodArrival;
 class USGDataAssetObjective;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnObjectiveStarted);
@@ -18,6 +25,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStartedWithType, EObject
 
 class USGGameInstance;
 class ASGObjectiveBase;
+
+USTRUCT()
+struct FObjectiveSaveData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	int ObjectiveIndex;
+};
+
 /**
  * 
  */
@@ -31,11 +48,14 @@ public:
 	virtual void Deinitialize() override;
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+	
+	void OnLoadGame(FObjectiveSaveData SaveData);
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);
 	void RegisterCollectible(ASGPickUpObjectiveCollect* Collectible);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
 	void RegisterDefendThePod(ASGObjectiveDefendThePod* DefendThePod);
 	void RegisterPodArrival(ASGObjectivePodArrival* PodArrival);
+	
 	USGObjectiveToolTipWidget* GetObjectiveToolTipWidget() const {return ObjectiveToolTipWidget;}
 	bool GetCurrentObjectiveIsActive() const { return CurrentObjective != nullptr; }
 	EObjectiveType GetCurrentObjectiveType() const { return CurrentObjective->GetObjectiveType(); }
@@ -43,23 +63,26 @@ public:
 	ASGObjectiveBase* GetLastCompletedObjective() const { return LastCompletedObjective; }
 	EObjectiveType GetLastCompletedObjectiveType() const { return LastCompletedObjective->GetObjectiveType(); }
 	TArray<ASGObjectiveBase*> GetAllObjectives() const { return GameObjectives; }
-
 	
 	FOnObjectiveStarted OnObjectiveStarted;
 	FOnObjectiveCompleted OnObjectiveCompleted;
 	FOnObjectiveCompletedWithType OnObjectiveCompletedWithType;
 	FOnObjectiveStartedWithType OnObjectiveStartedWithType;
 
+	UFUNCTION()
+	void OnTestButtonPressed();
 private:
 	
 	void OnWorldInitialized(const UWorld::FActorsInitializedParams& Params);
-
-	void ReadObjectives();
+	
+	void InitializeObjectiveToolTip();
+	void ReadObjectiveDataAsset();
 	
 	int ObjectiveCounter = 0;
 
 	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* MissionStartedSound;
+	
 	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* MissionCompletedSound;
 	
@@ -89,7 +112,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	TArray<ASGPickUpObjectiveCollect*> TargetCollectibles;
-	
+
+	UPROPERTY()
+	TArray<FObjectiveBaseSaveData> ObjectiveSaveData;
 	UFUNCTION()
 	void UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor);
 

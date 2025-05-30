@@ -1,4 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+/*
+
+Written by
+----------------------
+- Carl-Johan Larson Eliasson
+- cael7567
+	
+*/
 
 #pragma once
 
@@ -12,6 +19,36 @@ class USGObjectiveHandlerSubSystem;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStart, AActor*, Actor);
 class ASGGameObjectivesHandler;
 class USGObjectiveToolTipWidget;
+USTRUCT()
+struct FObjectiveBaseSaveData
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<FString> ObjectiveProgressText;
+
+	UPROPERTY()
+	int32 CurrentSubObjectiveStep;
+	
+	UPROPERTY()
+	int32 ObjectiveID;
+	
+	UPROPERTY()
+	FProgressText ProgressText;
+	
+	UPROPERTY()
+	FString ObjectiveDescriptionToolTip;
+	
+	UPROPERTY()
+	FString ObjectiveCompletedToolTip;
+	
+	UPROPERTY()
+	FString CurrentSubToolTip;
+	
+	UPROPERTY()
+	TArray<FString> ObjectiveSubToolTips;
+};
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGObjectiveBase : public AActor
 {
@@ -28,8 +65,10 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	virtual void ActivateObjective();
-
+	
+	
+	virtual void LoadCompleted();
+	
 	virtual bool IsCompleted(){ return false; }
 	virtual void OnStart();
 	virtual void OnCompleted();
@@ -42,22 +81,24 @@ public:
 	virtual FText GetCurrentSubToolTip();
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_None; }
 
-
+	FObjectiveBaseSaveData Save();
 	void SetObjectiveID(int32 NewObjectiveID) {	ObjectiveID = NewObjectiveID; }
 	void SetCurrentProgressText(FString NewCurrentProgressText);
-	FString GetCurrentProgressSubText() { return ProgressText.SubText[GetCurrentProgressStep()]; }
+	void SetCurrentProgressElementCompleted(FString InTextCompleted);
+	void SetStartDescriptionTooltipText(FString InStartDescriptionTooltipText) { ObjectiveDescriptionToolTip = InStartDescriptionTooltipText; }
+	void SetCompletedDescriptionTooltipText(FString InCompletedDescriptionTooltipText) { ObjectiveCompletedToolTip = InCompletedDescriptionTooltipText; }
+	
 	void AdvanceCurrentObjectiveStep() { CurrentSubObjectiveStep++; }
+	
+	FString GetCurrentProgressSubText() { return ProgressText.SubText[GetCurrentProgressStep()]; }
 	const int32& GetCurrentProgressStep() const { return CurrentSubObjectiveStep; }
 	const int32& GetObjectiveID() const { return ObjectiveID; }
 	FProgressText GetProgressText() { return ProgressText; }
 
-	void SetStartDescriptionTooltipText(FString InStartDescriptionTooltipText) { ObjectiveDescriptionToolTip = InStartDescriptionTooltipText; }
-	void SetCompletedDescriptionTooltipText(FString InCompletedDescriptionTooltipText) { ObjectiveCompletedToolTip = InCompletedDescriptionTooltipText; }
+	
 	void AddProgressBarText(const TArray<FString>& InProgressBarText) { ObjectiveProgressText = InProgressBarText; }
 	void AddSubTooltips(const TArray<FString>& InSubTooltips) { ObjectiveSubToolTips = InSubTooltips; }
 	
-	UPROPERTY(EditAnywhere)
-	bool bIsActivated = false;
 
 	FOnObjectiveStart OnObjectiveStart;
 	
@@ -72,7 +113,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	TArray<FString> ObjectiveProgressText;
 
-	void SetCurrentProgressElementCompleted(FString InTextCompleted);
 	
 private:
 	UPROPERTY(VisibleAnywhere)

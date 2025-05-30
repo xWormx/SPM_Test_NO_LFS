@@ -62,7 +62,7 @@ private:
 	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player", meta=(AllowPrivateAccess="true"))
 	UCameraComponent* CameraComponent;
 
-	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Uproperty - Player | Weapons", meta=(AllowPrivateAccess="true"))
 	USkeletalMeshComponent* WeaponMesh;
 
 public:
