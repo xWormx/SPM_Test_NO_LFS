@@ -19,8 +19,8 @@ ASGObjectivePodArrival::ASGObjectivePodArrival()
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 
-	MeshPod = CreateDefaultSubobject<USkeletalMeshComponent>("MeshPod");
-	MeshPod->SetupAttachment(Root);
+	//MeshPod = CreateDefaultSubobject<USkeletalMeshComponent>("MeshPod");
+	//MeshPod->SetupAttachment(Root);
 
 	SphereInteractArea = CreateDefaultSubobject<USphereComponent>("SphereInteractAArea");
 	SphereInteractArea->SetupAttachment(Root);
@@ -71,8 +71,8 @@ void ASGObjectivePodArrival::OnStart()
 
 bool ASGObjectivePodArrival::IsCompleted()
 {
-	if (AnimationPodOpen)
-		MeshPod->PlayAnimation(AnimationPodOpen, false);
+	//if (AnimationPodOpen)
+	//	MeshPod->PlayAnimation(AnimationPodOpen, false);
 		
 	return bWaitForPodDone;
 }

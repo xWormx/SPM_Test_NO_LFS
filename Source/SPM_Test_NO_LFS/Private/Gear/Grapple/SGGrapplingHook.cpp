@@ -50,8 +50,8 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 	if (!CanGrapple())
 	{
 		int TimeLeft = GetWorldTimerManager().GetTimerRemaining(GrappleTimerHandle);
-		FString str = FString::Printf(TEXT("Grapple Time: %d"), TimeLeft);
-		GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Red, str);
+		//FString str = FString::Printf(TEXT("Grapple Time: %d"), TimeLeft);
+		//GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Red, str);
 	}
 		
 	
@@ -110,18 +110,6 @@ void ASGGrapplingHook::FireGrapple()
 	
 	// Skulle kunna ha andra beteenden än att färdas direkt mot punkten.
 	TravelDirectly(Controller->GetCharacter(), HitResult);
-	
-	//DisableGrappling();
-	/*
-	GetWorldTimerManager().SetTimer(GrappleTimerHandle, this, &ASGGrapplingHook::EnableGrappling, HookCooldown);
-	
-	//StartCharacterLaunch(Controller->GetCharacter());
-	bDidGrapple = true;
-	AttachmentPoint = HitResult.ImpactPoint;
-	PointOfDeparture = GetActorLocation();
-	SetGrappleVisibility(true);
-	Head->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	*/
 
 	OnFireGrapple.Broadcast();
 	OnBeginCooldown.Broadcast(GrappleTimerHandle);

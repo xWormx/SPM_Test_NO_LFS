@@ -11,6 +11,7 @@ void USGTerminalWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	ObjectiveHandlerSubSystem = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
+	ObjectiveHandlerSubSystem->RegisterTerminalWidget(this);
 	if (ButtonStartMission)
 	{
 		ButtonStartMission->OnClicked.AddDynamic(this, &USGTerminalWidget::OnClickStartMission);
@@ -29,14 +30,10 @@ void USGTerminalWidget::NativeConstruct()
 		ButtonCloseTerminal->OnPressed.AddDynamic(this, &USGTerminalWidget::OnPressCloseMission);
 		ButtonCloseTerminal->OnReleased.AddDynamic(this, &USGTerminalWidget::OnReleaseCloseMission);
 	}
-}
-/*
-void USGTerminalWidget::SetObjectiveHandler(ASGGameObjectivesHandler* ObjectiveHandler)
-{
-	//GameObjectivesHandler = ObjectiveHandler;
+
 	
 }
-*/
+
 void USGTerminalWidget::OnPressStartMission()
 {
 	UGameplayStatics::PlaySound2D(this, SoundPressButton);
@@ -50,7 +47,7 @@ void USGTerminalWidget::OnReleaseStartMission()
 void USGTerminalWidget::OnClickStartMission()
 {
 	//GameObjectivesHandler->RegisterTerminalWidget(this);
-	ObjectiveHandlerSubSystem->RegisterTerminalWidget(this);
+	//ObjectiveHandlerSubSystem->RegisterTerminalWidget(this);
 	//ButtonStartMission->SetBackgroundColor(FLinearColor::Red);
 	OnStartMission.Broadcast();
 }

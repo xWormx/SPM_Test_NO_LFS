@@ -1,4 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+/*
+
+Written by
+----------------------
+- Carl-Johan Larson Eliasson
+- cael7567
+	
+*/
 
 #pragma once
 

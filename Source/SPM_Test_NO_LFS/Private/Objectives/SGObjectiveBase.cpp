@@ -31,9 +31,15 @@ void ASGObjectiveBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASGObjectiveBase::ActivateObjective()
+void ASGObjectiveBase::LoadCompleted()
 {
-	bIsActivated = true;
+	for (int i = 0; i < ObjectiveProgressText.Num(); i++)
+	{
+		HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElementCompleted(
+			FText::FromString(ObjectiveProgressText[i]),
+			FText::FromString("Completed")));
+	}
+	
 }
 
 void ASGObjectiveBase::OnStart()
@@ -78,6 +84,22 @@ FText ASGObjectiveBase::GetCurrentSubToolTip()
 	return FText::FromString(CurrentSubToolTip);
 }
 
+FObjectiveBaseSaveData ASGObjectiveBase::Save()
+{
+	FObjectiveBaseSaveData SaveData;
+	
+	SaveData.ObjectiveProgressText = ObjectiveProgressText;
+	SaveData.CurrentSubObjectiveStep = CurrentSubObjectiveStep;
+	SaveData.ObjectiveID = ObjectiveID;
+	SaveData.ProgressText = ProgressText;
+	SaveData.ObjectiveDescriptionToolTip = ObjectiveDescriptionToolTip;
+	SaveData.ObjectiveCompletedToolTip = ObjectiveCompletedToolTip;
+	SaveData.CurrentSubToolTip = CurrentSubToolTip;
+	SaveData.ObjectiveSubToolTips = ObjectiveSubToolTips;
+
+	return SaveData;
+}
+
 void ASGObjectiveBase::SetCurrentProgressText(FString NewCurrentProgressText)
 {
 	if (ProgressText.SubText.IsEmpty())
@@ -89,7 +111,7 @@ void ASGObjectiveBase::SetCurrentProgressText(FString NewCurrentProgressText)
 
 void ASGObjectiveBase::SetCurrentProgressElementCompleted(FString InTextCompleted)
 {
-	int ProgressStep = GetCurrentProgressStep(); 
+	int ProgressStep = GetCurrentProgressStep();
 	HorizontalBoxProgressElement[ProgressStep]->ShowSucceed();
 	HorizontalBoxProgressElement[ProgressStep]->SetValue(FText::FromString(InTextCompleted));
 	HorizontalBoxProgressElement[ProgressStep]->SetKeyAndValueOpacity(0.5);
