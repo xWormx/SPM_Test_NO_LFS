@@ -15,7 +15,7 @@ struct FTextData
 	FName StyleSetName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Data")
-	TEnumAsByte<ETextJustify::Type> ButtonTextJustification = ETextJustify::Center;
+	TEnumAsByte<ETextJustify::Type> TextJustification = ETextJustify::Center;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Data")
 	float DefaultPadding = 5.f;
@@ -33,6 +33,9 @@ struct FButtonData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Data")
 	FName StyleSetName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Data")
+	FName StyleSetTextName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Data")
 	TEnumAsByte<ETextJustify::Type> ButtonTextJustification = ETextJustify::Center;

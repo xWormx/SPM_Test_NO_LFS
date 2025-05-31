@@ -15,6 +15,7 @@
 #include "UI/Widgets/SGDifficultyBarWidget.h"
 #include "Components/Widget.h"
 #include "UI/SlateWidgets/DefaultMenu.h"
+#include "UI/SlateWidgets/SWidgetData/StyleSetData.h"
 #include "Widgets/SWeakWidget.h"
 
 static bool HasFirstQuestStarted = false;
@@ -22,7 +23,7 @@ static bool HasFirstQuestStarted = false;
 void ASGMainHUD::BeginPlay()
 {
 	Super::BeginPlay();
-
+	FStyleSetData::Initialize();
 	HasFirstQuestStarted = false;
 	if (!GrappleCrossHairWidget.IsValid())
 	{
@@ -60,6 +61,8 @@ void ASGMainHUD::BeginPlay()
 	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(DefaultButtonWidget, SWeakWidget).PossiblyNullContent(DefaultButtonWidgetSlate.ToSharedRef()));*/
 	FButtonData ButtonDataStartGame = FButtonData();
 	ButtonDataStartGame.ButtonText = FText::FromString("Start Game");
+	ButtonDataStartGame.StyleSetName = StyleNames::MenuButton();
+	ButtonDataStartGame.StyleSetTextName = StyleNames::MenuButtonText();
 	ButtonDataStartGame.OnClicked.BindLambda([this]
 	{
 		EMMA_LOG(Warning, TEXT("❤️Start Game Button Clicked!"));		
@@ -70,6 +73,8 @@ void ASGMainHUD::BeginPlay()
 
 	FButtonData ButtonDataQuitGame = FButtonData();
 	ButtonDataQuitGame.ButtonText = FText::FromString("Quit Game");
+	ButtonDataQuitGame.StyleSetName = StyleNames::MenuButton();
+	ButtonDataQuitGame.StyleSetTextName = StyleNames::MenuButtonText();
 	ButtonDataQuitGame.OnClicked.BindLambda([this]
 	{
 		EMMA_LOG(Warning, TEXT("❤️Quit Game Button Clicked!"));
@@ -83,6 +88,7 @@ void ASGMainHUD::BeginPlay()
 
 	FTextData TextData = FTextData();
 	TextData.Text = FText::FromString("Main Menu");
+	TextData.StyleSetName = StyleNames::MenuHeaderText();
 	
 	DefaultSlateMenuWidget = SNew(SDefaultMenu)
 		.InTextData(TextData)
@@ -95,6 +101,7 @@ void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
 	ObjectiveHandler->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::PlayAndShow);
+
 
 	Super::EndPlay(EndPlayReason);
 }
