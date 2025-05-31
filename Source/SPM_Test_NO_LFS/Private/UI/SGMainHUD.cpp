@@ -15,6 +15,7 @@
 #include "UI/Widgets/SGDifficultyBarWidget.h"
 #include "Components/Widget.h"
 #include "UI/SlateWidgets/DefaultMenu.h"
+#include "UI/SlateWidgets/SWidgetData/StyleSetData.h"
 #include "Widgets/SWeakWidget.h"
 
 static bool HasFirstQuestStarted = false;
@@ -22,7 +23,7 @@ static bool HasFirstQuestStarted = false;
 void ASGMainHUD::BeginPlay()
 {
 	Super::BeginPlay();
-
+	FStyleSetData::Initialize();
 	HasFirstQuestStarted = false;
 	if (!GrappleCrossHairWidget.IsValid())
 	{
@@ -50,7 +51,6 @@ void ASGMainHUD::BeginPlay()
 	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
 
 	Cast<USGGameInstance>(GetWorld()->GetGameInstance())->GetTerminalWidget()->OnVisibilityChanged.AddDynamic(this, &ASGMainHUD::OnTerminalVisibilityChanged);
-	
 
 	/*FButtonData ButtonData = FButtonData();
 	ButtonData.ButtonText = FText::FromString("Start Game");
@@ -59,7 +59,9 @@ void ASGMainHUD::BeginPlay()
 	DefaultButtonWidgetSlate = SNew(SDefaultButtonWidget).InButtonData(ButtonData);
 	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(DefaultButtonWidget, SWeakWidget).PossiblyNullContent(DefaultButtonWidgetSlate.ToSharedRef()));*/
 	FButtonData ButtonDataStartGame = FButtonData();
-	ButtonDataStartGame.ButtonText = FText::FromString("Start Game");
+	ButtonDataStartGame.TextData.Text = FText::FromString("Start Game");
+	ButtonDataStartGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
+	ButtonDataStartGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
 	ButtonDataStartGame.OnClicked.BindLambda([this]
 	{
 		EMMA_LOG(Warning, TEXT("❤️Start Game Button Clicked!"));		
@@ -69,7 +71,9 @@ void ASGMainHUD::BeginPlay()
 	});
 
 	FButtonData ButtonDataQuitGame = FButtonData();
-	ButtonDataQuitGame.ButtonText = FText::FromString("Quit Game");
+	ButtonDataQuitGame.TextData.Text = FText::FromString("Quit Game");
+	ButtonDataQuitGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
+	ButtonDataQuitGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
 	ButtonDataQuitGame.OnClicked.BindLambda([this]
 	{
 		EMMA_LOG(Warning, TEXT("❤️Quit Game Button Clicked!"));
@@ -83,10 +87,15 @@ void ASGMainHUD::BeginPlay()
 
 	FTextData TextData = FTextData();
 	TextData.Text = FText::FromString("Main Menu");
-	
-	DefaultSlateMenuWidget = SNew(SDefaultMenu)
-		.InTextData(TextData)
-		.InButtonDataArray( { ButtonDataStartGame, ButtonDataQuitGame });
+	TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuHeaderText());
+
+	FMenuData MenuData;
+	MenuData.TextData = TextData;
+	MenuData.ButtonDataArray = { ButtonDataStartGame, ButtonDataQuitGame };
+	MenuData.BackgroundColor = FColor::Black;
+	MenuData.MenuButtonsOrientation = Orient_Horizontal;
+	MenuData.MenuAlignmentData = FAlignmentData(HAlign_Center, VAlign_Center);
+	DefaultSlateMenuWidget = SNew(SDefaultMenu).InMenuData(MenuData);
 	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(DefaultMenuWidget, SWeakWidget).PossiblyNullContent(DefaultSlateMenuWidget.ToSharedRef()));
 	PauseAndHide();
 }

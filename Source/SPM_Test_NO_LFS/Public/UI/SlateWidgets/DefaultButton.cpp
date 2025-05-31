@@ -1,4 +1,5 @@
 ﻿#include "DefaultButton.h"
+#include "SWidgetData/StyleSetData.h"
 
 void SDefaultButtonWidget::Construct(const FArguments& InArgs)
 {
@@ -6,13 +7,7 @@ void SDefaultButtonWidget::Construct(const FArguments& InArgs)
 
 	ChildSlot
 	[
-		SNew(SButton)
-		.OnClicked(ButtonData.OnClicked)
-		[
-			SNew(STextBlock).Margin(FMargin(ButtonData.DefaultPadding))
-			.Text(ButtonData.ButtonText)
-			.Justification(ButtonData.ButtonTextJustification)
-		]
+		ButtonData.CreateButton()
 	];
 }
 
@@ -22,12 +17,10 @@ void SDefaultButtonWidget::SetButtonData(const FButtonData& InButtonData)
 	if (ChildSlot.GetWidget()->GetType() == TEXT("SButton"))
 	{
 		TSharedRef<SButton> Button = StaticCastSharedRef<SButton>(ChildSlot.GetWidget());
-		Button->SetOnClicked(ButtonData.OnClicked);
+		InButtonData.ApplyStyle(Button);
 
 		TSharedRef<STextBlock> TextBlock = StaticCastSharedRef<STextBlock>(Button->GetChildren()->GetChildAt(0));
-		TextBlock->SetText(ButtonData.ButtonText);
-		TextBlock->SetJustification(ButtonData.ButtonTextJustification);
-		TextBlock->SetMargin(FMargin(ButtonData.DefaultPadding));
+		InButtonData.TextData.ApplyStyle(TextBlock);
 	}
 }
 

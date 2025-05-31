@@ -1,79 +1,83 @@
 ﻿#include "DefaultMenu.h"
-
 #include "DefaultButton.h"
 
 void SDefaultMenu::Construct(const FArguments& InArgs)
 {
-	TextData = InArgs._InTextData;
-	ButtonDataArray = InArgs._InButtonDataArray;
-	constexpr float BoxPadding = 10.f;
+	MenuData = InArgs._InMenuData;
 
-	TSharedPtr<SStackBox> BoxPanel = SNew(SStackBox).Orientation(Orient_Vertical);
-	for (const FButtonData ButtonData : ButtonDataArray)
+	TSharedRef<SImage> BackgroundImage = SNew(SImage).ColorAndOpacity(MenuData.BackgroundColor);
+
+	TSharedRef<SStackBox> ButtonPanel = SNew(SStackBox).Orientation(MenuData.MenuButtonsOrientation);
+	for (FButtonData ButtonData : MenuData.ButtonDataArray)
 	{
-		BoxPanel->AddSlot()		        
-		        .Padding(BoxPadding)
+		ButtonPanel->AddSlot()
+		           .HAlign(MenuData.ButtonGroupAlignmentData.HorizontalAlignment)
+		           .VAlign(MenuData.ButtonGroupAlignmentData.VerticalAlignment)
+		           .Padding(MenuData.DefaultPadding)
 		[
-			SNew(SDefaultButtonWidget)
-			.InButtonData(ButtonData)
+			SNew(SDefaultButtonWidget).InButtonData(ButtonData)
 		];
-	}
+	} //TODO:: Turn into Default Widget (eg. SDefaultButtonGroup)
+
+	ButtonPanel->SetOrientation(MenuData.MenuButtonsOrientation);
+	TSharedRef<SStackBox> MenuElements = SNew(SStackBox).Orientation(MenuData.MenuOrientation)
+		+ SStackBox::Slot().HAlign(MenuData.MenuAlignmentData.HorizontalAlignment).VAlign(MenuData.MenuAlignmentData.VerticalAlignment).Padding(MenuData.DefaultPadding)
+		[
+			MenuData.TextData.CreateTextBlock()
+		]
+		+ SStackBox::Slot().HAlign(MenuData.MenuAlignmentData.HorizontalAlignment).VAlign(MenuData.MenuAlignmentData.VerticalAlignment).Padding(MenuData.DefaultPadding)
+	[
+		ButtonPanel
+	];
+	MenuElements->SetOrientation(MenuData.MenuOrientation);
+
 	ChildSlot
 	[
-		SNew(SStackBox).Orientation(Orient_Vertical)
-		+ SStackBox::Slot()
-		.AutoSize()
-		.Padding(BoxPadding)
+		SNew(SOverlay)
+			+ SOverlay::Slot().HAlign(MenuData.MenuAlignmentData.HorizontalAlignment).VAlign(MenuData.MenuAlignmentData.VerticalAlignment)
+			[
+				BackgroundImage
+			]
+		+ SOverlay::Slot()
+		.HAlign(MenuData.MenuAlignmentData.HorizontalAlignment).VAlign(MenuData.MenuAlignmentData.VerticalAlignment).Padding(MenuData.DefaultPadding)
 		[
-			SNew(STextBlock)
-			.Text(TextData.Text)
-			.Justification(TextData.ButtonTextJustification)
-			.Margin(FMargin(TextData.DefaultPadding))
-		]
-		+ SStackBox::Slot()
-		.AutoSize()
-		.Padding(BoxPadding)
-		[
-			BoxPanel.ToSharedRef()
+			MenuElements
 		]
 	];
 }
 
-void SDefaultMenu::SetTextData(const FTextData& InTextData)
+void SDefaultMenu::SetMenuData(const FMenuData& InMenuData)
 {
-	if (ChildSlot.GetWidget()->GetType() == TEXT("SStackBox"))
+	MenuData = InMenuData;
+}
+
+void UDefaultMenuWidget::ReleaseSlateResources(bool bReleaseChildren)
+{
+	Super::ReleaseSlateResources(bReleaseChildren);
+	CustomWidgetInstance.Reset();
+}
+
+void UDefaultMenuWidget::SynchronizeProperties()
+{
+	Super::SynchronizeProperties();
+	if (CustomWidgetInstance)
 	{
-		TSharedRef<SStackBox> StackBox = StaticCastSharedRef<SStackBox>(ChildSlot.GetWidget());
-		if (StackBox->GetChildren()->Num() > 1)
-		{
-			TSharedRef<STextBlock> TextBlock = StaticCastSharedRef<STextBlock>(StackBox->GetChildren()->GetChildAt(0));
-			TextBlock->SetText(InTextData.Text);
-			TextBlock->SetJustification(InTextData.ButtonTextJustification);
-			TextBlock->SetMargin(FMargin(InTextData.DefaultPadding));
-		}
+		RebuildWidget();
+		//TODO: Change to setters. Need a better way to access individual elements.
 	}
 }
 
-void SDefaultMenu::SetButtonDataArray(const TArray<FButtonData>& InButtonDataArray)
+TSharedRef<SWidget> UDefaultMenuWidget::RebuildWidget()
 {
-	if (ChildSlot.GetWidget()->GetType() != TEXT("SStackBox"))
+	CustomWidgetInstance = SNew(SDefaultMenu).InMenuData(MenuData);
+	return CustomWidgetInstance.ToSharedRef();
+}
+
+void UDefaultMenuWidget::SetMenuData(const FMenuData& InMenuData)
+{
+	MenuData = InMenuData;
+	if (CustomWidgetInstance)
 	{
-		return;
-	}
-	TSharedRef<SStackBox> StackBox = StaticCastSharedRef<SStackBox>(ChildSlot.GetWidget());
-	if (StackBox->GetChildren()->Num() > 1)
-	{
-		TSharedRef<SStackBox> BoxPanel = StaticCastSharedRef<SStackBox>(StackBox->GetChildren()->GetChildAt(1));
-		BoxPanel->ClearChildren();
-		for (const FButtonData& ButtonData : InButtonDataArray)
-		{
-			constexpr float BoxPadding = 10.f;
-			BoxPanel->AddSlot()			        
-			        .Padding(BoxPadding)
-			[
-				SNew(SDefaultButtonWidget)
-				.InButtonData(ButtonData)
-			];
-		}
+		RebuildWidget();
 	}
 }
