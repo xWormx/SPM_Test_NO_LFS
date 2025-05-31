@@ -4,6 +4,8 @@
 #include "AIController.h"
 #include "SGAIControllerEnemy.generated.h"
 
+class ASGEnemyCharacter;
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGAIControllerEnemy : public AAIController
 {
@@ -15,10 +17,33 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void Patrol();
+
+
+	//boolean helpers
+	virtual bool CanReachTarget(AActor* Target);
+
+	virtual bool CanAttackTarget();
+
+	virtual bool IsStuck();
+
+	virtual bool HasReachedPatrolPoint(float Tolerance);
+
+	virtual void UpdatePatrolPoints();
+
+	//Getters
+	virtual AActor* GetAttackTarget();
+
+	virtual ASGEnemyCharacter* GetControlledEnemy();
+
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void SetInitialValues();
+	
+
+	class AActor* GetPatrolPoint();
+
 
 private:
 	//Behavior Tree
@@ -61,5 +86,14 @@ private:
 	//Actor references
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = true))
 	AActor* AttackTarget;
+
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = true))
+	class ASGEnemyCharacter* ControlledEnemy;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	TArray<AActor*> PatrolPoints;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	AActor* CurrentPatrolPoint;
 	
 };

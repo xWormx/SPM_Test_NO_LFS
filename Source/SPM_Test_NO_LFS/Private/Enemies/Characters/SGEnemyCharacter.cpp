@@ -1,9 +1,11 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
 #include "SPM_Test_NO_LFS.h"
+#include "BehaviorTree/BehaviorTree.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SGHealthComponent.h"
 #include "Core/SGUpgradeSubsystem.h"
+#include "Enemies/AI/SGAIControllerEnemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -38,11 +40,26 @@ void ASGEnemyCharacter::BeginPlay()
 		UpgradeSubsystem->BindDependentAttribute(HealthComponent, TEXT("CurrentHealth"), false, HealthComponent, MaxHealth);
 	}
 
-	
+	AIController = Cast<ASGAIControllerEnemy>(GetController());
+
+	if (AIController)
+	{
+		BTComp = Cast<UBehaviorTreeComponent>(AIController->GetBrainComponent());
+	}
 }
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
 {
+	if (AIController)
+	{
+		if (BTComp)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("BT Stopped"));
+			//BTComp->StopTree(EBTStopMode::Forced);
+			BTComp->StopLogic(TEXT("Dead"));
+		}
+	}
+	
 	GetGameInstance()->GetSubsystem<USGPickUpSubsystem>()->DropItem(this);
 
 	OnEnemyDied.Broadcast(this);
