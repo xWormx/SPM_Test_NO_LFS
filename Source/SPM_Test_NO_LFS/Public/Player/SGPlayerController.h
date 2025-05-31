@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "SGPlayerController.generated.h"
 
+class UInputMappingContext;
 class USGTerminalWidget;
 class UCameraShakeBase;
 class UUserWidget;
@@ -79,7 +80,7 @@ private:
 	float MouseSensitivity = 0.75f;
 
 	UPROPERTY(EditAnywhere, Category = "UProperty - Player | Input ")
-	class UInputMappingContext* InputMapping;
+	UInputMappingContext* InputMapping;
 
 	// INPUT
 	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Movement")

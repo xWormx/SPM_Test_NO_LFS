@@ -35,7 +35,7 @@ void ASGPlayerController::BeginPlay()
 			return;
 		}
 
-		if (CurrentPlayer->GrapplingHook)
+		/*if (CurrentPlayer->GrapplingHook)
 		{
 			MainHUD->BindToGrappleEvents(CurrentPlayer->GrapplingHook);
 		}
@@ -48,7 +48,8 @@ void ASGPlayerController::BeginPlay()
 		if (CurrentPlayer->AmmoComponent)
 		{
 			MainHUD->BindToAmmoEvents(CurrentPlayer->AmmoComponent);
-		}
+		}*/
+		MainHUD->BindToPlayerComponentEvents(CurrentPlayer);
 
 		if (CurrentPlayer->HealthComponent)
 		{
@@ -197,15 +198,15 @@ bool ASGPlayerController::CanInteractWithTerminal() const
 //---- Added by Basir
 void ASGPlayerController::PauseGame()
 {
-	SetPause(true);
-	Cast<ASGMainHUD>(GetHUD())->PauseAndHide();
+	Cast<ASGMainHUD>(GetHUD())->PauseGame();
+	/*SetPause(true);
 	if (!PauseMenu)
 	{
 		return;
 	}
 	PauseMenu->AddToViewport();
 	bShowMouseCursor = true;
-	SetInputMode(FInputModeUIOnly());
+	SetInputMode(FInputModeUIOnly());*/
 }
 
 void ASGPlayerController::RestartGame()
@@ -220,9 +221,9 @@ void ASGPlayerController::RestartGame()
 
 void ASGPlayerController::EnableGameOver([[maybe_unused]] float NewHealth)
 {
-	SetPause(true);
-	Cast<ASGMainHUD>(GetHUD())->PauseAndHide();
-
+	
+	Cast<ASGMainHUD>(GetHUD())->GameOver();
+	/*SetPause(true);
 	if (!GameOverMenu)
 	{
 		return;
@@ -230,7 +231,7 @@ void ASGPlayerController::EnableGameOver([[maybe_unused]] float NewHealth)
 
 	GameOverMenu->AddToViewport();
 	bShowMouseCursor = true;
-	SetInputMode(FInputModeGameOnly());
+	SetInputMode(FInputModeGameOnly());*/
 }
 
 void ASGPlayerController::PlayTempDamageEffect([[maybe_unused]] float NewHealth)
