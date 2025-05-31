@@ -3,6 +3,8 @@
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGTerminalWidget.h"
+#include "Player/SGPlayerCharacter.h"
+#include "Player/SGPlayerController.h"
 #include "SaveGame/SGSaveGame.h"
 
 void USGGameInstance::Init()
@@ -150,4 +152,23 @@ void USGGameInstance::SavePlayerStats(struct FPlayerStats PlayerStats, struct FS
 	SavedData->PlayerStats = PlayerStats;
 	SavedData->UpgradeSystemSavedAttributes = UpgradeStats;
 	SaveGameData(bAsync);
+}
+
+void USGGameInstance::CollectAndSave(const bool bAsync)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		EMMA_LOG(Warning, TEXT("💀World is NULL, cannot collect player stats."));
+		return;
+	}	
+	ASGPlayerCharacter* PlayerCharacter = Cast<ASGPlayerCharacter>(World->GetFirstPlayerController()->GetPawn());
+	FSGSavedAttributes UpgradeStats = GetSubsystem<USGUpgradeSubsystem>()->GetPersistentUpgrades();
+
+	if (!PlayerCharacter)
+	{
+		EMMA_LOG(Warning, TEXT("💀PlayerCharacter is NULL, cannot collect player stats."));
+		return;
+	}
+	SavePlayerStats(PlayerCharacter->GetPlayerStats(), UpgradeStats, bAsync);
 }

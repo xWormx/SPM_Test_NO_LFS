@@ -58,6 +58,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SavePlayerStats(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, const bool bAsync);
 
+	void CollectAndSave(const bool bAsync);
+
 	/*UFUNCTION(BlueprintCallable)
 	void SaveUpgradeStats(struct FSGSavedAttributes UpgradesStats, const bool bAsync);*/
 
