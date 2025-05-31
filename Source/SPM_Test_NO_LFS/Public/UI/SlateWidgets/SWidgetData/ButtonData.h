@@ -83,6 +83,10 @@ struct FMenuData
 	TEnumAsByte<EOrientation> MenuButtonsOrientation = Orient_Vertical;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")
+	FAlignmentData BackgroundAlignment = {HAlign_Fill, VAlign_Fill};
+
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")
 	FAlignmentData MenuAlignmentData = {HAlign_Fill, VAlign_Center};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")

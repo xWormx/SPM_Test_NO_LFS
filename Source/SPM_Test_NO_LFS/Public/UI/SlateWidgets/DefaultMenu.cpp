@@ -14,6 +14,7 @@ void SDefaultMenu::Construct(const FArguments& InArgs)
 		           .HAlign(MenuData.ButtonGroupAlignmentData.HorizontalAlignment)
 		           .VAlign(MenuData.ButtonGroupAlignmentData.VerticalAlignment)
 		           .Padding(MenuData.DefaultPadding)
+				   .AutoSize()
 		[
 			SNew(SDefaultButtonWidget).InButtonData(ButtonData)
 		];
@@ -34,7 +35,7 @@ void SDefaultMenu::Construct(const FArguments& InArgs)
 	ChildSlot
 	[
 		SNew(SOverlay)
-			+ SOverlay::Slot().HAlign(MenuData.MenuAlignmentData.HorizontalAlignment).VAlign(MenuData.MenuAlignmentData.VerticalAlignment)
+			+ SOverlay::Slot().HAlign(MenuData.BackgroundAlignment.HorizontalAlignment).VAlign(MenuData.BackgroundAlignment.VerticalAlignment)
 			[
 				BackgroundImage
 			]
