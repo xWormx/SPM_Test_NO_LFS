@@ -90,7 +90,7 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 	MovementComp->bOrientRotationToMovement = false;
 	MovementComp->bUseControllerDesiredRotation = false;
 	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Ignore);
-	GetCharacterMovement()->bUseRVOAvoidance = false;
+	//GetCharacterMovement()->bUseRVOAvoidance = false;
 
 	const float BaseJumpZVelocity = MovementComp->JumpZVelocity;
 
@@ -127,7 +127,7 @@ void ASGEnemyCharacter::AdjustJumpRotation()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->bUseRVOAvoidance = true;
+	//GetCharacterMovement()->bUseRVOAvoidance = true;
 	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Block);
 }
 
