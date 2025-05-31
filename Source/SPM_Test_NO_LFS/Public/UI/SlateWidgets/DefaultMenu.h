@@ -5,50 +5,40 @@
 #include "Widgets/SCompoundWidget.h"
 #include "DefaultMenu.generated.h"
 
-
 class SDefaultMenu : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SDefaultMenu)
-		: _InTextData(FTextData())
-		, _InButtonDataArray(TArray<FButtonData>())
+		: _InMenuData(FMenuData())
 		{}
 		
-	SLATE_ARGUMENT(FTextData, InTextData)
-	SLATE_ARGUMENT(TArray<FButtonData> , InButtonDataArray)
+	SLATE_ARGUMENT(FMenuData, InMenuData)
 		
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
-	void SetTextData(const FTextData& InTextData);
-	void SetButtonDataArray(const TArray<FButtonData>& InButtonDataArray);
+	void SetMenuData(const FMenuData& InMenuData);
 
 private:
-	FTextData TextData;
-	TArray<FButtonData> ButtonDataArray;	
+	FMenuData MenuData;
 };
 
-/*
+///⚠️WIP - Not ready for UMG editor. Use SDefaultMenu directly through C++ code instead.
 UCLASS()
 class UDefaultMenuWidget : public UWidget
 {
 	GENERATED_BODY()
 
 public:
-
 	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
 	virtual void SynchronizeProperties() override;
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 
-	void SetButtonDataArray(const TArray<FButtonData>& InButtonDataArray);
+	void SetMenuData(const FMenuData& InMenuData);
 
 protected:
 	TSharedPtr<SDefaultMenu> CustomWidgetInstance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty")
-	FTextData TextData;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty")
-	TArray<FButtonData> ButtonDataArray;
+	FMenuData MenuData;
 };
-*/

@@ -69,7 +69,9 @@ void FStyleSetData::InitButtonStyles()
 
 void FStyleSetData::InitTextBlockStyles()
 {
+	//TODO: Add font(s) to project content directory
 	FString FontPath = FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Regular.ttf");
+
 	FLinearColor Foreground = FLinearColor::Yellow;
 	FLinearColor ShadowColor = FLinearColor(0.0f, 0.0f, 0.0f, 0.5f);
 	FVector2f ShadowOffset(0.0f, 1.0f);
