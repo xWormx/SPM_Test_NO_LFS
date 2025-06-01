@@ -10,7 +10,7 @@ Written by
 
 #include "CoreMinimal.h"
 #include "SGObjectiveBase.h"
-#include "SGObjectiveConfig.h"
+#include "Objectives/Config/SGObjectiveConfig.h"
 #include "Engine/DataAsset.h"
 #include "SGDataAssetObjective.generated.h"
 

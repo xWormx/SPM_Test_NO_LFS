@@ -10,8 +10,8 @@ Written by
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SGObjectiveFinalSweep.h"
-#include "Objectives/SGObjectiveConfig.h"
+#include "Objectives/SGObjectiveFinalSweep.h"
+#include "SGObjectiveConfig.h"
 #include "SGObjectiveConfigFinalSweep.generated.h"
 
 /**

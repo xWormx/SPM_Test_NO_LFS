@@ -9,7 +9,7 @@ Written by
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SGObjectiveBase.h"
+#include "Objectives/SGObjectiveBase.h"
 #include "UObject/NoExportTypes.h"
 #include "SGObjectiveConfig.generated.h"
 

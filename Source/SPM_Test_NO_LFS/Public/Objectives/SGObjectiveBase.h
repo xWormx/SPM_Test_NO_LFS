@@ -15,6 +15,7 @@ Written by
 #include "GameFramework/Actor.h"
 #include "SGObjectiveBase.generated.h"
 
+class USGObjectiveSaveData;
 class USGObjectiveHandlerSubSystem;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStart, AActor*, Actor);
 class ASGGameObjectivesHandler;
@@ -32,9 +33,6 @@ struct FObjectiveBaseSaveData
 	
 	UPROPERTY()
 	int32 ObjectiveID;
-	
-	UPROPERTY()
-	FProgressText ProgressText;
 	
 	UPROPERTY()
 	FString ObjectiveDescriptionToolTip;
@@ -68,32 +66,31 @@ public:
 	
 	
 	virtual void LoadCompleted();
+	virtual USGObjectiveSaveData* Save();
+	void SaveBaseData(USGObjectiveSaveData* SaveData);
 	
 	virtual bool IsCompleted(){ return false; }
 	virtual void OnStart();
 	virtual void OnCompleted();
 	virtual void Update();
+
 	virtual void DisplayStartToolTip(USGObjectiveToolTipWidget* ToolTipWidget);
 	virtual void DisplayEndToolTip(USGObjectiveToolTipWidget* ToolTipWidget);
 	virtual void DisplayToolTip(USGObjectiveToolTipWidget* ToolTipWidget, const FText& ToolTip);
+
 	virtual FText GetObjectiveDescriptionToolTip();
 	virtual FText GetObjectiveCompletedToolTip();
 	virtual FText GetCurrentSubToolTip();
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_None; }
 
-	FObjectiveBaseSaveData Save();
-	void SetObjectiveID(int32 NewObjectiveID) {	ObjectiveID = NewObjectiveID; }
-	void SetCurrentProgressText(FString NewCurrentProgressText);
+
 	void SetCurrentProgressElementCompleted(FString InTextCompleted);
 	void SetStartDescriptionTooltipText(FString InStartDescriptionTooltipText) { ObjectiveDescriptionToolTip = InStartDescriptionTooltipText; }
 	void SetCompletedDescriptionTooltipText(FString InCompletedDescriptionTooltipText) { ObjectiveCompletedToolTip = InCompletedDescriptionTooltipText; }
 	
 	void AdvanceCurrentObjectiveStep() { CurrentSubObjectiveStep++; }
 	
-	FString GetCurrentProgressSubText() { return ProgressText.SubText[GetCurrentProgressStep()]; }
 	const int32& GetCurrentProgressStep() const { return CurrentSubObjectiveStep; }
-	const int32& GetObjectiveID() const { return ObjectiveID; }
-	FProgressText GetProgressText() { return ProgressText; }
 
 	
 	void AddProgressBarText(const TArray<FString>& InProgressBarText) { ObjectiveProgressText = InProgressBarText; }
@@ -117,10 +114,7 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere)
 	int32 CurrentSubObjectiveStep;
-	UPROPERTY(VisibleAnywhere)
-	int32 ObjectiveID;
-	UPROPERTY(VisibleAnywhere)
-	FProgressText ProgressText;
+
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	FString ObjectiveDescriptionToolTip = "Default Objective Description Tooltip!";
