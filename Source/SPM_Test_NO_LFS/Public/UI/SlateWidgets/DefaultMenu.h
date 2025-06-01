@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "CoreMinimal.h"
 #include "Components/Widget.h"
-#include "SWidgetData/ButtonData.h"
+#include "SWidgetData/WidgetConstructionData.h"
 #include "Widgets/SCompoundWidget.h"
 #include "DefaultMenu.generated.h"
 

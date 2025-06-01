@@ -1,5 +1,4 @@
 ﻿#include "DefaultButton.h"
-#include "SWidgetData/StyleSetData.h"
 
 void SDefaultButtonWidget::Construct(const FArguments& InArgs)
 {

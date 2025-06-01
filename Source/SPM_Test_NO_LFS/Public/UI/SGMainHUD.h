@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include "SlateWidgets/SWidgetData/ButtonData.h"
+#include "SlateWidgets/SWidgetData/WidgetConstructionData.h"
 #include "Widgets/SWeakWidget.h"
 #include "SGMainHUD.generated.h"
 

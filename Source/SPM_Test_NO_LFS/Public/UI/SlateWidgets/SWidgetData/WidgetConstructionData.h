@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "ButtonData.generated.h"
+#include "WidgetConstructionData.generated.h"
 
 USTRUCT(BlueprintType)
 struct FAlignmentData
@@ -43,10 +43,10 @@ struct FButtonData
 
 	FOnClicked OnClicked;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Data")
-	FButtonStyle ButtonStyle;
+	FButtonStyle ButtonStyle = FButtonStyle();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Data")
-	FTextData TextData;
+	FTextData TextData = FTextData();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Data")
 	float DefaultPadding = 5.f;
@@ -56,13 +56,32 @@ struct FButtonData
 	TSharedRef<SButton> CreateButton() const;
 };
 
+
+USTRUCT(BlueprintType)
+struct FButtonGroupData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Group Data")
+	TArray<FButtonData> ButtonDataArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Group Data")
+	float SlotPadding = 10.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Group Data")
+	TEnumAsByte<EOrientation> ButtonGroupOrientation = Orient_Vertical;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Group Data")
+	FAlignmentData ButtonGroupAlignmentData = {HAlign_Fill, VAlign_Top};
+};
+
 USTRUCT(BlueprintType)
 struct FMenuData
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")
-	FTextData TextData;
+	FTextData TextData = FTextData();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")
 	TArray<FButtonData> ButtonDataArray;
@@ -77,19 +96,15 @@ struct FMenuData
 	FSlateColor BackgroundColor = FSlateColor(FLinearColor::Black);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")
-	TEnumAsByte<EOrientation> MenuOrientation = Orient_Vertical;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")
-	TEnumAsByte<EOrientation> MenuButtonsOrientation = Orient_Vertical;
+	TEnumAsByte<EOrientation> MenuOrientation = Orient_Vertical;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")
 	FAlignmentData BackgroundAlignment = {HAlign_Fill, VAlign_Fill};
-
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")
-	FAlignmentData MenuAlignmentData = {HAlign_Fill, VAlign_Center};
+	FAlignmentData MenuAlignmentData = {HAlign_Fill, VAlign_Center};	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Menu Data")
-	FAlignmentData ButtonGroupAlignmentData = {HAlign_Fill, VAlign_Top};
-
+	FButtonGroupData ButtonGroupData = FButtonGroupData();
+	
 };

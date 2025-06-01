@@ -128,9 +128,9 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 	MenuData.TextData.Text = FText::FromString("Main Menu");
 	MenuData.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuHeaderText());
 
-	MenuData.ButtonDataArray = { ButtonDataStartGame, ButtonDataQuitGame };
-	MenuData.BackgroundColor = FColor::Black;
-	MenuData.MenuButtonsOrientation = Orient_Vertical;
+	MenuData.ButtonGroupData.ButtonDataArray = { ButtonDataStartGame, ButtonDataQuitGame };
+	MenuData.ButtonGroupData.ButtonGroupOrientation = Orient_Vertical;
+	MenuData.BackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.8f);
 	MenuData.MenuAlignmentData = FAlignmentData(HAlign_Center, VAlign_Center);
 
 	StartMenuSlateWidget = SNew(SDefaultMenu).InMenuData(MenuData);
@@ -188,12 +188,12 @@ void ASGMainHUD::InitPauseMenu()
 	);
 
 	FMenuData MenuData;
-	MenuData.TextData = FTextData();
 	MenuData.TextData.Text = FText::FromString("Paused");
 	MenuData.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuHeaderText());
-	MenuData.ButtonDataArray = { ButtonContinueGame, ButtonRestartGame, ButtonSaveGame, ButtonReturnToMainMenu };
-	MenuData.BackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.8f);
-	MenuData.MenuButtonsOrientation = Orient_Vertical;
+
+	MenuData.BackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.9f);
+	MenuData.ButtonGroupData.ButtonDataArray = { ButtonContinueGame, ButtonRestartGame, ButtonSaveGame, ButtonReturnToMainMenu };
+	MenuData.ButtonGroupData.ButtonGroupOrientation = Orient_Vertical;
 	MenuData.MenuAlignmentData = FAlignmentData(HAlign_Center, VAlign_Center);
 	PauseMenuSlateWidget = SNew(SDefaultMenu).InMenuData(MenuData);	
 }
@@ -211,15 +211,13 @@ void ASGMainHUD::InitGameOverMenu()
 
 	//TODO: Add optional description text to MenuData
 	FMenuData MenuData;
-	MenuData.TextData = FTextData();
 	MenuData.TextData.Text = FText::FromString("Game Over");
 	MenuData.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuHeaderText());
-	MenuData.ButtonDataArray = { ButtonRestartGame };
+	MenuData.ButtonGroupData.ButtonDataArray = { ButtonRestartGame };
 	MenuData.BackgroundColor = FLinearColor(0.25f, 0.f, 0.f, 0.75f);
-	MenuData.MenuButtonsOrientation = Orient_Horizontal;
+	MenuData.ButtonGroupData.ButtonGroupOrientation = Orient_Horizontal;
 	MenuData.MenuAlignmentData = FAlignmentData(HAlign_Center, VAlign_Center);
 	GameOverMenuSlateWidget = SNew(SDefaultMenu).InMenuData(MenuData);
-
 }
 
 //---- UI STATE MANAGEMENT
