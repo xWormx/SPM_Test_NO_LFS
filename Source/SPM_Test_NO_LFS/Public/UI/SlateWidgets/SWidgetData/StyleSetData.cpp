@@ -1,12 +1,13 @@
 ﻿#include "StyleSetData.h"
 
+#include "SPM_Test_NO_LFS.h"
 #include "Styling/CoreStyle.h"
 #include "Styling/SlateStyleRegistry.h"
 
 #define BOX_BRUSH(RelativePath, ...) FSlateBoxBrush(StyleSet->RootToContentDir(RelativePath, TEXT(".svg")), __VA_ARGS__)
 #define IMAGE_BRUSH_SVG(RelativePath, ...) FSlateVectorImageBrush(StyleSet->RootToContentDir(RelativePath, TEXT(".svg")), __VA_ARGS__)
 #define TRANSPARENT_ROUNDED_BOX_BRUSH(BorderColor) FSlateRoundedBoxBrush(FLinearColor::Transparent, 4.0f, FLinearColor(BorderColor), 2.0f) //FillColor, Border Radius, BorderColor (param), BorderThickness
-
+#define CONTENT_FONT_PATH(FileName, Extension) FPaths::ProjectContentDir()/TEXT("CrazyJack/UI/Fonts/TTF/") / FileName + Extension
 
 TUniquePtr<FSlateStyleSet> FStyleSetData::StyleSet;
 
@@ -14,6 +15,7 @@ void FStyleSetData::Initialize()
 {
 	if (StyleSet.IsValid())
 	{
+		EMMA_LOG(Warning, TEXT("StyleSet is already initialized."));
 		return;
 	}
 
@@ -68,34 +70,36 @@ void FStyleSetData::InitButtonStyles()
 }
 
 void FStyleSetData::InitTextBlockStyles()
-{
-	//TODO: Add font(s) to project content directory
-	FString FontPath = FPaths::EngineContentDir() / TEXT("Slate/Fonts/Roboto-Regular.ttf");
-
+{	
+	static const TCHAR* TTF = TEXT(".ttf");
+	
 	FLinearColor Foreground = FLinearColor::Yellow;
 	FLinearColor ShadowColor = FLinearColor(0.0f, 0.0f, 0.0f, 0.5f);
 	FVector2f ShadowOffset(0.0f, 1.0f);
-
+	
 	FName MenuButtonTextStyleName = StyleNames::MenuButtonText();
 	StyleSet->Set(MenuButtonTextStyleName,
-	              FTextBlockStyle()
-	              .SetFont(FSlateFontInfo(FontPath, 32))
-	              .SetColorAndOpacity(Foreground)
-	              .SetShadowColorAndOpacity(ShadowColor)
-	              .SetShadowOffset(ShadowOffset));
+				  FTextBlockStyle()
+					  .SetFont(FSlateFontInfo(CONTENT_FONT_PATH("Roboto-Bold", TTF), 32))
+					  .SetColorAndOpacity(Foreground)
+					  .SetShadowColorAndOpacity(ShadowColor)
+					  .SetShadowOffset(ShadowOffset));
 
 	FName MenuHeaderTextStyleName = StyleNames::MenuHeaderText();
 	StyleSet->Set(MenuHeaderTextStyleName,
-	              FTextBlockStyle()
-	              .SetFont(FSlateFontInfo(FontPath, 40))
-	              .SetColorAndOpacity(Foreground)
-	              .SetShadowColorAndOpacity(ShadowColor)
-	              .SetShadowOffset(ShadowOffset));
-
+				  FTextBlockStyle()
+					  .SetFont(FSlateFontInfo(CONTENT_FONT_PATH("Roboto-Medium", TTF), 40))
+					  .SetColorAndOpacity(Foreground)
+					  .SetShadowColorAndOpacity(ShadowColor)
+					  .SetShadowOffset(ShadowOffset));
 }
-
 FString FStyleSetData::RootToProjectContentDir(const FString& RelativePath, const TCHAR* Extension)
 {
-	static const FString ContentDir = FPaths::ProjectConfigDir();
+	static const FString ContentDir = FPaths::ProjectContentDir();
 	return (ContentDir / RelativePath) + Extension;
 }
+
+#undef IMAGE_BRUSH_SVG
+#undef BOX_BRUSH
+#undef TRANSPARENT_ROUNDED_BOX_BRUSH
+#undef CONTENT_FONT_PATH
