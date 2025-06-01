@@ -23,9 +23,9 @@ void ASGPlayerController::BeginPlay()
 		return;
 	}
 
-	/* In shipping builds, the PlayerController is created first, then the HUD, and then the PlayerCharacter.
+	/*/* In shipping builds, the PlayerController is created first, then the HUD, and then the PlayerCharacter.
 	 * At this point, PlayerCharacter isn't null because the pawn has been spawned and possessed, but its BeginPlay hasn't yet completed.
-	 * Sooo basically, we wait until the PlayerCharacter (and its components) are ready before binding the HUD to its components different events.*/
+	 * Sooo basically, we wait until the PlayerCharacter (and its components) are ready before binding the HUD to its components different events.#1#
 	PlayerCharacter->OnPlayerIsReady.AddLambda([this](ASGPlayerCharacter* CurrentPlayer)
 	{
 		ASGMainHUD* MainHUD = Cast<ASGMainHUD>(GetHUD());
@@ -48,7 +48,7 @@ void ASGPlayerController::BeginPlay()
 		if (CurrentPlayer->AmmoComponent)
 		{
 			MainHUD->BindToAmmoEvents(CurrentPlayer->AmmoComponent);
-		}*/
+		}#1#
 		MainHUD->BindToPlayerComponentEvents(CurrentPlayer);
 
 		if (CurrentPlayer->HealthComponent)
@@ -57,7 +57,8 @@ void ASGPlayerController::BeginPlay()
 			HealthComponent->OnNoHealth.AddDynamic(this, &ASGPlayerController::EnableGameOver);
 			HealthComponent->OnHurt.AddDynamic(this, &ASGPlayerController::PlayTempDamageEffect);
 		}
-	});
+	});*/
+
 
 	//TODO: Consider moving this to SGPlayerCharacter
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
@@ -70,6 +71,8 @@ void ASGPlayerController::BeginPlay()
 			UpgradeSystem->BindAttribute(CharacterMovement, TEXT("JumpZVelocity"), TEXT("JumpHeight"), Category);			
 		}		
 	}
+
+
 }
 
 void ASGPlayerController::SetupInputComponent()
@@ -194,7 +197,6 @@ bool ASGPlayerController::CanInteractWithTerminal() const
 	return bCanInteractWithTerminal;
 }
 
-
 //---- Added by Basir
 void ASGPlayerController::PauseGame()
 {
@@ -242,7 +244,7 @@ void ASGPlayerController::PlayTempDamageEffect([[maybe_unused]] float NewHealth)
 	}
 
 	TempDamageEffect->AddToViewport();
-
+	TempDamageEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
 	if (TempDamageEffectCameraShake)
 	{
 		PlayerCameraManager->StartCameraShake(TempDamageEffectCameraShake);
