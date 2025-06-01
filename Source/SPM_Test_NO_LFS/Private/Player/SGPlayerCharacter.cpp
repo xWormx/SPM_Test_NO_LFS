@@ -1,6 +1,6 @@
 #include "Player/SGPlayerCharacter.h"
 
-#include "jola6902_GunsComponent.h"
+#include "Gear/Weapons/jola6902_GunsComponent.h"
 
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Camera/CameraComponent.h"

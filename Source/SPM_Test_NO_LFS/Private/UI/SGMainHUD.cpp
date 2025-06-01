@@ -1,6 +1,6 @@
 ﻿#include "UI/SGMainHUD.h"
 
-#include "jola6902_GunsComponent.h"
+#include "Gear/Weapons/jola6902_GunsComponent.h"
 #include "SPM_Test_NO_LFS.h"
 #include "Components/Counters/SGCounterComponentAmmo.h"
 #include "Core/SGGameInstance.h"
