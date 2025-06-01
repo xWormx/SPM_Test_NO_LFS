@@ -20,11 +20,15 @@ public:
 	virtual void Patrol();
 
 	virtual void PatrolDelay();
-
+	
+	//float helpers
+	UFUNCTION(BlueprintCallable)
+	virtual float GetCharacterVelocity() const;
 
 	//boolean helpers
 	virtual bool CanReachTarget();
 
+	UFUNCTION(BlueprintCallable)
 	virtual bool CanAttackTarget();
 
 	virtual bool IsStuck();
@@ -36,6 +40,7 @@ public:
 	virtual bool CanReachTarget(AActor* Target);
 
 	//Getters
+	UFUNCTION(BlueprintCallable)
 	virtual AActor* GetAttackTarget();
 
 	virtual ASGEnemyCharacter* GetControlledEnemy();

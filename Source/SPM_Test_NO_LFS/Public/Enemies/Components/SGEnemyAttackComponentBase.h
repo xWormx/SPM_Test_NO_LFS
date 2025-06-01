@@ -22,6 +22,7 @@ protected:
 
 public:	
 
+	UFUNCTION(BlueprintCallable)
 	virtual void StartAttack(AActor* Target);
 
 protected:

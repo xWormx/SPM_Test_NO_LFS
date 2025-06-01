@@ -79,7 +79,7 @@ void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent() const
+USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent()
 {
 	return AttackComponent;
 }

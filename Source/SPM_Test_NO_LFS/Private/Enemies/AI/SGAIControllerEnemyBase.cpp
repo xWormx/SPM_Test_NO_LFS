@@ -7,6 +7,7 @@
 #include "NavigationSystem.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Navigation/SGEnemyPatrolPoint.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -91,6 +92,17 @@ void ASGAIControllerEnemyBase::SetRetreatDistance(const float NewRetreatDistance
 	RetreatDistance = NewRetreatDistance;
 }
 
+
+float ASGAIControllerEnemyBase::GetCharacterVelocity() const
+{
+	if (!ControlledEnemy)
+	{
+		return 0.0f;
+	}
+
+	const float CurrentVelocity = ControlledEnemy->GetCharacterMovement()->Velocity.Length();
+	return CurrentVelocity;
+}
 
 bool ASGAIControllerEnemyBase::IsFacingTarget() const
 {

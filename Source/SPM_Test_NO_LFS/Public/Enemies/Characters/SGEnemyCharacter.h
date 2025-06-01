@@ -40,7 +40,7 @@ public:
 	float JumpStrength = 500.f; 
 
 	UFUNCTION(BlueprintCallable)
-	USGEnemyAttackComponentBase* GetAttackComponent() const;
+	USGEnemyAttackComponentBase* GetAttackComponent();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void JumpToLocation(const FVector Destination);
