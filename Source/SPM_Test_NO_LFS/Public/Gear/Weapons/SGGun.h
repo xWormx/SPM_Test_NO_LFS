@@ -9,7 +9,7 @@
 class UNiagaraSystem;
 
 UCLASS()
-class SPM_TEST_NO_LFS_API ASGGun : public AActor
+class SPM_TEST_NO_LFS_API ASGGun : public AActor // Basklass för skjutvapen (används ihop med jola6902_GunsComponent)
 {
 	GENERATED_BODY()
 	

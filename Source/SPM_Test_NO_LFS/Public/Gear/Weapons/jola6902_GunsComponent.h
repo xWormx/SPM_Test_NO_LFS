@@ -79,7 +79,6 @@ private:
 	UInputAction* ReloadGunInputAction;
 
 public:
-
 	FOnSwitchedGun OnSwitchedGun;
 	FOnReload OnReload;
 	FOnFireGun OnFireGun;
