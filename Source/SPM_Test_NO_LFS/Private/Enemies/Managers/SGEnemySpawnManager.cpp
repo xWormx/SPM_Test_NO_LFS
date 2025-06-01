@@ -3,7 +3,7 @@
 #include "Enemies/Managers/SGEnemySpawnManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
-#include "SGEnemySpawnVolume.h"
+#include "Enemies/Managers/SGEnemySpawnVolume.h"
 #include "Enemies/Managers/SGEnemySpawnPoint.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Player/SGPlayerCharacter.h"
@@ -15,6 +15,7 @@ ASGEnemySpawnManager::ASGEnemySpawnManager()
     PrimaryActorTick.bCanEverTick = true;
 }
 
+// Sätter upp referenser och bindings
 void ASGEnemySpawnManager::BeginPlay()
 {
     Super::BeginPlay();
@@ -30,6 +31,7 @@ void ASGEnemySpawnManager::BeginPlay()
     else
     {
         UE_LOG(LogTemp, Error, TEXT("SGEnemySpawnManager::BeginPlay() | ObjectiveHandlerSubSystem not found! Spawning will not respond to objectives."));
+        SpawnMode = ESpawnMode::AroundPlayer;
     }
 }
 
@@ -41,6 +43,7 @@ void ASGEnemySpawnManager::Tick(float DeltaTime)
     DrawDebug();
 }
 
+// Publikt API (C++ och BP) start
 void ASGEnemySpawnManager::StartSpawning()
 {
     bSpawningActive = true;
@@ -72,7 +75,9 @@ void ASGEnemySpawnManager::SetMaxEnemies(int32 Max)
 {
     MaxEnemiesAlive = Max;
 }
+// Publikt API (C++ och BP) slut
 
+// StartSpawnTimer ihop med OnSpawnTimerElapsed utgör en kontinuerlig timerbaserad loop som fortlöper tills den får order om att sluta
 void ASGEnemySpawnManager::StartSpawnTimer()
 {
     GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ASGEnemySpawnManager::OnSpawnTimerElapsed, TimeBetweenSpawns, false);
@@ -88,60 +93,14 @@ void ASGEnemySpawnManager::OnSpawnTimerElapsed()
     StartSpawnTimer();
 }
 
+// Hämtar ut fiender från object poolen, sålänge inte MaxEnemiesAlive är uppnått, och binder fiende-death hantering till dem.
 void ASGEnemySpawnManager::SpawnEnemies()
 {
-    TArray<AActor*> ValidPoints;
-    
-    FVector PlayerLocation = PlayerRef ? PlayerRef->GetActorLocation() : FVector::ZeroVector;
-
-    for (AActor* PointActor : AllSpawnPoints)
-    {
-        ASGEnemySpawnPoint* SpawnPoint = Cast<ASGEnemySpawnPoint>(PointActor);
-        if (!SpawnPoint) continue;
-
-        bool bIsValid = false;
-
-        switch (SpawnMode)
-        {
-            case ESpawnMode::Everywhere:
-                bIsValid = true;
-                break;
-
-            case ESpawnMode::AtArea:
-                if (SpawnVolumes.IsValidIndex(SpawnVolumeIndex) && SpawnVolumes[SpawnVolumeIndex])
-                {
-                    if (SpawnVolumes[SpawnVolumeIndex]->ContainedSpawnPoints.Contains(SpawnPoint))
-                    {
-                        bIsValid = true;
-                    }
-                }
-                break;
-
-            case ESpawnMode::AroundPlayer:
-            {
-                float Dist = FVector::Dist(SpawnPoint->GetActorLocation(), PlayerLocation);
-                if (Dist >= MinDistanceFromPlayer && Dist <= SpawnRadiusAroundPlayer)
-                {
-                    bIsValid = true;
-                }
-                break;
-            }
-
-            default:
-                break;
-        }
-
-        if (bIsValid)
-        {
-            ValidPoints.Add(SpawnPoint);
-        }
-    }
-
-    UE_LOG(LogTemp, Warning, TEXT("SGEnemySpawnManager::SpawnEnemies() | ValidPoints found: %i"), ValidPoints.Num());
+    TArray<AActor*> ValidPoints = FilterValidSpawnPoints(AllSpawnPoints);
 
     if (ValidPoints.Num() == 0) return;
 
-    for (uint32 i = 0; i < EnemyCountPerWave && EnemiesAlive < MaxEnemiesAlive; ++i)
+    for (int32 i = 0; i < EnemyCountPerWave && EnemiesAlive < MaxEnemiesAlive; ++i)
     {
         ASGEnemySpawnPoint* SpawnPoint = GetRandomSpawnPoint(ValidPoints);
         if (!SpawnPoint) continue;
@@ -161,6 +120,60 @@ void ASGEnemySpawnManager::SpawnEnemies()
     }
 }
 
+// Väljer, baserat på SpawnMode, vilka SGEnemySpawnPoints som är OK att spawna ifrån och returnerar en TArray med dessa.
+TArray<AActor*> ASGEnemySpawnManager::FilterValidSpawnPoints(TArray<AActor*> SpawnPoints)
+{
+    TArray<AActor*> ValidPoints;
+    
+    FVector PlayerLocation = PlayerRef ? PlayerRef->GetActorLocation() : FVector::ZeroVector;
+
+    for (AActor* PointActor : SpawnPoints)
+    {
+        ASGEnemySpawnPoint* SpawnPoint = Cast<ASGEnemySpawnPoint>(PointActor);
+        if (!SpawnPoint) continue;
+
+        bool bIsValid = false;
+
+        switch (SpawnMode)
+        {
+        case ESpawnMode::Everywhere:
+            bIsValid = true;
+            break;
+
+        case ESpawnMode::AtArea:
+            if (SpawnVolumes.IsValidIndex(SpawnVolumeIndex) && SpawnVolumes[SpawnVolumeIndex])
+            {
+                if (SpawnVolumes[SpawnVolumeIndex]->ContainedSpawnPoints.Contains(SpawnPoint))
+                {
+                    bIsValid = true;
+                }
+            }
+            break;
+
+        case ESpawnMode::AroundPlayer:
+            {
+                float Dist = FVector::Dist(SpawnPoint->GetActorLocation(), PlayerLocation);
+                if (Dist >= MinDistanceFromPlayer && Dist <= SpawnRadiusAroundPlayer)
+                {
+                    bIsValid = true;
+                }
+                break;
+            }
+
+        default:
+            break;
+        }
+
+        if (bIsValid)
+        {
+            ValidPoints.Add(SpawnPoint);
+        }
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("SGEnemySpawnManager::SpawnEnemies() | ValidPoints found: %i"), ValidPoints.Num());
+
+    return ValidPoints;
+}
 
 ASGEnemySpawnPoint* ASGEnemySpawnManager::GetRandomSpawnPoint(const TArray<AActor*>& Points) const
 {
@@ -176,11 +189,12 @@ TSubclassOf<ASGEnemyCharacter> ASGEnemySpawnManager::GetRandomEnemyType() const
 
 void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
-    EnemiesAlive = FMath::Max(0, EnemiesAlive - 1);
+    EnemiesAlive = FMath::Max(0, EnemiesAlive - 1); // Hade innan refactor problem med att EnemiesAlive kunde bli ett negativt heltal, problemet är löst men denna finns kvar som en säkerhetsbarriär.
     DeadEnemy->OnEnemyDied.RemoveDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
     UE_LOG(LogTemp, Error, TEXT("SGEnemySpawnManager::HandleEnemyDeath() | Enemy died! EnemiesAlive: %i, MaxEnemiesAlive: %i."), EnemiesAlive, MaxEnemiesAlive);
 }
 
+// Uppdaterar tiden som en DespawnCandidate (se: struct i .h-filen) varit utanför tillåten räckvidd, och skickar tillbaka dem till object poolen ifall de varit frånvarande för länge
 void ASGEnemySpawnManager::UpdateDespawnChecks(float DeltaTime)
 {
     for (int32 i = DespawnCandidates.Num() - 1; i >= 0; --i)
@@ -206,6 +220,11 @@ void ASGEnemySpawnManager::UpdateDespawnChecks(float DeltaTime)
     }
 }
 
+/* Används vid spawn för att kolla om en fiende spawnat utanför tillåten räckvidd. (Jobbar på en lösning där en
+triggervolym avgör med Being/EndOverlap vilka fiender som ska markeras och avmarkeras) för att kunna ta bort så många
+relevanta fiender som möjligt, men den lösningen ledde till ett antal buggar så den är inte med just nu. Hade kunnat
+köra en version av denna med Dist() mot samtliga fiender i Tick() men det kändes inte rätt då det blir väldigt
+dyrt helt i onödan, jag tror snarare på min tidigare nämnda lösning. */
 void ASGEnemySpawnManager::CheckDespawnCandidate(ASGEnemyCharacter* Enemy)
 {
     if (!IsValid(Enemy) || !PlayerRef) return;
@@ -221,6 +240,7 @@ void ASGEnemySpawnManager::CheckDespawnCandidate(ASGEnemyCharacter* Enemy)
     }
 }
 
+// Skickar tillbaka samtliga fiender till object poolen
 void ASGEnemySpawnManager::ClearAllEnemies()
 {
     TArray<AActor*> FoundEnemies;
@@ -243,6 +263,7 @@ void ASGEnemySpawnManager::ClearAllEnemies()
     UE_LOG(LogTemp, Warning, TEXT("SGEnemySpawnManager::ClearAllEnemies() | All enemies returned to object pool."));
 }
 
+// Hårdkodad version av denna manager för att lösa vår senaste plan om hur spelet ska vara uppbyggt.
 void ASGEnemySpawnManager::HandleMissionStart(EObjectiveType ObjectiveType)
 {
     UE_LOG(LogTemp, Warning, TEXT("SGEnemySpawnManager::HandleMissionStart() | Function called."));

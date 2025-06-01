@@ -1,12 +1,12 @@
 // Joel Larsson Wendt || jola6902
 
-#include "jola6902_GunsComponent.h"
+#include "Gear/Weapons/jola6902_GunsComponent.h"
 #include "Gear/Weapons/SGGun.h"
-#include "UI/Widgets/SGWeaponsHUD.h"
+//#include "UI/Widgets/SGWeaponsHUD.h"
 #include "InputAction.h"
 #include "EnhancedInputComponent.h"
 #include "SPM_Test_NO_LFS.h"
-#include "Blueprint/UserWidget.h"
+//#include "Blueprint/UserWidget.h"
 
 // Public
 Ujola6902_GunsComponent::Ujola6902_GunsComponent()
@@ -44,6 +44,7 @@ void Ujola6902_GunsComponent::BeginPlay()
 	bCanFire = true;
 }
 
+// Fick ibland krasch-problem med garbage collectionen av innehållet i Guns när spelet stängs ner, därav denna funktion.
 void Ujola6902_GunsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
@@ -59,6 +60,7 @@ void Ujola6902_GunsComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 }
 
 // Private
+// Om karaktären som äger denna komponent har en Gun vald, avfyra sagda Gun (ifall ammo finns, annars ladda om).
 void Ujola6902_GunsComponent::FireGun()
 {
 	if (!bCanFire || !bFireButtonHeld) return;
@@ -82,6 +84,7 @@ void Ujola6902_GunsComponent::FireGun()
 	}
 }
 
+// Existerar för att hämma skjuthastigheten i enlighet med Gun->FireRate
 void Ujola6902_GunsComponent::CanFireAgain()
 {
 	bCanFire = true;
@@ -114,6 +117,7 @@ void Ujola6902_GunsComponent::OnReloadButtonPressed([[maybe_unused]] const FInpu
 	ReloadGun();
 }
 
+// Hanterar selektionen av vapen genom de ställbara InputActions som läggs i medlemmen Map<UInputAction*, int32> GunIndexKeyBindings i editorn.
 void Ujola6902_GunsComponent::OnGunIndexKeyPressed(const FInputActionInstance& Instance)
 {
 	const UInputAction* TriggeredAction = Instance.GetSourceAction();
@@ -132,17 +136,18 @@ void Ujola6902_GunsComponent::OnGunIndexKeyPressed(const FInputActionInstance& I
 	}
 }
 
+// Hanterar bytande av vapen med mouse scroll wheel
 void Ujola6902_GunsComponent::OnMouseWheelScroll(const FInputActionValue& Value)
 {
 	float ScrollValue = Value.Get<float>();
 	
 	if (FMath::IsNearlyZero(ScrollValue)) return;
 
-	if (ScrollValue > 0.f)
+	if (ScrollValue < 0.f)
 	{
 		CurrentGunIndex = (CurrentGunIndex + 1) % Guns.Num();
 	}
-	else if (ScrollValue < 0.f)
+	else if (ScrollValue > 0.f)
 	{
 		CurrentGunIndex = (CurrentGunIndex - 1 + Guns.Num()) % Guns.Num();
 	}
@@ -150,6 +155,7 @@ void Ujola6902_GunsComponent::OnMouseWheelScroll(const FInputActionValue& Value)
 	OnSwitchedGun.Broadcast(CurrentGunIndex, Guns[CurrentGunIndex]);
 }
 
+// Kontrollerar att Map<UInputAction*, int32> GunIndexKeyBindings inte har några index som ligger utanför bounds för Guns och tar bort potentiella problematiska bindings.
 void Ujola6902_GunsComponent::ValidateKeyBindings()
 {
 	TArray<UInputAction*> InvalidKeyBindings;
@@ -169,6 +175,7 @@ void Ujola6902_GunsComponent::ValidateKeyBindings()
 	}
 }
 
+// Binder dynamiskt alla ActionBindings som designern valt att använda under runtime. (Både custom GunIndexKeyBindings och de bindings som jag valt). Inget är required.
 void Ujola6902_GunsComponent::BindActions()
 {
 	if (APlayerController* PC = Cast<APlayerController>(Owner->GetInstigatorController()))
@@ -199,6 +206,7 @@ void Ujola6902_GunsComponent::BindActions()
 	}
 }
 
+// Skapar alla Guns i GunClasses och sätter komponentens ägare som dess ägare.
 void Ujola6902_GunsComponent::SetUpGuns()
 {
 	USceneComponent* AttachmentComponent = Cast<USceneComponent>(GunsAttachment.GetComponent(Owner));
@@ -219,6 +227,7 @@ void Ujola6902_GunsComponent::SetUpGuns()
 	}
 }
 
+// Sätter upp och uppdaterar min widget GunsHUD (som brutits ut och flyttats till Emmas UI overhaul)
 /*void Ujola6902_GunsComponent::CreateGunsHUD()
 {
 	if (GunsHUDWidgetClass)
