@@ -2,6 +2,7 @@
 
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
+#include "SPM_Test_NO_LFS.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Navigation/SGEnemyPatrolPoint.h"
@@ -40,6 +41,11 @@ void ASGAIControllerEnemy::SetInitialValues()
 		
 	}
 	UpdatePatrolPoints();
+}
+
+void ASGAIControllerEnemy::SetShouldPatrol()
+{
+	bShouldPatrol = true;
 }
 
 void ASGAIControllerEnemy::UpdatePatrolPoints()
@@ -114,11 +120,25 @@ void ASGAIControllerEnemy::Patrol()
 	}
 }
 
+void ASGAIControllerEnemy::PatrolDelay()
+{
+	if (!GetWorld()->GetTimerManager().IsTimerActive(PatrolDelayTimer))
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			PatrolDelayTimer,
+			this,
+			&ASGAIControllerEnemy::SetShouldPatrol,
+			3.f,
+			false
+			);
+	}
+}
+
+
 bool ASGAIControllerEnemy::CanReachTarget(AActor* Target)
 {
 	if (!Target || !ControlledEnemy)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Target or Controlled Enemy null"));
 		return false;
 	}
 
@@ -131,6 +151,40 @@ bool ASGAIControllerEnemy::CanReachTarget(AActor* Target)
 
 	UNavigationPath* NavPath = NavSys->FindPathToActorSynchronously(GetWorld(),
 		ControlledEnemy->GetActorLocation(), Target);
+
+	if (!NavPath || NavPath->PathPoints.Num() == 0)
+	{
+		return false;
+	}
+
+	return NavPath->IsValid() && !NavPath->IsPartial();
+}
+
+bool ASGAIControllerEnemy::CanReachTarget()
+{
+	if (!AttackTarget)
+	{
+		BASIR_LOG(Warning, TEXT("Target is null"));
+	}
+
+	if (!ControlledEnemy)
+	{
+		BASIR_LOG(Warning, TEXT("Controlled Enemy null"));
+	}
+	if (!AttackTarget || !ControlledEnemy)
+	{
+		return false;
+	}
+
+	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
+
+	if (!NavSys)
+	{
+		return false;
+	}
+
+	UNavigationPath* NavPath = NavSys->FindPathToActorSynchronously(GetWorld(),
+		ControlledEnemy->GetActorLocation(), AttackTarget);
 
 	if (!NavPath || NavPath->PathPoints.Num() == 0)
 	{

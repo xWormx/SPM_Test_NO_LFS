@@ -19,9 +19,11 @@ public:
 
 	virtual void Patrol();
 
+	virtual void PatrolDelay();
+
 
 	//boolean helpers
-	virtual bool CanReachTarget(AActor* Target);
+	virtual bool CanReachTarget();
 
 	virtual bool CanAttackTarget();
 
@@ -31,21 +33,29 @@ public:
 
 	virtual void UpdatePatrolPoints();
 
+	virtual bool CanReachTarget(AActor* Target);
+
 	//Getters
 	virtual AActor* GetAttackTarget();
 
 	virtual ASGEnemyCharacter* GetControlledEnemy();
 
+	//Boolean values
+	bool bShouldPatrol = false;
+
+	//TimerHandles
+	FTimerHandle PatrolDelayTimer;
+
 protected:
+	
 	virtual void BeginPlay() override;
 
 	virtual void SetInitialValues();
 	
+	virtual class AActor* GetPatrolPoint();
 
-	class AActor* GetPatrolPoint();
+	virtual void SetShouldPatrol();
 
-
-private:
 	//Behavior Tree
 	UPROPERTY(EditAnywhere)
 	class UBehaviorTree* BehaviorTree;
@@ -68,10 +78,8 @@ private:
 
 	float LastLocationCheckTime = 0.0f;
 
-	//boolean values
+	//Boolean values
 	bool bWasStuckLastCheck = false;
-
-	bool bShouldPatrol = false;
 
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
 	bool bShouldAlwaysChaseTarget = false;
@@ -95,5 +103,4 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	AActor* CurrentPatrolPoint;
-	
 };

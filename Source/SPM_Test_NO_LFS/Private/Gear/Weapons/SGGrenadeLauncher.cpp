@@ -4,7 +4,6 @@
 #include "NiagaraFunctionLibrary.h"
 #include "../../../Public/Gear/Weapons/SGExplosiveProjectile.h"
 #include "../../../Public/Player/SGPlayerCharacter.h"
-#include "Core/SGUpgradeSubsystem.h"
 #include "Engine/StaticMeshActor.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -16,6 +15,7 @@ ASGGrenadeLauncher::ASGGrenadeLauncher()
 	ProjectileSpawnPoint->SetupAttachment(RootComponent);
 }
 
+// Denna Gun använder ej HitScan() för att lösa hit detection. Här används istället en projektil som fordon för förödelse.
 void ASGGrenadeLauncher::Fire()
 {
 	if (bIsReloading) return;
@@ -75,6 +75,8 @@ void ASGGrenadeLauncher::BeginPlay()
 }
 
 // Private
+/* Skapar en instans av SGExplosiveProjectile med samma rotation som spelarens crosshair pekar i. Projektilen i sig
+använder Unreals inbyggda ProjectileMovementComponent för att röra sig framåt. */
 void ASGGrenadeLauncher::SpawnProjectile()
 {
 	if (!ProjectileClass || !ProjectileSpawnPoint) return;
@@ -109,6 +111,7 @@ void ASGGrenadeLauncher::SpawnProjectile()
 	}
 }
 
+// För att slippa manuellt slå på Generates Overlap Events för all static i leveln sker det automatiskt under runtime.
 void ASGGrenadeLauncher::EnableOverlapEventsForAllStaticMeshes(UWorld* World)
 {
 	if (!World) return;

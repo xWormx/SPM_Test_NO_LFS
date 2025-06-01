@@ -1,6 +1,6 @@
 // Joel Larsson Wendt || jola6902
 
-#include "SGEnemySpawnVolume.h"
+#include "Enemies/Managers/SGEnemySpawnVolume.h"
 #include "Components/BrushComponent.h"
 #include "Enemies/Managers/SGEnemySpawnPoint.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,6 +10,7 @@ ASGEnemySpawnVolume::ASGEnemySpawnVolume()
 	GetBrushComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+// Fyller sin samling med SGEnemySpawnPoints m.h.a brush-komponentens bounds (ställbart i editorn).
 void ASGEnemySpawnVolume::BeginPlay()
 {
 	Super::BeginPlay();

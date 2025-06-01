@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Gear/Weapons/jola6902_GunsComponent.h"
 #include "GameFramework/HUD.h"
 #include "SlateWidgets/SWidgetData/WidgetConstructionData.h"
 #include "Widgets/SWeakWidget.h"

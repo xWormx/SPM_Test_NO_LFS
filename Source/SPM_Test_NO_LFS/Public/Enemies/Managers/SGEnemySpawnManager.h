@@ -17,6 +17,9 @@ enum class ESpawnMode : uint8
     AroundPlayer
 };
 
+/* Denna struct är till för att hålla koll på hur länge en fiende varit för långt ifrån spelaren för att kunna ta bort
+fiender som fastnat eller är orelevanta för gameplay. Detta är istället för att varje fiende ska behöva ha en egen inne-
+boende timer som sköter detta. */
 USTRUCT()
 struct FDespawnCandidate
 {
@@ -60,37 +63,43 @@ public:
     UFUNCTION(BlueprintCallable)
     void SetMaxEnemies(int32 Max);
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="debug")
     bool bDebugDraw = true;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design")
     float TimeBetweenSpawns = 3.f;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design")
     int32 MaxEnemiesAlive = 10;
 
-    UPROPERTY(EditAnywhere)
-    uint32 EnemyCountPerWave = 1;
+    // Number of enemies spawned per TimeBetweenSpawns
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design")
+    int32 EnemyCountPerWave = 1;
 
-    UPROPERTY(EditAnywhere)
+    // How long an enemy has to remain stuck / out of range before removal
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design")
     float DespawnGracePeriod = 10.f;
 
-    UPROPERTY(EditAnywhere)
+    // Does not apply to ESpawnMode::AtArea
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design")
     float MinDistanceFromPlayer = 300.f;
 
-    UPROPERTY(EditAnywhere)
+    // Does not apply to ESpawnMode::AtArea
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design")
     float SpawnRadiusAroundPlayer = 1500.f;
 
-    UPROPERTY(EditAnywhere)
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design")
     TArray<TSubclassOf<ASGEnemyCharacter>> EnemyTypes;
 
-    UPROPERTY(EditAnywhere)
+    // A list of ASGSpawnVolume* that defines the areas in ESpawnMode::AtArea
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design")
     TArray<class ASGEnemySpawnVolume*> SpawnVolumes;
 
 private:
     void StartSpawnTimer();
     void OnSpawnTimerElapsed();
     void SpawnEnemies();
+    TArray<AActor*> FilterValidSpawnPoints(TArray<AActor*> SpawnPoints);
     ASGEnemySpawnPoint* GetRandomSpawnPoint(const TArray<AActor*>& Points) const;
     TSubclassOf<ASGEnemyCharacter> GetRandomEnemyType() const;
 
