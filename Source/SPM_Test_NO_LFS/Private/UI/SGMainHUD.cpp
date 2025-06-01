@@ -17,79 +17,47 @@
 #include "Widgets/SWeakWidget.h"
 #include "UI/Widgets/SGMainHUDWidget.h"
 
-static bool HasFirstQuestStarted = false;
-
 void ASGMainHUD::BeginPlay()
 {
 	Super::BeginPlay();
+
 	FStyleSetData::Initialize();
-	HasFirstQuestStarted = false;
 
-	if (!MainHUDWidget.IsValid())
+	if (IsGameLevel())
 	{
-		MainHUDWidget = CreateAndAddToViewPort<USGMainHUDWidget>(MainHUDWidgetClass);
-		MainHUDWidget->PauseAndHide();
-	}
-	
-	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
+		InitHUD();
+		InitPauseMenu();
+		InitGameOverMenu();
 
-	/*FButtonData ButtonData = FButtonData();
-	ButtonData.ButtonText = FText::FromString("Start Game");
-	ButtonData.OnClicked.BindLambda([this]{EMMA_LOG(Warning, TEXT("❤️Start Game Button Clicked!")); EnterPlayState(); return FReply::Handled(); });
-	
-	DefaultButtonWidgetSlate = SNew(SDefaultButtonWidget).InButtonData(ButtonData);
-	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(DefaultButtonWidget, SWeakWidget).PossiblyNullContent(DefaultButtonWidgetSlate.ToSharedRef()));*/
-	/*FButtonData ButtonDataStartGame = FButtonData();
-	ButtonDataStartGame.TextData.Text = FText::FromString("Start Game");
-	ButtonDataStartGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
-	ButtonDataStartGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
-	ButtonDataStartGame.OnClicked.BindLambda([this]
-	{
-		EMMA_LOG(Warning, TEXT("❤️Start Game Button Clicked!"));		
-		GEngine->GameViewport->RemoveViewportWidgetContent(DefaultMenuWidget.ToSharedRef());
-		EnterPlayState();
-		return FReply::Handled();
-	});
+		EnterPlayMode();
 
-	FButtonData ButtonDataQuitGame = FButtonData();
-	ButtonDataQuitGame.TextData.Text = FText::FromString("Quit Game");
-	ButtonDataQuitGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
-	ButtonDataQuitGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
-	ButtonDataQuitGame.OnClicked.BindLambda([this]
-	{
-		EMMA_LOG(Warning, TEXT("❤️Quit Game Button Clicked!"));
-		if (GEngine)
+		PostLoadMapDelegateHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([this](UWorld* World)
 		{
-			GEngine->GameViewport->RemoveAllViewportWidgets();
-			PlayerOwner.Get()->ConsoleCommand("quit");
-		}
-		return FReply::Handled();
-	});
+			ASGPlayerCharacter* PlayerCharacter = Cast<ASGPlayerCharacter>(GetOwningPlayerController()->GetCharacter());
+			BindToPlayerComponentEvents(PlayerCharacter);
+		});
+	}
+	else
+	{
+		InitStartMenu();
 
-	FTextData TextData = FTextData();
-	TextData.Text = FText::FromString("Main Menu");
-	TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuHeaderText());
-
-	FMenuData MenuData;
-	MenuData.TextData = TextData;
-	MenuData.ButtonDataArray = { ButtonDataStartGame, ButtonDataQuitGame };
-	MenuData.BackgroundColor = FColor::Black;
-	MenuData.MenuButtonsOrientation = Orient_Vertical;
-	MenuData.MenuAlignmentData = FAlignmentData(HAlign_Center, VAlign_Center);
-	DefaultSlateMenuWidget = SNew(SDefaultMenu).InMenuData(MenuData);
-	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(DefaultMenuWidget, SWeakWidget).PossiblyNullContent(DefaultSlateMenuWidget.ToSharedRef()));*/
-	InitStartMenu();
-	InitPauseMenu();
-	InitGameOverMenu();
-	
-	EnterUIState();
+		EnterUIMode();
+		/* SetVisibility is called manually here because:
+		 * 1. ObjectiveTooltipWidget is not attached to the MainHUDWidget hierarchy
+		 * 2. EnterUIState() cannot handle this widget since MainHUDWidget is not created yet when we are in the start menu*/
+		Cast<USGGameInstance>(GetGameInstance())->GetObjectiveTooltipWidget()->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
-	ObjectiveHandler->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::EnterPlayState);
-
+	if (ObjectiveHandler->OnObjectiveStarted.IsAlreadyBound(this, &ASGMainHUD::StartDifficultyBar))
+	{
+		EMMA_LOG(Warning, TEXT("ASGMainHUD::EndPlay: Unbinding OnObjectiveStarted from StartDifficultyBar"));
+		ObjectiveHandler->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::StartDifficultyBar);
+	}
+	FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadMapDelegateHandle);
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -97,7 +65,7 @@ void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ASGMainHUD::BindToPlayerComponentEvents(ASGPlayerCharacter* PlayerCharacter)
 {
-	if (!PlayerCharacter)
+	if (!IsGameLevel() || !PlayerCharacter)
 	{
 		return;
 	}
@@ -126,105 +94,98 @@ void ASGMainHUD::BindToPlayerComponentEvents(ASGPlayerCharacter* PlayerCharacter
 	}
 }
 
-void ASGMainHUD::InitStartMenu()
+void ASGMainHUD::InitHUD()
 {
-	FButtonData ButtonDataStartGame = FButtonData();
-	ButtonDataStartGame.TextData.Text = FText::FromString("Start Game");
-	ButtonDataStartGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
-	ButtonDataStartGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
-	ButtonDataStartGame.OnClicked.BindLambda([this]
+	if (!MainHUDWidget.IsValid())
 	{
-		EMMA_LOG(Warning, TEXT("❤️Start Game Button Clicked!"));		
-		GEngine->GameViewport->RemoveViewportWidgetContent(StartMenuWidget.ToSharedRef());
-		EnterPlayState();
-		return FReply::Handled();
-	});
-	
-	FButtonData ButtonDataQuitGame = FButtonData();
-	ButtonDataQuitGame.TextData.Text = FText::FromString("Quit Game");
-	ButtonDataQuitGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
-	ButtonDataQuitGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
-	ButtonDataQuitGame.OnClicked.BindLambda([this]
-	{
-		EMMA_LOG(Warning, TEXT("❤️Quit Game Button Clicked!"));
-		if (GEngine)
-		{
-			GEngine->GameViewport->RemoveAllViewportWidgets();
-			PlayerOwner.Get()->ConsoleCommand("quit");
-		}
-		return FReply::Handled();
-	});
+		MainHUDWidget = CreateAndAddToViewPort<USGMainHUDWidget>(MainHUDWidgetClass);
+		MainHUDWidget->PauseAndHide();
+	}
 
-	FTextData TextData = FTextData();
-	TextData.Text = FText::FromString("Main Menu");
-	TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuHeaderText());
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
+}
+
+void ASGMainHUD::InitStartMenu(const bool AddToViewport)
+{
+	FButtonData ButtonDataStartGame = CreateMenuButtonData(
+		FText::FromString("Start Game"),
+		FOnClicked::CreateLambda([this]
+		{
+			LoadMap(GameLevelMap);
+			return FReply::Handled();
+		})
+	);
+	FButtonData ButtonDataQuitGame = CreateMenuButtonData(
+		FText::FromString("Quit Game"),
+		FOnClicked::CreateLambda([this]
+		{
+			QuitGame();
+			return FReply::Handled();
+		})
+	);
 
 	FMenuData MenuData;
-	MenuData.TextData = TextData;
+	MenuData.TextData.Text = FText::FromString("Main Menu");
+	MenuData.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuHeaderText());
+
 	MenuData.ButtonDataArray = { ButtonDataStartGame, ButtonDataQuitGame };
 	MenuData.BackgroundColor = FColor::Black;
 	MenuData.MenuButtonsOrientation = Orient_Vertical;
 	MenuData.MenuAlignmentData = FAlignmentData(HAlign_Center, VAlign_Center);
 
 	StartMenuSlateWidget = SNew(SDefaultMenu).InMenuData(MenuData);
-	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(StartMenuWidget, SWeakWidget).PossiblyNullContent(StartMenuSlateWidget.ToSharedRef()));
+	if (AddToViewport)
+	{
+		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(StartMenuWidget, SWeakWidget).PossiblyNullContent(StartMenuSlateWidget.ToSharedRef()));
+	}
 }
 
 void ASGMainHUD::InitPauseMenu()
 {
-	FButtonData ButtonContinueGame = FButtonData();
-	ButtonContinueGame.TextData.Text = FText::FromString("Continue Game");
-	ButtonContinueGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
-	ButtonContinueGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
-	ButtonContinueGame.OnClicked.BindLambda([this]
-	{
-		GEngine->GameViewport->RemoveViewportWidgetContent(PauseMenuWidget.ToSharedRef());
-		EnterPlayState();
-		return FReply::Handled();
-	});
-
-	FButtonData ButtonRestartGame = FButtonData();
-	ButtonRestartGame.TextData.Text = FText::FromString("Restart Game");
-	ButtonRestartGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
-	ButtonRestartGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
-	ButtonRestartGame.OnClicked.BindLambda([this]
-	{
-		if (GEngine)
+	FButtonData ButtonContinueGame = CreateMenuButtonData(
+		FText::FromString("Continue Game"),
+		FOnClicked::CreateLambda([this]
 		{
-			GEngine->GameViewport->RemoveAllViewportWidgets();
-			UGameplayStatics::SetGamePaused(GetWorld(), false);
-			FString CurrentLevel = GetWorld()->GetMapName();
-			CurrentLevel.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
-			UGameplayStatics::OpenLevel(this, FName(*CurrentLevel));
-		}
-		return FReply::Handled();
-	});
+			ContinueGame(PauseMenuWidget);
+			return FReply::Handled();
+		})
+	);
 
-	FButtonData ButtonSaveGame = FButtonData();
-	ButtonSaveGame.TextData.Text = FText::FromString("Save Game");
-	ButtonSaveGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
-	ButtonSaveGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
-	ButtonSaveGame.OnClicked.BindLambda([this]
-	{		
-		GetGameInstance<USGGameInstance>()->CollectAndSave(false);
-		return FReply::Handled();
-	});
-
-	FButtonData ButtonReturnToMainMenu = FButtonData();
-	ButtonReturnToMainMenu.TextData.Text = FText::FromString("Return to Main Menu");
-	ButtonReturnToMainMenu.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
-	ButtonReturnToMainMenu.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
-	ButtonReturnToMainMenu.OnClicked.BindLambda([this]
-	{
-		if (GEngine)
+	FButtonData ButtonRestartGame = CreateMenuButtonData(
+		FText::FromString("Restart Game"),
+		FOnClicked::CreateLambda([this]
 		{
-			GEngine->GameViewport->RemoveAllViewportWidgets();
-			UGameplayStatics::SetGamePaused(GetWorld(), false);
-			GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(StartMenuWidget, SWeakWidget).PossiblyNullContent(StartMenuSlateWidget.ToSharedRef()));
-			EnterUIState();
-		}
-		return FReply::Handled();
-	});
+			RestartGame();
+			return FReply::Handled();
+		})
+	);
+
+	FButtonData ButtonSaveGame = CreateMenuButtonData(
+		FText::FromString("Save Game"),
+		FOnClicked::CreateLambda([this]
+		{
+			bool bSaved = SaveGame();
+			EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Saving game!"));
+			if (bSaved)
+			{
+				EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Saved game!"));
+			}
+			else
+			{
+				EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Failed to Save Game!"));
+			}
+			return FReply::Handled();
+		})
+	);
+
+	FButtonData ButtonReturnToMainMenu = CreateMenuButtonData(
+		FText::FromString("Return to Main Menu"),
+		FOnClicked::CreateLambda([this]
+		{
+			LoadMap(MainMenuMap);
+			return FReply::Handled();
+		})
+	);
 
 	FMenuData MenuData;
 	MenuData.TextData = FTextData();
@@ -239,53 +200,52 @@ void ASGMainHUD::InitPauseMenu()
 
 void ASGMainHUD::InitGameOverMenu()
 {
-	FButtonData ButtonRestartGame = FButtonData();
-	ButtonRestartGame.TextData.Text = FText::FromString("Return To Main Menu");
-	ButtonRestartGame.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
-	ButtonRestartGame.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
-	ButtonRestartGame.OnClicked.BindLambda([this]
-	{
-		if (GEngine)
+	FButtonData ButtonRestartGame = CreateMenuButtonData(
+		FText::FromString("Return To Main Menu"),
+		FOnClicked::CreateLambda([this]
 		{
-			GEngine->GameViewport->RemoveAllViewportWidgets();
-			UGameplayStatics::SetGamePaused(GetWorld(), false);
-			FString CurrentLevel = GetWorld()->GetMapName();
-			CurrentLevel.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
-			UGameplayStatics::OpenLevel(this, FName(*CurrentLevel));
-		}
-		return FReply::Handled();
-	});
-	
+			LoadMap(MainMenuMap);
+			return FReply::Handled();
+		})
+	);
+
+	//TODO: Add optional description text to MenuData
 	FMenuData MenuData;
 	MenuData.TextData = FTextData();
-	MenuData.TextData.Text = FText::FromString("Paused");
+	MenuData.TextData.Text = FText::FromString("Game Over");
 	MenuData.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuHeaderText());
 	MenuData.ButtonDataArray = { ButtonRestartGame };
-	MenuData.BackgroundColor = FLinearColor(0.3f, 0.f, 0.f, 0.8f);
+	MenuData.BackgroundColor = FLinearColor(0.25f, 0.f, 0.f, 0.75f);
 	MenuData.MenuButtonsOrientation = Orient_Horizontal;
 	MenuData.MenuAlignmentData = FAlignmentData(HAlign_Center, VAlign_Center);
-	GameOverMenuSlateWidget = SNew(SDefaultMenu).InMenuData(MenuData);	
+	GameOverMenuSlateWidget = SNew(SDefaultMenu).InMenuData(MenuData);
+
 }
 
 //---- UI STATE MANAGEMENT
 
-void ASGMainHUD::EnterUIState()
-{	
-	MainHUDWidget->PauseAndHide();
+void ASGMainHUD::EnterUIMode()
+{
+	if (MainHUDWidget.IsValid())
+	{
+		MainHUDWidget->PauseAndHide();
+		MainHUDWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 	
 	APlayerController* Controller = GetOwningPlayerController();
 	Controller->SetInputMode(FInputModeUIOnly());
 	Controller->bShowMouseCursor = true;
 	Controller->SetPause(true);
-
-	MainHUDWidget->SetVisibility(ESlateVisibility::Collapsed);
 }
 
-void ASGMainHUD::EnterPlayState()
+void ASGMainHUD::EnterPlayMode()
 {
-	MainHUDWidget->SetVisibility(ESlateVisibility::Visible);
-	MainHUDWidget->PlayAndShow();
-	
+	if (MainHUDWidget.IsValid())
+	{
+		MainHUDWidget->SetVisibility(ESlateVisibility::Visible);
+		MainHUDWidget->PlayAndShow();
+	}
+
 	APlayerController* Controller = GetOwningPlayerController();
 	Controller->SetInputMode(FInputModeGameOnly());
 	Controller->bShowMouseCursor = false;
@@ -293,16 +253,15 @@ void ASGMainHUD::EnterPlayState()
 }
 
 //---- GAME EVENTS
-
 void ASGMainHUD::OnTerminalVisibilityChanged(ESlateVisibility NewVisibility)
 {
 	if (NewVisibility == ESlateVisibility::Visible)
 	{
-		EnterUIState();
+		EnterUIMode();
 	}
 	else if (NewVisibility == ESlateVisibility::Hidden || NewVisibility == ESlateVisibility::Collapsed)
 	{
-		EnterPlayState();
+		EnterPlayMode();
 	}
 }
 
@@ -312,19 +271,78 @@ void ASGMainHUD::StartDifficultyBar()
 	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::StartDifficultyBar);
 }
 
+//---- ON CLICKED EVENTS
+
 void ASGMainHUD::PauseGame()
 {
-	EMMA_LOG(Warning, TEXT("❤️Pause Game Button Clicked!"));
-	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(PauseMenuWidget, SWeakWidget).PossiblyNullContent(PauseMenuSlateWidget.ToSharedRef()));
-	EnterUIState();
+	if (PauseMenuWidget.IsValid())
+	{
+		PauseMenuWidget->SetVisibility(EVisibility::Visible);
+	}
+	else
+	{
+		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(PauseMenuWidget, SWeakWidget).PossiblyNullContent(PauseMenuSlateWidget.ToSharedRef()));
+	}
+	EnterUIMode();
 }
+
 void ASGMainHUD::GameOver()
 {
-	EMMA_LOG(Warning, TEXT("❤️Game Over!"));
 	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(GameOverMenuWidget, SWeakWidget).PossiblyNullContent(GameOverMenuSlateWidget.ToSharedRef()));
-	EnterUIState();
+	EnterUIMode();
 }
+
+void ASGMainHUD::RestartGame()
+{
+	FString CurrentLevel = GetWorld()->GetMapName();
+	CurrentLevel.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+	LoadMap(FName(*CurrentLevel));
+}
+
+void ASGMainHUD::LoadMap(const FName& LevelName)
+{
+	GEngine->GameViewport->RemoveAllViewportWidgets();
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+	UGameplayStatics::OpenLevel(this, LevelName);
+}
+
+void ASGMainHUD::ContinueGame(TSharedPtr<SWeakWidget> CallerWidget)
+{
+	CallerWidget->SetVisibility(EVisibility::Collapsed);
+	EnterPlayMode();
+}
+
+void ASGMainHUD::QuitGame()
+{
+	GEngine->GameViewport->RemoveAllViewportWidgets();
+	UKismetSystemLibrary::QuitGame(GetWorld(), PlayerOwner.Get(), EQuitPreference::Quit, true);
+}
+
+bool ASGMainHUD::SaveGame()
+{
+	bool bAsync = false;
+	GetGameInstance<USGGameInstance>()->CollectAndSave(bAsync);
+	return true; //TODO: Actually return if the save was successful or not
+}
+
 //----HELPERS
+bool ASGMainHUD::IsGameLevel() const
+{
+	const FString CurrentLevel = GetWorld()->GetMapName();
+	return CurrentLevel.Contains(GameLevelMap.ToString());
+}
+
+FButtonData ASGMainHUD::CreateMenuButtonData(const FText& ButtonText, const FOnClicked& OnClicked)
+{
+	FButtonData Button = FButtonData();
+	Button.TextData.Text = ButtonText;
+	Button.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleNames::MenuButtonText());
+	Button.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(StyleNames::MenuButton());
+	Button.OnClicked = OnClicked;
+
+	return Button;
+}
+
 template <typename T>
 T* ASGMainHUD::CreateAndAddToViewPort(const TSubclassOf<T>& WidgetClass, const bool Add)
 {

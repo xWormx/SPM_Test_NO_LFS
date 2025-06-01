@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "SlateWidgets/SWidgetData/ButtonData.h"
 #include "Widgets/SWeakWidget.h"
 #include "SGMainHUD.generated.h"
 
@@ -21,26 +22,48 @@ public:
 	T* CreateAndAddToViewPort(const TSubclassOf<T>& WidgetClass, bool Add = true);
 	
 	void BindToPlayerComponentEvents(ASGPlayerCharacter* PlayerCharacter);
-	void InitStartMenu();
+
+	void InitHUD();
+	void InitStartMenu(bool AddToViewport = true);
 	void InitPauseMenu();
 	void InitGameOverMenu();
 
-	void EnterUIState();
+	void EnterUIMode();
 
 	UFUNCTION(BlueprintCallable, Category = "UFunction - HUD") // Tillfälligt används av BP-scriptet i PlayerController
-	void EnterPlayState();
+	void EnterPlayMode();
 
-	UFUNCTION() // Tillfälligt används för att kolla när terminaln är öppen eller stängd
+	UFUNCTION() // Tillfälligt används för att kolla när terminalen är öppen eller stängd
 	void OnTerminalVisibilityChanged(ESlateVisibility NewVisibility);
 
 	UFUNCTION() // Tillfälligt för att kolla första gången spelaren startar ett mission
 	void StartDifficultyBar();
 
-	UFUNCTION() 
 	void PauseGame();
 	void GameOver();
 
+	void RestartGame();
+	void LoadMap(const FName& LevelName);
+
+	void ContinueGame(TSharedPtr<SWeakWidget> CallerWidget);
+	void QuitGame();
+	bool SaveGame();
+private:
+	bool IsGameLevel() const;
+
+	static FButtonData CreateMenuButtonData(const FText& ButtonText, const FOnClicked& OnClicked);
+
 protected:
+	FDelegateHandle PostLoadMapDelegateHandle;
+
+	//TODO: Replace with a more sustainable solution.
+	//Currently only for testing - HUD should not be responsible for changing maps, and maps should not be hardcoded.
+	UPROPERTY(EditAnywhere, Category ="Uproperty - HUD| Maps")
+	FName GameLevelMap = FName(TEXT("ArenaLevelPlayable_v3"));
+
+	UPROPERTY(EditAnywhere, Category ="Uproperty - HUD| Maps")
+	FName MainMenuMap = FName(TEXT("MainMenuMap"));
+
 	UPROPERTY(EditAnywhere, Category ="Uproperty - HUD")
 	TSubclassOf<USGMainHUDWidget> MainHUDWidgetClass;
 	
@@ -48,9 +71,6 @@ protected:
 	TWeakObjectPtr<USGMainHUDWidget> MainHUDWidget;
 
 //------------SLATE
-	TSharedPtr<SDefaultMenu> DefaultSlateMenuWidget;
-	TSharedPtr<SWeakWidget> DefaultMenuWidget;
-
 	TSharedPtr<SDefaultMenu> StartMenuSlateWidget;
 	TSharedPtr<SWeakWidget> StartMenuWidget;
 
