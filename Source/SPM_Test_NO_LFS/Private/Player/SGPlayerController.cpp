@@ -4,6 +4,7 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "jola6902_GunsComponent.h"
+#include "SPM_Test_NO_LFS.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Blueprint/UserWidget.h"
@@ -51,14 +52,15 @@ void ASGPlayerController::BeginPlay()
 		}#1#
 		MainHUD->BindToPlayerComponentEvents(CurrentPlayer);
 
-		if (CurrentPlayer->HealthComponent)
+		
+	});*/
+	if (PlayerCharacter->HealthComponent)
 		{
-			USGHealthComponent* HealthComponent = CurrentPlayer->HealthComponent;
+		EMMA_LOG( Warning, TEXT("ASGPlayerController::BeginPlay: Binding HealthComponent events"));
+			USGHealthComponent* HealthComponent = PlayerCharacter->HealthComponent;
 			HealthComponent->OnNoHealth.AddDynamic(this, &ASGPlayerController::EnableGameOver);
 			HealthComponent->OnHurt.AddDynamic(this, &ASGPlayerController::PlayTempDamageEffect);
 		}
-	});*/
-
 
 	//TODO: Consider moving this to SGPlayerCharacter
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
@@ -71,8 +73,6 @@ void ASGPlayerController::BeginPlay()
 			UpgradeSystem->BindAttribute(CharacterMovement, TEXT("JumpZVelocity"), TEXT("JumpHeight"), Category);			
 		}		
 	}
-
-
 }
 
 void ASGPlayerController::SetupInputComponent()
@@ -243,6 +243,7 @@ void ASGPlayerController::PlayTempDamageEffect([[maybe_unused]] float NewHealth)
 		return;
 	}
 
+	EMMA_LOG (Warning, TEXT("ASGPlayerController::PlayTempDamageEffect: Playing damage effect."));
 	TempDamageEffect->AddToViewport();
 	TempDamageEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
 	if (TempDamageEffectCameraShake)
