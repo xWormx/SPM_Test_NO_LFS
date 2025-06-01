@@ -9,8 +9,8 @@ Written by
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SGObjectiveCollectEmAll.h"
-#include "Objectives/SGObjectiveConfig.h"
+#include "SGObjectiveConfig.h"
+#include "Objectives/SGObjectiveCollectEmAll.h"
 #include "SGObjectiveConfigCollectEmAll.generated.h"
 
 /**
