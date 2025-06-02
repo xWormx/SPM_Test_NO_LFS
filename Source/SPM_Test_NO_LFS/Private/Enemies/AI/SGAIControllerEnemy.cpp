@@ -8,6 +8,7 @@
 #include "Enemies/Navigation/SGEnemyPatrolPoint.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 ASGAIControllerEnemy::ASGAIControllerEnemy()
@@ -46,6 +47,24 @@ void ASGAIControllerEnemy::SetInitialValues()
 void ASGAIControllerEnemy::SetShouldPatrol()
 {
 	bShouldPatrol = true;
+}
+
+bool ASGAIControllerEnemy::IsFacingTarget() const
+{
+	if (!ControlledEnemy || !AttackTarget)
+	{
+		return false;
+	}
+
+	float ToleranceDegree = 70.f;
+
+	FVector DirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
+	FVector ForwardVector = ControlledEnemy->GetActorForwardVector();
+
+	float DotProduct = FVector::DotProduct(ForwardVector, DirectionToTarget);
+	float DotTolerance = FMath::Cos(FMath::DegreesToRadians(ToleranceDegree));
+
+	return DotProduct >= DotTolerance;
 }
 
 void ASGAIControllerEnemy::UpdatePatrolPoints()
@@ -134,6 +153,16 @@ void ASGAIControllerEnemy::PatrolDelay()
 	}
 }
 
+void ASGAIControllerEnemy::RotateTowardsTarget()
+{
+	FVector StartLocation = ControlledEnemy->GetActorLocation();
+	FVector TargetLocation = AttackTarget->GetActorLocation();
+
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
+
+	ControlledEnemy->SetActorRotation(LookAtRotation);
+}
+
 float ASGAIControllerEnemy::GetCharacterVelocity() const
 {
 	if (!ControlledEnemy)
@@ -214,6 +243,7 @@ bool ASGAIControllerEnemy::CanAttackTarget()
 	{
 		return false;
 	}
+	
 	const FVector Location = ControlledEnemy->GetActorLocation();
 	const FVector TargetLocation = AttackTarget->GetActorLocation();
 

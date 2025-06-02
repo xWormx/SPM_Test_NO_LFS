@@ -20,6 +20,8 @@ public:
 	virtual void Patrol();
 
 	virtual void PatrolDelay();
+
+	virtual void RotateTowardsTarget();
 	
 	//float helpers
 	UFUNCTION(BlueprintCallable)
@@ -30,6 +32,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual bool CanAttackTarget();
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool IsFacingTarget() const;
 
 	virtual bool IsStuck();
 
@@ -47,6 +52,13 @@ public:
 
 	//Boolean values
 	bool bShouldPatrol = false;
+
+	//Float values
+	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
+	float AcceptanceRadius = 0;
+
+	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
+	float RetreatDistance = 0;
 
 	//TimerHandles
 	FTimerHandle PatrolDelayTimer;
@@ -68,12 +80,6 @@ protected:
 	//float values
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
 	float AttackRange = 0;
-
-	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
-	float AcceptanceRadius = 0;
-
-	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
-	float RetreatDistance = 0;
 
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
 	float StuckDistanceThreshold = 40.f;
