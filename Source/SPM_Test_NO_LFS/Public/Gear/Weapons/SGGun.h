@@ -27,9 +27,13 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	AController* GetOwnerController() const;
+
+	UFUNCTION(BlueprintCallable)
 	virtual bool HasAmmo();
 
 	FTimerHandle ReloadTimerHandle;
+
+	UPROPERTY(BlueprintReadOnly)
 	bool bIsReloading = false;
 
 	// VisibleAnywhere
