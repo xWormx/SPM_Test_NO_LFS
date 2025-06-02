@@ -27,6 +27,11 @@ const TArray<ASGGun*> Ujola6902_GunsComponent::GetGuns() const
 	return Guns;
 }
 
+const ASGGun* Ujola6902_GunsComponent::GetCurrentGun() const
+{
+	return Guns[CurrentGunIndex];
+}
+
 // Protected
 void Ujola6902_GunsComponent::BeginPlay()
 {
