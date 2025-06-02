@@ -211,7 +211,6 @@ void ASGAIControllerEnemyFlying::SetChaseAndAttackMode()
 			else
 			{
 				ControlledEnemy->GetAttackComponent()->StartAttack(AttackTarget);
-				//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Cyan, TEXT("Is Charging"));
 			}
 		}
 		else
@@ -236,12 +235,6 @@ void ASGAIControllerEnemyFlying::SearchForTarget()
 	{
 		CurrentMoveToPoint = GetRandomMoveToPoint();
 	}
-
-	/*if (!LineOfSightTo(CurrentMoveToPoint))
-	{
-		UpdateMoveToPoints();
-		CurrentMoveToPoint = GetClosestMoveToPoint();
-	}*/
 
 	if (CurrentMoveToPoint)
 	{

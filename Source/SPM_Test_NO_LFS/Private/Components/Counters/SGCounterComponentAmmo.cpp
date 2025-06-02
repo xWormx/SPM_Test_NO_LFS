@@ -1,6 +1,6 @@
 ﻿#include "Components/Counters/SGCounterComponentAmmo.h"
 
-#include "jola6902_GunsComponent.h"
+#include "Gear/Weapons/jola6902_GunsComponent.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Pickups/SGPickUpAmmo.h"
 #include "Player/SGPlayerCharacter.h"

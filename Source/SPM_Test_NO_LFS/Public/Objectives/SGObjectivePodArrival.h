@@ -33,17 +33,12 @@ class SPM_TEST_NO_LFS_API ASGObjectivePodArrival : public ASGObjectiveBase, publ
 	ASGObjectivePodArrival();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-/*
-	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual void OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual void Update(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	*/
+
 	virtual bool IsCompleted() override;
 	virtual void OnStart() override;
 	virtual void OnCompleted() override;
 	virtual void Update() override;
-	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_PodArrival; }
+	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_PodArrival; }
 
 	void SetWaitForPodTimeInSeconds(float InSecondsToWait) { TimeToWaitForPodPodSeconds = InSecondsToWait; }
 	FOnWaitForPodEventStart OnWaitForPodEventStart;
@@ -63,14 +58,6 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USceneComponent* Root;
-	
-	// Mesh for the Pod
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
-	//USkeletalMeshComponent* MeshPod;
-
-	// Mesh for the Pod
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UPROPERTY,  meta=(AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* MeshEscapePod;
 	
 	// Mesh for the LandingZone (or thing to defend)
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)

@@ -4,6 +4,8 @@
 #include "AIController.h"
 #include "SGAIControllerEnemy.generated.h"
 
+class ASGEnemyCharacter;
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGAIControllerEnemy : public AAIController
 {
@@ -15,12 +17,50 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void Patrol();
+
+	virtual void PatrolDelay();
+	
+	//float helpers
+	UFUNCTION(BlueprintCallable)
+	virtual float GetCharacterVelocity() const;
+
+	//boolean helpers
+	virtual bool CanReachTarget();
+
+	UFUNCTION(BlueprintCallable)
+	virtual bool CanAttackTarget();
+
+	virtual bool IsStuck();
+
+	virtual bool HasReachedPatrolPoint(float Tolerance);
+
+	virtual void UpdatePatrolPoints();
+
+	virtual bool CanReachTarget(AActor* Target);
+
+	//Getters
+	UFUNCTION(BlueprintCallable)
+	virtual AActor* GetAttackTarget();
+
+	virtual ASGEnemyCharacter* GetControlledEnemy();
+
+	//Boolean values
+	bool bShouldPatrol = false;
+
+	//TimerHandles
+	FTimerHandle PatrolDelayTimer;
+
 protected:
+	
 	virtual void BeginPlay() override;
 
 	virtual void SetInitialValues();
+	
+	virtual class AActor* GetPatrolPoint();
 
-private:
+	virtual void SetShouldPatrol();
+
 	//Behavior Tree
 	UPROPERTY(EditAnywhere)
 	class UBehaviorTree* BehaviorTree;
@@ -43,10 +83,8 @@ private:
 
 	float LastLocationCheckTime = 0.0f;
 
-	//boolean values
+	//Boolean values
 	bool bWasStuckLastCheck = false;
-
-	bool bShouldPatrol = false;
 
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
 	bool bShouldAlwaysChaseTarget = false;
@@ -61,5 +99,13 @@ private:
 	//Actor references
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = true))
 	AActor* AttackTarget;
-	
+
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = true))
+	class ASGEnemyCharacter* ControlledEnemy;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	TArray<AActor*> PatrolPoints;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	AActor* CurrentPatrolPoint;
 };

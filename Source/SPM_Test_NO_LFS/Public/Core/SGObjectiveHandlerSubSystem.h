@@ -50,6 +50,7 @@ public:
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	
 	void OnLoadGame(FObjectiveSaveData SaveData);
+	void OnSaveGame(FObjectiveSaveData SaveData);
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);
 	void RegisterCollectible(ASGPickUpObjectiveCollect* Collectible);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
@@ -71,14 +72,12 @@ public:
 
 	UFUNCTION()
 	void OnTestButtonPressed();
-private:
 	
+private:
 	void OnWorldInitialized(const UWorld::FActorsInitializedParams& Params);
 	
 	void InitializeObjectiveToolTip();
 	void ReadObjectiveDataAsset();
-	
-	int ObjectiveCounter = 0;
 
 	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* MissionStartedSound;
@@ -112,9 +111,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	TArray<ASGPickUpObjectiveCollect*> TargetCollectibles;
-
-	UPROPERTY()
-	TArray<FObjectiveBaseSaveData> ObjectiveSaveData;
+	
 	UFUNCTION()
 	void UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor);
 

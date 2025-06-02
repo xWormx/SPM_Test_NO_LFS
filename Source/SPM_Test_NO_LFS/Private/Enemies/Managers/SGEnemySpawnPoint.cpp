@@ -1,11 +1,10 @@
 // Joel Larsson Wendt || jola6902
 
 #include "Enemies/Managers/SGEnemySpawnPoint.h"
-
 #include "SPM_Test_NO_LFS.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
-#include "Objectives/SGGameObjectivesHandler.h"
-#include "Kismet/GameplayStatics.h"
+//#include "Objectives/SGGameObjectivesHandler.h"
+//#include "Kismet/GameplayStatics.h"
 #include "Components/BillboardComponent.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Utils/SGObjectPoolSubsystem.h"
@@ -31,6 +30,7 @@ void ASGEnemySpawnPoint::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+// Hämtar en fiende av typ SpawnPointSpecificEnemyType (om den är specificerad, annars EnemyClass) ur object poolen.
 ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyCharacter> EnemyClass) const
 {
 	if (EnemyClass == nullptr)

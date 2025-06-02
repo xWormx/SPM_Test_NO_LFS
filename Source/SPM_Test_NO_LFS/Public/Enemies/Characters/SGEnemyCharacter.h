@@ -5,6 +5,8 @@
 #include "GameFramework/Character.h"
 #include "SGEnemyCharacter.generated.h"
 
+class UBehaviorTreeComponent;
+class ASGAIControllerEnemy;
 class USGEnemyAttackComponentBase;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDied, ASGEnemyCharacter*, DeadEnemy);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnemyDiedObjective, UObject*, ObjectiveInterfaceImplementor);
@@ -38,7 +40,7 @@ public:
 	float JumpStrength = 500.f; 
 
 	UFUNCTION(BlueprintCallable)
-	USGEnemyAttackComponentBase* GetAttackComponent() const;
+	USGEnemyAttackComponentBase* GetAttackComponent();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void JumpToLocation(const FVector Destination);
@@ -57,6 +59,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USGEnemyAttackComponentBase> AttackComponent;
+
+	ASGAIControllerEnemy* AIController;
+
+	UBehaviorTreeComponent* BTComp;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "UFunction - Enemy")

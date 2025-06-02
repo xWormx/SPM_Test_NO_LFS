@@ -24,6 +24,9 @@ void ASGGun::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+/* Avfyrar vapnet och kontrollerar om en träff har inträffat, delar ut skada i sådant fall. Basklassen Gun använder
+sig utav funktionen HitScan() för att avgöra om en träff har skett. Ärvande klasser är fria att själva definiera hur
+hit detection och avfyrning går till. Exempel: SGGrenadeLauncher */
 void ASGGun::Fire()
 {
 	if (bIsReloading) return;
@@ -87,6 +90,7 @@ void ASGGun::Fire()
 	}
 }
 
+// Laddar om vapnet ifall att det är möjligt.
 void ASGGun::Reload()
 {
 	if (!bUsesMagazine || bIsReloading) return;
@@ -115,6 +119,7 @@ void ASGGun::AddAmmo(int32 AmmoAmount)
 	Ammo += AmmoAmount;
 }
 
+// Returnerar hur mycket skott vapnet har kvar, om vapnet ej använder magasin används istället ammo-reserverna direkt.
 int32 ASGGun::GetAmmoClip()
 {
 	if (bUsesMagazine)
@@ -162,7 +167,7 @@ void ASGGun::BeginPlay()
 
 		/* Alla vapen kommer binda ReloadTime då detta är basklassen, men används endast av AR så övriga vapen påverkas inte.
 		 * En vackrare lösning som inte innebär att ha (två) dinglande attribut som uppgraderas utan användning vore nice, men eftersom detta
-		 * i nuläget är (och förmodligen kommer vara) enda stället det här sker, så låter jag det vara (just nu).*/
+		 * i nuläget är (och förmodligen kommer vara) enda stället det här sker, så låter jag det vara (just nu). Mvh Emma */
 		UpgradeSystem->BindAttribute(this, TEXT("ReloadTime"), TEXT("GunReloadSpeed"), TEXT("Assault Rifle"));
 	}
 }
@@ -187,6 +192,7 @@ bool ASGGun::HasAmmo()
 }
 
 // Private
+// Kontrollerar om en träff har skett genom att skjuta X antal RayCasts i en kon av inaccuracy (ställbar i editorn).
 bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
 {
 	AController* OwnerController = GetOwnerController();
@@ -246,6 +252,7 @@ bool ASGGun::HitScan(FHitResult& OutHitResult, FVector& OutShotDirection)
     return bHitSomething;
 }
 
+// Fördröjd förlängning av Reload() funktionen.
 void ASGGun::FinishReloading()
 {
 	int32 AmmoNeeded = MagazineSize - CurrentMagazineAmmo;

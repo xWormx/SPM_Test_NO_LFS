@@ -14,9 +14,10 @@
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGDataAssetObjective.h"
 #include "Objectives/SGHorizontalBoxObjective.h"
-#include "Objectives/SGObjectiveConfig.h"
+#include "Objectives/Config/SGObjectiveConfig.h"
 #include "Objectives/SGObjectiveDefendThePod.h"
 #include "Objectives/SGObjectivePodArrival.h"
+#include "Objectives/SaveData/SGObjectiveSaveData.h"
 #include "Player/SGPlayerController.h"
 
 
@@ -67,9 +68,25 @@ void USGObjectiveHandlerSubSystem::OnLoadGame(FObjectiveSaveData SaveData)
 	{
 		for (int i = 0; i < SaveData.ObjectiveIndex; i++)	
 		{
-			ObjectiveSaveData.Add(GameObjectives[i]->Save());
+			//ObjectiveSaveData.Add(GameObjectives[i]->Save());
 		}
 	}
+}
+
+void USGObjectiveHandlerSubSystem::OnSaveGame(FObjectiveSaveData SaveData)
+{
+	/*
+		Vad har vi som behöver sparas?
+		- GameObjectives
+		- CurrentObjective
+	 */
+
+	for (ASGObjectiveBase* Objective : ObjectivesCompleted)
+	{
+		USGObjectiveSaveData* ObjectiveSaveData = Objective->Save();
+		int i = 0;
+	}
+	
 }
 
 void USGObjectiveHandlerSubSystem::OnTestButtonPressed()
@@ -77,7 +94,8 @@ void USGObjectiveHandlerSubSystem::OnTestButtonPressed()
 	FObjectiveSaveData Data;
 	Data.ObjectiveIndex = 2;
 	
-	OnLoadGame(Data);
+	//OnLoadGame(Data);
+	OnSaveGame(Data);
 }
 
 void USGObjectiveHandlerSubSystem::OnWorldInitialized(const UWorld::FActorsInitializedParams& Params)

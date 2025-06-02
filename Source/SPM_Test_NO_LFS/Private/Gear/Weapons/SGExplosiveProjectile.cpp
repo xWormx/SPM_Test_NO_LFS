@@ -4,7 +4,6 @@
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Pickups/SGPickUp.h"
 
 // Public
 ASGExplosiveProjectile::ASGExplosiveProjectile()
@@ -53,6 +52,7 @@ void ASGExplosiveProjectile::BeginPlay()
 }
 
 // Private
+// Levererar skada åt utvalda actors inom ExplosionRadius (enbart fiender i detta fall) och tillkallar specialeffekter.
 void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AActor* MyOwner = GetOwner();
@@ -88,7 +88,7 @@ void ASGExplosiveProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	Destroy();
 }
 
-
+// Utför specialeffekter på träffpunkten
 void ASGExplosiveProjectile::DoSpecialEffects()
 {
 	if (CameraShakeClass) GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(CameraShakeClass);

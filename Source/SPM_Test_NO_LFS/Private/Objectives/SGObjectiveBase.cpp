@@ -9,6 +9,7 @@
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Objectives/SGHorizontalBoxObjective.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
+#include "Objectives/SaveData/SGObjectiveSaveData.h"
 // Sets default values
 ASGObjectiveBase::ASGObjectiveBase()
 {
@@ -84,30 +85,25 @@ FText ASGObjectiveBase::GetCurrentSubToolTip()
 	return FText::FromString(CurrentSubToolTip);
 }
 
-FObjectiveBaseSaveData ASGObjectiveBase::Save()
+USGObjectiveSaveData* ASGObjectiveBase::Save()
 {
-	FObjectiveBaseSaveData SaveData;
-	
-	SaveData.ObjectiveProgressText = ObjectiveProgressText;
-	SaveData.CurrentSubObjectiveStep = CurrentSubObjectiveStep;
-	SaveData.ObjectiveID = ObjectiveID;
-	SaveData.ProgressText = ProgressText;
-	SaveData.ObjectiveDescriptionToolTip = ObjectiveDescriptionToolTip;
-	SaveData.ObjectiveCompletedToolTip = ObjectiveCompletedToolTip;
-	SaveData.CurrentSubToolTip = CurrentSubToolTip;
-	SaveData.ObjectiveSubToolTips = ObjectiveSubToolTips;
+	USGObjectiveSaveData* SaveData = NewObject<USGObjectiveSaveData>();
+
+	SaveBaseData(SaveData);
 
 	return SaveData;
 }
 
-void ASGObjectiveBase::SetCurrentProgressText(FString NewCurrentProgressText)
+void ASGObjectiveBase::SaveBaseData(USGObjectiveSaveData* SaveData)
 {
-	if (ProgressText.SubText.IsEmpty())
-	{
-		return;
-	}
-	ProgressText.SubText[GetCurrentProgressStep()] = NewCurrentProgressText;
+	SaveData->ObjectiveProgressText = ObjectiveProgressText;
+	SaveData->CurrentSubObjectiveStep = CurrentSubObjectiveStep;
+	SaveData->ObjectiveDescriptionToolTip = ObjectiveDescriptionToolTip;
+	SaveData->ObjectiveCompletedToolTip = ObjectiveCompletedToolTip;
+	SaveData->CurrentSubToolTip = CurrentSubToolTip;
+	SaveData->ObjectiveSubToolTips = ObjectiveSubToolTips;
 }
+
 
 void ASGObjectiveBase::SetCurrentProgressElementCompleted(FString InTextCompleted)
 {
