@@ -9,8 +9,8 @@ Written by
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SGObjectiveKillEmAll.h"
-#include "Objectives/SGObjectiveConfig.h"
+#include "Objectives/SGObjectiveKillEmAll.h"
+#include "SGObjectiveConfig.h"
 #include "SGObjectiveConfigKillEmAll.generated.h"
 
 /**

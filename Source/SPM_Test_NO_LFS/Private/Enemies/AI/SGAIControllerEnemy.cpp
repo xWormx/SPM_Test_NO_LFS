@@ -134,6 +134,19 @@ void ASGAIControllerEnemy::PatrolDelay()
 	}
 }
 
+float ASGAIControllerEnemy::GetCharacterVelocity() const
+{
+	if (!ControlledEnemy)
+	{
+		return 0.f;
+	}
+
+	const float CurrentVelocity =
+		ControlledEnemy->GetCharacterMovement()->Velocity.Length();
+
+	return CurrentVelocity;
+}
+
 
 bool ASGAIControllerEnemy::CanReachTarget(AActor* Target)
 {
@@ -232,11 +245,6 @@ bool ASGAIControllerEnemy::IsStuck()
 	LastLocation = CurrentLocation;
 	LastLocationCheckTime = CurrentTime;
 	bWasStuckLastCheck = bIsStuck;
-
-	if (bIsStuck)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Stuck"));
-	}
 
 	return bIsStuck;
 }

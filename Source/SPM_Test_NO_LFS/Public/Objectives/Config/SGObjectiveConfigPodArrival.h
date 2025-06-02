@@ -9,9 +9,8 @@ Written by
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SGObjectiveDefendThePod.h"
-#include "SGObjectivePodArrival.h"
-#include "Objectives/SGObjectiveConfig.h"
+#include "Objectives/SGObjectivePodArrival.h"
+#include "SGObjectiveConfig.h"
 #include "SGObjectiveConfigPodArrival.generated.h"
 
 /**

@@ -66,6 +66,9 @@ protected:
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
 	bool bShouldAlwaysChaseTarget = false;
 
+	UFUNCTION(BlueprintCallable)
+	float GetCharacterVelocity() const;
+
 	virtual bool IsFacingTarget() const;
 
 	virtual void RotateTowardsTargetWhileNotMoving();

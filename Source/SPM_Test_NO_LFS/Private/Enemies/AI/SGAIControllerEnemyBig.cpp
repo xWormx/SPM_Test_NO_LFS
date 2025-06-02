@@ -5,7 +5,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
-#include "Enemies/Components/SGEnemyMeleAttackComponent.h"
+#include "Enemies/Components/SGEnemyMeleeAttackComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"

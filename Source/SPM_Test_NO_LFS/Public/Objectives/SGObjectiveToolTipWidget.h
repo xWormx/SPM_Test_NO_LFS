@@ -27,14 +27,7 @@ class UScaleBox;
  * 
  */
 
-USTRUCT(BlueprintType)
-struct FProgressText
-{
-	GENERATED_BODY();
-	
-	UPROPERTY(EditAnywhere)
-	TArray<FString> SubText;	
-};
+
 
 UCLASS()
 class SPM_TEST_NO_LFS_API USGObjectiveToolTipWidget : public UUserWidget
