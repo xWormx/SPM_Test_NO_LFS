@@ -15,7 +15,7 @@ class SPM_TEST_NO_LFS_API ASGGrenadeLauncher : public ASGGun
 
 public:
 	ASGGrenadeLauncher();
-	virtual void Fire() override;
+	void Fire() override;
 
 protected:
 	virtual void BeginPlay() override;

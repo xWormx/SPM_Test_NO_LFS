@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Player/SGPlayerCharacter.h"
 
 // Public
 ASGGun::ASGGun()
@@ -64,6 +65,8 @@ void ASGGun::Fire()
 	
 	if (ShootSound && Mesh) UGameplayStatics::SpawnSoundAttached(ShootSound, Mesh, TEXT("MuzzleFlashSocket"));
 
+	if (PlayerRef) PlayerRef->BPFire();
+	
 	FHitResult HitResult;
 	FVector ShotDirection;
 	if (HitScan(HitResult, ShotDirection))
@@ -100,6 +103,8 @@ void ASGGun::Reload()
 	if (!bInfiniteAmmo && Ammo <= 0) return;
 
 	bIsReloading = true;
+
+	if (PlayerRef) PlayerRef->BPReload();
 
 	if (ReloadSound && Mesh) 
 	{
@@ -156,6 +161,8 @@ FText ASGGun::GetWeaponDisplayName()
 void ASGGun::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PlayerRef = Cast<ASGPlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
 	//CurrentMagazineAmmo = FMath::Min(MagazineSize, Ammo);
 
