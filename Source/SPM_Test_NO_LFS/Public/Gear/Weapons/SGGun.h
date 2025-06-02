@@ -20,7 +20,10 @@ public:
 	virtual void Reload();
 	float GetFireRate() const;
 	void AddAmmo(int32 AmmoAmount);
+
+	UFUNCTION(BlueprintCallable)
 	int32 GetAmmoClip();
+	
 	int32 GetAmmoStock();
 	FText GetWeaponDisplayName();
 
