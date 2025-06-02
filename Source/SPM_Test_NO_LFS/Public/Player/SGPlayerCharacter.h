@@ -68,7 +68,7 @@ private:
 public:
 	FOnPlayerIsReady OnPlayerIsReady;
 
-	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Uproperty - Player | Weapons")
 	Ujola6902_GunsComponent* GunsComponent;
 
 	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons")
