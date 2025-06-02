@@ -50,16 +50,7 @@ void ASGEnemyCharacter::BeginPlay()
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
 {
-	if (AIController)
-	{
-		if (BTComp)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("BT Stopped"));
-			//BTComp->StopTree(EBTStopMode::Forced);
-			BTComp->StopLogic(TEXT("Dead"));
-		}
-	}
-	
+	SetBehaviorTreeEnabled(false);
 	GetGameInstance()->GetSubsystem<USGPickUpSubsystem>()->DropItem(this);
 
 	OnEnemyDied.Broadcast(this);
@@ -79,6 +70,34 @@ void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+void ASGEnemyCharacter::SetBehaviorTreeEnabled(bool bEnabled)
+{
+	if (bEnabled)
+	{
+		if (AIController)
+		{
+			if (BTComp)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("BT Stopped"));
+				//BTComp->StopTree(EBTStopMode::Forced);
+				BTComp->StartLogic();
+			}
+		}
+	}
+	else
+	{
+		if (AIController)
+		{
+			if (BTComp)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("BT Stopped"));
+				//BTComp->StopTree(EBTStopMode::Forced);
+				BTComp->StopLogic(TEXT("Dead"));
+			}
+		}
+	}
+}
+
 USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent()
 {
 	return AttackComponent;
@@ -87,10 +106,7 @@ USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent()
 void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 {
 	UCharacterMovementComponent* MovementComp = GetCharacterMovement();
-	MovementComp->bOrientRotationToMovement = false;
-	MovementComp->bUseControllerDesiredRotation = false;
-	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Ignore);
-	//GetCharacterMovement()->bUseRVOAvoidance = false;
+	
 
 	const float BaseJumpZVelocity = MovementComp->JumpZVelocity;
 
@@ -102,12 +118,20 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 	const float HeightDifference = Destination.Z - StartLocation.Z;
 	float VerticalLaunchVelocity = BaseJumpZVelocity;
 
-	if (HeightDifference > 0.f)
+	BASIR_LOG(Warning, TEXT("Height Difference for jump is: %f"), HeightDifference);
+
+	if (HeightDifference > MaxJumpHeight)
 	{
-		VerticalLaunchVelocity += HeightDifference * 2.f;
+		return;
 	}
 
-	LaunchVelocity.Z = VerticalLaunchVelocity * 1.5f;
+	MovementComp->bOrientRotationToMovement = false;
+	MovementComp->bUseControllerDesiredRotation = false;
+	GetCharacterMovement()->bUseRVOAvoidance = false;
+
+	VerticalLaunchVelocity = GetJumpVelocity(VerticalLaunchVelocity, HeightDifference);
+
+	LaunchVelocity.Z = VerticalLaunchVelocity;
 	
 	const FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, Destination);
 	SetActorRotation(LookAtRotation);
@@ -118,17 +142,41 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 		JumpTimerHandle,
 		this,
 		&ASGEnemyCharacter::AdjustJumpRotation,
-		1.0f,
+		1.5f,
 		false
 	);
+}
+
+const float ASGEnemyCharacter::GetJumpVelocity(float VerticalLaunchVelocity, float HeightDifference) const
+{
+	if (HeightDifference < 0.f)
+	{
+		return VerticalLaunchVelocity;
+	}
+
+	float LauchZVelocity = 0.f;
+	if (HeightDifference > 200)
+	{
+		LauchZVelocity = (VerticalLaunchVelocity * 2.f);
+	}
+	else if (HeightDifference > 100.f)
+	{
+		LauchZVelocity = (VerticalLaunchVelocity * 1.75f);
+		
+	}
+	else if (HeightDifference > 0.f)
+	{
+		LauchZVelocity = (VerticalLaunchVelocity * 1.5f);
+	}
+
+	return LauchZVelocity;
 }
 
 void ASGEnemyCharacter::AdjustJumpRotation()
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	//GetCharacterMovement()->bUseRVOAvoidance = true;
-	//GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Block);
+	GetCharacterMovement()->bUseRVOAvoidance = true;
 }
 
 void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)

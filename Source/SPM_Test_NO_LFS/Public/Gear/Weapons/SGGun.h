@@ -16,20 +16,31 @@ class SPM_TEST_NO_LFS_API ASGGun : public AActor // Basklass för skjutvapen (an
 public:	
 	ASGGun();
 	virtual void Tick(float DeltaTime) override;
+	
 	virtual void Fire();
 	virtual void Reload();
+	
 	float GetFireRate() const;
 	void AddAmmo(int32 AmmoAmount);
+
+	UFUNCTION(BlueprintCallable)
 	int32 GetAmmoClip();
+	
 	int32 GetAmmoStock();
 	FText GetWeaponDisplayName();
 
 protected:
 	virtual void BeginPlay() override;
 	AController* GetOwnerController() const;
+
+	class ASGPlayerCharacter* PlayerRef;
+
+	UFUNCTION(BlueprintCallable)
 	virtual bool HasAmmo();
 
 	FTimerHandle ReloadTimerHandle;
+
+	UPROPERTY(BlueprintReadOnly)
 	bool bIsReloading = false;
 
 	// VisibleAnywhere

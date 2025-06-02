@@ -52,6 +52,10 @@ ASGEnemyCharacter* ASGEnemySpawnPoint::SpawnEnemy(const TSubclassOf<ASGEnemyChar
 	FVector ActorExtent;
 	GetActorBounds(false, ActorLocation, ActorExtent);
 	ActorLocation.Z += ActorExtent.Z/2.f;
+	
+	//Reactivate behavior tree
+	SpawnedEnemyPtr->SetBehaviorTreeEnabled(true);
+	
 	SpawnedEnemyPtr->SetActorLocationAndRotation(ActorLocation, GetActorRotation());
 
 	/*

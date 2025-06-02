@@ -56,6 +56,7 @@ void ASGGrenadeLauncher::Fire()
 	
 	if (ShootSound && Mesh) UGameplayStatics::SpawnSoundAttached(ShootSound, Mesh, TEXT("MuzzleFlashSocket"));
 
+	if (PlayerRef) PlayerRef->BPFire();
 	SpawnProjectile();
 }
 
