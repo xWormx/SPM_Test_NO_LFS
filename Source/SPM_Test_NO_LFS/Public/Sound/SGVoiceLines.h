@@ -6,9 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "SGVoiceLines.generated.h"
 
-class USoundCue;
-class UAudioComponent;
-
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGVoiceLines : public AActor
 {
@@ -22,9 +19,15 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(VisibleAnywhere)
+	UFUNCTION(BlueprintCallable)
+	void PlaySound(USoundBase* Sound) const;
+	
+	UPROPERTY(VisibleAnywhere,Category="sound")
 	UAudioComponent* AudioComponent;
+
+	UPROPERTY(VisibleAnywhere,Category="sound")
+	TMap<USoundBase*, float> CooldownMap;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="sound",meta=(AllowPrivateAccess = "true"))
-	USoundCue* TestSoundCue;
+	TArray<USoundBase*> Sounds;
 };
