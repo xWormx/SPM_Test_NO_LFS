@@ -4,6 +4,7 @@
 #include "SWidgetData/WidgetConstructionData.h"
 #include "Widgets/SCompoundWidget.h"
 #include "DefaultButton.generated.h"
+class UTextBlock;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnButtonClicked);
 
 class SDefaultButtonWidget : public SCompoundWidget
@@ -17,8 +18,19 @@ public:
 	void Construct(const FArguments& InArgs);
 	void SetButtonData(const FButtonData& InButtonData);
 
+	TSharedPtr<SButton> GetButtonWidget() const
+	{
+		return ButtonWidget;
+	}
+	TSharedPtr<STextBlock> GetButtonTextWidget() const
+	{
+		return ButtonTextWidget;
+	}
 private:
 	FButtonData ButtonData;
+	TSharedPtr<SButton> ButtonWidget;
+	TSharedPtr<STextBlock> ButtonTextWidget;
+
 };
 
 UCLASS()
@@ -40,4 +52,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty")
 	FButtonData ButtonData;
+
 };

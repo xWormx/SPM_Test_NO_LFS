@@ -7,6 +7,7 @@
 #define BOX_BRUSH(RelativePath, ...) FSlateBoxBrush(StyleSet->RootToContentDir(RelativePath, TEXT(".svg")), __VA_ARGS__)
 #define IMAGE_BRUSH_SVG(RelativePath, ...) FSlateVectorImageBrush(StyleSet->RootToContentDir(RelativePath, TEXT(".svg")), __VA_ARGS__)
 #define TRANSPARENT_ROUNDED_BOX_BRUSH(BorderColor) FSlateRoundedBoxBrush(FLinearColor::Transparent, 4.0f, FLinearColor(BorderColor), 2.0f) //FillColor, Border Radius, BorderColor (param), BorderThickness
+#define ROUNDED_BOX_BRUSH(FillColor, BorderColor) FSlateRoundedBoxBrush(FillColor, 4.0f, FLinearColor(BorderColor), 2.0f) //FillColor, Border Radius, BorderColor (param), BorderThickness
 #define CONTENT_FONT_PATH(FileName, Extension) FPaths::ProjectContentDir()/TEXT("CrazyJack/UI/Fonts/TTF/") / FileName + Extension
 
 TUniquePtr<FSlateStyleSet> FStyleSetData::StyleSet;
@@ -54,8 +55,8 @@ void FStyleSetData::InitButtonStyles()
 	FMargin Margin = FMargin(4.0f);
 
 	FLinearColor NormalColor = FLinearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	FLinearColor HoveredColor = FLinearColor(0.25f, 0.25f, 0.25f, 1.0f);
-	FLinearColor PressedColor = FLinearColor(0.5f, 0.5f, 0.5f, 1.0f);
+	FLinearColor HoveredColor = FLinearColor(0.2f, 0.2f, 0.2f, 0.8f);
+	FLinearColor PressedColor = FLinearColor(0.15f, 0.15f, 0.15f, 1.0f);
 	FLinearColor DisabledColor = FLinearColor(0.4f, 0.4f, 0.4f, 0.5f);
 
 	FSlateRoundedBoxBrush NormalBrush = TRANSPARENT_ROUNDED_BOX_BRUSH(NormalColor);
@@ -63,10 +64,14 @@ void FStyleSetData::InitButtonStyles()
 	FSlateBoxBrush PressedBrush = BOX_BRUSH(RelativePath, Margin, PressedColor);
 	FSlateRoundedBoxBrush DisabledBrush = TRANSPARENT_ROUNDED_BOX_BRUSH(DisabledColor);
 
-	FButtonStyle MenuButton= FButtonStyle().SetNormal(NormalBrush).SetHovered(HoveredBrush).SetPressed(PressedBrush).SetDisabled(DisabledBrush);
 	FName MenuButtonStyleName = StyleNames::MenuButton();
+	StyleSet->Set(MenuButtonStyleName, FButtonStyle().SetNormal(NormalBrush).SetHovered(HoveredBrush).SetPressed(PressedBrush).SetDisabled(DisabledBrush));
 
-	StyleSet->Set(MenuButtonStyleName, MenuButton);
+	FName MenuPrimaryButtonStyleName = StyleNames::MenuPrimaryButton();
+	FLinearColor YellowColor = FLinearColor::Yellow;
+	StyleSet->Set(MenuPrimaryButtonStyleName, FButtonStyle()
+		.SetNormal(TRANSPARENT_ROUNDED_BOX_BRUSH(YellowColor))
+		.SetHovered(ROUNDED_BOX_BRUSH(NormalColor, YellowColor)).SetPressed(PressedBrush).SetDisabled(DisabledBrush));
 }
 
 void FStyleSetData::InitTextBlockStyles()
@@ -76,11 +81,19 @@ void FStyleSetData::InitTextBlockStyles()
 	FLinearColor Foreground = FLinearColor::Yellow;
 	FLinearColor ShadowColor = FLinearColor(0.0f, 0.0f, 0.0f, 0.5f);
 	FVector2f ShadowOffset(0.0f, 1.0f);
-	
+
 	FName MenuButtonTextStyleName = StyleNames::MenuButtonText();
 	StyleSet->Set(MenuButtonTextStyleName,
 				  FTextBlockStyle()
-					  .SetFont(FSlateFontInfo(CONTENT_FONT_PATH("Roboto-Bold", TTF), 32))
+					  .SetFont(FSlateFontInfo(CONTENT_FONT_PATH("Roboto-Thin", TTF), 32))
+					  .SetColorAndOpacity(Foreground)
+					  .SetShadowColorAndOpacity(ShadowColor)
+					  .SetShadowOffset(ShadowOffset));
+
+	FName MenuPrimaryButtonTextStyleName = StyleNames::MenuPrimaryButtonText();
+	StyleSet->Set(MenuPrimaryButtonTextStyleName,
+				  FTextBlockStyle()
+					  .SetFont(FSlateFontInfo(CONTENT_FONT_PATH("Roboto-Condensed", TTF), 32))
 					  .SetColorAndOpacity(Foreground)
 					  .SetShadowColorAndOpacity(ShadowColor)
 					  .SetShadowOffset(ShadowOffset));
@@ -88,11 +101,12 @@ void FStyleSetData::InitTextBlockStyles()
 	FName MenuHeaderTextStyleName = StyleNames::MenuHeaderText();
 	StyleSet->Set(MenuHeaderTextStyleName,
 				  FTextBlockStyle()
-					  .SetFont(FSlateFontInfo(CONTENT_FONT_PATH("Roboto-Medium", TTF), 40))
+					  .SetFont(FSlateFontInfo(CONTENT_FONT_PATH("Roboto-Thin", TTF), 40))
 					  .SetColorAndOpacity(Foreground)
 					  .SetShadowColorAndOpacity(ShadowColor)
 					  .SetShadowOffset(ShadowOffset));
 }
+
 FString FStyleSetData::RootToProjectContentDir(const FString& RelativePath, const TCHAR* Extension)
 {
 	static const FString ContentDir = FPaths::ProjectContentDir();
@@ -102,4 +116,5 @@ FString FStyleSetData::RootToProjectContentDir(const FString& RelativePath, cons
 #undef IMAGE_BRUSH_SVG
 #undef BOX_BRUSH
 #undef TRANSPARENT_ROUNDED_BOX_BRUSH
+#undef ROUNDED_BOX_BRUSH
 #undef CONTENT_FONT_PATH

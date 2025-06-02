@@ -4,22 +4,35 @@ void SDefaultButtonWidget::Construct(const FArguments& InArgs)
 {
 	ButtonData = InArgs._InButtonData;
 
+	ButtonWidget = ButtonData.CreateButton();
+
 	ChildSlot
 	[
-		ButtonData.CreateButton()
+		ButtonWidget.ToSharedRef()
 	];
+	ButtonTextWidget = StaticCastSharedRef<STextBlock>(ButtonWidget->GetChildren()->GetChildAt(0));
 }
 
 void SDefaultButtonWidget::SetButtonData(const FButtonData& InButtonData)
 {
 	ButtonData = InButtonData;
-	if (ChildSlot.GetWidget()->GetType() == TEXT("SButton"))
-	{
-		TSharedRef<SButton> Button = StaticCastSharedRef<SButton>(ChildSlot.GetWidget());
-		InButtonData.ApplyStyle(Button);
 
-		TSharedRef<STextBlock> TextBlock = StaticCastSharedRef<STextBlock>(Button->GetChildren()->GetChildAt(0));
-		InButtonData.TextData.ApplyStyle(TextBlock);
+	if (ButtonWidget.IsValid())
+	{
+		TSharedRef<SButton> ButtonWidgetRef = ButtonWidget.ToSharedRef();
+		ButtonData.ApplyStyle( ButtonWidgetRef);
+
+		TSharedRef<STextBlock> ButtonTextWidgetRef = ButtonTextWidget.ToSharedRef();
+		ButtonData.TextData.ApplyStyle(ButtonTextWidgetRef);
+	}
+	else
+	{
+		ButtonWidget = ButtonData.CreateButton();
+		ChildSlot
+		[
+			ButtonWidget.ToSharedRef()
+		];
+		ButtonTextWidget = StaticCastSharedRef<STextBlock>(ButtonWidget->GetChildren()->GetChildAt(0));
 	}
 }
 

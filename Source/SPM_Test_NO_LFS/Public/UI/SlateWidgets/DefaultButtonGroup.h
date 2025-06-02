@@ -5,6 +5,8 @@
 #include "Components/Widget.h"
 #include "DefaultButtonGroup.generated.h"
 
+class SDefaultButtonWidget;
+
 class SDefaultButtonGroupWidget : public SCompoundWidget
 {
 public:
@@ -18,8 +20,9 @@ public:
 	
 private:
 
-	int32 ActiveButtonIndex = 0;
 	FButtonGroupData ButtonGroupData;
+	TSharedPtr<SStackBox> ButtonGroupStackBox;
+	TArray<TSharedPtr<SDefaultButtonWidget>> ButtonWidgets;
 };
 
 UCLASS()

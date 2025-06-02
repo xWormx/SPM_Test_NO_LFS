@@ -8,7 +8,7 @@ void FTextData::ApplyStyle(TSharedRef<STextBlock>& TextBlock) const
 	TextBlock->SetTextStyle(&TextStyle);
 	TextBlock->SetFont(TextStyle.Font);
 	TextBlock->SetJustification(TextJustification);
-	TextBlock->SetMargin(FMargin(DefaultPadding));
+	TextBlock->SetMargin(Margin);
 }
 
 TSharedRef<STextBlock> FTextData::CreateTextBlock() const
@@ -18,14 +18,14 @@ TSharedRef<STextBlock> FTextData::CreateTextBlock() const
 		.TextStyle(&TextStyle)
 		.Font(TextStyle.Font)
 		.Justification(TextJustification)
-		.Margin(FMargin(DefaultPadding));
+		.Margin(Margin);
 }
 
 void FButtonData::ApplyStyle(TSharedRef<SButton>& Button) const
 {
 	Button->SetButtonStyle(&ButtonStyle);
 	Button->SetOnClicked(OnClicked);
-	Button->SetPadding(FMargin(DefaultPadding));
+	Button->SetPadding(Margin);
 }
 
 TSharedRef<SButton> FButtonData::CreateButton() const
@@ -36,4 +36,36 @@ TSharedRef<SButton> FButtonData::CreateButton() const
 		[
 			TextData.CreateTextBlock()
 		];
+}
+
+void FBackgroundData::ApplyStyle(TSharedRef<SOverlay>& Overlay) const
+{
+	if (Overlay->GetChildren()->Num() == 0)
+	{
+		Overlay->AddSlot();
+	}
+	Overlay->Slot(0)
+		.HAlign(BackgroundAlignment.Horizontal)
+		.VAlign(BackgroundAlignment.Vertical)
+		.Padding(Margin)
+		[
+			SNew(SImage).ColorAndOpacity(BackgroundColor)
+		];
+}
+
+TSharedRef<SOverlay> FBackgroundData::CreateBackgroundOverlay() const
+{
+	return SNew(SOverlay)
+		+ SOverlay::Slot()
+		.HAlign(BackgroundAlignment.Horizontal)
+		.VAlign(BackgroundAlignment.Vertical)
+		.Padding(FMargin(Margin))
+		[
+			SNew(SImage).ColorAndOpacity(BackgroundColor)
+		];
+}
+
+TSharedRef<SImage> FBackgroundData::CreateBackgroundImage() const
+{
+	return SNew(SImage).ColorAndOpacity(BackgroundColor);
 }

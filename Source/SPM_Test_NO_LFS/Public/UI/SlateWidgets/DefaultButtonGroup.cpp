@@ -4,11 +4,11 @@
 void SDefaultButtonGroupWidget::Construct(const FArguments& InArgs)
 {
 	ButtonGroupData = InArgs._InButtonGroupData;
-	TSharedRef<SStackBox> ButtonGroupStackBox = SNew(SStackBox).Orientation(ButtonGroupData.ButtonGroupOrientation);
+	ButtonGroupStackBox = SNew(SStackBox).Orientation(ButtonGroupData.Orientation);
 
 	ChildSlot
 	[
-		ButtonGroupStackBox
+		ButtonGroupStackBox.ToSharedRef()
 	];
 
 	SetButtonGroupData(ButtonGroupData);
@@ -16,29 +16,33 @@ void SDefaultButtonGroupWidget::Construct(const FArguments& InArgs)
 
 void SDefaultButtonGroupWidget::SetButtonGroupData(const FButtonGroupData& InButtonGroupData)
 {
-	if (ChildSlot.GetWidget()->GetType() != TEXT("SStackBox"))
-	{
-		return;
-	}
-	TSharedRef<SStackBox> StackBox = StaticCastSharedRef<SStackBox>(ChildSlot.GetWidget());
-	StackBox->ClearChildren();
 	ButtonGroupData = InButtonGroupData;
 
-	EHorizontalAlignment HorizontalAlignment = ButtonGroupData.ButtonGroupAlignmentData.HorizontalAlignment;
-	EVerticalAlignment VerticalAlignment = ButtonGroupData.ButtonGroupAlignmentData.VerticalAlignment;
+	if (!ButtonGroupStackBox.IsValid())
+	{
+		ButtonGroupStackBox = SNew(SStackBox).Orientation(ButtonGroupData.Orientation);
+		ChildSlot
+		[
+			ButtonGroupStackBox.ToSharedRef()
+		];
+	}
+
+	ButtonGroupStackBox->ClearChildren();
+	ButtonWidgets.Empty();
 
 	for (const FButtonData& ButtonData : ButtonGroupData.ButtonDataArray)
 	{
 		TSharedRef<SDefaultButtonWidget> ButtonWidget = SNew(SDefaultButtonWidget)
 			.InButtonData(ButtonData);
 
-		StackBox->AddSlot()
-		        .HAlign(HorizontalAlignment)
-		        .VAlign(VerticalAlignment)
-		        .Padding(ButtonGroupData.SlotPadding).AutoSize()
+		ButtonGroupStackBox->AddSlot()
+		        .HAlign(ButtonGroupData.Alignment.Horizontal)
+		        .VAlign( ButtonGroupData.Alignment.Vertical)
+		        .Padding(ButtonGroupData.Margin).AutoSize()
 		[
 			ButtonWidget
 		];
+		ButtonWidgets.Add(ButtonWidget);
 	}
-	StackBox->SetOrientation(ButtonGroupData.ButtonGroupOrientation);
+	ButtonGroupStackBox->SetOrientation(ButtonGroupData.Orientation);
 }

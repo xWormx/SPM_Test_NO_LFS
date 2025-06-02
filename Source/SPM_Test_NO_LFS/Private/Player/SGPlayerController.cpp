@@ -5,12 +5,10 @@
 #include "EnhancedInputSubsystems.h"
 
 #include "SPM_Test_NO_LFS.h"
-#include "Gear/Weapons/jola6902_GunsComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/SGHealthComponent.h"
-#include "Components/Counters/SGCounterComponentAmmo.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/SGMainHUD.h"
@@ -225,7 +223,7 @@ void ASGPlayerController::RestartGame()
 void ASGPlayerController::EnableGameOver([[maybe_unused]] float NewHealth)
 {
 	
-	Cast<ASGMainHUD>(GetHUD())->GameOver();
+	Cast<ASGMainHUD>(GetHUD())->PlayerDeath();
 	/*SetPause(true);
 	if (!GameOverMenu)
 	{

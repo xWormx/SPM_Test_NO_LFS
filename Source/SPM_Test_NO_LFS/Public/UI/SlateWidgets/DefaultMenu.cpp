@@ -7,80 +7,68 @@ void SDefaultMenu::Construct(const FArguments& InArgs)
 {
 	MenuData = InArgs._InMenuData;
 
-	ChildSlot
+	MenuHeaderWidget = MenuData.HeaderElement.CreateTextBlock();
+	ButtonGroupWidget = SNew(SDefaultButtonGroupWidget).InButtonGroupData(MenuData.ButtonGroupElement);
+
+	TEnumAsByte<EHorizontalAlignment> InHAlignment = MenuData.ElementAlignment.Horizontal;
+	TEnumAsByte<EVerticalAlignment> InVAlignment = MenuData.ElementAlignment.Vertical;
+	FMargin InPadding = MenuData.ElementMargin;
+
+	MenuElementsPanel = SNew(SStackBox)
+		+ SStackBox::Slot()
+		.HAlign(InHAlignment)
+		.VAlign(InVAlignment)
+		.Padding(InPadding)
+		[
+			MenuHeaderWidget.ToSharedRef()
+		]
+		+ SStackBox::Slot()
+		.HAlign(InHAlignment)
+		.VAlign(InVAlignment)
+		.Padding(InPadding)
+		[
+			ButtonGroupWidget.ToSharedRef()
+		];
+
+	MenuElementsPanel->SetOrientation(MenuData.ElementOrientation);
+
+	RootOverlayPanel = MenuData.BackgroundData.CreateBackgroundOverlay();
+	RootOverlayPanel->AddSlot()
+	                .HAlign(InHAlignment)
+	                .VAlign(InVAlignment)
+	                .Padding(InPadding)
 	[
-		SNew(SOverlay)
+		MenuElementsPanel.ToSharedRef()
 	];
 
-	SetMenuData(MenuData);
+	ChildSlot
+	[
+		RootOverlayPanel.ToSharedRef()
+	];
+
+	//SetMenuData(MenuData);
 }
 
 void SDefaultMenu::SetMenuData(const FMenuData& InMenuData)
 {
 	MenuData = InMenuData;
 
-	EHorizontalAlignment HorizontalAlignment = MenuData.MenuAlignmentData.HorizontalAlignment;
-	EVerticalAlignment VerticalAlignment = MenuData.MenuAlignmentData.VerticalAlignment;
-	float Padding = MenuData.DefaultPadding;
+	TSharedRef<SOverlay> RootOverlayPanelRef = RootOverlayPanel.ToSharedRef();
+	MenuData.BackgroundData.ApplyStyle(RootOverlayPanelRef);
 
-	if (ChildSlot.GetWidget()->GetType() != "SOverlay")
+	TSharedRef<STextBlock> HeaderRef = MenuHeaderWidget.ToSharedRef();
+	MenuData.HeaderElement.ApplyStyle(HeaderRef);
+
+	ButtonGroupWidget->SetButtonGroupData(MenuData.ButtonGroupElement);
+
+	for (int32 SlotIndex = 0; SlotIndex < MenuElementsPanel->GetChildren()->Num(); SlotIndex++)
 	{
-		return;
-	}
-
-	TSharedRef<SOverlay> Overlay = StaticCastSharedRef<SOverlay>(ChildSlot.GetWidget());
-	if (Overlay->GetChildren()->Num() == 0)
-	{
-		EMMA_LOG(Warning, TEXT("SDefaultMenu::SetMenuData: Overlay has no children, creating new SStackBox."));
-		TSharedRef<SStackBox> MenuElements = SNew(SStackBox).Orientation(MenuData.MenuOrientation)
-			+ SStackBox::Slot().HAlign(HorizontalAlignment).VAlign(VerticalAlignment).Padding(Padding)
-			[
-				MenuData.TextData.CreateTextBlock()
-			]
-			+ SStackBox::Slot().HAlign(HorizontalAlignment).VAlign(VerticalAlignment).Padding(Padding)
-			[
-				SNew(SDefaultButtonGroupWidget).InButtonGroupData(MenuData.ButtonGroupData)
-			];
-
-		Overlay->AddSlot()
-		       .HAlign(MenuData.BackgroundAlignment.HorizontalAlignment).VAlign(MenuData.BackgroundAlignment.VerticalAlignment)
-		[
-			SNew(SImage).ColorAndOpacity(MenuData.BackgroundColor)
-		];
-		Overlay->AddSlot().HAlign(HorizontalAlignment).VAlign(VerticalAlignment).Padding(Padding)
-		[
-			MenuElements
-		];
-		MenuElements->SetOrientation(MenuData.MenuOrientation);
-	}
-	else
-	{
-		EMMA_LOG(Warning,TEXT("SDefaultMenu::SetMenuData: Overlay already has children, updating existing SStackBox."));
-		constexpr int32 BackgroundIndex = 0; // Assuming the first child is the SImage
-		constexpr int32 StackBoxIndex = 1; // Assuming the second child is the SStackBox
-
-		if (Overlay->GetChildren()->Num() < StackBoxIndex || Overlay->GetChildren()->GetChildAt(StackBoxIndex)->GetType() != "SStackBox")
-		{
-			EMMA_LOG(Warning, TEXT("SDefaultMenu::SetMenuData: Overlay does not have a valid SStackBox at index %d."),StackBoxIndex);
-			return;
-		}
-
-		TSharedRef<SImage> BackgroundImage = StaticCastSharedRef<SImage>(Overlay->GetChildren()->GetChildAt(BackgroundIndex));
-		Overlay->Slot(BackgroundIndex).HAlign(MenuData.BackgroundAlignment.HorizontalAlignment).VAlign(MenuData.BackgroundAlignment.VerticalAlignment).Padding(Padding);
-		BackgroundImage->SetColorAndOpacity(MenuData.BackgroundColor);
-
-		TSharedRef<SStackBox> MenuElements = StaticCastSharedRef<SStackBox>(Overlay->GetChildren()->GetChildAt(StackBoxIndex));
-		MenuElements->Slot().HAlign(HorizontalAlignment).VAlign(VerticalAlignment).Padding(Padding);
-		
-		TSharedRef<STextBlock> MenuHeader = StaticCastSharedRef<STextBlock>(MenuElements->GetChildren()->GetChildAt(0));
-		MenuData.TextData.ApplyStyle(MenuHeader);
-
-		TSharedRef<SDefaultButtonGroupWidget> ButtonGroupWidget = StaticCastSharedRef<SDefaultButtonGroupWidget>(MenuElements->GetChildren()->GetChildAt(1));
-		ButtonGroupWidget->SetButtonGroupData(MenuData.ButtonGroupData);
-		MenuElements->SetOrientation(MenuData.MenuOrientation);
+		SStackBox::FSlot& CurrentSlot = MenuElementsPanel->GetSlot(SlotIndex);
+		CurrentSlot.SetHorizontalAlignment(MenuData.ElementAlignment.Horizontal);
+		CurrentSlot.SetVerticalAlignment(MenuData.ElementAlignment.Vertical);
+		CurrentSlot.SetPadding(MenuData.ElementMargin);
 	}
 }
-
 
 void UDefaultMenuWidget::ReleaseSlateResources(bool bReleaseChildren)
 {
@@ -94,7 +82,6 @@ void UDefaultMenuWidget::SynchronizeProperties()
 	if (CustomWidgetInstance)
 	{
 		CustomWidgetInstance->SetMenuData(MenuData);
-		//TODO: Change to setters. Need a better way to access individual elements.
 	}
 }
 

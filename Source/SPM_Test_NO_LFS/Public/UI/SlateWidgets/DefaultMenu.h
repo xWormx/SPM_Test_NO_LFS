@@ -5,6 +5,8 @@
 #include "Widgets/SCompoundWidget.h"
 #include "DefaultMenu.generated.h"
 
+class SDefaultButtonGroupWidget;
+
 class SDefaultMenu : public SCompoundWidget
 {
 public:
@@ -21,6 +23,13 @@ public:
 
 private:
 	FMenuData MenuData;
+
+	TSharedPtr<SOverlay> RootOverlayPanel;
+	TSharedPtr<SStackBox> MenuElementsPanel;
+
+	TSharedPtr<SDefaultButtonGroupWidget> ButtonGroupWidget;
+	TSharedPtr<STextBlock> MenuHeaderWidget;
+
 };
 
 ///⚠️WIP - Not ready for UMG editor. Use SDefaultMenu directly through C++ code instead.

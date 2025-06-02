@@ -9,9 +9,19 @@ namespace StyleNames
 		static FName Name = FName("MenuButtonStyle");
 		return Name;
 	}
+	static FName MenuPrimaryButton()
+	{
+		static FName Name = FName("MenuPrimaryButtonStyle");
+		return Name;
+	}
 	static FName MenuButtonText()
 	{
 		static FName Name = FName("MenuButtonTextStyle");
+		return Name;
+	}
+	static FName MenuPrimaryButtonText()
+	{
+		static FName Name = FName("MenuPrimaryButtonTextStyle");
 		return Name;
 	}
 	static FName MenuHeaderText()

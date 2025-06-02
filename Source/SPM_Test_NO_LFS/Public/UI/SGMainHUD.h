@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Gear/Weapons/jola6902_GunsComponent.h"
 #include "GameFramework/HUD.h"
+#include "SlateWidgets/SWidgetData/StyleSetData.h"
 #include "SlateWidgets/SWidgetData/WidgetConstructionData.h"
 #include "Widgets/SWeakWidget.h"
 #include "SGMainHUD.generated.h"
@@ -10,6 +11,13 @@
 class SDefaultMenu;
 class USGMainHUDWidget;
 class ASGPlayerCharacter;
+
+UENUM()
+enum EGameMenuState : uint8
+{
+	Pause, GameOver, Victory
+};
+
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGMainHUD : public AHUD
@@ -26,8 +34,7 @@ public:
 
 	void InitHUD();
 	void InitStartMenu(bool AddToViewport = true);
-	void InitPauseMenu();
-	void InitGameOverMenu();
+	void InitGameMenus();
 
 	void EnterUIMode();
 
@@ -41,7 +48,7 @@ public:
 	void StartDifficultyBar();
 
 	void PauseGame();
-	void GameOver();
+	void PlayerDeath();
 
 	void RestartGame();
 	void LoadMap(const FName& LevelName);
@@ -52,7 +59,11 @@ public:
 private:
 	bool IsGameLevel() const;
 
-	static FButtonData CreateMenuButtonData(const FText& ButtonText, const FOnClicked& OnClicked);
+	static FButtonData CreateMenuButtonData(const FText& ButtonText, const FOnClicked& OnClicked, FName ButtonStyleName = StyleNames::MenuButton(), FName TextStyleName = StyleNames::MenuButtonText());
+	static FTextData CreateTextData(const FText& Text, const FName StyleName);
+	static FBackgroundData CreateBackgroundData(const FSlateColor& BackgroundColor, const FAlignmentData& AlignmentData);
+	static FButtonGroupData CreateButtonGroupData(const TArray<FButtonData>& ButtonDataArray, const EOrientation Orientation = Orient_Vertical, const FAlignmentData&AlignmentData ={HAlign_Fill, VAlign_Top});
+	static FMenuData CreateMenuData(const FTextData& TextData, const FButtonGroupData& ButtonGroupData, const FBackgroundData& BackgroundData = FBackgroundData(), FAlignmentData MenuAlignmentData = {HAlign_Fill, VAlign_Top});
 
 protected:
 	FDelegateHandle PostLoadMapDelegateHandle;
@@ -80,4 +91,10 @@ protected:
 
 	TSharedPtr<SDefaultMenu> GameOverMenuSlateWidget;
 	TSharedPtr<SWeakWidget> GameOverMenuWidget;
+
+	TSharedPtr<SDefaultMenu> GameMenuSlateWidget;
+	TSharedPtr<SWeakWidget> GameMenuWidget;
+
+	EGameMenuState LastGameMenuState = Pause;
+	TMap<EGameMenuState, FMenuData> GameMenusData;
 };
