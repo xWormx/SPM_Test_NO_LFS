@@ -66,6 +66,12 @@ private:
 	USkeletalMeshComponent* WeaponMesh;
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void BPFire();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BPReload();
+	
 	FOnPlayerIsReady OnPlayerIsReady;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Uproperty - Player | Weapons")
