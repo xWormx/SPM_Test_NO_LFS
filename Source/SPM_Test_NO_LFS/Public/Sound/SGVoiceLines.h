@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "SGVoiceLines.generated.h"
 
+class USoundCue;
+class UAudioComponent;
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGVoiceLines : public AActor
 {
@@ -17,4 +20,11 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	UAudioComponent* AudioComponent;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="sound",meta=(AllowPrivateAccess = "true"))
+	USoundCue* TestSoundCue;
 };
