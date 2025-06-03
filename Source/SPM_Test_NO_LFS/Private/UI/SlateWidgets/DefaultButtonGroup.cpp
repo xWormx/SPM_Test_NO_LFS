@@ -1,5 +1,5 @@
-﻿#include "DefaultButtonGroup.h"
-#include "DefaultButton.h"
+﻿#include "../../../Public/UI/SlateWidgets/DefaultButtonGroup.h"
+#include "../../../Public/UI/SlateWidgets/DefaultButton.h"
 
 void SDefaultButtonGroupWidget::Construct(const FArguments& InArgs)
 {

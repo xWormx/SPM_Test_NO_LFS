@@ -1,6 +1,6 @@
-﻿#include "DefaultMenu.h"
-#include "DefaultButton.h"
-#include "DefaultButtonGroup.h"
+﻿#include "../../../Public/UI/SlateWidgets/DefaultMenu.h"
+#include "../../../Public/UI/SlateWidgets/DefaultButton.h"
+#include "../../../Public/UI/SlateWidgets/DefaultButtonGroup.h"
 #include "SPM_Test_NO_LFS.h"
 
 void SDefaultMenu::Construct(const FArguments& InArgs)

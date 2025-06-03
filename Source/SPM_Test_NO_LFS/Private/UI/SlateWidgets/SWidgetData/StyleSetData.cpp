@@ -1,7 +1,7 @@
-﻿#include "StyleSetData.h"
+﻿#include "../../../../Public/UI/SlateWidgets/SWidgetData/StyleSetData.h"
 
 #include "SPM_Test_NO_LFS.h"
-#include "StylingTheme.h"
+#include "../../../../Public/UI/SlateWidgets/SWidgetData/StylingTheme.h"
 #include "Styling/CoreStyle.h"
 #include "Styling/SlateStyleRegistry.h"
 #include "Utils/SGDeveloperSettings.h"
