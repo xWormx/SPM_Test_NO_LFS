@@ -20,7 +20,7 @@ protected:
 
 private:
 	UFUNCTION(BlueprintCallable)
-	void PlaySound(USoundBase* Sound);
+	void PlaySound(USoundBase* Sound, float Cooldown);
 	
 	UPROPERTY(VisibleAnywhere,Category="editor")
 	UAudioComponent* AudioComponent;
@@ -30,11 +30,19 @@ private:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="editor",meta=(AllowPrivateAccess = "true"))
 	TArray<USoundBase*> Sounds;
-
-	// Delegate handlers
+	
 	void BindDelegateHandlers() const;
+
+	class ASGPlayerCharacter* PlayerRef = nullptr;
+	class USGObjectiveHandlerSubSystem* ObjectiveHandlerRef = nullptr;
 
 public:
 	UFUNCTION()
-	void PlayFluffCue(class ASGEnemyCharacter* Enemy);
+	void Voice_Fluff(class ASGEnemyCharacter* Enemy);
+
+	UFUNCTION()
+	void Voice_Reload(int32 GunIndex, class ASGGun* Gun);
+
+	UFUNCTION()
+	void Voice_FindTerminal(EObjectiveType ObjectiveType);
 };

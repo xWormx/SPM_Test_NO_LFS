@@ -9,6 +9,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/SGHealthComponent.h"
 #include "Components/Counters/SGCounterComponentAmmo.h"
+#include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/SGMainHUD.h"
@@ -89,6 +90,7 @@ void ASGPlayerController::SetupInputComponent()
 
 	// Calle: TestButton
 	Input->BindAction(TestButtonAction, ETriggerEvent::Triggered, this, &ASGPlayerController::TestButtonPressed);
+	Input->BindAction(TestLoadButtonAction, ETriggerEvent::Triggered, this, &ASGPlayerController::TestLoadButtonPressed);
 
 	if (!ensure(GetLocalPlayer()))
 	{
@@ -163,6 +165,11 @@ void ASGPlayerController::Grapple([[maybe_unused]] const FInputActionValue& Valu
 void ASGPlayerController::TestButtonPressed(const FInputActionValue& Value)
 {
 	OnTestButtonPressed.Broadcast();
+}
+
+void ASGPlayerController::TestLoadButtonPressed(const FInputActionValue& Value)
+{
+	OnTestLoadButtonPressed.Broadcast();
 }
 
 //---- HELPERS

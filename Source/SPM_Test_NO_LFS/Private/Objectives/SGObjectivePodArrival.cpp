@@ -52,7 +52,15 @@ void ASGObjectivePodArrival::Tick(float DeltaTime)
 				FString TimeLeftStr = FString::Printf(TEXT("%02d : %02d"), Minutes, Seconds);
 
 				USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 1);
-				HBoxObjective->SetValue(FText::FromString(TimeLeftStr));
+				if (HBoxObjective == nullptr)
+				{
+					CALLE_LOG(Error, TEXT("Hbox was null"));
+				}
+				else
+				{
+					HBoxObjective->SetValue(FText::FromString(TimeLeftStr));	
+				}
+				
 			}
 		}
 	}
@@ -105,6 +113,11 @@ void ASGObjectivePodArrival::StartMainPhase(UPrimitiveComponent* OverlappedCompo
 			SetCurrentProgressElementCompleted("Completed!");
 			
 			USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 0);
+			if (HBoxObjective == nullptr)
+			{
+				CALLE_LOG(Error, TEXT("ASGPodArrival: HBox was nullptr"));
+				return;
+			}
 			HBoxObjective->PlayAnimationValueCompleted();
 			
 			AdvanceCurrentObjectiveStep();
@@ -118,6 +131,20 @@ void ASGObjectivePodArrival::StartMainPhase(UPrimitiveComponent* OverlappedCompo
 	}
 }
 
+void ASGObjectivePodArrival::ResetPodArrivalTimer()
+{
+	// Stop and reset the timer
+	GetWorldTimerManager().ClearTimer(TimerHandle);
+
+	// Reset internal state (optional, depending on your needs)
+	bWaitForPodEventStarted = false;
+	bWaitForPodEventPaused = false;
+	bWaitForPodDone = false;
+
+	// Log or trigger reset logic if needed
+	UE_LOG(LogTemp, Warning, TEXT("Pod arrival timer has been reset."));
+}
+
 void ASGObjectivePodArrival::OnTimeIsOut()
 {
 	ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->Display(GetObjectiveCompletedToolTip());
@@ -127,6 +154,11 @@ void ASGObjectivePodArrival::OnTimeIsOut()
 	SetCurrentProgressElementCompleted("Pod is here!");
 	
 	USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 1);
+	if (HBoxObjective == nullptr)
+	{
+		CALLE_LOG(Error, TEXT("ASGPodArrival: HBox was nullptr"));
+		return;
+	}
 	HBoxObjective->PlayAnimationValueCompleted();
 	
 	// Detta måste ske med en delay annars kommer animation för progress window elementet (HorizontalBoxObjective) att avbrytas
@@ -150,6 +182,11 @@ void ASGObjectivePodArrival::PauseMainPhase(UPrimitiveComponent* OverlappedCompo
 	if (bWaitForPodEventStarted && !bWaitForPodDone)
 	{
 		USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 1);
+		if (HBoxObjective == nullptr)
+		{
+			CALLE_LOG(Error, TEXT("HBox was nullptr"));
+			return;
+		}
 		HBoxObjective->SetValue(FText::FromString("Return to Pod!"));
 		HBoxObjective->PlayUpdateValueAnimation();
 		
@@ -173,6 +210,11 @@ void ASGObjectivePodArrival::UnPauseMainPhase(UPrimitiveComponent* OverlappedCom
 	if (bWaitForPodEventStarted && !bWaitForPodDone)
 	{
 		USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 1);
+		if (HBoxObjective == nullptr)
+		{
+			CALLE_LOG(Error, TEXT("HBox was nullptr"));
+			return;
+		}
 		HBoxObjective->PlayUpdateValueAnimation();
 		bWaitForPodEventPaused = false;
 		

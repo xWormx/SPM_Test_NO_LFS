@@ -10,6 +10,7 @@ class UCameraShakeBase;
 class UUserWidget;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteract);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTestButtonPressed);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTestLoadButtonPressed);
 
 class ASGPlayerCharacter;
 
@@ -40,6 +41,7 @@ private:
 	void LookAround(const FInputActionValue& Value);
 	void Grapple(const FInputActionValue& Value);
 	void TestButtonPressed(const FInputActionValue& Value);
+	void TestLoadButtonPressed(const FInputActionValue& Value);
 	ASGPlayerCharacter* GetValidPlayerCharacter();
 
 //----Start: Added by Basir
@@ -65,6 +67,7 @@ private:
 public:
 	FOnInteract OnInteract;
 	FOnTestButtonPressed OnTestButtonPressed;
+	FOnTestLoadButtonPressed OnTestLoadButtonPressed;
 	
 	void SetCanInteractWithTerminal(const bool bInteract);
 	void SetWantToInteractWithTerminal(const bool bInteract);
@@ -97,11 +100,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Interaction")
 	UInputAction* GrappleInputAction;
 
-	//----Start: Added by Basir
+	//----Start: Added by Calle
 	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Interaction")
 	UInputAction* TestButtonAction;
-	
-	//----End: Added by Basir
+
+	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | Interaction")
+	UInputAction* TestLoadButtonAction;
+	//----End: Added by Calle
 	
 //----Start: Added by Basir
 	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | Input | UI")

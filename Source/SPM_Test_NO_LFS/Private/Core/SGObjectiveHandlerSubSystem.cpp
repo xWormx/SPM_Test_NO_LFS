@@ -14,6 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGDataAssetObjective.h"
 #include "Objectives/SGHorizontalBoxObjective.h"
+#include "Objectives/SGObjectiveCollectEmAll.h"
 #include "Objectives/Config/SGObjectiveConfig.h"
 #include "Objectives/SGObjectiveDefendThePod.h"
 #include "Objectives/SGObjectivePodArrival.h"
@@ -37,16 +38,30 @@ void USGObjectiveHandlerSubSystem::Deinitialize()
 void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
+	
 	InitializeObjectiveToolTip();
-	ReadObjectiveDataAsset();
-	//UE_LOG(LogTemp, Warning, TEXT("ObjectiveHandler: Instance is of class %s, address: %p"), *GetClass()->GetName(), this);
 
+	USGGameInstance* GameInstance = GetWorld()->GetGameInstance<USGGameInstance>();
+	if (GameInstance)
+	{
+		FObjectiveSaveData ObjectiveSaveData; // = funktion som basir skapar
+		if (ObjectiveSaveData.ShouldLoad)
+		{
+			OnLoadGame(ObjectiveSaveData);
+		}
+		else
+		{
+			ReadObjectiveDataAsset();		
+		}
+	}
+	
 
 	ASGPlayerController* Controller = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (Controller)
 	{
 		if (!Controller->OnTestButtonPressed.IsAlreadyBound(this, &USGObjectiveHandlerSubSystem::OnTestButtonPressed))
 			Controller->OnTestButtonPressed.AddDynamic(this, &USGObjectiveHandlerSubSystem::OnTestButtonPressed);
+		
 	}
 }
 
@@ -61,43 +76,53 @@ bool USGObjectiveHandlerSubSystem::ShouldCreateSubsystem(UObject* Outer) const
 
 void USGObjectiveHandlerSubSystem::OnLoadGame(FObjectiveSaveData SaveData)
 {
-	InitializeObjectiveToolTip();
+	ObjectiveToolTipWidget->ClearProgressWindowElements();
+	TerminalHUD->EnableStartButton();
+	OnObjectiveCompleted.Broadcast();
+
 	ReadObjectiveDataAsset();
-	
+
+	// Måste göra denna för att annars Spawnar det infinite collectables....
+	ASGObjectiveCollectEmAll* CollectObj = Cast<ASGObjectiveCollectEmAll>(GameObjectives[1]);
+	if (CollectObj)
+		CollectObj->HideCollectables();
+
+	ASGObjectivePodArrival* PodArrivalObj = Cast<ASGObjectivePodArrival>(GameObjectives[2]);
+	if (PodArrivalObj)
+		PodArrivalObj->ResetPodArrivalTimer();
+
 	if (GameObjectives.Num() >  0)
 	{
-		for (int i = 0; i < SaveData.ObjectiveIndex; i++)	
+		for (int i = 0; i < SaveData.NumObjectivesCompleted; i++)	
 		{
-			//ObjectiveSaveData.Add(GameObjectives[i]->Save());
+			GameObjectives[i]->SetCompleted();
+	}
+		for (int i = 0; i < SaveData.NumObjectivesCompleted; i++)	
+		{
+			RemoveCurrentObjective();
 		}
 	}
 }
 
-void USGObjectiveHandlerSubSystem::OnSaveGame(FObjectiveSaveData SaveData)
+FObjectiveSaveData USGObjectiveHandlerSubSystem::GetSaveGameData()
 {
-	/*
-		Vad har vi som behöver sparas?
-		- GameObjectives
-		- CurrentObjective
-	 */
-
+	FObjectiveSaveData SaveData = {};
+	
+	// Sätter denna till 1 från början för när vi loopar igenom CompletedObjectives vid Load så måste vi loada index [0] om vi klarat 1 objective
+	int i = 1;
 	for (ASGObjectiveBase* Objective : ObjectivesCompleted)
 	{
-		USGObjectiveSaveData* ObjectiveSaveData = Objective->Save();
-		int i = 0;
+		SaveData.NumObjectivesCompleted = i++;
 	}
 	
+	SaveData.ShouldLoad = true;
+	
+	return SaveData;
 }
 
 void USGObjectiveHandlerSubSystem::OnTestButtonPressed()
 {
-	FObjectiveSaveData Data;
-	Data.ObjectiveIndex = 2;
-	
-	//OnLoadGame(Data);
-	//OnSaveGame(Data);
 	//ObjectiveToolTipWidget->ClearProgressWindowElements();
-	//CurrentObjective->ClearProgressWindowElements();
 	
 	int i = 0;
 }
@@ -141,26 +166,26 @@ void USGObjectiveHandlerSubSystem::ReadObjectiveDataAsset()
 	}
 	else
 	{
-		if (GameObjectives.IsEmpty())
+		if (!GameObjectives.IsEmpty())
+			GameObjectives.Empty();
+		
+		int32 ObjectiveID = 0;
+		for (USGObjectiveConfig* Config : ObjectiveDataAsset->ObjectiveConfigs)
 		{
-			int32 ObjectiveID = 0;
-			for (USGObjectiveConfig* Config : ObjectiveDataAsset->ObjectiveConfigs)
+			if (!Config || !*Config->ObjectiveClass)
+				continue;
+
+			FActorSpawnParameters SpawnParams;
+			ASGObjectiveBase* SpawnedObjective = GetWorld()->SpawnActor<ASGObjectiveBase>(Config->ObjectiveClass, SpawnParams);
+			if (SpawnedObjective)
 			{
-				if (!Config || !*Config->ObjectiveClass)
-					continue;
+				Config->ApplyData(SpawnedObjective);
+				
+				SpawnedObjective->SetObjectivID(ObjectiveID++);
 
-				FActorSpawnParameters SpawnParams;
-				ASGObjectiveBase* SpawnedObjective = GetWorld()->SpawnActor<ASGObjectiveBase>(Config->ObjectiveClass, SpawnParams);
-				if (SpawnedObjective)
-				{
-					Config->ApplyData(SpawnedObjective);
-					
-					SpawnedObjective->SetObjectivID(ObjectiveID++);
-
-					GameObjectives.Add(SpawnedObjective);
-				}
-			}	
-		}
+				GameObjectives.Add(SpawnedObjective);
+			}
+		}	
 	}
 }
 
@@ -312,7 +337,6 @@ void USGObjectiveHandlerSubSystem::RemoveCurrentObjective()
 	// Ta bort avklarat objective från Arrayen
 	if (GameObjectives.Num() > 0)
 	{
-		ObjectivesCompleted.Add(CurrentObjective);
 		GameObjectives.RemoveAt(0);
 		if (GameObjectives.Num() <= 0)
 		{
