@@ -75,6 +75,8 @@ public:
 	FOnObjectiveCompleted OnObjectiveCompleted;
 	FOnObjectiveCompletedWithType OnObjectiveCompletedWithType;
 	FOnObjectiveStartedWithType OnObjectiveStartedWithType;
+
+	
 	FOnEndGame OnEndGame;
 	
 	UFUNCTION()

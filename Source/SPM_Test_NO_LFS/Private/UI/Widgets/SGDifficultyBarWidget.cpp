@@ -1,5 +1,6 @@
 #include "UI/Widgets/SGDifficultyBarWidget.h"
 
+#include "Blueprint/WidgetTree.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
 #include "Core/SGGameInstance.h"
@@ -21,12 +22,29 @@ void USGDifficultyBarWidget::NativeConstruct()
 			ObjectiveToolTipWidget->OnDifficultyChanged.AddDynamic(GameInstance, &USGGameInstance::IncreaseDifficultyLevel);	
 		}#1#
 	}*/
-
+/*
 	OverlayWarningMessage->SetVisibility(ESlateVisibility::Hidden);
 	Overlays.Add(OverlayDifficulty);
 	Overlays.Add(OverlayDifficulty_1);
 	Overlays.Add(OverlayDifficulty_2);
 	Overlays.Add(OverlayDifficulty_3);
+*/
+	
+	TArray<UWidget*> AllWidgets;
+	WidgetTree->GetAllWidgets(AllWidgets);
+
+	for (UWidget* Widget : AllWidgets)
+	{
+		if (UOverlay* Overlay = Cast<UOverlay>(Widget))
+		{
+			if (Overlay->GetName().Contains("OverlayDifficulty"))
+			{
+				Overlays.Add(Overlay);
+			}
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Found %d overlays"), Overlays.Num());
 }
 
 void USGDifficultyBarWidget::PauseDifficultyBar(const bool bPauseBar)
@@ -100,7 +118,7 @@ bool USGDifficultyBarWidget::LastDifficultNotReached()
 	const float LastOverlayAbsolutePosition = LastOverlay->GetCachedGeometry().GetAbsolutePosition().X;
 	const float WhereToStop = GetTriggerAbsolutePositionX() - LastOverlay->GetCachedGeometry().GetAbsoluteSize().X / 2;
 
-	return LastOverlayAbsolutePosition >= WhereToStop && LastOverlayAbsolutePosition < 0.f;
+	return LastOverlayAbsolutePosition >= WhereToStop && LastOverlayAbsolutePosition > 0.f;
 }
 
 bool USGDifficultyBarWidget::LastDifficultBoxNotCenteredAtTrigger() const
