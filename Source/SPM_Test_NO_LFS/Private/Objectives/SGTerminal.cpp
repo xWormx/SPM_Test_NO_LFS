@@ -63,12 +63,7 @@ void ASGTerminal::BeginPlay()
 	{
 		ObjectiveHandlerSubSystem->OnObjectiveCompleted.AddDynamic(this, &ASGTerminal::SetAlertActive);
 	}
-	/*
-	if (GameObjectivesHandler)
-	{
-		GameObjectivesHandler->OnObjectiveCompleted.AddDynamic(this, &ASGTerminal::SetAlertActive);	
-	}
-	*/
+	
 	if (SpriteComponentAlert)
 	{
 		SpriteComponentAlert->SetSprite(SpriteAlertAsset);

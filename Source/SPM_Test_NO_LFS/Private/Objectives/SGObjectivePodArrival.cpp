@@ -19,9 +19,6 @@ ASGObjectivePodArrival::ASGObjectivePodArrival()
 	Root = CreateDefaultSubobject<USceneComponent>("Root");
 	SetRootComponent(Root);
 
-	//MeshPod = CreateDefaultSubobject<USkeletalMeshComponent>("MeshPod");
-	//MeshPod->SetupAttachment(Root);
-
 	SphereInteractArea = CreateDefaultSubobject<USphereComponent>("SphereInteractAArea");
 	SphereInteractArea->SetupAttachment(Root);
 	
@@ -54,8 +51,8 @@ void ASGObjectivePodArrival::Tick(float DeltaTime)
 				int Seconds = TimeLeft - (Minutes * 60);
 				FString TimeLeftStr = FString::Printf(TEXT("%02d : %02d"), Minutes, Seconds);
 
-				int ProgressStep = GetCurrentProgressStep();
-				HorizontalBoxProgressElement[ProgressStep]->SetValue(FText::FromString(TimeLeftStr));
+				USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 1);
+				HBoxObjective->SetValue(FText::FromString(TimeLeftStr));
 			}
 		}
 	}
@@ -64,16 +61,19 @@ void ASGObjectivePodArrival::Tick(float DeltaTime)
 void ASGObjectivePodArrival::OnStart()
 {
 	Super::OnStart();
+	
 	ObjectiveHandlerSubSystem->RegisterPodArrival(this);
-	HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(ObjectiveProgressText[0]), FText::FromString("Not Completed!")));
+	
+	ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
+		GetObjectiveID(),
+		FText::FromString(ObjectiveProgressText[0]),
+		FText::FromString("Not Completed!"));
+	
 	bLandingZoneSearchStarted = true;
 }
 
 bool ASGObjectivePodArrival::IsCompleted()
 {
-	//if (AnimationPodOpen)
-	//	MeshPod->PlayAnimation(AnimationPodOpen, false);
-		
 	return bWaitForPodDone;
 }
 
@@ -81,12 +81,11 @@ void ASGObjectivePodArrival::OnCompleted()
 {
 	Super::OnCompleted();
 
-	SetCurrentProgressElementCompleted("Pod is here!");
+
 }
 
 void ASGObjectivePodArrival::Update()
 {
-	
 }
 
 void ASGObjectivePodArrival::StartMainPhase(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
@@ -103,15 +102,17 @@ void ASGObjectivePodArrival::StartMainPhase(UPrimitiveComponent* OverlappedCompo
 
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &ASGObjectivePodArrival::OnTimeIsOut, TimeToWaitForPodPodSeconds, false);
 
-			if (HorizontalBoxProgressElement.IsEmpty())
-				return;
-			
 			SetCurrentProgressElementCompleted("Completed!");
-
-			AdvanceCurrentObjectiveStep();
 			
-			HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(ObjectiveProgressText[1]), FText::FromString(TEXT("00 : 00"))));
+			USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 0);
+			HBoxObjective->PlayAnimationValueCompleted();
+			
+			AdvanceCurrentObjectiveStep();
 
+			ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
+						GetObjectiveID(),
+						FText::FromString(ObjectiveProgressText[1]),
+						FText::FromString(TEXT("00 : 00")));
 			OnWaitForPodEventStart.Broadcast();
 		}
 	}
@@ -123,7 +124,19 @@ void ASGObjectivePodArrival::OnTimeIsOut()
 	
 	bWaitForPodDone = true;
 	
-	OnWaitForPodEventEnd.Broadcast(this);
+	SetCurrentProgressElementCompleted("Pod is here!");
+	
+	USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 1);
+	HBoxObjective->PlayAnimationValueCompleted();
+	
+	// Detta måste ske med en delay annars kommer animation för progress window elementet (HorizontalBoxObjective) att avbrytas
+	// Då bara en PlayAnimation verkar kunna va igång samtidgt.
+	FTimerHandle DelayHandle;
+	GetWorldTimerManager().SetTimer(DelayHandle, [this]()
+	{
+		OnWaitForPodEventEnd.Broadcast(this);
+	}, 1.0f, false); // Justera delay så att den matchar animationen
+	
 }
 
 void ASGObjectivePodArrival::PauseMainPhase(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -136,9 +149,9 @@ void ASGObjectivePodArrival::PauseMainPhase(UPrimitiveComponent* OverlappedCompo
 		
 	if (bWaitForPodEventStarted && !bWaitForPodDone)
 	{
-		int ProgressStep = GetCurrentProgressStep();
-		HorizontalBoxProgressElement[ProgressStep]->SetValue(FText::FromString("Return to Pod!"));
-		HorizontalBoxProgressElement[ProgressStep]->PlayUpdateValueAnimation();
+		USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 1);
+		HBoxObjective->SetValue(FText::FromString("Return to Pod!"));
+		HBoxObjective->PlayUpdateValueAnimation();
 		
 		bWaitForPodEventPaused = true;
 		
@@ -159,9 +172,8 @@ void ASGObjectivePodArrival::UnPauseMainPhase(UPrimitiveComponent* OverlappedCom
 	
 	if (bWaitForPodEventStarted && !bWaitForPodDone)
 	{
-		int ProgressStep = GetCurrentProgressStep();
-		HorizontalBoxProgressElement[ProgressStep]->PlayUpdateValueAnimation();
-		
+		USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 1);
+		HBoxObjective->PlayUpdateValueAnimation();
 		bWaitForPodEventPaused = false;
 		
 		GetWorldTimerManager().UnPauseTimer(TimerHandle);

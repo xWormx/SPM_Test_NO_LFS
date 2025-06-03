@@ -5,10 +5,8 @@
 
 #include "SPM_Test_NO_LFS.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
-#include "Kismet/GameplayStatics.h"
-#include "Objectives/SGGameObjectivesHandler.h"
-#include "Objectives/SGHorizontalBoxObjective.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
+#include "Objectives/SGHorizontalBoxObjective.h"
 #include "Objectives/SaveData/SGObjectiveSaveData.h"
 // Sets default values
 ASGObjectiveBase::ASGObjectiveBase()
@@ -36,9 +34,14 @@ void ASGObjectiveBase::LoadCompleted()
 {
 	for (int i = 0; i < ObjectiveProgressText.Num(); i++)
 	{
+		/*
 		HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElementCompleted(
 			FText::FromString(ObjectiveProgressText[i]),
 			FText::FromString("Completed")));
+*/
+		ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
+			GetObjectiveID(),
+			FText::FromString(ObjectiveProgressText[i]), FText::FromString("Completed"));
 	}
 	
 }
@@ -107,10 +110,16 @@ void ASGObjectiveBase::SaveBaseData(USGObjectiveSaveData* SaveData)
 
 void ASGObjectiveBase::SetCurrentProgressElementCompleted(FString InTextCompleted)
 {
+	USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, GetCurrentProgressStep());
+	HBoxObjective->ShowSucceed();
+	HBoxObjective->SetValue(FText::FromString(InTextCompleted));
+	HBoxObjective->SetKeyAndValueOpacity(0.5);
+/*
 	int ProgressStep = GetCurrentProgressStep();
 	HorizontalBoxProgressElement[ProgressStep]->ShowSucceed();
 	HorizontalBoxProgressElement[ProgressStep]->SetValue(FText::FromString(InTextCompleted));
 	HorizontalBoxProgressElement[ProgressStep]->SetKeyAndValueOpacity(0.5);
+*/
 }
 
 FText ASGObjectiveBase::GetObjectiveDescriptionToolTip()
