@@ -3,8 +3,8 @@
 
 FButtonData SGWidgetFactory::MenuButton(const FText& ButtonText, const FOnClicked& OnClicked, const bool bPrimary)
 {
-	FName ButtonStyleName = bPrimary ? StyleNames::MenuPrimaryButton() : StyleNames::MenuButton();
-	FName TextStyleName = bPrimary ? StyleNames::MenuPrimaryButtonText() : StyleNames::MenuButtonText();
+	FName ButtonStyleName = bPrimary ? StyleNames::MenuPrimaryButton() : StyleNames::MenuSecondaryButton();
+	FName TextStyleName = bPrimary ? StyleNames::MenuPrimaryButtonText() : StyleNames::MenuSecondaryButtonText();
 
 	FButtonData Button = FButtonData();
 	Button.OnClicked = OnClicked;
@@ -24,11 +24,7 @@ FTextData SGWidgetFactory::CreateTextData(const FText& Text, const FName StyleNa
 
 FTextData SGWidgetFactory::CreateHeader(const FText& Text, bool bMenu)
 {
-	FName StyleName = StyleNames::MenuHeaderText();
-	FTextData TextData;
-	TextData.Text = Text;
-	TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleName);
-	return TextData;
+	return CreateTextData(Text, StyleNames::MenuHeaderText());
 }
 
 FBackgroundData SGWidgetFactory::Background(const FSlateColor& BackgroundColor, const FAlignmentData& AlignmentData)
