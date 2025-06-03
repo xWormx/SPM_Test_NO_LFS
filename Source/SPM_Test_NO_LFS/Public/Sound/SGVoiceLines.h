@@ -20,7 +20,7 @@ protected:
 
 private:
 	UFUNCTION(BlueprintCallable)
-	void PlaySound(USoundBase* Sound);
+	void PlaySound(USoundBase* Sound, float Cooldown);
 	
 	UPROPERTY(VisibleAnywhere,Category="editor")
 	UAudioComponent* AudioComponent;
@@ -34,6 +34,7 @@ private:
 	void BindDelegateHandlers() const;
 
 	class ASGPlayerCharacter* PlayerRef = nullptr;
+	class USGObjectiveHandlerSubSystem* ObjectiveHandlerRef = nullptr;
 
 public:
 	UFUNCTION()
@@ -43,5 +44,5 @@ public:
 	void Voice_Reload(int32 GunIndex, class ASGGun* Gun);
 
 	UFUNCTION()
-	void Voice_FindTerminal();
+	void Voice_FindTerminal(EObjectiveType ObjectiveType);
 };
