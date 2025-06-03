@@ -1,5 +1,7 @@
-﻿#include "SGWidgetFactory.h"
-#include "SlateWidgets/SWidgetData/StyleSetData.h"
+﻿#include "UI/SGWidgetFactory.h"
+
+#include "UI/SlateWidgets/SWidgetData/StyleSetData.h"
+#include "UI/SlateWidgets/SWidgetData/WidgetConstructionData.h"
 
 FButtonData SGWidgetFactory::MenuButton(const FText& ButtonText, const FOnClicked& OnClicked, const bool bPrimary)
 {
@@ -22,7 +24,7 @@ FTextData SGWidgetFactory::CreateTextData(const FText& Text, const FName StyleNa
 	return TextData;
 }
 
-FTextData SGWidgetFactory::CreateHeader(const FText& Text, bool bMenu)
+FTextData SGWidgetFactory::CreateHeader(const FText& Text, [[maybe_unused]] bool bMenu)
 {
 	return CreateTextData(Text, StyleNames::MenuHeaderText());
 }

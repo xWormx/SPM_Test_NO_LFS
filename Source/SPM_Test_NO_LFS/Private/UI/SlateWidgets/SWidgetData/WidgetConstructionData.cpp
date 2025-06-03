@@ -1,4 +1,4 @@
-﻿#include "WidgetConstructionData.h"
+﻿#include "../../../../Public/UI/SlateWidgets/SWidgetData/WidgetConstructionData.h"
 
 #include <comdef.h>
 
