@@ -1,5 +1,7 @@
 ﻿#include "DefaultButton.h"
 
+#include "SPM_Test_NO_LFS.h"
+
 void SDefaultButtonWidget::Construct(const FArguments& InArgs)
 {
 	ButtonData = InArgs._InButtonData;
@@ -34,6 +36,16 @@ void SDefaultButtonWidget::SetButtonData(const FButtonData& InButtonData)
 		];
 		ButtonTextWidget = StaticCastSharedRef<STextBlock>(ButtonWidget->GetChildren()->GetChildAt(0));
 	}
+}
+
+TSharedPtr<SButton> SDefaultButtonWidget::GetButtonWidget() const
+{
+	return ButtonWidget;
+}
+
+TSharedPtr<STextBlock> SDefaultButtonWidget::GetButtonTextWidget() const
+{
+	return ButtonTextWidget;
 }
 
 void UDefaultButtonWidget::ReleaseSlateResources(bool bReleaseChildren)

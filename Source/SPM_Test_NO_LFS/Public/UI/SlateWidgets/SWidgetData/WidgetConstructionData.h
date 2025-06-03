@@ -69,7 +69,10 @@ struct FBackgroundData
 	FSlateColor BackgroundColor = FSlateColor(FLinearColor::Black);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Background Data")
-	FMargin Margin = FMargin(10.f);
+	FSlateBrush BackgroundBrush = FSlateBrush();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Background Data")
+	FMargin Margin = FMargin(0.f);
 
 	void ApplyStyle(TSharedRef<SOverlay>& Overlay) const;
 	TSharedRef<SOverlay>CreateBackgroundOverlay() const;
@@ -85,7 +88,7 @@ struct FButtonGroupData
 	TArray<FButtonData> ButtonDataArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Group Data")
-	FMargin Margin = FMargin(10.f);
+	FMargin Margin = FMargin(20.f, 10.f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Button Group Data")
 	TEnumAsByte<EOrientation> Orientation = Orient_Vertical;

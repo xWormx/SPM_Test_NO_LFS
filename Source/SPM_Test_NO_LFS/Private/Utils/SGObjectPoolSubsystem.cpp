@@ -155,7 +155,6 @@ void USGObjectPoolSubsystem::AddActorsToPool(const TSubclassOf<AActor>& ObjectCl
 		}
 		if (i == 0 && Pool.Actors.IsEmpty())
 		{
-			EMMA_LOG(Log, TEXT("Creating template for %s"), *ObjectClass->GetName());
 			Pool.ActorTemplate.MakeTemplateOfActorRuntime(NewObject);
 		}
 		Pool.ActorTemplate.ApplyToActorRuntime(NewObject, false);

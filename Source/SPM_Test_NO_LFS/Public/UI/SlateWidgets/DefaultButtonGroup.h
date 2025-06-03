@@ -25,6 +25,7 @@ private:
 	TArray<TSharedPtr<SDefaultButtonWidget>> ButtonWidgets;
 };
 
+///⚠️WIP - Not ready for UMG editor. Use SDefaultButtonGroupWidget directly through C++ code instead.
 UCLASS()
 class UDefaultButtonGroupWidget : public UWidget
 {

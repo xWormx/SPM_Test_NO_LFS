@@ -18,14 +18,9 @@ public:
 	void Construct(const FArguments& InArgs);
 	void SetButtonData(const FButtonData& InButtonData);
 
-	TSharedPtr<SButton> GetButtonWidget() const
-	{
-		return ButtonWidget;
-	}
-	TSharedPtr<STextBlock> GetButtonTextWidget() const
-	{
-		return ButtonTextWidget;
-	}
+	TSharedPtr<SButton> GetButtonWidget() const;
+	TSharedPtr<STextBlock> GetButtonTextWidget() const;
+
 private:
 	FButtonData ButtonData;
 	TSharedPtr<SButton> ButtonWidget;

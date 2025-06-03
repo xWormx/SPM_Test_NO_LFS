@@ -23,12 +23,12 @@ public:
 	/*UPROPERTY(Config, EditAnywhere, Category="Object Pool Data Table", meta=(AllowedClasses="/Script/Engine.DataTable", ToolTip="Vilka actors som ska initeras vid start"))
 	FSoftObjectPath ObjectPoolDataTable;*/
 
-	UPROPERTY(Config, EditAnywhere, Category="Weapon UI Data Table", meta=(AllowedClasses="/Script/Engine.DataTable"))
+	UPROPERTY(Config, EditAnywhere, Category="UI| Weapon UI Data Table", meta=(AllowedClasses="/Script/Engine.DataTable"))
 	FSoftObjectPath WeaponUIDataTable;
 
-	UPROPERTY(Config, EditAnywhere, Category="UI Styling", meta=(AllowedClasses="/Script/Engine.DataTable"))
+	UPROPERTY(Config, EditAnywhere, Category="UI| Styling", meta=(AllowedClasses="/Script/Engine.DataTable"))
 	FSoftObjectPath StylingThemeDataTable;
 
-	UPROPERTY(Config, EditAnywhere, Category="UI String Table", meta=(AllowedClasses="/Script/Engine.StringTable"))
+	UPROPERTY(Config, EditAnywhere, Category="UI| String Table", meta=(AllowedClasses="/Script/Engine.StringTable"))
 	FSoftObjectPath UIStringTable;
 };

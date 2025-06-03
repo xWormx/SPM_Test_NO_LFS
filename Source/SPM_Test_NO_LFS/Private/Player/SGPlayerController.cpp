@@ -55,7 +55,6 @@ void ASGPlayerController::BeginPlay()
 	});*/
 	if (PlayerCharacter->HealthComponent)
 		{
-		EMMA_LOG( Warning, TEXT("ASGPlayerController::BeginPlay: Binding HealthComponent events"));
 			USGHealthComponent* HealthComponent = PlayerCharacter->HealthComponent;
 			HealthComponent->OnNoHealth.AddDynamic(this, &ASGPlayerController::EnableGameOver);
 			HealthComponent->OnHurt.AddDynamic(this, &ASGPlayerController::PlayTempDamageEffect);
@@ -103,7 +102,6 @@ void ASGPlayerController::SetupInputComponent()
 	{
 		return;
 	}
-
 	InputSubsystem->AddMappingContext(InputMapping, 0);
 }
 
@@ -242,7 +240,6 @@ void ASGPlayerController::PlayTempDamageEffect([[maybe_unused]] float NewHealth)
 		return;
 	}
 
-	EMMA_LOG (Warning, TEXT("ASGPlayerController::PlayTempDamageEffect: Playing damage effect."));
 	TempDamageEffect->AddToViewport();
 	TempDamageEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
 	if (TempDamageEffectCameraShake)

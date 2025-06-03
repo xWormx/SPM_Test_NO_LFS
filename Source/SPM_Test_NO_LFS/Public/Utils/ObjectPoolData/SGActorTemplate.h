@@ -59,8 +59,7 @@ inline void FActorTemplate::MakeTemplateOfActor<AActor>(AActor* Actor)
 {
     bTickInitiallyEnabled = Actor->IsActorTickEnabled();
     bCollisionInitiallyEnabled = Actor->GetRootComponent()->IsCollisionEnabled();
-    EMMA_LOG(Log, TEXT("FActorTemplate: Made template of actor %s, bTickInitiallyEnabled: %s, bCollisionInitiallyEnabled: %s"),
-        *Actor->GetName(), bTickInitiallyEnabled ? TEXT("true") : TEXT("false"), bCollisionInitiallyEnabled ? TEXT("true") : TEXT("false"));
+
 }
 
 template <>
@@ -70,7 +69,6 @@ inline void FActorTemplate::ApplyToActor<AActor>(AActor* Actor, bool bPrepareFor
     Actor->SetActorEnableCollision(bPrepareForWorld ? bCollisionInitiallyEnabled : false);
     Actor->SetActorTickEnabled(bPrepareForWorld ? bTickInitiallyEnabled : false);
 
-    EMMA_LOG(Log, TEXT("FActorTemplate: Applied template to actor %s"), *Actor->GetName());
 }
 
 //------------RUNTIME
