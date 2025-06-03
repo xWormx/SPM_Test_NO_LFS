@@ -30,22 +30,6 @@ void ASGObjectiveBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASGObjectiveBase::LoadCompleted()
-{
-	for (int i = 0; i < ObjectiveProgressText.Num(); i++)
-	{
-		/*
-		HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElementCompleted(
-			FText::FromString(ObjectiveProgressText[i]),
-			FText::FromString("Completed")));
-*/
-		ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
-			GetObjectiveID(),
-			FText::FromString(ObjectiveProgressText[i]), FText::FromString("Completed"));
-	}
-	
-}
-
 void ASGObjectiveBase::OnStart()
 {
 	if (!ObjectiveSubToolTips.IsEmpty())
@@ -111,15 +95,27 @@ void ASGObjectiveBase::SaveBaseData(USGObjectiveSaveData* SaveData)
 void ASGObjectiveBase::SetCurrentProgressElementCompleted(FString InTextCompleted)
 {
 	USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, GetCurrentProgressStep());
+	if (HBoxObjective == nullptr)
+	{
+		CALLE_LOG(Error, TEXT("ASGObjectiveBase: HBox was nullptr"));
+		return;
+	}
 	HBoxObjective->ShowSucceed();
 	HBoxObjective->SetValue(FText::FromString(InTextCompleted));
 	HBoxObjective->SetKeyAndValueOpacity(0.5);
-/*
-	int ProgressStep = GetCurrentProgressStep();
-	HorizontalBoxProgressElement[ProgressStep]->ShowSucceed();
-	HorizontalBoxProgressElement[ProgressStep]->SetValue(FText::FromString(InTextCompleted));
-	HorizontalBoxProgressElement[ProgressStep]->SetKeyAndValueOpacity(0.5);
-*/
+}
+
+void ASGObjectiveBase::SetCompleted()
+{
+	for (int i = 0; i < ObjectiveProgressText.Num(); i++)
+	{
+		ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
+			GetObjectiveID(),
+			FText::FromString(ObjectiveProgressText[i]), FText::FromString("Completed"));
+		USGHorizontalBoxObjective* HBox =  ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, i);
+		HBox->ShowSucceed();
+		HBox->SetKeyAndValueOpacity(0.5);
+	}
 }
 
 FText ASGObjectiveBase::GetObjectiveDescriptionToolTip()

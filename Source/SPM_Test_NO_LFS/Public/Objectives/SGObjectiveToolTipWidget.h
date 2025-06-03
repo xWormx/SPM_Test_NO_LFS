@@ -10,6 +10,7 @@ Written by
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SGHorizontalBoxObjective.h"
 #include "SGObjectiveBase.h"
 #include "Blueprint/UserWidget.h"
 #include "SGObjectiveToolTipWidget.generated.h"
@@ -71,6 +72,21 @@ public:
 	// NOTE (Calle): Test funktion för att ta bort HBox element i progresswindow
 	void ClearProgressWindowElements()
 	{
+		if (HorizontalBoxObjectiveMap.IsEmpty())
+			return;
+		
+		TArray<int32> Keys;
+		HorizontalBoxObjectiveMap.GetKeys(Keys);
+
+		for (int32 Key : Keys)
+		{
+			FHorizontalBoxList& BoxList = HorizontalBoxObjectiveMap[Key];
+
+			for (USGHorizontalBoxObjective* HBox : BoxList.HorizontalBoxElements)
+			{
+				HBox->RemoveFromParent();
+			}
+		}
 		HorizontalBoxObjectiveMap.Empty();
 	}
 protected:
