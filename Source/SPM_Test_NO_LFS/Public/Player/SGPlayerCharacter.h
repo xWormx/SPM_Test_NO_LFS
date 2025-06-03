@@ -72,6 +72,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BPReload();
 	
+	UFUNCTION(BlueprintImplementableEvent)
+    void BPWeaponSwapAR();
+    
+    UFUNCTION(BlueprintImplementableEvent)
+    void BPWeaponSwapSG();
+    
+    UFUNCTION(BlueprintImplementableEvent)
+    void BPWeaponSwapGL();
+	
 	FOnPlayerIsReady OnPlayerIsReady;
 
 	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Uproperty - Player | Weapons")

@@ -2,7 +2,7 @@
 
 
 #include "Objectives/SGObjectiveFinalSweep.h"
-
+#include "Objectives/SGObjectiveToolTipWidget.h"
 #include "Components/BoxComponent.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Objectives/SGHorizontalBoxObjective.h"
@@ -35,7 +35,16 @@ bool ASGObjectiveFinalSweep::IsCompleted()
 void ASGObjectiveFinalSweep::OnStart()
 {
 	Super::OnStart();
-	HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(ObjectiveProgressText[0]), FText::FromString("0")));
+/*
+	HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
+		GetObjectiveID(),
+		FText::FromString(ObjectiveProgressText[0]),
+		FText::FromString("0")));
+*/
+	ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
+	GetObjectiveID(),
+	FText::FromString(ObjectiveProgressText[0]),
+	FText::FromString("0"));
 	EscapeTriggerZone->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
@@ -49,7 +58,9 @@ void ASGObjectiveFinalSweep::Update()
 	Super::Update();
 	IncrementEnemiesKilled();
 	FString StrEnemiesKilled = FString::Printf(TEXT("%d"), CurrentEnemiesKilled);
-	HorizontalBoxProgressElement[GetCurrentProgressStep()]->SetValue(FText::FromString(StrEnemiesKilled));
+	//HorizontalBoxProgressElement[GetCurrentProgressStep()]->SetValue(FText::FromString(StrEnemiesKilled));
+	USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 0);
+	HBoxObjective->SetValue(FText::FromString(StrEnemiesKilled));
 }
 
 void ASGObjectiveFinalSweep::IncrementEnemiesKilled()
@@ -64,6 +75,11 @@ void ASGObjectiveFinalSweep::EndGame(UPrimitiveComponent* OverlappedComponent, A
 	{
 		return;
 	}
+	USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
+	if (ObjectiveHandler == nullptr)
+		return;
 
+	ObjectiveHandler->OnEndGame.Broadcast();
+		
 	CALLE_LOG(Error, TEXT("Game Over - Call some EndGame function here!"));
 }

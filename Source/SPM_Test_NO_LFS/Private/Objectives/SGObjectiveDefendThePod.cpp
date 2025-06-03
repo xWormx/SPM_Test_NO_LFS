@@ -52,7 +52,7 @@ void ASGObjectiveDefendThePod::Tick(float DeltaTime)
 				int Seconds = TimeLeft - (Minutes * 60);
 				FString TimeLeftStr = FString::Printf(TEXT("%02d : %02d"), Minutes, Seconds);
 		
-				HorizontalBoxProgressElement[1]->SetValue(FText::FromString(TimeLeftStr));
+				//HorizontalBoxProgressElement[1]->SetValue(FText::FromString(TimeLeftStr));
 			}
 		}
 	}
@@ -62,7 +62,7 @@ void ASGObjectiveDefendThePod::OnStart(ASGGameObjectivesHandler* ObjectiveHandle
 {
 	Super::OnStart(ObjectiveHandler);
 	ObjectiveHandler->RegisterDefendThePod(this);
-	HorizontalBoxProgressElement.Add(ObjectiveHandler->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString("Find the Pod!"), FText::FromString("Not Completed!")));
+	//HorizontalBoxProgressElement.Add(ObjectiveHandler->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString("Find the Pod!"), FText::FromString("Not Completed!")));
 }
   
 bool ASGObjectiveDefendThePod::IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
@@ -73,9 +73,9 @@ bool ASGObjectiveDefendThePod::IsCompleted(ASGGameObjectivesHandler* ObjectiveHa
 void ASGObjectiveDefendThePod::OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler)
 {
 	Super::OnCompleted(ObjectiveHandler);
-	HorizontalBoxProgressElement[1]->ShowSucceed();
-	HorizontalBoxProgressElement[1]->SetKeyAndValueOpacity(0.5);
-	HorizontalBoxProgressElement[1]->SetValue(FText::FromString("Completed!"));
+	//HorizontalBoxProgressElement[1]->ShowSucceed();
+	//HorizontalBoxProgressElement[1]->SetKeyAndValueOpacity(0.5);
+	//HorizontalBoxProgressElement[1]->SetValue(FText::FromString("Completed!"));
 }
 
 void ASGObjectiveDefendThePod::Update(ASGGameObjectivesHandler* ObjectiveHandler)
@@ -86,7 +86,11 @@ void ASGObjectiveDefendThePod::OnStart()
 {
 	Super::OnStart();
 	ObjectiveHandlerSubSystem->RegisterDefendThePod(this);
-	HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(ObjectiveProgressText[0]), FText::FromString("Not Completed!")));
+	/*HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
+		GetObjectiveID(),
+		FText::FromString(ObjectiveProgressText[0]),
+		FText::FromString("Not Completed!")));
+		*/
 }
   
 bool ASGObjectiveDefendThePod::IsCompleted()
@@ -97,9 +101,9 @@ bool ASGObjectiveDefendThePod::IsCompleted()
 void ASGObjectiveDefendThePod::OnCompleted()
 {
 	Super::OnCompleted();
-	HorizontalBoxProgressElement[1]->ShowSucceed();
-	HorizontalBoxProgressElement[1]->SetKeyAndValueOpacity(0.5);
-	HorizontalBoxProgressElement[1]->SetValue(FText::FromString("Completed!"));
+	//HorizontalBoxProgressElement[1]->ShowSucceed();
+	//HorizontalBoxProgressElement[1]->SetKeyAndValueOpacity(0.5);
+	//HorizontalBoxProgressElement[1]->SetValue(FText::FromString("Completed!"));
 }
 
 void ASGObjectiveDefendThePod::Update()
@@ -123,13 +127,17 @@ void ASGObjectiveDefendThePod::StartMainPhase(UPrimitiveComponent* OverlappedCom
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &ASGObjectiveDefendThePod::OnTimeIsOut, TimeToDefendPodSeconds, false);
 			AdvanceCurrentObjectiveStep();
 	
-			HorizontalBoxProgressElement[0]->ShowSucceed();
-			HorizontalBoxProgressElement[0]->SetValue(FText::FromString("Completed!"));
-			HorizontalBoxProgressElement[0]->SetKeyAndValueOpacity(0.5);
+			//HorizontalBoxProgressElement[0]->ShowSucceed();
+			//HorizontalBoxProgressElement[0]->SetValue(FText::FromString("Completed!"));
+			//HorizontalBoxProgressElement[0]->SetKeyAndValueOpacity(0.5);
 			
 			//HorizontalBoxProgressElement.Add(GetObjectiveHandler()->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString("Defend the Pod!"), FText::FromString(TEXT("00 : 00"))));
-			HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(ObjectiveProgressText[1]), FText::FromString(TEXT("00 : 00"))));
-
+/*
+			HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
+				GetObjectiveID(),
+				FText::FromString(ObjectiveProgressText[1]),
+				FText::FromString(TEXT("00 : 00"))));
+*/
 			OnDefendEventStart.Broadcast();
 		}
 	}
@@ -155,8 +163,8 @@ void ASGObjectiveDefendThePod::PauseMainPhase(UPrimitiveComponent* OverlappedCom
 		
 	if (bDefendEventStarted && !bDefendedThePod)
 	{
-		HorizontalBoxProgressElement[1]->SetValue(FText::FromString("Return to Pod!"));
-		HorizontalBoxProgressElement[1]->PlayUpdateValueAnimation();
+		//HorizontalBoxProgressElement[1]->SetValue(FText::FromString("Return to Pod!"));
+		//HorizontalBoxProgressElement[1]->PlayUpdateValueAnimation();
 		bDefendEventPaused = true;
 		GetWorldTimerManager().PauseTimer(TimerHandle);
 		OnDefendEventPaused.Broadcast();
@@ -176,7 +184,7 @@ void ASGObjectiveDefendThePod::UnPauseMainPhase(UPrimitiveComponent* OverlappedC
 	
 	if (bDefendEventStarted && !bDefendedThePod)
 	{
-		HorizontalBoxProgressElement[1]->PlayUpdateValueAnimation();
+		//HorizontalBoxProgressElement[1]->PlayUpdateValueAnimation();
 		bDefendEventPaused = false;
 		GetWorldTimerManager().UnPauseTimer(TimerHandle);
 		OnDefendEventUnPaused.Broadcast();

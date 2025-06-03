@@ -23,8 +23,6 @@ void USGHorizontalBoxObjective::PauseAllOngoingAnimations()
 		bAnimationValueCompletedWasPaused = true;
 		AnimationValueCompletedPauseTime = PauseAnimation(AnimationValueCompleted);	
 	}
-	
-	
 }
 
 void USGHorizontalBoxObjective::ResumeAllOngoingAnimations()
@@ -126,6 +124,7 @@ void USGHorizontalBoxObjective::HideFail()
 
 void USGHorizontalBoxObjective::PlayAnimationKeyStartObjective()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Playing Startanimation on HorizontalBox: %s"), *GetNameSafe(this));
 	PlayAnimation(AnimationKeyStartObjective);
 }
 
@@ -136,5 +135,6 @@ void USGHorizontalBoxObjective::PlayUpdateValueAnimation()
 
 void USGHorizontalBoxObjective::PlayAnimationValueCompleted()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Playing Completeanimation on HorizontalBox: %s"), *GetNameSafe(this));
 	PlayAnimation(AnimationValueCompleted);
 }

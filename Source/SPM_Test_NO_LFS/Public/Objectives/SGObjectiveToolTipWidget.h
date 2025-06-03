@@ -10,6 +10,7 @@ Written by
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SGObjectiveBase.h"
 #include "Blueprint/UserWidget.h"
 #include "SGObjectiveToolTipWidget.generated.h"
 
@@ -27,7 +28,14 @@ class UScaleBox;
  * 
  */
 
+USTRUCT(BlueprintType)
+struct FHorizontalBoxList
+{
+	GENERATED_BODY()
 
+	UPROPERTY()
+	TArray<USGHorizontalBoxObjective*> HorizontalBoxElements;
+};
 
 UCLASS()
 class SPM_TEST_NO_LFS_API USGObjectiveToolTipWidget : public UUserWidget
@@ -52,15 +60,19 @@ public:
 	void ShowToolTipScaleBox();
 	void HideToolTipScaleBox();
 	
-	void AddProgressTextElement(FText KeyText, FText ValueText);
-	void AddProgressTextElementCompleted(FText KeyText, FText ValueText);
-	
-	USGHorizontalBoxObjective* CreateProgressTextElement(FText KeyText, FText ValueText);
+	USGHorizontalBoxObjective* CreateProgressTextElement(int32 ObjectiveID, FText KeyText, FText ValueText);
 	USGHorizontalBoxObjective* CreateProgressTextElementCompleted(FText KeyText, FText ValueText);
-	USGHorizontalBoxObjective* GetHorizontalBoxAtIndex(int32 index);
-	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective() { return CurrentHorizontalBoxObjectiveElement; }
-	TArray<USGHorizontalBoxObjective*> GetHorizontalBoxObjectiveList() {return HorizontalObjectiveList; }
-
+	void AddHorizontalBoxToMap(int32 ObjectiveID, USGHorizontalBoxObjective* NewWidget);
+	
+	// TODO (Calle): Denna kan returnera mapen istället med CurrentObjective->ID och välj element i Value-arrayen mha CurrentSubStep??
+	USGHorizontalBoxObjective* GetCurrentHorizontalBoxObjective();
+	USGHorizontalBoxObjective* GetHorizontalBoxObjective(ASGObjectiveBase* Objective, int32 BoxIndex);
+	
+	// NOTE (Calle): Test funktion för att ta bort HBox element i progresswindow
+	void ClearProgressWindowElements()
+	{
+		HorizontalBoxObjectiveMap.Empty();
+	}
 protected:
 	
 	virtual void NativeConstruct() override;
@@ -82,10 +94,13 @@ protected:
 	// ProgressWindow NEW
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<USGHorizontalBoxObjective> HorizontalBoxObjectiveClass;
+		
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TArray<USGHorizontalBoxObjective*> HorizontalObjectiveList;
+	TMap<int32, FHorizontalBoxList> HorizontalBoxObjectiveMap;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USGHorizontalBoxObjective* CurrentHorizontalBoxObjectiveElement;
+	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
 	UVerticalBox* VerticalBoxMission;
 	

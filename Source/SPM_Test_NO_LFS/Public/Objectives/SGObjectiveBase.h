@@ -11,14 +11,17 @@ Written by
 
 #include "CoreMinimal.h"
 #include "SGObjectiveInterface.h"
-#include "SGObjectiveToolTipWidget.h"
+
 #include "GameFramework/Actor.h"
 #include "SGObjectiveBase.generated.h"
 
+
+class USGHorizontalBoxObjective;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStart, AActor*, Actor);
 class USGObjectiveSaveData;
 class USGObjectiveHandlerSubSystem;
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStart, AActor*, Actor);
 class ASGGameObjectivesHandler;
+class USGObjectiveToolTipWidget;
 class USGObjectiveToolTipWidget;
 USTRUCT()
 struct FObjectiveBaseSaveData
@@ -83,19 +86,19 @@ public:
 	virtual FText GetCurrentSubToolTip();
 	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_None; }
 
+	int32 GetObjectiveID() { return ObjectiveID; }
+	int32 GetCurrentSubObjectiveStep() { return CurrentSubObjectiveStep; }
+	const int32& GetCurrentProgressStep() const { return CurrentSubObjectiveStep; }
 
+	void SetObjectivID(int32 InObjectiveID) { ObjectiveID = InObjectiveID; }
 	void SetCurrentProgressElementCompleted(FString InTextCompleted);
 	void SetStartDescriptionTooltipText(FString InStartDescriptionTooltipText) { ObjectiveDescriptionToolTip = InStartDescriptionTooltipText; }
 	void SetCompletedDescriptionTooltipText(FString InCompletedDescriptionTooltipText) { ObjectiveCompletedToolTip = InCompletedDescriptionTooltipText; }
 	
 	void AdvanceCurrentObjectiveStep() { CurrentSubObjectiveStep++; }
 	
-	const int32& GetCurrentProgressStep() const { return CurrentSubObjectiveStep; }
-
-	
 	void AddProgressBarText(const TArray<FString>& InProgressBarText) { ObjectiveProgressText = InProgressBarText; }
 	void AddSubTooltips(const TArray<FString>& InSubTooltips) { ObjectiveSubToolTips = InSubTooltips; }
-	
 
 	FOnObjectiveStart OnObjectiveStart;
 	
@@ -103,18 +106,16 @@ protected:
 		
 	UPROPERTY(VisibleAnywhere, Category=UPROPERTY)
 	USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem;
-	
-	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
-	TArray<USGHorizontalBoxObjective*> HorizontalBoxProgressElement;
 
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	TArray<FString> ObjectiveProgressText;
-
 	
 private:
 	UPROPERTY(VisibleAnywhere)
+	int32 ObjectiveID;
+	
+	UPROPERTY(VisibleAnywhere)
 	int32 CurrentSubObjectiveStep;
-
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	FString ObjectiveDescriptionToolTip = "Default Objective Description Tooltip!";
