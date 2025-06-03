@@ -11,12 +11,16 @@
 #include "Objectives/SGTerminal.h"
 #include "Components/Widget.h"
 #include "Core/SGGameInstance.h"
+#include "Internationalization/StringTable.h"
+#include "Internationalization/StringTableCore.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/SGPlayerController.h"
+#include "UI/SGWidgetFactory.h"
 #include "UI/SlateWidgets/DefaultMenu.h"
 #include "UI/SlateWidgets/SWidgetData/StyleSetData.h"
 #include "Widgets/SWeakWidget.h"
 #include "UI/Widgets/SGMainHUDWidget.h"
+#include "Utils/SGDeveloperSettings.h"
 
 #define LOCTEXT_NAMESPACE "SGMainHUD"
 
@@ -24,15 +28,12 @@ void ASGMainHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FStyleSetData::Initialize();
+	FStyleSetData::RefreshStyles();
 
 	if (IsGameLevel())
 	{
 		InitHUD();
 		InitGameMenus();
-		/*InitPauseMenu();
-		InitGameOverMenu();*/
-
 		EnterPlayMode();
 
 		PostLoadMapDelegateHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([this](UWorld* World)
@@ -66,7 +67,6 @@ void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 }
 
 //---- INITS
-
 void ASGMainHUD::BindToPlayerComponentEvents(ASGPlayerCharacter* PlayerCharacter)
 {
 	if (!IsGameLevel() || !PlayerCharacter)
@@ -112,17 +112,18 @@ void ASGMainHUD::InitHUD()
 void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 {
 	// Localized text for buttons and header
-	const FText StartGameText = LOCTEXT("StartGameText", "Start Game");
-	const FText QuitGameText = LOCTEXT("QuitGameText", "Quit Game");
-	const FText MainMenuHeaderText = LOCTEXT("MainMenuHeaderText", "Main Menu");
+	const FText StartGameText = GetUIText("StartGameText");
+	const FText QuitGameText = GetUIText("QuitGameText");
+	const FText MainMenuHeaderText = GetUIText("MainMenuHeaderText");
 
 	// Create buttons
-	FButtonData ButtonDataStartGame = CreateMenuButtonData(StartGameText,FOnClicked::CreateLambda([this]
+	FButtonData ButtonDataStartGame = SGWidgetFactory::MenuButton(StartGameText,FOnClicked::CreateLambda([this]
 		{
 			LoadMap(GameLevelMap);
 			return FReply::Handled();
-		}), StyleNames::MenuPrimaryButton(), StyleNames::MenuPrimaryButtonText());
-	FButtonData ButtonDataQuitGame = CreateMenuButtonData(QuitGameText,FOnClicked::CreateLambda([this]
+		}), true);
+
+	FButtonData ButtonDataQuitGame = SGWidgetFactory::MenuButton(QuitGameText, FOnClicked::CreateLambda([this]
 		{
 			QuitGame();
 			return FReply::Handled();
@@ -131,45 +132,60 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 	//Define background colors for menu
 	FLinearColor StartMenuBackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.8f);
 
-	FMenuData MenuData = CreateMenuData(
-		CreateTextData(MainMenuHeaderText, StyleNames::MenuHeaderText()),
-		CreateButtonGroupData({ ButtonDataStartGame, ButtonDataQuitGame }, Orient_Vertical, FAlignmentData(HAlign_Fill, VAlign_Top)),
-		CreateBackgroundData(StartMenuBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
+	FMenuData MenuData =  SGWidgetFactory::CreateMenuData(
+		MainMenuHeaderText,
+		SGWidgetFactory::ButtonGroup({ ButtonDataStartGame, ButtonDataQuitGame }, Orient_Vertical,
+			FAlignmentData(HAlign_Fill, VAlign_Top)),
+		SGWidgetFactory::Background(StartMenuBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 	{HAlign_Fill, VAlign_Center}
 	);
 
 	// Create the Slate widget for the Start Menu (and add it to the viewport if specified)
-	StartMenuSlateWidget = SNew(SDefaultMenu).InMenuData(MenuData);
+	MenuSlateWidget = SNew(SDefaultMenu).InMenuData(MenuData);
 	if (AddToViewport)
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(StartMenuWidget, SWeakWidget).PossiblyNullContent(StartMenuSlateWidget.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
+
+	//Not really necessary, but for consistency
+	LastGameMenuState = Start;
+	GameMenusData.Add(Start, MenuData);
 }
 
 //TODO: Endgame meny (för när man vinner som visar mängden kills + restart + quit game) (Emma fixar)
 void ASGMainHUD::InitGameMenus()
 {
 	// Localized text for buttons and headers
-	const FText ContinueGameText = LOCTEXT("ContinueGameText", "Continue Game");
+	/*const FText ContinueGameText = LOCTEXT("ContinueGameText", "Continue Game");
 	const FText RestartGameText = LOCTEXT("RestartGameText", "Restart Game");
 	const FText SaveGameText = LOCTEXT("SaveGameText", "Save Game");
 	const FText ReturnToMainMenuText = LOCTEXT("ReturnToMainMenuText", "Return to Main Menu");
 
 	const FText PausedText = LOCTEXT("PausedMenuHeaderText", "Paused");
 	const FText GameOverText = LOCTEXT("GameOverHeaderText", "Game Over");
-	const FText VictoryText = LOCTEXT("VictoryHeaderText", "Victory");
+	const FText VictoryText = LOCTEXT("VictoryHeaderText", "Victory");*/
+	// Localized text for buttons and headers
+	const FText ContinueGameText = GetUIText("ContinueGameText");
+	const FText RestartGameText = GetUIText("RestartGameText");
+	const FText SaveGameText = GetUIText("SaveGameText");
+	const FText ReturnToMainMenuText = GetUIText("ReturnToMainMenuText");
+
+	const FText PausedText = GetUIText("PausedMenuHeaderText");
+	const FText GameOverText = GetUIText("GameOverHeaderText");
+	const FText VictoryText = GetUIText("VictoryHeaderText");
+
 	// Create buttons
-	FButtonData ButtonContinueGame = CreateMenuButtonData(ContinueGameText,FOnClicked::CreateLambda([this]
+	FButtonData ButtonContinueGame = SGWidgetFactory::MenuButton(ContinueGameText,FOnClicked::CreateLambda([this]
 		{
-			ContinueGame(PauseMenuWidget);
+			ContinueGame();
 			return FReply::Handled();
-		}), StyleNames::MenuPrimaryButton(), StyleNames::MenuPrimaryButtonText());
-	FButtonData ButtonRestartGame = CreateMenuButtonData(RestartGameText,FOnClicked::CreateLambda([this]
+		}), true);
+	FButtonData ButtonRestartGame = SGWidgetFactory::MenuButton(RestartGameText,FOnClicked::CreateLambda([this]
 		{
 			RestartGame();
 			return FReply::Handled();
 		}));
-	FButtonData ButtonSaveGame = CreateMenuButtonData(SaveGameText,FOnClicked::CreateLambda([this]
+	FButtonData ButtonSaveGame = SGWidgetFactory::MenuButton(SaveGameText,FOnClicked::CreateLambda([this]
 		{
 			bool bSaved = SaveGame();
 			EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Saving game!"));
@@ -183,7 +199,7 @@ void ASGMainHUD::InitGameMenus()
 			}
 			return FReply::Handled();
 		}));
-	FButtonData ButtonReturnToMainMenu = CreateMenuButtonData(ReturnToMainMenuText,FOnClicked::CreateLambda([this]
+	FButtonData ButtonReturnToMainMenu = SGWidgetFactory::MenuButton(ReturnToMainMenuText,FOnClicked::CreateLambda([this]
 		{
 			LoadMap(MainMenuMap);
 			return FReply::Handled();
@@ -194,43 +210,39 @@ void ASGMainHUD::InitGameMenus()
 	FLinearColor GameOverBackgroundColor = FLinearColor(0.25f, 0.f, 0.f, 0.75f);
 
 	// Collect all data for the Pause and Game Over menus
-	FMenuData PauseMenuData = CreateMenuData(
-		CreateTextData(PausedText, StyleNames::MenuHeaderText()),
-		CreateButtonGroupData({ ButtonContinueGame, ButtonRestartGame, ButtonSaveGame, ButtonReturnToMainMenu },
-			Orient_Vertical, FAlignmentData(HAlign_Fill, VAlign_Top)),
-		CreateBackgroundData(PausedBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
+	FMenuData PauseMenuData = SGWidgetFactory::CreateMenuData(
+		PausedText,
+		SGWidgetFactory::ButtonGroup({ ButtonContinueGame, ButtonRestartGame, ButtonSaveGame, ButtonReturnToMainMenu },
+			Orient_Vertical, FAlignmentData(HAlign_Center, VAlign_Top)),
+		SGWidgetFactory::Background(PausedBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 {HAlign_Fill, VAlign_Center}
 	);
 
-	FMenuData GameOverMenuData = CreateMenuData(
-		CreateTextData(GameOverText, StyleNames::MenuHeaderText()),
-		CreateButtonGroupData({ButtonRestartGame },
-			Orient_Horizontal, FAlignmentData(HAlign_Fill, VAlign_Fill)),
-		CreateBackgroundData(GameOverBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
+	FMenuData GameOverMenuData = SGWidgetFactory::CreateMenuData(
+		GameOverText,
+		SGWidgetFactory::ButtonGroup({ButtonRestartGame },
+			Orient_Horizontal, FAlignmentData(HAlign_Center, VAlign_Fill)),
+		SGWidgetFactory::Background(GameOverBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 		{HAlign_Fill, VAlign_Center}
 	);
 
-	FMenuData VictoryMenuData = CreateMenuData(
-		CreateTextData(VictoryText, StyleNames::MenuHeaderText()),
-		CreateButtonGroupData({ButtonContinueGame,ButtonReturnToMainMenu},
-			Orient_Horizontal, FAlignmentData(HAlign_Fill, VAlign_Fill)),
-		CreateBackgroundData(GameOverBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
+	FMenuData VictoryMenuData = SGWidgetFactory::CreateMenuData(
+		VictoryText,
+		SGWidgetFactory::ButtonGroup({ButtonContinueGame,ButtonReturnToMainMenu},
+			Orient_Horizontal, FAlignmentData(HAlign_Center, VAlign_Fill)),
+		SGWidgetFactory::Background(GameOverBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 		{HAlign_Fill, VAlign_Center}
 	);
 
-	// Create the Slate widgets for Pause and Game Over menus
-	PauseMenuSlateWidget = SNew(SDefaultMenu).InMenuData(PauseMenuData);
-	GameOverMenuSlateWidget = SNew(SDefaultMenu).InMenuData(GameOverMenuData);
+	// Create the Slate widget
+	MenuSlateWidget = SNew(SDefaultMenu).InMenuData(PauseMenuData);
 
-	GameMenuSlateWidget = SNew(SDefaultMenu).InMenuData(PauseMenuData);
 	GameMenusData.Add(Pause, PauseMenuData);
 	GameMenusData.Add( GameOver, GameOverMenuData);
 	GameMenusData.Add(Victory, VictoryMenuData);
-
 }
 
 //---- UI STATE MANAGEMENT
-
 void ASGMainHUD::EnterUIMode()
 {
 	if (MainHUDWidget.IsValid())
@@ -278,31 +290,23 @@ void ASGMainHUD::StartDifficultyBar()
 	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::StartDifficultyBar);
 }
 
-//---- ON CLICKED EVENTS
+//---- ON CLICKED
 
 void ASGMainHUD::PauseGame()
 {
 	if (LastGameMenuState != Pause)
 	{
 		LastGameMenuState = Pause;
-		GameMenuSlateWidget->SetMenuData(GameMenusData[Pause]);
+		MenuSlateWidget->SetMenuData(GameMenusData[Pause]);
 	}
-	if (GameMenuWidget.IsValid())
+	if (MenuWidget.IsValid())
 	{
-		GameMenuWidget->SetVisibility(EVisibility::Visible);
-	}
-	else
-	{
-		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(GameMenuWidget, SWeakWidget).PossiblyNullContent(GameMenuSlateWidget.ToSharedRef()));
-	}
-	/*if (PauseMenuWidget.IsValid())
-	{
-		PauseMenuWidget->SetVisibility(EVisibility::Visible);
+		MenuWidget->SetVisibility(EVisibility::Visible);
 	}
 	else
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(PauseMenuWidget, SWeakWidget).PossiblyNullContent(PauseMenuSlateWidget.ToSharedRef()));
-	}*/
+		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
+	}
 	EnterUIMode();
 }
 
@@ -312,24 +316,22 @@ void ASGMainHUD::PlayerDeath()
 
 	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetOwningPlayerController());
 
-	FText ScoreFormat = LOCTEXT("PlayerScore", "You scored: {0}");
+	FText ScoreFormat = GetUIText("PlayerScore");
 	FText PlayerScore = FText::Format(ScoreFormat, FText::AsNumber(PlayerController->GetScorePoint()));
-	FText GameOverText = FText::Format(FText::FromString(TEXT("{0}\n{1}")), LOCTEXT("GameOverHeaderText", "Game Over"), PlayerScore);
+	FText GameOverText = FText::Format(FText::FromString(TEXT("{0}\n{1}")), GetUIText("GameOverHeaderText"), PlayerScore);
 
 	FMenuData GameOverMenuData = GameMenusData[GameOver];
-	GameOverMenuData.HeaderElement = CreateTextData(GameOverText, StyleNames::MenuHeaderText());
-	GameMenuSlateWidget->SetMenuData(GameOverMenuData);
+	GameOverMenuData.HeaderElement.Text = GameOverText;
+	MenuSlateWidget->SetMenuData(GameOverMenuData);
 
-	if (GameMenuWidget.IsValid())
+	if (MenuWidget.IsValid())
 	{
-		GameMenuWidget->SetVisibility(EVisibility::Visible);
+		MenuWidget->SetVisibility(EVisibility::Visible);
 	}
 	else
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(GameMenuWidget, SWeakWidget).PossiblyNullContent(GameMenuSlateWidget.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
-
-//	GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(GameOverMenuWidget, SWeakWidget).PossiblyNullContent(GameOverMenuSlateWidget.ToSharedRef()));
 	EnterUIMode();
 }
 
@@ -347,12 +349,11 @@ void ASGMainHUD::LoadMap(const FName& LevelName)
 	UGameplayStatics::OpenLevel(this, LevelName);
 }
 
-void ASGMainHUD::ContinueGame([[maybe_unused]] TSharedPtr<SWeakWidget> CallerWidget)
+void ASGMainHUD::ContinueGame()
 {
-	//CallerWidget->SetVisibility(EVisibility::Collapsed);
-	if (GameMenuWidget.IsValid())
+	if (MenuWidget.IsValid())
 	{
-		GameMenuWidget->SetVisibility(EVisibility::Collapsed);
+		MenuWidget->SetVisibility(EVisibility::Collapsed);
 	}
 	EnterPlayMode();
 }
@@ -377,50 +378,27 @@ bool ASGMainHUD::IsGameLevel() const
 	return CurrentLevel.Contains(GameLevelMap.ToString());
 }
 
-FButtonData ASGMainHUD::CreateMenuButtonData(const FText& ButtonText, const FOnClicked& OnClicked, const FName ButtonStyleName, const FName TextStyleName)
+FText ASGMainHUD::GetUIText(const FString& Key)
 {
-	FButtonData Button = FButtonData();
-	Button.TextData.Text = ButtonText;
-	Button.TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(TextStyleName);
-	Button.ButtonStyle = FStyleSetData::Get().GetWidgetStyle<FButtonStyle>(ButtonStyleName);
-	Button.OnClicked = OnClicked;
+	const UStringTable* StringTable = GetUIStringTable();
+	if (StringTable)
+	{
+		const FStringTable& StringTableRef = StringTable->GetStringTable().Get();
+		FStringTableEntryConstPtr EntryPtr = StringTableRef.FindEntry(*Key);
+		if (EntryPtr.IsValid())
+		{
+			return FText::FromString(EntryPtr->GetSourceString());
+		}
+	}
 
-	return Button;
+	// Fallback if string not found
+	EMMA_LOG(Error, TEXT("GetUIText: String with key %s not found in UI String Table"), *Key);
+	return FText::Format(NSLOCTEXT("SGMainHUD", "MissingText", "Missing: {0}"), FText::FromString(Key));
 }
-
-FTextData ASGMainHUD::CreateTextData(const FText& Text, const FName StyleName)
+const UStringTable* ASGMainHUD::GetUIStringTable()
 {
-	FTextData TextData;
-	TextData.Text = Text;
-	TextData.TextStyle = FStyleSetData::Get().GetWidgetStyle<FTextBlockStyle>(StyleName);
-	return TextData;
-}
-
-FBackgroundData ASGMainHUD::CreateBackgroundData(const FSlateColor& BackgroundColor, const FAlignmentData& AlignmentData)
-{
-	FBackgroundData BackgroundData;
-	BackgroundData.BackgroundColor = BackgroundColor;
-	BackgroundData.BackgroundAlignment = AlignmentData;
-	return BackgroundData;
-}
-
-FButtonGroupData ASGMainHUD::CreateButtonGroupData(const TArray<FButtonData>& ButtonDataArray, const EOrientation Orientation, const FAlignmentData& AlignmentData)
-{
-	FButtonGroupData ButtonGroupData;
-	ButtonGroupData.ButtonDataArray = ButtonDataArray;
-	ButtonGroupData.Orientation = Orientation;
-	ButtonGroupData.Alignment = AlignmentData;
-	return ButtonGroupData;
-}
-
-FMenuData ASGMainHUD::CreateMenuData(const FTextData& TextData, const FButtonGroupData& ButtonGroupData, const FBackgroundData& BackgroundData, const FAlignmentData MenuAlignmentData)
-{
-	FMenuData MenuData;
-	MenuData.HeaderElement = TextData;
-	MenuData.ButtonGroupElement = ButtonGroupData;
-	MenuData.BackgroundData = BackgroundData;
-	MenuData.ElementAlignment = MenuAlignmentData;
-	return MenuData;
+	const USGDeveloperSettings* DevSettings = GetDefault<USGDeveloperSettings>();
+	return Cast<UStringTable>(DevSettings->UIStringTable.TryLoad());
 }
 
 template <typename T>
