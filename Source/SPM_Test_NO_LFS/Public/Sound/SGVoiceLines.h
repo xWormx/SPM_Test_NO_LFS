@@ -33,6 +33,8 @@ private:
 	
 	void BindDelegateHandlers() const;
 
+	class ASGPlayerCharacter* PlayerRef = nullptr;
+
 public:
 	UFUNCTION()
 	void Voice_Fluff(class ASGEnemyCharacter* Enemy);

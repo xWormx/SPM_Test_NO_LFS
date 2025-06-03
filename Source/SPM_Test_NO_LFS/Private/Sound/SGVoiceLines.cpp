@@ -2,8 +2,9 @@
 
 #include "Sound/SGVoiceLines.h"
 #include "Components/AudioComponent.h"
-#include "Enemies/Characters/SGEnemyCharacter.h"
-#include "Math/UnrealMathUtility.h"
+#include "Gear/Weapons/jola6902_GunsComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Player/SGPlayerCharacter.h"
 
 ASGVoiceLines::ASGVoiceLines()
 {
@@ -12,8 +13,6 @@ ASGVoiceLines::ASGVoiceLines()
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->bAutoActivate = false;
 	RootComponent = AudioComponent;
-
-	BindDelegateHandlers();
 }
 
 void ASGVoiceLines::Tick(float DeltaTime)
@@ -43,6 +42,10 @@ void ASGVoiceLines::BeginPlay()
 	{
 		CooldownMap.Add(Sound, 0.f);
 	}
+
+	PlayerRef = Cast<ASGPlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	BindDelegateHandlers();
 }
 
 void ASGVoiceLines::PlaySound(USoundBase* Sound)
@@ -59,7 +62,10 @@ void ASGVoiceLines::PlaySound(USoundBase* Sound)
 // Delegate handling
 void ASGVoiceLines::BindDelegateHandlers() const
 {
-	
+	if (PlayerRef->GunsComponent)
+	{
+		PlayerRef->GunsComponent->OnReload.AddUniqueDynamic(this, &ASGVoiceLines::Voice_Reload);
+	}
 }
 
 void ASGVoiceLines::Voice_Fluff(ASGEnemyCharacter* Enemy)
