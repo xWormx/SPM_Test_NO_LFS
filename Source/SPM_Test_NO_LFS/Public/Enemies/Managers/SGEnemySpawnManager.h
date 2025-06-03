@@ -143,4 +143,7 @@ private:
     USGObjectiveHandlerSubSystem* ObjectiveHandlerSubSystem = nullptr;
 
     int32 MissionsCompleted = 0;
+
+    UPROPERTY(EditAnywhere)
+    class ASGVoiceLines* VoiceLineManager = nullptr;
 };

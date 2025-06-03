@@ -20,14 +20,21 @@ protected:
 
 private:
 	UFUNCTION(BlueprintCallable)
-	void PlaySound(USoundBase* Sound) const;
+	void PlaySound(USoundBase* Sound);
 	
-	UPROPERTY(VisibleAnywhere,Category="sound")
+	UPROPERTY(VisibleAnywhere,Category="editor")
 	UAudioComponent* AudioComponent;
 
-	UPROPERTY(VisibleAnywhere,Category="sound")
+	UPROPERTY(VisibleAnywhere,Category="editor")
 	TMap<USoundBase*, float> CooldownMap;
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="sound",meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="editor",meta=(AllowPrivateAccess = "true"))
 	TArray<USoundBase*> Sounds;
+
+	// Delegate handlers
+	void BindDelegateHandlers() const;
+
+public:
+	UFUNCTION()
+	void PlayFluffCue(class ASGEnemyCharacter* Enemy);
 };

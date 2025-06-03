@@ -2,6 +2,8 @@
 
 #include "Sound/SGVoiceLines.h"
 #include "Components/AudioComponent.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Math/UnrealMathUtility.h"
 
 ASGVoiceLines::ASGVoiceLines()
 {
@@ -10,6 +12,8 @@ ASGVoiceLines::ASGVoiceLines()
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->bAutoActivate = false;
 	RootComponent = AudioComponent;
+
+	BindDelegateHandlers();
 }
 
 void ASGVoiceLines::Tick(float DeltaTime)
@@ -41,10 +45,26 @@ void ASGVoiceLines::BeginPlay()
 	}
 }
 
-void ASGVoiceLines::PlaySound(USoundBase* Sound) const
+void ASGVoiceLines::PlaySound(USoundBase* Sound)
 {
 	if (AudioComponent->IsPlaying()) return;
+	if (!CooldownMap.Contains(Sound) || CooldownMap[Sound] > 0.f) return;
+	
+	CooldownMap[Sound] = 5.f;
+	
 	
 	AudioComponent->SetSound(Sound);
 	AudioComponent->Play();
+}
+
+// Delegate handling
+void ASGVoiceLines::BindDelegateHandlers() const
+{
+	
+}
+
+
+void ASGVoiceLines::PlayFluffCue(ASGEnemyCharacter* Enemy)
+{
+	PlaySound(Sounds[0]);
 }
