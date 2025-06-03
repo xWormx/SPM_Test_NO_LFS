@@ -117,7 +117,7 @@ void ASGEnemySpawnManager::SpawnEnemies()
 
         if (VoiceLineManager)
         {
-            Enemy->OnEnemyDied.AddUniqueDynamic(VoiceLineManager, &ASGVoiceLines::PlayFluffCue);
+            Enemy->OnEnemyDied.AddUniqueDynamic(VoiceLineManager, &ASGVoiceLines::Voice_Fluff);
         }
 
         CheckDespawnCandidate(Enemy);
@@ -197,7 +197,7 @@ void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
     EnemiesAlive = FMath::Max(0, EnemiesAlive - 1); // Hade innan refactor problem med att EnemiesAlive kunde bli ett negativt heltal, problemet är löst men denna finns kvar som en säkerhetsbarriär.
     DeadEnemy->OnEnemyDied.RemoveDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
-    if (VoiceLineManager) DeadEnemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::PlayFluffCue);
+    if (VoiceLineManager) DeadEnemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::Voice_Fluff);
     UE_LOG(LogTemp, Error, TEXT("SGEnemySpawnManager::HandleEnemyDeath() | Enemy died! EnemiesAlive: %i, MaxEnemiesAlive: %i."), EnemiesAlive, MaxEnemiesAlive);
 }
 
@@ -219,7 +219,7 @@ void ASGEnemySpawnManager::UpdateDespawnChecks(float DeltaTime)
             if (USGObjectPoolSubsystem* Pool = GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>())
             {
                 Pool->ReturnObjectToPool(Candidate.Enemy);
-                if (VoiceLineManager) Candidate.Enemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::PlayFluffCue);
+                if (VoiceLineManager) Candidate.Enemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::Voice_Fluff);
             }
             DespawnCandidates.RemoveAt(i);
             EnemiesAlive = FMath::Max(0, EnemiesAlive - 1);
@@ -262,6 +262,7 @@ void ASGEnemySpawnManager::ClearAllEnemies()
         if (ASGEnemyCharacter* Enemy = Cast<ASGEnemyCharacter>(EnemyActor))
         {
             Pool->ReturnObjectToPool(Enemy);
+            if (VoiceLineManager) Enemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::Voice_Fluff);
         }
     }
 
