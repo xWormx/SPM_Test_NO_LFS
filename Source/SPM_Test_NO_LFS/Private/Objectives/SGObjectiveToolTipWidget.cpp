@@ -13,6 +13,7 @@
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
+#include "Core/SGObjectiveHandlerSubSystem.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "UI/Widgets/SGDifficultyBarWidget.h"
@@ -32,7 +33,7 @@ void USGObjectiveToolTipWidget::NativeConstruct()
 	}
 }
 
-USGHorizontalBoxObjective* USGObjectiveToolTipWidget::CreateProgressTextElement(FText KeyText, FText ValueText)
+USGHorizontalBoxObjective* USGObjectiveToolTipWidget::CreateProgressTextElement(int32 ObjectiveID, FText KeyText, FText ValueText)
 {
 	const float DPI = UWidgetLayoutLibrary::GetViewportScale(this);
 	FMargin VerticalPadding = FMargin(80,10,80,0);
@@ -47,9 +48,20 @@ USGHorizontalBoxObjective* USGObjectiveToolTipWidget::CreateProgressTextElement(
 	VerticalBoxSlot->SetPadding(VerticalPadding);
 	VerticalBoxSlot->SetHorizontalAlignment(HAlign_Fill);
 	VerticalBoxSlot->SetVerticalAlignment(VAlign_Fill);
-	NewHorizontalBox->PlayAnimationKeyStartObjective();
-	HorizontalObjectiveList.Add(NewHorizontalBox);
+	
+	USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
+	AddHorizontalBoxToMap(ObjectiveID, NewHorizontalBox);
+	
 	CurrentHorizontalBoxObjectiveElement = NewHorizontalBox;
+	
+	//	NewHorizontalBox->PlayAnimationKeyStartObjective();
+	
+	//Detta verkar funka då animation sker för tidigt annars, innan widgeten har intialiserats
+	FTimerHandle TempHandle;
+	GetWorld()->GetTimerManager().SetTimer(TempHandle, [NewHorizontalBox]()
+	{
+		NewHorizontalBox->PlayAnimationKeyStartObjective();
+	}, 0.01f, false);
 	
 	return NewHorizontalBox;
 }
@@ -71,18 +83,60 @@ USGHorizontalBoxObjective* USGObjectiveToolTipWidget::CreateProgressTextElementC
 	VerticalBoxSlot->SetPadding(VerticalPadding);
 	VerticalBoxSlot->SetHorizontalAlignment(HAlign_Fill);
 	VerticalBoxSlot->SetVerticalAlignment(VAlign_Fill);
-	HorizontalObjectiveList.Add(NewHorizontalBox);
+	//HorizontalObjectiveList.Add(NewHorizontalBox);
 	CurrentHorizontalBoxObjectiveElement = NewHorizontalBox;
 	
 	return NewHorizontalBox;
 }
-USGHorizontalBoxObjective* USGObjectiveToolTipWidget::GetHorizontalBoxAtIndex(int32 index)
-{
-	if (HorizontalObjectiveList.IsValidIndex(index))
-	{
-		return HorizontalObjectiveList[index];	
-	}
 
+void USGObjectiveToolTipWidget::AddHorizontalBoxToMap(int32 ObjectiveID, USGHorizontalBoxObjective* NewWidget)
+{
+	if (HorizontalBoxObjectiveMap.Contains(ObjectiveID))
+	{
+		HorizontalBoxObjectiveMap[ObjectiveID].HorizontalBoxElements.Add(NewWidget);
+	}
+	else
+	{
+		FHorizontalBoxList NewList;
+		NewList.HorizontalBoxElements.Add(NewWidget);
+		HorizontalBoxObjectiveMap.Add(ObjectiveID, NewList);
+	}
+}
+
+USGHorizontalBoxObjective* USGObjectiveToolTipWidget::GetCurrentHorizontalBoxObjective()
+{
+	USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>(); 
+	
+	ASGObjectiveBase* Objective = ObjectiveHandler->GetCurrentObjective();
+	int32 SubObjectiveStep = Objective->GetCurrentProgressStep();
+	int32 ObjectiveID = Objective->GetObjectiveID();
+	
+	if (HorizontalBoxObjectiveMap.Contains(ObjectiveID))
+	{
+		FHorizontalBoxList& List = HorizontalBoxObjectiveMap[ObjectiveID];
+		if (List.HorizontalBoxElements.IsValidIndex(SubObjectiveStep))
+		{
+			USGHorizontalBoxObjective* HorizontalBoxElement = List.HorizontalBoxElements[SubObjectiveStep];
+			return HorizontalBoxElement;
+		}
+	}
+	return nullptr;
+}
+
+USGHorizontalBoxObjective* USGObjectiveToolTipWidget::GetHorizontalBoxObjective(ASGObjectiveBase* Objective, int32 BoxIndex)
+{
+	int32 SubObjectiveStep = Objective->GetCurrentProgressStep();
+	int32 ObjectiveID = Objective->GetObjectiveID();
+	
+	if (HorizontalBoxObjectiveMap.Contains(ObjectiveID))
+	{
+		FHorizontalBoxList& List = HorizontalBoxObjectiveMap[ObjectiveID];
+		if (List.HorizontalBoxElements.IsValidIndex(BoxIndex))
+		{
+			USGHorizontalBoxObjective* HorizontalBoxElement = List.HorizontalBoxElements[BoxIndex];
+			return HorizontalBoxElement;
+		}
+	}
 	return nullptr;
 }
 
@@ -101,16 +155,23 @@ void USGObjectiveToolTipWidget::Display(FText NewToolTip)
 
 void USGObjectiveToolTipWidget::DeInitialize()
 {
-	HorizontalObjectiveList.Empty();
 	CurrentHorizontalBoxObjectiveElement = nullptr;
 	RemoveFromParent();
 }
 
 void USGObjectiveToolTipWidget::PauseAllOngoingAnimations()
 {
-	for (USGHorizontalBoxObjective* HorizontalBoxObject : HorizontalObjectiveList)
+	for (const TPair<int32, FHorizontalBoxList>& Pair : HorizontalBoxObjectiveMap)
 	{
-		HorizontalBoxObject->PauseAllOngoingAnimations();
+		const FHorizontalBoxList& BoxList = Pair.Value;
+
+		for (USGHorizontalBoxObjective* HorizontalBoxObject : BoxList.HorizontalBoxElements)
+		{
+			if (HorizontalBoxObject)
+			{
+				HorizontalBoxObject->PauseAllOngoingAnimations();
+			}
+		}
 	}
 
 	if (IsAnimationPlaying(AnimationVisitTerminal))
@@ -130,10 +191,19 @@ void USGObjectiveToolTipWidget::PauseAllOngoingAnimations()
 
 void USGObjectiveToolTipWidget::ResumeAllOngoingAnimations()
 {
-	for (USGHorizontalBoxObjective* HorizontalBoxObject : HorizontalObjectiveList)
+	for (const TPair<int32, FHorizontalBoxList>& Pair : HorizontalBoxObjectiveMap)
 	{
-		HorizontalBoxObject->ResumeAllOngoingAnimations();
+		const FHorizontalBoxList& BoxList = Pair.Value;
+
+		for (USGHorizontalBoxObjective* HorizontalBoxObject : BoxList.HorizontalBoxElements)
+		{
+			if (HorizontalBoxObject)
+			{
+				HorizontalBoxObject->PauseAllOngoingAnimations();
+			}
+		}
 	}
+
 	if (bAnimationToolTipOutOfWindowWasPaused)
 	{
 		bAnimationToolTipOutOfWindowWasPaused = false;
@@ -145,8 +215,6 @@ void USGObjectiveToolTipWidget::ResumeAllOngoingAnimations()
 		bAnimationVisitTerminalWasPaused = false;
 		PlayAnimation(AnimationVisitTerminal, AnimationVisitTerminalPauseTime, 0);	
 	}
-	
-	
 }
 
 void USGObjectiveToolTipWidget::SetToolTipText(FText NewToolTip)
@@ -158,6 +226,7 @@ void USGObjectiveToolTipWidget::ShowVisitTerminal()
 {
 	OverlayVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
 	TextBlockVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
+	
 	PlayAnimation(AnimationVisitTerminal, 0, 0);
 }
 
@@ -166,6 +235,7 @@ void USGObjectiveToolTipWidget::HideVisitTerminal()
 	OverlayVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
 	TextBlockVisitTerminal->SetVisibility(ESlateVisibility::Hidden);
 	StopAnimation(AnimationVisitTerminal);
+	
 }
 
 void USGObjectiveToolTipWidget::SetMissionAlertText(FString NewText)
@@ -177,7 +247,9 @@ void USGObjectiveToolTipWidget::PlayEscapeWithPodAnimation(FString TextToDisplay
 {
 	OverlayVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
 	TextBlockVisitTerminal->SetVisibility(ESlateVisibility::HitTestInvisible);
+	
 	SetMissionAlertText(TextToDisplay);
+	
 	PlayAnimation(AnimationEscapeWithPod, 0, 0);
 }
 
@@ -207,6 +279,7 @@ void USGObjectiveToolTipWidget::DisplayCharByChar(const FString& StringToolTip)
 	{
 		FString StrToDisplay = StringToolTip.Mid(0, CharIndex);
 		ToolTip->SetText(FText::FromString(StrToDisplay));
+		
 		UGameplayStatics::PlaySound2D(GetWorld(), TextClickSound);
 	}
 	else

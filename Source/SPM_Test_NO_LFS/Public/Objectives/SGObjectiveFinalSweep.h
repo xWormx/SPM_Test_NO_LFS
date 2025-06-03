@@ -14,10 +14,13 @@ Written by
 #include "Objectives/SGObjectiveBase.h"
 #include "SGObjectiveFinalSweep.generated.h"
 
+
 class UBoxComponent;
+
 /**
  * 
  */
+ 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGObjectiveFinalSweep : public ASGObjectiveBase, public ISGObjectiveInterface
 {
@@ -31,7 +34,7 @@ public:
 	virtual void OnStart() override;
 	virtual void OnCompleted() override;
 	virtual void Update() override;
-	virtual EObjectiveType GetObjectiveType() { return EObjectiveType::EOT_FinalSweep; }
+	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_FinalSweep; }
 
 	void IncrementEnemiesKilled();
 	

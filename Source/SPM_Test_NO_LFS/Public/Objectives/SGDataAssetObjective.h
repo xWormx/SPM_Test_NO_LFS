@@ -1,11 +1,12 @@
 /*
-
+ 
 Written by
 ----------------------
 - Carl-Johan Larson Eliasson
 - cael7567
-	
+
 */
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -17,6 +18,7 @@ Written by
 /**
  * 
  */
+
 UCLASS()
 class SPM_TEST_NO_LFS_API USGDataAssetObjective : public UDataAsset
 {
