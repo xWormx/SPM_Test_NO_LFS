@@ -1,5 +1,6 @@
 ﻿
 #include "Enemies/AI/SGAIControllerEnemyFlying_2.h"
+#include "Enemies/Characters/SGEnemyCharacter.h"
 
 
 ASGAIControllerEnemyFlying_2::ASGAIControllerEnemyFlying_2()
@@ -11,27 +12,34 @@ ASGAIControllerEnemyFlying_2::ASGAIControllerEnemyFlying_2()
 void ASGAIControllerEnemyFlying_2::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	SetFlyingMode(true);
 }
 
 void ASGAIControllerEnemyFlying_2::SetFlyingMode(bool bShouldFly)
 {
-	/*float HoverAmplitude = 50.f;
-	 float HoverSpeed = 1.5;
-	 float HoverInterpSpeed = 0.5;
+	if (!ControlledEnemy)
+	{
+		return;
+	}
+	
+	ControlledEnemyLocation = ControlledEnemy->GetActorLocation();
 
-	float TargetZ = AttackTarget->GetActorLocation().Z;
-	float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
-
-	CurrentLocation = GetPawn()->GetActorLocation();
-
-	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
-	ControlledEnemy->SetActorLocation(CurrentLocation, true);*/
+	const float ZValue = ControlledEnemyLocation.Z;
+	
+	const float HoverZ = ZValue + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
+	
+	
+	ControlledEnemyLocation.Z = FMath::FInterpTo(ZValue, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
+	
+	ControlledEnemy->SetActorLocation(ControlledEnemyLocation, true);
 }
 
 
 void ASGAIControllerEnemyFlying_2::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bShouldBeFlying = true;
 	
 }
 

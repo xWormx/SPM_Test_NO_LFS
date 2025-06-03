@@ -33,11 +33,16 @@ void ASGAIControllerEnemy::BeginPlay()
 void ASGAIControllerEnemy::SetInitialValues()
 {
 	ControlledEnemy = Cast<ASGEnemyCharacter>(GetPawn());
+	AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	
+	if (!ControlledEnemy && !AttackTarget)
+	{
+		return;
+	}
 
 	if (BehaviorTree)
 	{
 		RunBehaviorTree(BehaviorTree);
-		AttackTarget = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 		GetBlackboardComponent()->SetValueAsObject(TEXT("AttackTarget"), AttackTarget);
 		
 	}
@@ -97,6 +102,8 @@ class AActor* ASGAIControllerEnemy::GetPatrolPoint()
 
 void ASGAIControllerEnemy::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+	
 	if (!ControlledEnemy)
 	{
 		return;
@@ -108,10 +115,13 @@ void ASGAIControllerEnemy::Tick(float DeltaTime)
 		ControlledEnemy->GetCharacterMovement()->GravityScale = 0.f;
 		return;
 	}
+
+	if (bShouldBeFlying)
+	{
+		return;
+	}
 	
 	ControlledEnemy->GetCharacterMovement()->GravityScale = 1.f;
-	
-	Super::Tick(DeltaTime);
 }
 
 void ASGAIControllerEnemy::Patrol()

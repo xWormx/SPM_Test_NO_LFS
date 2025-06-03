@@ -19,6 +19,8 @@ ASGEnemyCharacterFlying::ASGEnemyCharacterFlying()
 
 	GetCharacterMovement()->MaxFlySpeed = 400.f;
 
+	GetCharacterMovement()->GravityScale = 0.f;
+
 	GetMesh()->SetEnableGravity(false);
 }
 
