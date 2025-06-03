@@ -95,7 +95,11 @@ void USGObjectiveHandlerSubSystem::OnTestButtonPressed()
 	Data.ObjectiveIndex = 2;
 	
 	//OnLoadGame(Data);
-	OnSaveGame(Data);
+	//OnSaveGame(Data);
+	//ObjectiveToolTipWidget->ClearProgressWindowElements();
+	//CurrentObjective->ClearProgressWindowElements();
+	
+	int i = 0;
 }
 
 void USGObjectiveHandlerSubSystem::OnWorldInitialized(const UWorld::FActorsInitializedParams& Params)
@@ -139,6 +143,7 @@ void USGObjectiveHandlerSubSystem::ReadObjectiveDataAsset()
 	{
 		if (GameObjectives.IsEmpty())
 		{
+			int32 ObjectiveID = 0;
 			for (USGObjectiveConfig* Config : ObjectiveDataAsset->ObjectiveConfigs)
 			{
 				if (!Config || !*Config->ObjectiveClass)
@@ -149,7 +154,9 @@ void USGObjectiveHandlerSubSystem::ReadObjectiveDataAsset()
 				if (SpawnedObjective)
 				{
 					Config->ApplyData(SpawnedObjective);
-					UE_LOG(LogTemp, Log, TEXT("Spawned and configured objective: %s"), *SpawnedObjective->GetName());
+					
+					SpawnedObjective->SetObjectivID(ObjectiveID++);
+
 					GameObjectives.Add(SpawnedObjective);
 				}
 			}	
@@ -241,13 +248,15 @@ void USGObjectiveHandlerSubSystem::StartMission()
 	}
 	
 	CurrentObjective->OnStart();
+	
 	TerminalHUD->DisableStartButton();
+	
 	UGameplayStatics::PlaySound2D(this, MissionStartedSound);
+	
 	OnObjectiveStarted.Broadcast();
 	OnObjectiveStartedWithType.Broadcast(CurrentObjective->GetObjectiveType());
 }
 
-// TODO: Ändra parameter till TSubscriptInterface<ISGObjectiveInterface> eller vad den nu hette...
 void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* ObjectiveInterfaceImplementor)
 {
 	EObjectiveType IncomingObjectiveType = EObjectiveType::EOT_None;
@@ -272,7 +281,6 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 	
 	if (CurrentObjective->IsCompleted())
 	{
-		ObjectiveToolTipWidget->GetCurrentHorizontalBoxObjective()->PlayAnimationValueCompleted();
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted();
 		ObjectivesCompleted.Add(CurrentObjective);

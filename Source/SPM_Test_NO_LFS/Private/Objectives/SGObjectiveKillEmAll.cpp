@@ -2,7 +2,7 @@
 
 
 #include "Objectives/SGObjectiveKillEmAll.h"
-
+#include "Objectives/SGObjectiveToolTipWidget.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Objectives/SGGameObjectivesHandler.h"
 #include "Objectives/SGHorizontalBoxObjective.h"
@@ -11,7 +11,11 @@ void ASGObjectiveKillEmAll::OnStart()
 {
 	Super::OnStart();
 	FString StrEnemiesKilled = FString::Printf(TEXT("%d/%d"), CurrentEnemiesKilled, EnemiesToKill);
-	HorizontalBoxProgressElement.Add(ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(FText::FromString(ObjectiveProgressText[0]), FText::FromString(StrEnemiesKilled)));
+
+	ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->CreateProgressTextElement(
+		GetObjectiveID(),
+		FText::FromString(ObjectiveProgressText[0]),
+		FText::FromString(StrEnemiesKilled));
 }
 
 bool ASGObjectiveKillEmAll::IsCompleted()
@@ -24,11 +28,16 @@ void ASGObjectiveKillEmAll::OnCompleted()
 	Super::OnCompleted();
 
 	SetCurrentProgressElementCompleted("Completed!");
+	
+	USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 0);
+	HBoxObjective->PlayAnimationValueCompleted();
 }
 
 void ASGObjectiveKillEmAll::Update()
 {
 	CurrentEnemiesKilled++;
 	FString StrEnemiesKilled = FString::Printf(TEXT("%d/%d"), CurrentEnemiesKilled, EnemiesToKill);
-	HorizontalBoxProgressElement[0]->SetValue(FText::FromString(StrEnemiesKilled));
+
+	USGHorizontalBoxObjective* HBoxObjective = ObjectiveHandlerSubSystem->GetObjectiveToolTipWidget()->GetHorizontalBoxObjective(this, 0);
+	HBoxObjective->SetValue(FText::FromString(StrEnemiesKilled));
 }

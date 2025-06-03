@@ -20,6 +20,7 @@ class ASGObjectivePodArrival;
 class USGDataAssetObjective;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnObjectiveStarted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnObjectiveCompleted);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEndGame);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveCompletedWithType, EObjectiveType, ObjectiveType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStartedWithType, EObjectiveType, ObjectiveType);
 
@@ -32,7 +33,7 @@ struct FObjectiveSaveData
 	GENERATED_BODY()
 
 	UPROPERTY()
-	int ObjectiveIndex;
+	int ObjectiveIndex; 
 };
 
 /**
@@ -69,7 +70,8 @@ public:
 	FOnObjectiveCompleted OnObjectiveCompleted;
 	FOnObjectiveCompletedWithType OnObjectiveCompletedWithType;
 	FOnObjectiveStartedWithType OnObjectiveStartedWithType;
-
+	FOnEndGame OnEndGame;
+	
 	UFUNCTION()
 	void OnTestButtonPressed();
 	
