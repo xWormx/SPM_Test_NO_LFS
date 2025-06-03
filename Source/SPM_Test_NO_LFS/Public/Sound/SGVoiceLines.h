@@ -30,11 +30,16 @@ private:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="editor",meta=(AllowPrivateAccess = "true"))
 	TArray<USoundBase*> Sounds;
-
-	// Delegate handlers
+	
 	void BindDelegateHandlers() const;
 
 public:
 	UFUNCTION()
-	void PlayFluffCue(class ASGEnemyCharacter* Enemy);
+	void Voice_Fluff(class ASGEnemyCharacter* Enemy);
+
+	UFUNCTION()
+	void Voice_Reload(int32 GunIndex, class ASGGun* Gun);
+
+	UFUNCTION()
+	void Voice_FindTerminal();
 };
