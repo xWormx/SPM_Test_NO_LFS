@@ -197,7 +197,7 @@ void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
     EnemiesAlive = FMath::Max(0, EnemiesAlive - 1); // Hade innan refactor problem med att EnemiesAlive kunde bli ett negativt heltal, problemet är löst men denna finns kvar som en säkerhetsbarriär.
     DeadEnemy->OnEnemyDied.RemoveDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
-    DeadEnemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::PlayFluffCue);
+    if (VoiceLineManager) DeadEnemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::PlayFluffCue);
     UE_LOG(LogTemp, Error, TEXT("SGEnemySpawnManager::HandleEnemyDeath() | Enemy died! EnemiesAlive: %i, MaxEnemiesAlive: %i."), EnemiesAlive, MaxEnemiesAlive);
 }
 
@@ -219,6 +219,7 @@ void ASGEnemySpawnManager::UpdateDespawnChecks(float DeltaTime)
             if (USGObjectPoolSubsystem* Pool = GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>())
             {
                 Pool->ReturnObjectToPool(Candidate.Enemy);
+                if (VoiceLineManager) Candidate.Enemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::PlayFluffCue);
             }
             DespawnCandidates.RemoveAt(i);
             EnemiesAlive = FMath::Max(0, EnemiesAlive - 1);
@@ -228,7 +229,7 @@ void ASGEnemySpawnManager::UpdateDespawnChecks(float DeltaTime)
 }
 
 /* Används vid spawn för att kolla om en fiende spawnat utanför tillåten räckvidd. (Jobbar på en lösning där en
-triggervolym avgör med Being/EndOverlap vilka fiender som ska markeras och avmarkeras) för att kunna ta bort så många
+triggervolym avgör med Begin/EndOverlap vilka fiender som ska markeras och avmarkeras) för att kunna ta bort så många
 relevanta fiender som möjligt, men den lösningen ledde till ett antal buggar så den är inte med just nu. Hade kunnat
 köra en version av denna med Dist() mot samtliga fiender i Tick() men det kändes inte rätt då det blir väldigt
 dyrt helt i onödan, jag tror snarare på min tidigare nämnda lösning. */
