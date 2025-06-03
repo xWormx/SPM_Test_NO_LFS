@@ -18,7 +18,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	virtual void Fire();
-	virtual void Reload();
+	virtual bool Reload();
 	
 	float GetFireRate() const;
 	void AddAmmo(int32 AmmoAmount);

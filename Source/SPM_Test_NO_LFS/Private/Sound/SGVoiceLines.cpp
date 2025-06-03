@@ -5,6 +5,7 @@
 #include "Gear/Weapons/jola6902_GunsComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/SGPlayerCharacter.h"
+#include "Core/SGObjectiveHandlerSubSystem.h"
 
 ASGVoiceLines::ASGVoiceLines()
 {
@@ -44,16 +45,17 @@ void ASGVoiceLines::BeginPlay()
 	}
 
 	PlayerRef = Cast<ASGPlayerCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
+	ObjectiveHandlerRef = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
 
 	BindDelegateHandlers();
 }
 
-void ASGVoiceLines::PlaySound(USoundBase* Sound)
+void ASGVoiceLines::PlaySound(USoundBase* Sound, float Cooldown)
 {
 	if (AudioComponent->IsPlaying()) return;
 	if (!CooldownMap.Contains(Sound) || CooldownMap[Sound] > 0.f) return;
 	
-	CooldownMap[Sound] = 10.f;
+	CooldownMap[Sound] = Cooldown;
 	
 	AudioComponent->SetSound(Sound);
 	AudioComponent->Play();
@@ -66,19 +68,24 @@ void ASGVoiceLines::BindDelegateHandlers() const
 	{
 		PlayerRef->GunsComponent->OnReload.AddUniqueDynamic(this, &ASGVoiceLines::Voice_Reload);
 	}
+
+	if (ObjectiveHandlerRef)
+	{
+		ObjectiveHandlerRef->OnObjectiveCompletedWithType.AddUniqueDynamic(this, &ASGVoiceLines::Voice_FindTerminal);
+	}
 }
 
 void ASGVoiceLines::Voice_Fluff(ASGEnemyCharacter* Enemy)
 {
-	PlaySound(Sounds[0]);
+	PlaySound(Sounds[0], 10.f);
 }
 
 void ASGVoiceLines::Voice_Reload(int32 GunIndex, ASGGun* Gun)
 {
-	PlaySound(Sounds[1]);
+	PlaySound(Sounds[1], 30.f);
 }
 
-void ASGVoiceLines::Voice_FindTerminal()
+void ASGVoiceLines::Voice_FindTerminal(EObjectiveType ObjectiveType)
 {
-	PlaySound(Sounds[2]);
+	PlaySound(Sounds[2], 60.f);
 }

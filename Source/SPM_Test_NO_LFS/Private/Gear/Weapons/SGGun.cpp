@@ -94,13 +94,13 @@ void ASGGun::Fire()
 }
 
 // Laddar om vapnet ifall att det är möjligt.
-void ASGGun::Reload()
+bool ASGGun::Reload()
 {
-	if (!bUsesMagazine || bIsReloading) return;
+	if (!bUsesMagazine || bIsReloading) return false;
 
 	int32 AmmoNeeded = MagazineSize - CurrentMagazineAmmo;
-	if (AmmoNeeded <= 0) return;
-	if (!bInfiniteAmmo && Ammo <= 0) return;
+	if (AmmoNeeded <= 0) return false;
+	if (!bInfiniteAmmo && Ammo <= 0) return false;
 
 	bIsReloading = true;
 
@@ -112,6 +112,7 @@ void ASGGun::Reload()
 	}
 
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ASGGun::FinishReloading, ReloadTime, false);
+	return true;
 }
 
 float ASGGun::GetFireRate() const

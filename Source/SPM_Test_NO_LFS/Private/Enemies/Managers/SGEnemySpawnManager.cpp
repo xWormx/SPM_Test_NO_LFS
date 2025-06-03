@@ -237,6 +237,7 @@ void ASGEnemySpawnManager::CheckDespawnCandidate(ASGEnemyCharacter* Enemy)
 {
     if (!IsValid(Enemy) || !PlayerRef) return;
 
+    /*
     float Distance = FVector::Dist(Enemy->GetActorLocation(), PlayerRef->GetActorLocation());
     if (Distance > SpawnRadiusAroundPlayer)
     {
@@ -246,6 +247,7 @@ void ASGEnemySpawnManager::CheckDespawnCandidate(ASGEnemyCharacter* Enemy)
             DespawnCandidates.Add({ Enemy, 0.f });
         }
     }
+    */
 }
 
 // Skickar tillbaka samtliga fiender till object poolen
