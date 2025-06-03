@@ -3,6 +3,7 @@
 
 #include "Enemies/AI/SGAIControllerEnemySmall.h"
 
+#include "SPM_Test_NO_LFS.h"
 #include "Components/CapsuleComponent.h"
 #include "Enemies/AI/SGAIControllerEnemyBig.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
@@ -47,6 +48,7 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 {
 	if (!ControlledEnemy)
 	{
+		BASIR_LOG(Error ,TEXT("Should Retreat Service, Controlled Enemy is Null"));
 		return;
 	}
 

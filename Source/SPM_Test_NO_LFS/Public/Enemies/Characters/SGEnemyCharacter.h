@@ -28,6 +28,8 @@ protected:
 public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void SetBehaviorTreeEnabled(bool bEnabled);
+
 	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_KillAllEnemies | EObjectiveType::EOT_FinalSweep; }
 	
 	UPROPERTY(BlueprintAssignable, Category = "Events")
@@ -37,13 +39,15 @@ public:
 	FOnEnemyDiedObjective OnEnemyDiedObjective;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy", meta = (AllowPrivateAccess = "true"))
-	float JumpStrength = 500.f; 
+	float MaxJumpHeight = 280.f;
 
 	UFUNCTION(BlueprintCallable)
 	USGEnemyAttackComponentBase* GetAttackComponent();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void JumpToLocation(const FVector Destination);
+
+	virtual const float GetJumpVelocity(float VerticalLaunchVelocity, float HeightDifference) const;
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AdjustJumpRotation();

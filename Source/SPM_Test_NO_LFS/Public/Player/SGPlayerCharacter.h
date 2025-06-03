@@ -66,9 +66,24 @@ private:
 	USkeletalMeshComponent* WeaponMesh;
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void BPFire();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BPReload();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+    void BPWeaponSwapAR();
+    
+    UFUNCTION(BlueprintImplementableEvent)
+    void BPWeaponSwapSG();
+    
+    UFUNCTION(BlueprintImplementableEvent)
+    void BPWeaponSwapGL();
+	
 	FOnPlayerIsReady OnPlayerIsReady;
 
-	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons")
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category="Uproperty - Player | Weapons")
 	Ujola6902_GunsComponent* GunsComponent;
 
 	UPROPERTY(VisibleAnywhere, Category="Uproperty - Player | Weapons")

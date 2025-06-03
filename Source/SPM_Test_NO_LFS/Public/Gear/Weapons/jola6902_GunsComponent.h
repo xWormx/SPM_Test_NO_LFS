@@ -27,6 +27,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	const TArray<ASGGun*> GetGuns() const;
 
+	UFUNCTION(BlueprintCallable)
+	const ASGGun* GetCurrentGun() const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

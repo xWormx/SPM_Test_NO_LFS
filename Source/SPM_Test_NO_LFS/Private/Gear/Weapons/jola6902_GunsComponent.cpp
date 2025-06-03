@@ -6,6 +6,7 @@
 #include "InputAction.h"
 #include "EnhancedInputComponent.h"
 #include "SPM_Test_NO_LFS.h"
+#include "Player/SGPlayerCharacter.h"
 //#include "Blueprint/UserWidget.h"
 
 // Public
@@ -25,6 +26,11 @@ void Ujola6902_GunsComponent::TickComponent(float DeltaTime, ELevelTick TickType
 const TArray<ASGGun*> Ujola6902_GunsComponent::GetGuns() const
 {
 	return Guns;
+}
+
+const ASGGun* Ujola6902_GunsComponent::GetCurrentGun() const
+{
+	return Guns[CurrentGunIndex];
 }
 
 // Protected
@@ -129,6 +135,24 @@ void Ujola6902_GunsComponent::OnGunIndexKeyPressed(const FInputActionInstance& I
 		JOEL_LOG(Log, TEXT("jola6902_GunsComponent::OnKeyPressed() | Swapped to weapon index %d via input action %s"), *Index, *TriggeredAction->GetName());
 
 		OnSwitchedGun.Broadcast(CurrentGunIndex, Guns[CurrentGunIndex]);
+		
+		if (ASGPlayerCharacter* PlayerRef = Cast<ASGPlayerCharacter>(Owner))
+		{
+			switch (CurrentGunIndex)
+			{
+				case 0:
+					if (PlayerRef) PlayerRef->BPWeaponSwapAR();
+					break;
+				case 1:
+					if (PlayerRef) PlayerRef->BPWeaponSwapSG();
+					break;
+				case 2:
+					if (PlayerRef) PlayerRef->BPWeaponSwapGL();
+					break;
+				default:
+					break;
+			}
+		}
 	}
 	else
 	{
@@ -153,6 +177,24 @@ void Ujola6902_GunsComponent::OnMouseWheelScroll(const FInputActionValue& Value)
 	}
 
 	OnSwitchedGun.Broadcast(CurrentGunIndex, Guns[CurrentGunIndex]);
+
+	if (ASGPlayerCharacter* PlayerRef = Cast<ASGPlayerCharacter>(Owner))
+	{
+		switch (CurrentGunIndex)
+		{
+			case 0:
+				if (PlayerRef) PlayerRef->BPWeaponSwapAR();
+				break;
+			case 1:
+				if (PlayerRef) PlayerRef->BPWeaponSwapSG();
+				break;
+			case 2:
+				if (PlayerRef) PlayerRef->BPWeaponSwapGL();
+				break;
+			default:
+				break;
+		}
+	}
 }
 
 // Kontrollerar att Map<UInputAction*, int32> GunIndexKeyBindings inte har några index som ligger utanför bounds för Guns och tar bort potentiella problematiska bindings.
