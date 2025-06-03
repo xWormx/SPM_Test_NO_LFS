@@ -68,7 +68,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	
 	
-	virtual void LoadCompleted();
 	virtual USGObjectiveSaveData* Save();
 	void SaveBaseData(USGObjectiveSaveData* SaveData);
 	
@@ -94,6 +93,7 @@ public:
 	void SetCurrentProgressElementCompleted(FString InTextCompleted);
 	void SetStartDescriptionTooltipText(FString InStartDescriptionTooltipText) { ObjectiveDescriptionToolTip = InStartDescriptionTooltipText; }
 	void SetCompletedDescriptionTooltipText(FString InCompletedDescriptionTooltipText) { ObjectiveCompletedToolTip = InCompletedDescriptionTooltipText; }
+	void SetCompleted();
 	
 	void AdvanceCurrentObjectiveStep() { CurrentSubObjectiveStep++; }
 	

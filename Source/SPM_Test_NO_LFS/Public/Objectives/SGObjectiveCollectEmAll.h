@@ -42,8 +42,10 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "UPROPERTY")
 	TSubclassOf<ASGPickUpObjectiveCollect> CollectableClass;
 
+	// För att gömma dem när Objectives Laddas genom LoadGame
+	void HideCollectables() const;
 private:
 	void ShowCollectables() const;
-	void HideCollectables() const;
+	
 };
 

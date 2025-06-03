@@ -40,7 +40,9 @@ class SPM_TEST_NO_LFS_API ASGObjectivePodArrival : public ASGObjectiveBase, publ
 	virtual void Update() override;
 	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_PodArrival; }
 
+	void ResetPodArrivalTimer();
 	void SetWaitForPodTimeInSeconds(float InSecondsToWait) { TimeToWaitForPodPodSeconds = InSecondsToWait; }
+	
 	FOnWaitForPodEventStart OnWaitForPodEventStart;
 	FOnWaitForPodEventEnd OnWaitForPodEventEnd;
 	FOnWaitForPodEventPaused OnWaitForPodEventPaused;
@@ -85,7 +87,7 @@ private:
 	
 	UFUNCTION()
 	void StartMainPhase(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-
+	
 	UFUNCTION()
 	void OnTimeIsOut();
 
