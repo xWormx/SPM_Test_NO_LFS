@@ -27,13 +27,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnObjectiveStartedWithType, EObject
 class USGGameInstance;
 class ASGObjectiveBase;
 
-USTRUCT()
+USTRUCT(Blueprintable)
 struct FObjectiveSaveData
 {
 	GENERATED_BODY()
 
 	UPROPERTY()
-	int ObjectiveIndex; 
+	bool ShouldLoad = false;
+	
+	UPROPERTY()
+	int32 NumObjectivesCompleted = 0;
 };
 
 /**
@@ -49,9 +52,11 @@ public:
 	virtual void Deinitialize() override;
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
+
 	
-	void OnLoadGame(FObjectiveSaveData SaveData);
-	void OnSaveGame(FObjectiveSaveData SaveData);
+	UFUNCTION(BlueprintCallable)
+	FObjectiveSaveData GetSaveGameData();
+	
 	void RegisterEnemy(ASGEnemyCharacter* Enemy);
 	void RegisterCollectible(ASGPickUpObjectiveCollect* Collectible);
 	void RegisterTerminalWidget(USGTerminalWidget* TerminalWidget);
@@ -78,6 +83,8 @@ public:
 private:
 	void OnWorldInitialized(const UWorld::FActorsInitializedParams& Params);
 	
+	void OnLoadGame(FObjectiveSaveData SaveData);
+
 	void InitializeObjectiveToolTip();
 	void ReadObjectiveDataAsset();
 
