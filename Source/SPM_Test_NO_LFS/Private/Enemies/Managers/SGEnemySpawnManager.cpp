@@ -9,6 +9,7 @@
 #include "Player/SGPlayerCharacter.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
+#include "Sound/SGVoiceLines.h"
 
 ASGEnemySpawnManager::ASGEnemySpawnManager()
 {
@@ -114,6 +115,11 @@ void ASGEnemySpawnManager::SpawnEnemies()
             Enemy->OnEnemyDied.AddDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
         }
 
+        if (VoiceLineManager)
+        {
+            Enemy->OnEnemyDied.AddUniqueDynamic(VoiceLineManager, &ASGVoiceLines::PlayFluffCue);
+        }
+
         CheckDespawnCandidate(Enemy);
 
         UE_LOG(LogTemp, Warning, TEXT("SGEnemySpawnManager::SpawnEnemies() | Enemy spawned. EnemiesAlive: %i / %i"), EnemiesAlive, MaxEnemiesAlive);
@@ -191,6 +197,7 @@ void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
     EnemiesAlive = FMath::Max(0, EnemiesAlive - 1); // Hade innan refactor problem med att EnemiesAlive kunde bli ett negativt heltal, problemet är löst men denna finns kvar som en säkerhetsbarriär.
     DeadEnemy->OnEnemyDied.RemoveDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
+    DeadEnemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::PlayFluffCue);
     UE_LOG(LogTemp, Error, TEXT("SGEnemySpawnManager::HandleEnemyDeath() | Enemy died! EnemiesAlive: %i, MaxEnemiesAlive: %i."), EnemiesAlive, MaxEnemiesAlive);
 }
 
