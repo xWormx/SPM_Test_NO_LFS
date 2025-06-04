@@ -10,6 +10,7 @@ void USGGameInstance::Init()
 	Super::Init();
 
 	LoadGameData(false);
+	//ResetSavedGame();
 
 	//GetSubsystem<USGUpgradeSubsystem>()->LoadPersistentUpgrades(SavedData->UpgradeSystemSavedAttributes);
 
@@ -129,12 +130,39 @@ void USGGameInstance::OnSaveGameLoaded(const FString& TheSlotName, const int32 U
 	}
 }
 
+void USGGameInstance::ResetSavedGame()
+{
+	if (SavedData)
+	{
+		SavedData->PlayerStats.bSaveGameExists = false;
+		SavedData->SavedObjectives.ShouldLoad = false;
+	}
+}
+
+struct FSGSavedAttributes USGGameInstance::GetSavedUpgradeAttributes() const
+{
+	return SavedData->UpgradeSystemSavedAttributes;
+}
+
+struct FPlayerStats USGGameInstance::GetSavedPlayerStats() const
+{
+	return SavedData->PlayerStats;
+}
+
+struct FObjectiveSaveData USGGameInstance::GetSavedObjectives() const
+{
+	return SavedData->SavedObjectives;
+}
+
 USGSaveGame* USGGameInstance::GetSaveGame() const
 {
 	return SavedData;
 }
 
-void USGGameInstance::SavePlayerStats(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, const bool bAsync)
+void USGGameInstance::SaveGame(struct FPlayerStats PlayerStats,
+	struct FSGSavedAttributes UpgradeStats,
+	struct FObjectiveSaveData SavedObjectives,
+	const bool bAsync)
 {
 	if (!SavedData)
 	{
@@ -149,5 +177,6 @@ void USGGameInstance::SavePlayerStats(struct FPlayerStats PlayerStats, struct FS
 	}
 	SavedData->PlayerStats = PlayerStats;
 	SavedData->UpgradeSystemSavedAttributes = UpgradeStats;
+	SavedData->SavedObjectives = SavedObjectives;
 	SaveGameData(bAsync);
 }

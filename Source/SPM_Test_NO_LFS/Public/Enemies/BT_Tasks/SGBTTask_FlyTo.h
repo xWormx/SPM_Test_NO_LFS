@@ -1,0 +1,20 @@
+﻿
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
+#include "SGBTTask_FlyTo.generated.h"
+
+
+UCLASS()
+class SPM_TEST_NO_LFS_API USGBTTask_FlyTo : public UBTTask_BlackboardBase
+{
+	GENERATED_BODY()
+
+public:
+	USGBTTask_FlyTo();
+
+protected:
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& Comp, uint8* NodeMemory) override;
+};

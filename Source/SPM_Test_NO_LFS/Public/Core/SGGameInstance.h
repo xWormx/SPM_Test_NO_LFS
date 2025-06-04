@@ -56,13 +56,26 @@ public:
 	class USGSaveGame* GetSaveGame() const;
 
 	UFUNCTION(BlueprintCallable)
-	void SavePlayerStats(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, const bool bAsync);
+	void SaveGame(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, struct FObjectiveSaveData SavedObjectives,
+	const bool bAsync);
 
 	/*UFUNCTION(BlueprintCallable)
 	void SaveUpgradeStats(struct FSGSavedAttributes UpgradesStats, const bool bAsync);*/
 
 	UFUNCTION()
 	void OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData) const;
+
+	UFUNCTION(BlueprintCallable)
+	struct FPlayerStats GetSavedPlayerStats() const;
+
+	UFUNCTION(BlueprintCallable)
+	struct FSGSavedAttributes GetSavedUpgradeAttributes() const;
+
+	UFUNCTION(BlueprintCallable)
+	struct FObjectiveSaveData GetSavedObjectives() const;
+
+	UFUNCTION(BlueprintCallable)
+	void ResetSavedGame();
 
 		//Other
 	FOnGameLoaded OnGameLoaded;

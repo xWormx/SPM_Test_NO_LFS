@@ -2,6 +2,7 @@
 
 #include "Sound/SGVoiceLines.h"
 #include "Components/AudioComponent.h"
+#include "Components/SGHealthComponent.h"
 #include "Gear/Weapons/jola6902_GunsComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/SGPlayerCharacter.h"
@@ -69,9 +70,16 @@ void ASGVoiceLines::BindDelegateHandlers() const
 		PlayerRef->GunsComponent->OnReload.AddUniqueDynamic(this, &ASGVoiceLines::Voice_Reload);
 	}
 
+	if (PlayerRef->HealthComponent)
+	{
+		PlayerRef->HealthComponent->OnHurt.AddUniqueDynamic(this, &ASGVoiceLines::Voice_Hurt);
+		PlayerRef->HealthComponent->OnNoHealth.AddUniqueDynamic(this, &ASGVoiceLines::Voice_Death);
+	}
+
 	if (ObjectiveHandlerRef)
 	{
-		ObjectiveHandlerRef->OnObjectiveCompletedWithType.AddUniqueDynamic(this, &ASGVoiceLines::Voice_FindTerminal);
+		ObjectiveHandlerRef->OnObjectiveStartedWithType.AddUniqueDynamic(this, &ASGVoiceLines::Voice_ObjectiveStarted);
+		ObjectiveHandlerRef->OnObjectiveCompletedWithType.AddUniqueDynamic(this, &ASGVoiceLines::Voice_ObjectiveCompleted);
 	}
 }
 
@@ -85,7 +93,30 @@ void ASGVoiceLines::Voice_Reload(int32 GunIndex, ASGGun* Gun)
 	PlaySound(Sounds[1], 30.f);
 }
 
-void ASGVoiceLines::Voice_FindTerminal(EObjectiveType ObjectiveType)
+void ASGVoiceLines::Voice_ObjectiveStarted(EObjectiveType ObjectiveType)
 {
-	PlaySound(Sounds[2], 60.f);
+	if (ObjectiveType == EObjectiveType::EOT_PodArrival)
+	{
+		PlaySound(Sounds[3], 10.f);
+	}
+}
+
+void ASGVoiceLines::Voice_ObjectiveCompleted(EObjectiveType ObjectiveType)
+{
+	if (ObjectiveType == EObjectiveType::EOT_PodArrival ||
+		ObjectiveType == EObjectiveType::EOT_DefendThePod ||
+		ObjectiveType == EObjectiveType::EOT_FinalSweep)
+		return;
+	
+	PlaySound(Sounds[2], 30.f);
+}
+
+void ASGVoiceLines::Voice_Hurt(float NewHealth)
+{
+	PlaySound(Sounds[4], 3.f);
+}
+
+void ASGVoiceLines::Voice_Death(float NewHealth)
+{
+	PlaySound(Sounds[5], 30.f);
 }

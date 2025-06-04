@@ -33,4 +33,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UPROPERTY - PickUp")
 	float PickUpValue = 10.0f; //Random defaultvärde bara
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UPROPERTY - PickUp")
+	USoundBase* PickUpSound;
 };
