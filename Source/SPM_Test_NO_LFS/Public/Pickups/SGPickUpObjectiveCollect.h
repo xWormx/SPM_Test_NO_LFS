@@ -36,8 +36,5 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
 	UStaticMeshComponent* Mesh;
 
-	UPROPERTY(EditAnywhere, Category = "UPROPERTY - PickUp")
-	USoundBase* PickUpSound;
-
 	FVector InitialPosition;
 };
