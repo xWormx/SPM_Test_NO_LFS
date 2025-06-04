@@ -6,15 +6,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "AIController.h"
-#include "NavigationSystem.h"
-#include "Components/CapsuleComponent.h"
 #include "Enemies/Navigation/SGEnemyMoveToPoint.h"
 #include "Kismet/GameplayStatics.h"
 
 ASGAIControllerEnemyFlying::ASGAIControllerEnemyFlying()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickInterval = 0.5f;
+	//PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemyFlying::BeginPlay()
@@ -30,30 +28,52 @@ void ASGAIControllerEnemyFlying::BeginPlay()
 
 void ASGAIControllerEnemyFlying::SetFlyingMode(bool bShouldFly)
 {
-	if (!bShouldFly)
+	/*if (!bShouldFly)
 	{
 		return;
 	}
 	
-	/*const float TargetZ = AttackTarget->GetActorLocation().Z;
-	float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;*/
-
+	if (!ControlledEnemy)
+	{
+		return;
+	}
+	
 	CurrentLocation = ControlledEnemy->GetActorLocation();
 
-	GetWorld()->GetTimerManager().SetTimer(HoverZTimerHandle,
-		this,
-		&ASGAIControllerEnemyFlying::HoverZDelay,
-		1.f,
-		false
-		);
-
+	const float ZValue = CurrentLocation.Z;
 	
-	//CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
-	if (CurrentLocation == FVector::ZeroVector)
+	const float HoverZ = ZValue + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
+	
+	
+	CurrentLocation.Z = FMath::FInterpTo(ZValue, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
+	
+	ControlledEnemy->SetActorLocation(CurrentLocation, true);*/
+
+
+	if (!ControlledEnemy)
 	{
 		return;
 	}
-	ControlledEnemy->SetActorLocation(CurrentLocation, true);
+
+	FVector OriginalLocation = ControlledEnemy->GetActorLocation();
+	CurrentLocation = ControlledEnemy->GetActorLocation();
+
+	const float Time = GetWorld()->GetTimeSeconds();
+	const float Radius = 100.0f;
+	const float OrbitSpeed = 1.f;
+
+	float XOffset = FMath::Cos(Time * OrbitSpeed) * Radius;
+	float YOffset = FMath::Sin(Time * OrbitSpeed) * Radius;
+	float ZOffset = FMath::Sin(Time * HoverSpeed) * HoverAmplitude;
+
+	FVector TargetOrbitLocation = OriginalLocation;
+	TargetOrbitLocation.X += XOffset;
+	TargetOrbitLocation.Y += YOffset;
+	TargetOrbitLocation.Z += ZOffset;
+	
+	FVector NewLocation = FMath::VInterpTo(CurrentLocation, TargetOrbitLocation, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
+
+	ControlledEnemy->SetActorLocation(NewLocation, true);
 }
 
 void ASGAIControllerEnemyFlying::HandleMovement()
@@ -86,6 +106,8 @@ void ASGAIControllerEnemyFlying::FlyTowardsLocation(const FVector& TargetLocatio
 	{
 		return;
 	}
+
+	//BASIR_LOG(Warning, TEXT("Flying Towards Location : %s, from Location: %s"), *TargetLocation.ToCompactString(), *ControlledEnemy->GetActorLocation().ToCompactString());
 
 	FVector ToTarget = TargetLocation - ControlledEnemy->GetActorLocation();
 	FVector Direction = ToTarget.GetSafeNormal();
@@ -227,7 +249,7 @@ void ASGAIControllerEnemyFlying::SearchForTarget()
 		bHasFoundTarget = true;
 	}
 
-	if (IsStuck() || MoveToPoints.Num() == 1)
+	if (MoveToPoints.Num() == 1)
 	{
 		UpdateMoveToPoints();
 	}
@@ -244,39 +266,42 @@ void ASGAIControllerEnemyFlying::SearchForTarget()
 
 FVector ASGAIControllerEnemyFlying::GetFallbackChaseLocation() const
 {
-	if (!ControlledEnemy || !AttackTarget)
+	if (!ControlledEnemy)
 	{
-		return ControlledEnemy ? ControlledEnemy->GetActorLocation() : FVector::ZeroVector;
+		return FVector::ZeroVector;
 	}
 
 	const FVector EnemyLocation = ControlledEnemy->GetActorLocation();
-	const FVector TargetLocation = AttackTarget->GetActorLocation();
 
+	const float HorizontalOffset = 1000.0f;
+	const float VerticalOffset = 600.0f;
 	
-	FVector Direction = (TargetLocation - EnemyLocation).GetSafeNormal();
+	FVector RandomDirection = FMath::VRand();
+	RandomDirection.Z = 0.0f;
+	RandomDirection.Normalize();
 	
-	const float HorizontalOffset = 500.0f;
-	const float VerticalOffset = 300.0f;
-	const float SearchRadius = 100.0f;
-
-	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
-	if (!NavSys)
-	{
-		return EnemyLocation;
-	}
-	
-	FVector DesiredLocation = EnemyLocation + Direction * HorizontalOffset;
+	FVector DesiredLocation = EnemyLocation + RandomDirection * HorizontalOffset;
 	DesiredLocation.Z += FMath::RandRange(-VerticalOffset, VerticalOffset);
+	
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(ControlledEnemy);
+	
+	FCollisionShape CollisionSphere = FCollisionShape::MakeSphere(50.f);
 
-	FNavLocation ProjectedLocation;
-	bool bFound = NavSys->ProjectPointToNavigation(
+	bool bIsBlocked = GetWorld()->OverlapAnyTestByChannel(
 		DesiredLocation,
-		ProjectedLocation,
-		FVector(SearchRadius, SearchRadius, VerticalOffset),
-		nullptr
+		FQuat::Identity,
+		ECC_WorldStatic,  
+		CollisionSphere,
+		QueryParams
 	);
 
-	return bFound ? ProjectedLocation.Location : EnemyLocation;
+	if (!bIsBlocked)
+	{
+		return DesiredLocation;
+	}
+	
+	return GetFallbackChaseLocation();
 }
 
 void ASGAIControllerEnemyFlying::UpdateMoveToPoints()
@@ -313,7 +338,7 @@ void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 		}
 	}*/
 
-	if (!AttackTarget || !ControlledEnemy)
+	/*if (!AttackTarget || !ControlledEnemy)
 	{
 		return;
 	}
@@ -330,7 +355,11 @@ void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 	else
 	{
 		SearchForTarget();
-	}
+	}*/
+
+	//SetFlyingMode(true);
+	FVector MoveToLocation = GetFallbackChaseLocation();
+	FlyTowardsLocation(MoveToLocation);
 }
 
 void ASGAIControllerEnemyFlying::HoverZDelay()

@@ -75,6 +75,8 @@ public:
 	FOnObjectiveCompleted OnObjectiveCompleted;
 	FOnObjectiveCompletedWithType OnObjectiveCompletedWithType;
 	FOnObjectiveStartedWithType OnObjectiveStartedWithType;
+
+	
 	FOnEndGame OnEndGame;
 	
 	UFUNCTION()
@@ -84,6 +86,13 @@ private:
 	void OnWorldInitialized(const UWorld::FActorsInitializedParams& Params);
 	
 	void OnLoadGame(FObjectiveSaveData SaveData);
+
+//---Added By Basir	
+	void OnLoadGameDelay();
+	FObjectiveSaveData SavedData;
+	USGGameInstance* GameIns;
+	
+//---End 
 
 	void InitializeObjectiveToolTip();
 	void ReadObjectiveDataAsset();

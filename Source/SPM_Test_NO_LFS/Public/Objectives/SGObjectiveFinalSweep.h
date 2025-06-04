@@ -20,7 +20,10 @@ class UBoxComponent;
 /**
  * 
  */
- 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEscapeWithPodEnabled);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEscapeWithPodDisabled);
+
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGObjectiveFinalSweep : public ASGObjectiveBase, public ISGObjectiveInterface
 {
@@ -37,6 +40,9 @@ public:
 	virtual EObjectiveType GetObjectiveType() override { return EObjectiveType::EOT_FinalSweep; }
 
 	void IncrementEnemiesKilled();
+
+	FOnEscapeWithPodEnabled OnEscapeWithPodEnabled;
+	FOnEscapeWithPodDisabled OnEscapeWithPodDisabled;
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = "UPROPERTY", Meta = (AllowPrivateAccess = true))
@@ -52,7 +58,10 @@ private:
 	UBoxComponent* EscapeTriggerZone;
 
 	UFUNCTION()
-	void EndGame(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	void EnableEscapeWithPod(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	UFUNCTION()
+	void DisableEscapeWithPod(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };
 
 

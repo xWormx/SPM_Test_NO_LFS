@@ -78,7 +78,7 @@ protected:
 	class UBehaviorTree* BehaviorTree;
 	
 	//float values
-	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, Category= "Combat",  meta = (AllowPrivateAccess = true))
 	float AttackRange = 0;
 
 	UPROPERTY(EditAnywhere, Category= "Movement",  meta = (AllowPrivateAccess = true))

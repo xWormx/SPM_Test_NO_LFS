@@ -3,14 +3,17 @@
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
+#include "SPM_Test_NO_LFS.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/SGHealthComponent.h"
+#include "Core/SGObjectiveHandlerSubSystem.h"
 
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Objectives/SGObjectiveFinalSweep.h"
 #include "UI/SGMainHUD.h"
 
 void ASGPlayerController::BeginPlay()
@@ -132,11 +135,26 @@ void ASGPlayerController::Jump(const FInputActionValue& Value)
 
 void ASGPlayerController::Interact([[maybe_unused]] const FInputActionValue& Value)
 {
+	if (bCanEscapeWithPod)
+	{
+		USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
+		if (ObjectiveHandler)
+		{
+			ObjectiveHandler->OnEndGame.Broadcast();
+			CALLE_LOG(Error, TEXT("Game Over - Call some EndGame function here!"));
+		}
+	}
+	
 	if (!bCanInteractWithTerminal || !GetValidPlayerCharacter())
 	{
 		return;
 	}
-	OnInteract.Broadcast();
+	else
+	{
+		OnInteract.Broadcast();
+	}
+
+	
 	UE_LOG(LogTemp, Warning, TEXT("🤡Interact: Rage = %f"), PlayerCharacter->GetRage());
 }
 
@@ -199,6 +217,32 @@ bool ASGPlayerController::CanInteractWithTerminal() const
 {
 	return bCanInteractWithTerminal;
 }
+
+
+void ASGPlayerController::SetCanEscapeWithPod(bool bInCanEscapeWithPod)
+{
+	bCanEscapeWithPod = bInCanEscapeWithPod;
+}
+
+void ASGPlayerController::EnableEscape()
+{
+	SetCanEscapeWithPod(true);
+}
+
+void ASGPlayerController::DisableEscape()
+{
+	SetCanEscapeWithPod(false);
+}
+
+void ASGPlayerController::BindToEscapePod(ASGObjectiveFinalSweep* FinalSweepObjective)
+{
+	if (FinalSweepObjective == nullptr)
+		return;
+
+	FinalSweepObjective->OnEscapeWithPodEnabled.AddDynamic(this, &ASGPlayerController::EnableEscape);
+	FinalSweepObjective->OnEscapeWithPodDisabled.AddDynamic(this, &ASGPlayerController::DisableEscape);
+}
+
 
 //---- Added by Basir
 void ASGPlayerController::PauseGame()

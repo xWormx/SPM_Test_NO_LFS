@@ -6,6 +6,7 @@
 #include "SGPlayerController.generated.h"
 
 class UInputMappingContext;
+class ASGObjectiveFinalSweep;
 class USGTerminalWidget;
 class UCameraShakeBase;
 class UUserWidget;
@@ -64,6 +65,7 @@ private:
 
 	bool bCanInteractWithTerminal = false;
 	bool bWantToInteract = false;
+	bool bCanEscapeWithPod = false;
 
 public:
 	FOnInteract OnInteract;
@@ -74,8 +76,15 @@ public:
 	void SetWantToInteractWithTerminal(const bool bInteract);
 	bool CanInteractWithTerminal() const;
 
-private:
+	void SetCanEscapeWithPod(bool bInCanEscapeWithPod);
+	void BindToEscapePod(ASGObjectiveFinalSweep* FinalSweepObjective);
 
+private:
+	UFUNCTION()
+	void EnableEscape();
+	UFUNCTION()
+	void DisableEscape();
+	
 	UPROPERTY()
 	ASGPlayerCharacter* PlayerCharacter;
 

@@ -8,6 +8,7 @@
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "UI/Widgets/SGWeaponsHUD.h"
 #include "Gear/Weapons/SGGun.h"
+
 #include "Objectives/SGTerminal.h"
 #include "Components/Widget.h"
 #include "Core/SGGameInstance.h"
@@ -21,6 +22,9 @@
 #include "Widgets/SWeakWidget.h"
 #include "UI/Widgets/SGMainHUDWidget.h"
 #include "Utils/SGDeveloperSettings.h"
+
+#include "Objectives/SGObjectiveFinalSweep.h"
+#include "UI/Widgets/SGEndGameInteractWidget.h"
 
 #define LOCTEXT_NAMESPACE "SGMainHUD"
 
@@ -52,6 +56,16 @@ void ASGMainHUD::BeginPlay()
 		 * 2. EnterUIState() cannot handle this widget since MainHUDWidget is not created yet when we are in the start menu*/
 		Cast<USGGameInstance>(GetGameInstance())->GetObjectiveTooltipWidget()->SetVisibility(ESlateVisibility::Collapsed);
 	}
+
+	if (!EndGameInteractWidget.IsValid())
+	{
+		EndGameInteractWidget = CreateAndAddToViewPort<USGEndGameInteractWidget>(EndGameInteractClass, true);
+	}
+
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
+
+	Cast<USGGameInstance>(GetWorld()->GetGameInstance())->GetTerminalWidget()->OnVisibilityChanged.AddDynamic(this, &ASGMainHUD::OnTerminalVisibilityChanged);
+
 }
 
 void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -152,7 +166,25 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 }
 
 //TODO: Endgame meny (för när man vinner som visar mängden kills + restart + quit game) (Emma fixar)
+void ASGMainHUD::BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepObjective)
+{
+	if (!FinalSweepObjective)
+	{
+		return;
+	}
+
+	if (!EndGameInteractWidget.IsValid() || EndGameInteractWidget.IsStale())
+	{
+		EndGameInteractWidget = CreateAndAddToViewPort<USGEndGameInteractWidget>(EndGameInteractClass);
+	}
+
+	USGEndGameInteractWidget* EndGameInteractWidgetPtr = EndGameInteractWidget.Get();
+	FinalSweepObjective->OnEscapeWithPodEnabled.AddDynamic(EndGameInteractWidgetPtr, &USGEndGameInteractWidget::ShowEscapeWidget);
+	FinalSweepObjective->OnEscapeWithPodDisabled.AddDynamic(EndGameInteractWidgetPtr, &USGEndGameInteractWidget::HideEscapeWidget);
+}
+
 void ASGMainHUD::InitGameMenus()
+
 {
 	// Localized text for buttons and headers
 	const FText ContinueGameText = GetUIText("ContinueGameText");

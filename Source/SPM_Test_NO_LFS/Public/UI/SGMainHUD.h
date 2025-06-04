@@ -6,6 +6,8 @@
 #include "Widgets/SWeakWidget.h"
 #include "SGMainHUD.generated.h"
 
+class ASGObjectiveFinalSweep;
+class USGEndGameInteractWidget;
 class SDefaultMenu;
 class USGMainHUDWidget;
 class ASGPlayerCharacter;
@@ -15,6 +17,8 @@ enum EGameMenuState : uint8
 {
 	Start, Pause, GameOver, Victory
 };
+
+
 
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGMainHUD : public AHUD
@@ -32,6 +36,9 @@ public:
 	void InitHUD();
 	void InitStartMenu(bool AddToViewport = true);
 	void InitGameMenus();
+
+	void BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepObjective);
+
 
 	void EnterUIMode();
 
@@ -69,6 +76,14 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category ="Uproperty - HUD")
 	TSubclassOf<USGMainHUDWidget> MainHUDWidgetClass;
+
+	//----ENDGAME INTERACT
+	UPROPERTY(EditAnywhere, Category ="Uproperty - HUD")
+	TSubclassOf<USGEndGameInteractWidget> EndGameInteractClass;
+
+	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
+	TWeakObjectPtr<USGEndGameInteractWidget> EndGameInteractWidget;
+
 	
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<USGMainHUDWidget> MainHUDWidget;
