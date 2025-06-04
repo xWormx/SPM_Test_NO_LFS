@@ -12,6 +12,7 @@
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "Objectives/SGObjectiveFinalSweep.h"
 #include "UI/SGMainHUD.h"
 
 void ASGPlayerController::BeginPlay()
@@ -132,11 +133,26 @@ void ASGPlayerController::Jump(const FInputActionValue& Value)
 
 void ASGPlayerController::Interact([[maybe_unused]] const FInputActionValue& Value)
 {
+	if (bCanEscapeWithPod)
+	{
+		USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
+		if (ObjectiveHandler)
+		{
+			ObjectiveHandler->OnEndGame.Broadcast();
+			CALLE_LOG(Error, TEXT("Game Over - Call some EndGame function here!"));
+		}
+	}
+	
 	if (!bCanInteractWithTerminal || !GetValidPlayerCharacter())
 	{
 		return;
 	}
-	OnInteract.Broadcast();
+	else
+	{
+		OnInteract.Broadcast();
+	}
+
+	
 	UE_LOG(LogTemp, Warning, TEXT("🤡Interact: Rage = %f"), PlayerCharacter->GetRage());
 }
 
@@ -198,6 +214,30 @@ void ASGPlayerController::SetWantToInteractWithTerminal(const bool bInteract)
 bool ASGPlayerController::CanInteractWithTerminal() const
 {
 	return bCanInteractWithTerminal;
+}
+
+void ASGPlayerController::SetCanEscapeWithPod(bool bInCanEscapeWithPod)
+{
+	bCanEscapeWithPod = bInCanEscapeWithPod;
+}
+
+void ASGPlayerController::EnableEscape()
+{
+	SetCanEscapeWithPod(true);
+}
+
+void ASGPlayerController::DisableEscape()
+{
+	SetCanEscapeWithPod(false);
+}
+
+void ASGPlayerController::BindToEscapePod(ASGObjectiveFinalSweep* FinalSweepObjective)
+{
+	if (FinalSweepObjective == nullptr)
+		return;
+
+	FinalSweepObjective->OnEscapeWithPodEnabled.AddDynamic(this, &ASGPlayerController::EnableEscape);
+	FinalSweepObjective->OnEscapeWithPodDisabled.AddDynamic(this, &ASGPlayerController::DisableEscape);
 }
 
 

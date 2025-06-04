@@ -10,8 +10,10 @@
 #include "UI/Widgets/SGWeaponsHUD.h"
 #include "Gear/Weapons/SGGun.h"
 #include "Kismet/GameplayStatics.h"
+#include "Objectives/SGObjectiveFinalSweep.h"
 #include "Objectives/SGTerminal.h"
 #include "UI/Widgets/SGDifficultyBarWidget.h"
+#include "UI/Widgets/SGEndGameInteractWidget.h"
 
 static bool HasFirstQuestStarted = false;
 
@@ -30,11 +32,16 @@ void ASGMainHUD::BeginPlay()
 		WeaponsWidget = CreateAndAddToViewPort<USGWeaponsHUD>(WeaponsClass);
 	}
 
+	if (!EndGameInteractWidget.IsValid())
+	{
+		EndGameInteractWidget = CreateAndAddToViewPort<USGEndGameInteractWidget>(EndGameInteractClass, true);
+	}
+	
 	if (!HUDWidget.IsValid())
 	{
 		HUDWidget = CreateAndAddToViewPort<UUserWidget>(HUDClass);
 	}
-
+	
 	if (!DifficultyWidget.IsValid())
 	{
 		DifficultyWidget = CreateAndAddToViewPort<USGDifficultyBarWidget>(DifficultyClass);
@@ -109,6 +116,23 @@ void ASGMainHUD::BindToAmmoEvents(USGCounterComponentAmmo* AmmoComponent)
 	USGWeaponsHUD* WeaponsWidgetPtr = WeaponsWidget.Get();
 	AmmoComponent->OnPickedUpAmmo.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateAmmo);
 
+}
+
+void ASGMainHUD::BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepObjective)
+{
+	if (!FinalSweepObjective)
+	{
+		return;
+	}
+
+	if (!EndGameInteractWidget.IsValid() || EndGameInteractWidget.IsStale())
+	{
+		EndGameInteractWidget = CreateAndAddToViewPort<USGEndGameInteractWidget>(EndGameInteractClass);
+	}
+
+	USGEndGameInteractWidget* EndGameInteractWidgetPtr = EndGameInteractWidget.Get();
+	FinalSweepObjective->OnEscapeWithPodEnabled.AddDynamic(EndGameInteractWidgetPtr, &USGEndGameInteractWidget::ShowEscapeWidget);
+	FinalSweepObjective->OnEscapeWithPodDisabled.AddDynamic(EndGameInteractWidgetPtr, &USGEndGameInteractWidget::HideEscapeWidget);
 }
 
 void ASGMainHUD::PauseAndHide()

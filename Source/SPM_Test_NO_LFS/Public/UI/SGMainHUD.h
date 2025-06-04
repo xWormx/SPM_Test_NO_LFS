@@ -5,6 +5,8 @@
 #include "GameFramework/HUD.h"
 #include "SGMainHUD.generated.h"
 
+class ASGObjectiveFinalSweep;
+class USGEndGameInteractWidget;
 class USGProgressTrackerWidget;
 class USGStatTrackerWidget;
 class USGDifficultyBarWidget;
@@ -30,6 +32,7 @@ public:
 	void BindToGrappleEvents(ASGGrapplingHook* GrapplingHook);
 	void BindWeaponEvents(Ujola6902_GunsComponent* GunsComponent);
 	void BindToAmmoEvents(USGCounterComponentAmmo* AmmoComponent);
+	void BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepObjective);
 
 	void PauseAndHide();
 
@@ -73,7 +76,14 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<USGTerminalWidget> TerminalWidget;
+	
+	//----ENDGAME INTERACT
+	UPROPERTY(EditAnywhere, Category ="Uproperty - HUD")
+	TSubclassOf<USGEndGameInteractWidget> EndGameInteractClass;
 
+	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
+	TWeakObjectPtr<USGEndGameInteractWidget> EndGameInteractWidget;
+	
 //------------HUD------------
 	//----CONTAINER
 	UPROPERTY(EditAnywhere, Category = "Uproperty - HUD")
