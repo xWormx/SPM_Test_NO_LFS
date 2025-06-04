@@ -1,6 +1,7 @@
 ﻿#include "Pickups/SGPickUp.h"
 
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 
 ASGPickUp::ASGPickUp()
@@ -22,6 +23,8 @@ void ASGPickUp::BeginPlay()
 
 void ASGPickUp::OnPickup_Implementation()
 {
+	if (PickUpSound) UGameplayStatics::PlaySound2D(this, PickUpSound);
+	
 	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
 }
 
