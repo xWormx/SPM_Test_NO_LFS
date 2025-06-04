@@ -44,5 +44,8 @@ public:
 	void Voice_Reload(int32 GunIndex, class ASGGun* Gun);
 
 	UFUNCTION()
-	void Voice_FindTerminal(EObjectiveType ObjectiveType);
+	void Voice_ObjectiveStarted(EObjectiveType ObjectiveType);
+	
+	UFUNCTION()
+	void Voice_ObjectiveCompleted(EObjectiveType ObjectiveType);
 };
