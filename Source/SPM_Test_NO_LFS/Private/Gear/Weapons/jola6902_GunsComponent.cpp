@@ -102,9 +102,10 @@ void Ujola6902_GunsComponent::ReloadGun()
 {
 	if (ASGGun* Gun = Guns[CurrentGunIndex])
 	{
-		Gun->Reload();
-
-		OnReload.Broadcast(CurrentGunIndex, Gun);
+		if (Gun->Reload())
+		{
+			OnReload.Broadcast(CurrentGunIndex, Gun);
+		}
 	}
 }
 

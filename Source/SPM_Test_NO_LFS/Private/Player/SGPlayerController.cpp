@@ -4,11 +4,11 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 
-#include "SPM_Test_NO_LFS.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Gear/Grapple/SGGrapplingHook.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/SGHealthComponent.h"
+
 #include "Core/SGUpgradeSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/SGMainHUD.h"
@@ -91,6 +91,7 @@ void ASGPlayerController::SetupInputComponent()
 
 	// Calle: TestButton
 	Input->BindAction(TestButtonAction, ETriggerEvent::Triggered, this, &ASGPlayerController::TestButtonPressed);
+	Input->BindAction(TestLoadButtonAction, ETriggerEvent::Triggered, this, &ASGPlayerController::TestLoadButtonPressed);
 
 	if (!ensure(GetLocalPlayer()))
 	{
@@ -164,6 +165,11 @@ void ASGPlayerController::Grapple([[maybe_unused]] const FInputActionValue& Valu
 void ASGPlayerController::TestButtonPressed(const FInputActionValue& Value)
 {
 	OnTestButtonPressed.Broadcast();
+}
+
+void ASGPlayerController::TestLoadButtonPressed(const FInputActionValue& Value)
+{
+	OnTestLoadButtonPressed.Broadcast();
 }
 
 //---- HELPERS

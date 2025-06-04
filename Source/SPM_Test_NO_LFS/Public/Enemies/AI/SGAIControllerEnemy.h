@@ -95,7 +95,11 @@ protected:
 	UPROPERTY(EditAnywhere,  Category= "Movement", meta = (AllowPrivateAccess = true))
 	bool bShouldAlwaysChaseTarget = false;
 
+	bool bShouldBeFlying = false;
+
 	//FVector values
+	FVector ControlledEnemyLocation = FVector::ZeroVector;
+	
 	FVector LastLocation = FVector::ZeroVector;
 
 	FVector AttackTargetLocation = FVector::ZeroVector;
