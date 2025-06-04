@@ -71,7 +71,8 @@ void ASGVoiceLines::BindDelegateHandlers() const
 
 	if (ObjectiveHandlerRef)
 	{
-		ObjectiveHandlerRef->OnObjectiveCompletedWithType.AddUniqueDynamic(this, &ASGVoiceLines::Voice_FindTerminal);
+		ObjectiveHandlerRef->OnObjectiveStartedWithType.AddUniqueDynamic(this, &ASGVoiceLines::Voice_ObjectiveStarted);
+		ObjectiveHandlerRef->OnObjectiveCompletedWithType.AddUniqueDynamic(this, &ASGVoiceLines::Voice_ObjectiveCompleted);
 	}
 }
 
@@ -85,7 +86,15 @@ void ASGVoiceLines::Voice_Reload(int32 GunIndex, ASGGun* Gun)
 	PlaySound(Sounds[1], 30.f);
 }
 
-void ASGVoiceLines::Voice_FindTerminal(EObjectiveType ObjectiveType)
+void ASGVoiceLines::Voice_ObjectiveStarted(EObjectiveType ObjectiveType)
+{
+	if (ObjectiveType == EObjectiveType::EOT_PodArrival)
+	{
+		
+	}
+}
+
+void ASGVoiceLines::Voice_ObjectiveCompleted(EObjectiveType ObjectiveType)
 {
 	PlaySound(Sounds[2], 60.f);
 }
