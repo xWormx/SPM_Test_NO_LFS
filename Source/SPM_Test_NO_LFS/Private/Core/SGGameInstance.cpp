@@ -10,7 +10,7 @@ void USGGameInstance::Init()
 	Super::Init();
 
 	LoadGameData(false);
-	ResetSavedGame();
+	//ResetSavedGame();
 
 	//GetSubsystem<USGUpgradeSubsystem>()->LoadPersistentUpgrades(SavedData->UpgradeSystemSavedAttributes);
 
