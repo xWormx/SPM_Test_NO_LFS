@@ -36,9 +36,9 @@ void USGBTService_SetCanSeeTarget::TickNode(UBehaviorTreeComponent& OwnerComp, u
 	if (AIController->LineOfSightTo(AttackTarget))
 	{
 		AIController->GetBlackboardComponent()->SetValueAsBool(GetSelectedBlackboardKey(), true);
+		return;
 	}
-	else
-	{
-		AIController->GetBlackboardComponent()->SetValueAsBool(GetSelectedBlackboardKey(), false);
-	}
+	
+	AIController->GetBlackboardComponent()->SetValueAsBool(GetSelectedBlackboardKey(), false);
+	
 }

@@ -15,7 +15,7 @@
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickInterval = 0.5f;
+	//PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemyBase::BeginPlay()

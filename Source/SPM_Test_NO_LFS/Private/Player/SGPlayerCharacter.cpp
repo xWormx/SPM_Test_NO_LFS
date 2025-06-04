@@ -9,6 +9,7 @@
 #include "Components/Counters/SGCounterComponentAmmo.h"
 #include "Components/Counters/SGCounterComponentHealth.h"
 #include "Components/Counters/SGCounterComponentOrbs.h"
+#include "Core/SGGameInstance.h"
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -59,16 +60,15 @@ void ASGPlayerCharacter::BeginPlay()
 
 	GetCharacterMovement()->AirControl = AirControl;
 
-	/*USGGameInstance* GameIns = Cast<USGGameInstance>(GetGameInstance());
+	USGGameInstance* GameIns = Cast<USGGameInstance>(GetGameInstance());
 
 	if (GameIns)
 	{
-		UseSavedGame(GameIns->GetSaveGame()->PlayerStats);
+		if (GameIns->GetSavedPlayerStats().bSaveGameExists)
+		{
+			UseSavedGame(GameIns->GetSavedPlayerStats());
+		}
 	}
-	else
-	{
-		BASIR_LOG(Warning, TEXT("GameInstance was not found!"));
-	}*/
 
 	if ((GrapplingHook = GetWorld()->SpawnActor<ASGGrapplingHook>(GrapplingHookClass)))
 	{
@@ -108,6 +108,8 @@ void ASGPlayerCharacter::OnComponentHit([[maybe_unused]] UPrimitiveComponent* Hi
 FPlayerStats ASGPlayerCharacter::GetPlayerStats()
 {
 	FPlayerStats PlayerStats;
+
+	PlayerStats.bSaveGameExists = true;
 	PlayerStats.PlayerTransform = GetActorTransform();
 
 	if (PlayerController)

@@ -10,7 +10,7 @@
 
 UBTService_SetRetreatLocation::UBTService_SetRetreatLocation()
 {
-	NodeName = TEXT("Set Retreat Distance");
+	NodeName = TEXT("Set Retreat Location");
 }
 
 void UBTService_SetRetreatLocation::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)

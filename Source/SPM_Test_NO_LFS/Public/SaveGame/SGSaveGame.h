@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "GameFramework/SaveGame.h"
 #include "SGSaveGame.generated.h"
@@ -17,6 +18,9 @@ struct FPlayerStats
 		ScorePoints = 0;
 		Health = 0;
 	}
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bSaveGameExists = false;
 	
 	UPROPERTY(EditAnywhere)
 	FTransform PlayerTransform;
@@ -41,4 +45,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	struct FSGSavedAttributes UpgradeSystemSavedAttributes;
+
+	UPROPERTY(EditAnywhere)
+	struct FObjectiveSaveData SavedObjectives;
 };
