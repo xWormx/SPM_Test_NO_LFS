@@ -48,4 +48,10 @@ public:
 	
 	UFUNCTION()
 	void Voice_ObjectiveCompleted(EObjectiveType ObjectiveType);
+
+	UFUNCTION()
+	void Voice_Hurt(float NewHealth);
+
+	UFUNCTION()
+	void Voice_Death(float NewHealth);
 };
