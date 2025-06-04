@@ -85,6 +85,13 @@ private:
 	
 	void OnLoadGame(FObjectiveSaveData SaveData);
 
+//---Added By Basir	
+	void OnLoadGameDelay();
+	FObjectiveSaveData SavedData;
+	USGGameInstance* GameIns;
+	
+//---End 
+
 	void InitializeObjectiveToolTip();
 	void ReadObjectiveDataAsset();
 

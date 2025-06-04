@@ -20,6 +20,7 @@
 #include "Objectives/SGObjectivePodArrival.h"
 #include "Objectives/SaveData/SGObjectiveSaveData.h"
 #include "Player/SGPlayerController.h"
+#include "SaveGame/SGSaveGame.h"
 
 
 void USGObjectiveHandlerSubSystem::Initialize(FSubsystemCollectionBase& Collection)
@@ -28,6 +29,7 @@ void USGObjectiveHandlerSubSystem::Initialize(FSubsystemCollectionBase& Collecti
 	CALLE_LOG(Warning, TEXT("ObjectiveHandler SubSystem Initialize"));
 	
 	FWorldDelegates::OnWorldInitializedActors.AddUObject(this, &USGObjectiveHandlerSubSystem::OnWorldInitialized);
+	
 }
 
 void USGObjectiveHandlerSubSystem::Deinitialize()
@@ -41,20 +43,43 @@ void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
 	
 	InitializeObjectiveToolTip();
 
-	USGGameInstance* GameInstance = GetWorld()->GetGameInstance<USGGameInstance>();
+	/*USGGameInstance* GameInstance = GetWorld()->GetGameInstance<USGGameInstance>();
 	if (GameInstance)
 	{
 		FObjectiveSaveData ObjectiveSaveData; // = funktion som basir skapar
 		if (ObjectiveSaveData.ShouldLoad)
 		{
+			UE_LOG(LogTemp, Display, TEXT("Should Load Objectives"));
 			OnLoadGame(ObjectiveSaveData);
 		}
 		else
 		{
 			ReadObjectiveDataAsset();		
 		}
+	}*/
+//---Added By Basir
+	GameIns = Cast<USGGameInstance>(GetWorld()->GetGameInstance());
+
+	if (GameIns)
+	{
+		SavedData = GameIns->GetSavedObjectives();
+
+		if (SavedData.ShouldLoad == true)
+		{
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(
+				TimerHandle,
+				this,
+				&USGObjectiveHandlerSubSystem::OnLoadGameDelay,
+				3.f,
+				false);
+		}
+		else
+		{
+			ReadObjectiveDataAsset();
+		}
 	}
-	
+//---End	
 
 	ASGPlayerController* Controller = Cast<ASGPlayerController>(GetWorld()->GetFirstPlayerController());
 	if (Controller)
@@ -102,6 +127,12 @@ void USGObjectiveHandlerSubSystem::OnLoadGame(FObjectiveSaveData SaveData)
 			RemoveCurrentObjective();
 		}
 	}
+}
+
+void USGObjectiveHandlerSubSystem::OnLoadGameDelay()
+{
+	UE_LOG(LogTemp, Display, TEXT("Should Load Objectives"));
+	OnLoadGame(SavedData);
 }
 
 FObjectiveSaveData USGObjectiveHandlerSubSystem::GetSaveGameData()
