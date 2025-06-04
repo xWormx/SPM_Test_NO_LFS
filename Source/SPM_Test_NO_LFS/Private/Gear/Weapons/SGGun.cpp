@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/DamageEvents.h"
 #include "NiagaraFunctionLibrary.h"
+#include "SPM_Test_NO_LFS.h"
 #include "Player/SGPlayerCharacter.h"
 
 // Public
@@ -178,6 +179,48 @@ void ASGGun::BeginPlay()
 		 * i nuläget är (och förmodligen kommer vara) enda stället det här sker, så låter jag det vara (just nu). Mvh Emma */
 		UpgradeSystem->BindAttribute(this, TEXT("ReloadTime"), TEXT("GunReloadSpeed"), TEXT("Assault Rifle"));
 	}
+
+	/**
+	 * In some sense, a more optimal solution would be to have the materials collected and managed by the GunsComponent,
+	 * since every gun now owns a reference to the PlayerRef weaponmesh. This could be considered being some sort of redundency
+	 * and it might cause confusion when running the UpdateAndShowAmmoOnMesh function directly on any Gun instance, since only the active Gun should update it,
+	 * but it has no way to check if "am I the active Gun".
+	 *
+	 * Reasons for this to be in the Gun class instead of the GunsComponent is because it requires less changes in the overall codebase - only additions and no changes in the overall logic/flow.
+	 * As well as there is a sense of separation of concerns, where the Gun class is responsible for its "own" materials and ammo count. Even though it is attached to the PlayerRef it is still a representation of the Gun itself.
+	 * The WeaponHUD calls the UpdateAndShowAmmoOnMesh every time it updates the ammo count on an active Gun. The sense there is that it could be considered "UI" related.
+	 *
+	 * 💡Simple and possible solutions if this becomes a issue:
+	 * - bool, maybe gameplay tag that gets added/removed to used as a safeguard to check if the Gun is the active one, before updating the ammo materials.
+	 *		"Requires" changes in the GunsComponent to check and update this, since we are then changing logic-related things and not just UI.
+	 * - Moving the ammo materials to the GunsComponent and having it update the materials for the active Gun.
+	 *		Requires access to the player's weapon mesh and storing references to the materials,
+	 *		and for the GetCurrentGun function to not be returning a const reference or having GetAmmoClip being declared as const.
+	 */
+	if (PlayerRef && PlayerRef->WeaponMesh)
+	{
+		/*
+		 * Fully possible to just directly set the material on the given index directly (left 1 and right 2).
+		 * Looping through them to just make it a tiny bit more robust if some change would happen to the materials in the future.
+		 */
+		for (int i = 0; i < PlayerRef->WeaponMesh->GetMaterials().Num(); ++i)
+		{
+			UMaterialInterface* Material = PlayerRef->WeaponMesh->GetMaterial(i);
+			FString MaterialName = Material ? Material->GetName() : FString();
+			if (!MaterialName.Contains("AmmoCount"))
+			{
+				continue;
+			}
+			if (MaterialName.Contains("Left"))
+			{
+				LeftAmmoCountMaterial = PlayerRef->WeaponMesh->CreateAndSetMaterialInstanceDynamicFromMaterial(i, Material);
+			}
+			else if (MaterialName.Contains("Right"))
+			{
+				RightAmmoCountMaterial = PlayerRef->WeaponMesh->CreateAndSetMaterialInstanceDynamicFromMaterial(i, Material);
+			}
+		}
+	}
 }
 
 AController* ASGGun::GetOwnerController() const
@@ -277,4 +320,19 @@ void ASGGun::FinishReloading()
 	}
 
 	bIsReloading = false;
+}
+
+void ASGGun::UpdateAndShowAmmoOnMesh()
+{
+	if (!LeftAmmoCountMaterial || !RightAmmoCountMaterial)
+	{
+		EMMA_LOG(Error, TEXT("🔫ASGGun::UpdateAndShowAmmoOnMesh() | Left or Right AmmoCount material is not set!"));
+		return;
+	}
+
+	float TensFloat = static_cast<float>(GetAmmoClip() / 10);
+	float OnesFloat = static_cast<float>(GetAmmoClip() % 10);
+
+	LeftAmmoCountMaterial->SetScalarParameterValue(TEXT("AmmoCount"), TensFloat / 10.f);
+	RightAmmoCountMaterial->SetScalarParameterValue(TEXT("AmmoCount"), OnesFloat / 10.f);
 }

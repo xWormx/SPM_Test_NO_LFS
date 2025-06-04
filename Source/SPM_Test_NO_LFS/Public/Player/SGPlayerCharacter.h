@@ -65,6 +65,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Uproperty - Player | Weapons", meta=(AllowPrivateAccess="true"))
 	USkeletalMeshComponent* WeaponMesh;
 
+	friend class ASGGun;
+
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BPFire();

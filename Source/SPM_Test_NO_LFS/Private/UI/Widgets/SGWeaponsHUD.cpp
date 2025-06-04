@@ -117,6 +117,8 @@ void USGWeaponsHUD::ChangeWeapon(const int32 WeaponIndex, [[maybe_unused]] ASGGu
 		}
 		WeaponEntry->SetIsEnabled(i == WeaponIndex);
 	}
+
+	Gun->UpdateAndShowAmmoOnMesh();
 }
 
 void USGWeaponsHUD::UpdateWeapon(int32 WeaponIndex, ASGGun* Gun)
@@ -132,6 +134,7 @@ void USGWeaponsHUD::UpdateWeapon(int32 WeaponIndex, ASGGun* Gun)
 		return;
 	}
 	UpdateEntryAmmo(Gun->GetAmmoClip(), WeaponEntry.Get());
+	Gun->UpdateAndShowAmmoOnMesh();
 }
 
 void USGWeaponsHUD::ReloadWeapon(int32 WeaponIndex, ASGGun* Gun)
@@ -159,7 +162,9 @@ void USGWeaponsHUD::ReloadWeapon(int32 WeaponIndex, ASGGun* Gun)
 			WeaponEntry.Get()->WeaponNameTextBlock->SetText(Gun->GetWeaponDisplayName());
 			UpdateEntryAmmo(Gun->GetAmmoClip(), WeaponEntry.Get());
 			GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
+			Gun->UpdateAndShowAmmoOnMesh();
 		}
+
 	});
 
 	constexpr float ReloadTime = 0.1f; // Gun->GetReloadTime();
@@ -192,6 +197,7 @@ void USGWeaponsHUD::UpdateAmmo([[maybe_unused]] int32 AmmoAmount, ASGGun* Gun)
 	{
 		WeaponEntry->Get()->AmmoClipTextBlock->SetColorAndOpacity(GetAmmoStateChangeColor(ClipAmmo));
 		UpdateEntryAmmo(ClipAmmo, WeaponEntry->Get());
+		Gun->UpdateAndShowAmmoOnMesh();
 		return;
 	}
 

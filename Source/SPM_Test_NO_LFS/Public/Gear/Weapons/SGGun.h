@@ -96,4 +96,30 @@ protected:
 private:
 	virtual bool HitScan(FHitResult& OutHitResult, FVector& OutShotDirection);
 	void FinishReloading();
+
+public:
+	/**
+	 * Changes the ammo count displayed on the player weapon mesh.
+	 *
+	 * @warning ⚠️Before calling this function, verify this is the active gun in the GunsComponent.
+	 * Otherwise, an inactive gun may override what is displayed.️
+	 *
+	 * Example usage:
+	 * @code
+	 * if (GunsComponent->GetCurrentGun() == this)
+	 * {
+	 *     UpdateAmmoMaterials();
+	 * }
+	 * @endcode
+	 */
+	UFUNCTION(BlueprintCallable, Category="UFunction - Gun", meta=(ToolTip ="Before calling this function, make sure to check if the gun is the active gun in the GunsComponent"))
+	void UpdateAndShowAmmoOnMesh();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UProperty - Gun", meta=(AllowPrivateAccess="true"))
+	UMaterialInstanceDynamic* LeftAmmoCountMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UProperty - Gun", meta=(AllowPrivateAccess="true"))
+	UMaterialInstanceDynamic* RightAmmoCountMaterial;
+
 };
