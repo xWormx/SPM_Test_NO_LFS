@@ -85,7 +85,7 @@ void ASGMainHUD::BindToPlayerComponentEvents(ASGPlayerCharacter* PlayerCharacter
 
 		GunsComponent->OnSwitchedGun.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::ChangeWeapon);
 		GunsComponent->OnFireGun.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateWeapon);
-		GunsComponent->OnReload.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateWeapon);
+		GunsComponent->OnReload.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::ReloadWeapon);
 
 		TArray<ASGGun*> Guns = GunsComponent->GetGuns();
 		WeaponsWidgetPtr->SetAvailableWeapons(Guns);
@@ -122,7 +122,6 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 			LoadMap(GameLevelMap);
 			return FReply::Handled();
 		}), true);
-
 	FButtonData ButtonDataQuitGame = SGWidgetFactory::MenuButton(QuitGameText, FOnClicked::CreateLambda([this]
 		{
 			QuitGame();
@@ -132,7 +131,7 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 	//Define background colors for menu
 	FLinearColor StartMenuBackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.8f);
 
-	FMenuData MenuData =  SGWidgetFactory::CreateMenuData(
+	FMenuData StartMenuData =  SGWidgetFactory::CreateMenuData(
 		MainMenuHeaderText,
 		SGWidgetFactory::ButtonGroup({ ButtonDataStartGame, ButtonDataQuitGame }, Orient_Vertical,
 			FAlignmentData(HAlign_Fill, VAlign_Top)),
@@ -141,7 +140,7 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 	);
 
 	// Create the Slate widget for the Start Menu (and add it to the viewport if specified)
-	MenuSlateWidget = SNew(SDefaultMenu).InMenuData(MenuData);
+	MenuSlateWidget = SNew(SDefaultMenu).InMenuData(StartMenuData);
 	if (AddToViewport)
 	{
 		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
@@ -149,21 +148,12 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 
 	//Not really necessary, but for consistency
 	LastGameMenuState = Start;
-	GameMenusData.Add(Start, MenuData);
+	GameMenusData.Add(Start, StartMenuData);
 }
 
 //TODO: Endgame meny (för när man vinner som visar mängden kills + restart + quit game) (Emma fixar)
 void ASGMainHUD::InitGameMenus()
 {
-	// Localized text for buttons and headers
-	/*const FText ContinueGameText = LOCTEXT("ContinueGameText", "Continue Game");
-	const FText RestartGameText = LOCTEXT("RestartGameText", "Restart Game");
-	const FText SaveGameText = LOCTEXT("SaveGameText", "Save Game");
-	const FText ReturnToMainMenuText = LOCTEXT("ReturnToMainMenuText", "Return to Main Menu");
-
-	const FText PausedText = LOCTEXT("PausedMenuHeaderText", "Paused");
-	const FText GameOverText = LOCTEXT("GameOverHeaderText", "Game Over");
-	const FText VictoryText = LOCTEXT("VictoryHeaderText", "Victory");*/
 	// Localized text for buttons and headers
 	const FText ContinueGameText = GetUIText("ContinueGameText");
 	const FText RestartGameText = GetUIText("RestartGameText");
