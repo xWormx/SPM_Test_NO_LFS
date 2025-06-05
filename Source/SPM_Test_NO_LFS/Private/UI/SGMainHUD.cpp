@@ -315,7 +315,7 @@ void ASGMainHUD::InitGameMenus()
 	FMenuData VictoryMenuData = SGWidgetFactory::CreateMenuData(
 		VictoryText,
 		SGWidgetFactory::ButtonGroup({ButtonVictoryContinueGame, ButtonVictoryReturnToMainMenu},
-		                             Orient_Horizontal, FAlignmentData(HAlign_Center, VAlign_Fill)),
+		                             Orient_Horizontal, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 		SGWidgetFactory::Background(GameOverBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 		{HAlign_Fill, VAlign_Center}
 	);
