@@ -164,4 +164,7 @@ private:
 
     UPROPERTY(EditAnywhere)
     class ASGVoiceLines* VoiceLineManager = nullptr;
+
+    UPROPERTY(EditAnywhere)
+    class ASGMusicPlayer* MusicPlayer = nullptr;
 };
