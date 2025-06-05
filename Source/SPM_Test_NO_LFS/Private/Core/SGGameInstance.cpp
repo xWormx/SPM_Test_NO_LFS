@@ -199,5 +199,5 @@ void USGGameInstance::CollectAndSave(const bool bAsync)
 		EMMA_LOG(Warning, TEXT("💀PlayerCharacter is NULL, cannot collect player stats."));
 		return;
 	}
-	SavePlayerStats(PlayerCharacter->GetPlayerStats(), UpgradeStats, bAsync);
+	//SavePlayerStats(PlayerCharacter->GetPlayerStats(), UpgradeStats, bAsync);
 }

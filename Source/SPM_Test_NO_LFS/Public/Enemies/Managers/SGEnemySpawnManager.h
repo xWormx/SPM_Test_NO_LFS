@@ -9,6 +9,15 @@
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "SGEnemySpawnManager.generated.h"
 
+USTRUCT()
+struct FSaveData
+{
+    GENERATED_BODY()
+
+    bool bSaveGameExists;
+    int32 MissionsCompleted;
+};
+
 UENUM(BlueprintType)
 enum class ESpawnMode : uint8
 {
@@ -38,6 +47,9 @@ class ASGEnemySpawnManager : public AActor
 
 public:
     ASGEnemySpawnManager();
+
+    FSaveData GetSaveData();
+    void LoadSaveData(FSaveData SaveData);
 
     virtual void Tick(float DeltaTime) override;
     virtual void BeginPlay() override;
