@@ -79,7 +79,7 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 			}
 			else
 			{
-				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, 1000);
+				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, 3000);
 			}
 				
 			Head->SetActorLocation(NewHeadPosition);
