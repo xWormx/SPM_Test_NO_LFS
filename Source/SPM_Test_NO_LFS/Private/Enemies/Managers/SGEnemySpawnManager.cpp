@@ -11,6 +11,7 @@
 #include "Utils/SGObjectPoolSubsystem.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "SaveGame/SGSaveGame.h"
+#include "Sound/SGMusicPlayer.h"
 #include "Sound/SGVoiceLines.h"
 
 ASGEnemySpawnManager::ASGEnemySpawnManager()
@@ -335,12 +336,22 @@ void ASGEnemySpawnManager::HandleMissionStart(EObjectiveType ObjectiveType)
     }
 
     StartSpawning();
+
+    if (MusicPlayer)
+    {
+        MusicPlayer->Music_ObjectiveStarted(ObjectiveType);
+    }
 }
 
 void ASGEnemySpawnManager::HandleMissionEnd(EObjectiveType ObjectiveType)
 {
     MissionsCompleted++;
     StopSpawning();
+
+    if (MusicPlayer)
+    {
+        MusicPlayer->Music_ObjectiveCompleted(ObjectiveType);
+    }
 }
 
 void ASGEnemySpawnManager::DrawDebug()
