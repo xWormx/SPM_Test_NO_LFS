@@ -16,6 +16,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "Player/SGPlayerController.h"
+#include "Player/SGPlayerSpawnPoint.h"
 #include "SaveGame/SGSaveGame.h"
 
 
@@ -60,6 +61,8 @@ void ASGPlayerCharacter::BeginPlay()
 	PlayerController = Cast<ASGPlayerController>(GetController());
 
 	GetCharacterMovement()->AirControl = AirControl;
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGPlayerSpawnPoint::StaticClass(), SpawnPoints);
 
 	USGGameInstance* GameIns = Cast<USGGameInstance>(GetGameInstance());
 
@@ -111,7 +114,8 @@ FPlayerStats ASGPlayerCharacter::GetPlayerStats()
 	FPlayerStats PlayerStats;
 
 	PlayerStats.bSaveGameExists = true;
-	PlayerStats.PlayerTransform = GetActorTransform();
+
+	PlayerStats.PlayerTransform = GetSpawnPointTransform();
 
 	if (PlayerController)
 	{
@@ -157,4 +161,40 @@ ASGEnemySpawnManager* ASGPlayerCharacter::GetCurrentSpawnManager()
 		return CurrentSpawnManager;
 	}
 	return nullptr;
+}
+
+FTransform ASGPlayerCharacter::GetSpawnPointTransform()
+{
+	FTransform PlayerNewTransform;
+	int32 ObjectiveID = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->GetSaveGameData().NumObjectivesCompleted;
+
+	if (ObjectiveID >= 0)
+	{
+		PlayerNewTransform = GetActorTransform();
+		return PlayerNewTransform;
+	}
+
+	for (int32 i = 0; i < SpawnPoints.Num(); i++)
+	{
+		ASGPlayerSpawnPoint* NewSpawnPoint = Cast<ASGPlayerSpawnPoint>(SpawnPoints[i]);
+		if (ObjectiveID == 1)
+		{
+			if (NewSpawnPoint && NewSpawnPoint->SpawnNumber == 1)
+			{
+				PlayerNewTransform = NewSpawnPoint->GetTransform();
+				return PlayerNewTransform;
+			}
+		}
+		if (ObjectiveID > 1)
+		{
+			if (NewSpawnPoint && NewSpawnPoint->SpawnNumber == 2)
+			{
+				PlayerNewTransform = NewSpawnPoint->GetTransform();
+				return PlayerNewTransform;
+			}
+		}
+		
+	}
+
+	return GetActorTransform();
 }
