@@ -21,7 +21,7 @@ void ASGMusicPlayer::Music_ObjectiveStarted(EObjectiveType ObjectiveType)
 	if (BackdropAudioComponent && MainThemeAudioComponent)
 	{
 		GetWorldTimerManager().ClearTimer(RockNRollDelayTimerHandle);
-		GetWorldTimerManager().SetTimer(RockNRollDelayTimerHandle, this, &ASGMusicPlayer::FadeInMainTheme, 6.50f, false);
+		GetWorldTimerManager().SetTimer(RockNRollDelayTimerHandle, this, &ASGMusicPlayer::FadeInMainTheme, 5.00f, false);
 	}
 }
 
