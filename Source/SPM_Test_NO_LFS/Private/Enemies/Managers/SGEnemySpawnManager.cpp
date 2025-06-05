@@ -3,17 +3,32 @@
 #include "Enemies/Managers/SGEnemySpawnManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Core/SGGameInstance.h"
 #include "Enemies/Managers/SGEnemySpawnVolume.h"
 #include "Enemies/Managers/SGEnemySpawnPoint.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Player/SGPlayerCharacter.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
+#include "SaveGame/SGSaveGame.h"
 #include "Sound/SGVoiceLines.h"
 
 ASGEnemySpawnManager::ASGEnemySpawnManager()
 {
     PrimaryActorTick.bCanEverTick = true;
+}
+
+FSaveData ASGEnemySpawnManager::GetSaveData()
+{
+    FSaveData SaveData;
+    SaveData.MissionsCompleted = MissionsCompleted;
+    return SaveData;
+}
+
+void ASGEnemySpawnManager::LoadSaveData(FSaveData SaveData)
+{
+    MissionsCompleted = SaveData.MissionsCompleted;
+    HandleMissionStart(EObjectiveType::EOT_None);
 }
 
 // Sätter upp referenser och bindings
@@ -33,6 +48,16 @@ void ASGEnemySpawnManager::BeginPlay()
     {
         UE_LOG(LogTemp, Error, TEXT("SGEnemySpawnManager::BeginPlay() | ObjectiveHandlerSubSystem not found! Spawning will not respond to objectives."));
         SpawnMode = ESpawnMode::AroundPlayer;
+    }
+
+    USGGameInstance* GameIns = Cast<USGGameInstance>(GetGameInstance());
+
+    if (GameIns)
+    {
+        if (GameIns->GetSavedSGEnemySpawnManager().bSaveGameExists)
+        {
+            LoadSaveData(GameIns->GetSavedSGEnemySpawnManager());
+        }
     }
 }
 
