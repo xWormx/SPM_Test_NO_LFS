@@ -24,6 +24,7 @@
 #include "Utils/SGDeveloperSettings.h"
 
 #include "Objectives/SGObjectiveFinalSweep.h"
+#include "SlateWidgets/DefaultLabeledPanel.h"
 #include "UI/Widgets/SGEndGameInteractWidget.h"
 
 #define LOCTEXT_NAMESPACE "SGMainHUD"
@@ -40,21 +41,28 @@ void ASGMainHUD::BeginPlay()
 		InitGameMenus();
 		EnterPlayMode();
 
-		PostLoadMapDelegateHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([this](UWorld* World)
-		{
-			ASGPlayerCharacter* PlayerCharacter = Cast<ASGPlayerCharacter>(GetOwningPlayerController()->GetCharacter());
-			BindToPlayerComponentEvents(PlayerCharacter);
-		});
+#if WITH_EDITOR
+		ASGPlayerCharacter* PlayerCharacter = Cast<ASGPlayerCharacter>(GetOwningPlayerController()->GetCharacter());
+		PlayerCharacter->OnPlayerIsReady.AddUObject(this, &ASGMainHUD::BindToPlayerComponentEvents);
+#endif
+
+		PostLoadMapDelegateHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda(
+			[this]([[maybe_unused]] UWorld* World)
+			{
+				ASGPlayerCharacter* PlayerCharacter = Cast<ASGPlayerCharacter>(
+					GetOwningPlayerController()->GetCharacter());
+				BindToPlayerComponentEvents(PlayerCharacter);
+			});
 	}
 	else
 	{
 		InitStartMenu();
-
 		EnterUIMode();
 		/* SetVisibility is called manually here because:
 		 * 1. ObjectiveTooltipWidget is not attached to the MainHUDWidget hierarchy
 		 * 2. EnterUIState() cannot handle this widget since MainHUDWidget is not created yet when we are in the start menu*/
-		Cast<USGGameInstance>(GetGameInstance())->GetObjectiveTooltipWidget()->SetVisibility(ESlateVisibility::Collapsed);
+		Cast<USGGameInstance>(GetGameInstance())->GetObjectiveTooltipWidget()->SetVisibility(
+			ESlateVisibility::Collapsed);
 	}
 
 	if (!EndGameInteractWidget.IsValid())
@@ -62,11 +70,12 @@ void ASGMainHUD::BeginPlay()
 		EndGameInteractWidget = CreateAndAddToViewPort<USGEndGameInteractWidget>(EndGameInteractClass, true);
 	}
 
-	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(
+		this, &ASGMainHUD::StartDifficultyBar);
 	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnEndGame.AddDynamic(this, &ASGMainHUD::PlayerWin);
 
-	Cast<USGGameInstance>(GetWorld()->GetGameInstance())->GetTerminalWidget()->OnVisibilityChanged.AddDynamic(this, &ASGMainHUD::OnTerminalVisibilityChanged);
-
+	Cast<USGGameInstance>(GetWorld()->GetGameInstance())->GetTerminalWidget()->OnVisibilityChanged.AddDynamic(
+		this, &ASGMainHUD::OnTerminalVisibilityChanged);
 }
 
 void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -74,7 +83,6 @@ void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
 	if (ObjectiveHandler->OnObjectiveStarted.IsAlreadyBound(this, &ASGMainHUD::StartDifficultyBar))
 	{
-		EMMA_LOG(Warning, TEXT("ASGMainHUD::EndPlay: Unbinding OnObjectiveStarted from StartDifficultyBar"));
 		ObjectiveHandler->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::StartDifficultyBar);
 	}
 	FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadMapDelegateHandle);
@@ -88,28 +96,50 @@ void ASGMainHUD::BindToPlayerComponentEvents(ASGPlayerCharacter* PlayerCharacter
 	{
 		return;
 	}
-	
+	if (!MainHUDWidget.IsValid() || MainHUDWidget.IsStale())
+	{
+		InitHUD();
+		return;
+	}
+
 	if (PlayerCharacter->AmmoComponent && PlayerCharacter->GunsComponent)
 	{
 		USGCounterComponentAmmo* AmmoComponent = PlayerCharacter->AmmoComponent;
 		Ujola6902_GunsComponent* GunsComponent = PlayerCharacter->GunsComponent;
-		
-		USGWeaponsHUD* WeaponsWidgetPtr = MainHUDWidget->GetWeaponsWidget();
-		
-		AmmoComponent->OnPickedUpAmmo.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateAmmo);
 
-		GunsComponent->OnSwitchedGun.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::ChangeWeapon);
-		GunsComponent->OnFireGun.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateWeapon);
-		GunsComponent->OnReload.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::ReloadWeapon);
+		USGWeaponsHUD* WeaponsWidgetPtr = MainHUDWidget->GetWeaponsWidget();
+
+		if (!AmmoComponent->OnPickedUpAmmo.IsAlreadyBound(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateAmmo))
+		{
+			AmmoComponent->OnPickedUpAmmo.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateAmmo);
+		}
+
+		if (!GunsComponent->OnSwitchedGun.IsAlreadyBound(WeaponsWidgetPtr, &USGWeaponsHUD::ChangeWeapon))
+		{
+			GunsComponent->OnSwitchedGun.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::ChangeWeapon);
+		}
+
+		if (!GunsComponent->OnFireGun.IsAlreadyBound(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateWeapon))
+		{
+			GunsComponent->OnFireGun.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::UpdateWeapon);
+		}
+
+		if (!GunsComponent->OnReload.IsAlreadyBound(WeaponsWidgetPtr, &USGWeaponsHUD::ReloadWeapon))
+		{
+			GunsComponent->OnReload.AddDynamic(WeaponsWidgetPtr, &USGWeaponsHUD::ReloadWeapon);
+		}
 
 		TArray<ASGGun*> Guns = GunsComponent->GetGuns();
 		WeaponsWidgetPtr->SetAvailableWeapons(Guns);
-		WeaponsWidgetPtr->ChangeWeapon(0, Guns[0]);		
+		WeaponsWidgetPtr->ChangeWeapon(0, Guns[0]);
 	}
-	
-	if (PlayerCharacter->GrapplingHook)
+
+	if (PlayerCharacter->GrapplingHook
+		&& !PlayerCharacter->GrapplingHook->OnCanGrapple.IsAlreadyBound(MainHUDWidget->GetGrappleHookWidget(),
+		                                                                &USGHUDGrapple::PlayValidTargetAnimation))
 	{
-		PlayerCharacter->GrapplingHook->OnCanGrapple.AddDynamic(MainHUDWidget->GetGrappleHookWidget(), &USGHUDGrapple::PlayValidTargetAnimation);
+		PlayerCharacter->GrapplingHook->OnCanGrapple.AddDynamic(MainHUDWidget->GetGrappleHookWidget(),
+		                                                        &USGHUDGrapple::PlayValidTargetAnimation);
 	}
 }
 
@@ -121,50 +151,62 @@ void ASGMainHUD::InitHUD()
 		MainHUDWidget->PauseAndHide();
 	}
 
-	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(
+		this, &ASGMainHUD::StartDifficultyBar);
 }
 
 void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 {
 	// Localized text for buttons and header
 	const FText StartGameText = GetUIText("StartGameText");
+	const FText LoadGameText = GetUIText("LoadGameText");
 	const FText QuitGameText = GetUIText("QuitGameText");
 	const FText MainMenuHeaderText = GetUIText("MainMenuHeaderText");
 
 	// Create buttons
-	FButtonData ButtonDataStartGame = SGWidgetFactory::MenuButton(StartGameText,FOnClicked::CreateLambda([this]
+	FButtonData ButtonDataStartGame = SGWidgetFactory::MenuButton(StartGameText, FOnClicked::CreateLambda([this]
+	{
+		if (USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance()))
 		{
-			LoadMap(GameLevelMap);
-			return FReply::Handled();
-		}), true);
+			GameInstance->ResetSavedGame();
+		}
+		LoadMap(GameLevelMap);
+		return FReply::Handled();
+	}), true);
+	FButtonData ButtonLoadSavedGame = SGWidgetFactory::MenuButton(LoadGameText, FOnClicked::CreateLambda([this]
+	{
+		LoadMap(GameLevelMap);
+		return FReply::Handled();
+	}));
+
 	FButtonData ButtonDataQuitGame = SGWidgetFactory::MenuButton(QuitGameText, FOnClicked::CreateLambda([this]
-		{
-			QuitGame();
-			return FReply::Handled();
-		}));
+	{
+		QuitGame();
+		return FReply::Handled();
+	}));
 
 	//Define background colors for menu
 	FLinearColor StartMenuBackgroundColor = FLinearColor(0.f, 0.f, 0.f, 1.f);
 
-	FMenuData StartMenuData =  SGWidgetFactory::CreateMenuData(
+	FMenuData StartMenuData = SGWidgetFactory::CreateMenuData(
 		MainMenuHeaderText,
-		SGWidgetFactory::ButtonGroup({ ButtonDataStartGame, ButtonDataQuitGame }, Orient_Vertical,
-			FAlignmentData(HAlign_Fill, VAlign_Top)),
+		SGWidgetFactory::ButtonGroup({ButtonDataStartGame, ButtonLoadSavedGame, ButtonDataQuitGame}, Orient_Vertical,
+		                             FAlignmentData(HAlign_Fill, VAlign_Top)),
 		SGWidgetFactory::Background(StartMenuBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
-	{HAlign_Fill, VAlign_Center}
+		{HAlign_Fill, VAlign_Center}
 	);
 
 	// Create the Slate widget for the Start Menu (and add it to the viewport if specified)
 	MenuSlateWidget = SNew(SDefaultMenu).InMenuData(StartMenuData);
 	if (AddToViewport)
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(
+			SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
 
 	//Not really necessary, but for consistency
 	LastGameMenuState = Start;
-	GameMenusData.Add(Start, StartMenuData);
-}
+	GameMenusData.Add(Start, StartMenuData);}
 
 void ASGMainHUD::BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepObjective)
 {
@@ -179,12 +221,13 @@ void ASGMainHUD::BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepO
 	}
 
 	USGEndGameInteractWidget* EndGameInteractWidgetPtr = EndGameInteractWidget.Get();
-	FinalSweepObjective->OnEscapeWithPodEnabled.AddDynamic(EndGameInteractWidgetPtr, &USGEndGameInteractWidget::ShowEscapeWidget);
-	FinalSweepObjective->OnEscapeWithPodDisabled.AddDynamic(EndGameInteractWidgetPtr, &USGEndGameInteractWidget::HideEscapeWidget);
+	FinalSweepObjective->OnEscapeWithPodEnabled.AddDynamic(EndGameInteractWidgetPtr,
+	                                                       &USGEndGameInteractWidget::ShowEscapeWidget);
+	FinalSweepObjective->OnEscapeWithPodDisabled.AddDynamic(EndGameInteractWidgetPtr,
+	                                                        &USGEndGameInteractWidget::HideEscapeWidget);
 }
 
 void ASGMainHUD::InitGameMenus()
-
 {
 	// Localized text for buttons and headers
 	const FText ContinueGameText = GetUIText("ContinueGameText");
@@ -198,44 +241,41 @@ void ASGMainHUD::InitGameMenus()
 	const FText VictoryText = GetUIText("VictoryHeaderText");
 
 	// Create buttons
-	FButtonData ButtonContinueGame = SGWidgetFactory::MenuButton(ContinueGameText,FOnClicked::CreateLambda([this]
+	FButtonData ButtonContinueGame = SGWidgetFactory::MenuButton(ContinueGameText, FOnClicked::CreateLambda([this]
+	{
+		ContinueGame();
+		return FReply::Handled();
+	}), true);
+
+	FButtonData ButtonRestartGame = SGWidgetFactory::MenuButton(RestartGameText, FOnClicked::CreateLambda([this]
+	{
+		if (USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance()))
 		{
-			ContinueGame();
-			return FReply::Handled();
-		}), true);
-	FButtonData ButtonRestartGame = SGWidgetFactory::MenuButton(RestartGameText,FOnClicked::CreateLambda([this]
+			GameInstance->ResetSavedGame();
+		}
+		RestartGame();
+		return FReply::Handled();
+	}));
+	FButtonData ButtonLoadSavedGame = SGWidgetFactory::MenuButton(LoadGameText, FOnClicked::CreateLambda([this]
+	{
+		RestartGame();
+		return FReply::Handled();
+	}));
+	FButtonData ButtonSaveGame = SGWidgetFactory::MenuButton(SaveGameText, FOnClicked::CreateLambda([this]
+	{
+		bool bSaved = SaveGame();
+		EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Saving game!"));
+		if (bSaved)
 		{
-			if (USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance()))
-			{
-				GameInstance->ResetSavedGame();
-			}
-			RestartGame();
-			return FReply::Handled();
-		}));
-	FButtonData ButtonLoadSavedGame = SGWidgetFactory::MenuButton(LoadGameText,FOnClicked::CreateLambda([this]
+			EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Saved game!"));
+		}
+		else
 		{
-			RestartGame();
-			return FReply::Handled();
-		}));
-	FButtonData ButtonSaveGame = SGWidgetFactory::MenuButton(SaveGameText,FOnClicked::CreateLambda([this]
-		{
-			bool bSaved = SaveGame();
-			EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Saving game!"));
-			if (bSaved)
-			{
-				EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Saved game!"));
-			}
-			else
-			{
-				EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Failed to Save Game!"));
-			}
-			return FReply::Handled();
-		}));
-	FButtonData ButtonReturnToMainMenu = SGWidgetFactory::MenuButton(ReturnToMainMenuText,FOnClicked::CreateLambda([this]
-		{
-			LoadMap(MainMenuMap);
-			return FReply::Handled();
-		}));
+			EMMA_LOG(Warning, TEXT("❤️TODO: Add feedback for: Failed to Save Game!"));
+		}
+		return FReply::Handled();
+	}));
+	FButtonData ButtonReturnToMainMenu = SGWidgetFactory::MenuButton(ReturnToMainMenuText, FOnClicked::CreateLambda([this] {LoadMap(MainMenuMap);  return FReply::Handled(); }));
 
 	//Define background colors for menus
 	//TODO: Replace with using styling table
@@ -245,24 +285,27 @@ void ASGMainHUD::InitGameMenus()
 	// Collect all data for the Pause and Game Over menus
 	FMenuData PauseMenuData = SGWidgetFactory::CreateMenuData(
 		PausedText,
-		SGWidgetFactory::ButtonGroup({ ButtonContinueGame, ButtonRestartGame, ButtonSaveGame, ButtonLoadSavedGame, ButtonReturnToMainMenu },
-			Orient_Vertical, FAlignmentData(HAlign_Fill, VAlign_Top)),
+		SGWidgetFactory::ButtonGroup({
+			                             ButtonContinueGame, ButtonRestartGame, ButtonSaveGame, ButtonLoadSavedGame,
+			                             ButtonReturnToMainMenu
+		                             },
+		                             Orient_Vertical, FAlignmentData(HAlign_Fill, VAlign_Top)),
 		SGWidgetFactory::Background(PausedBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
-{HAlign_Fill, VAlign_Center}
+		{HAlign_Fill, VAlign_Center}
 	);
 
 	FMenuData GameOverMenuData = SGWidgetFactory::CreateMenuData(
 		GameOverText,
-		SGWidgetFactory::ButtonGroup({ButtonRestartGame },
-			Orient_Horizontal, FAlignmentData(HAlign_Fill, VAlign_Center)),
+		SGWidgetFactory::ButtonGroup({ButtonRestartGame},
+		                             Orient_Horizontal, FAlignmentData(HAlign_Fill, VAlign_Center)),
 		SGWidgetFactory::Background(GameOverBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 		{HAlign_Fill, VAlign_Center}
 	);
 
 	FMenuData VictoryMenuData = SGWidgetFactory::CreateMenuData(
 		VictoryText,
-		SGWidgetFactory::ButtonGroup({ButtonContinueGame,ButtonReturnToMainMenu},
-			Orient_Horizontal, FAlignmentData(HAlign_Center, VAlign_Fill)),
+		SGWidgetFactory::ButtonGroup({ButtonContinueGame, ButtonReturnToMainMenu},
+		                             Orient_Horizontal, FAlignmentData(HAlign_Center, VAlign_Fill)),
 		SGWidgetFactory::Background(GameOverBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 		{HAlign_Fill, VAlign_Center}
 	);
@@ -271,7 +314,7 @@ void ASGMainHUD::InitGameMenus()
 	MenuSlateWidget = SNew(SDefaultMenu).InMenuData(PauseMenuData);
 
 	GameMenusData.Add(Pause, PauseMenuData);
-	GameMenusData.Add( GameOver, GameOverMenuData);
+	GameMenusData.Add(GameOver, GameOverMenuData);
 	GameMenusData.Add(Victory, VictoryMenuData);
 }
 
@@ -283,7 +326,7 @@ void ASGMainHUD::EnterUIMode()
 		MainHUDWidget->PauseAndHide();
 		MainHUDWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
-	
+
 	APlayerController* Controller = GetOwningPlayerController();
 	Controller->SetInputMode(FInputModeUIOnly());
 	Controller->bShowMouseCursor = true;
@@ -320,7 +363,8 @@ void ASGMainHUD::OnTerminalVisibilityChanged(ESlateVisibility NewVisibility)
 void ASGMainHUD::StartDifficultyBar()
 {
 	MainHUDWidget->StartDifficultyBar();
-	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::StartDifficultyBar);
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.RemoveDynamic(
+		this, &ASGMainHUD::StartDifficultyBar);
 }
 
 //---- ON CLICKED
@@ -338,7 +382,8 @@ void ASGMainHUD::PauseGame()
 	}
 	else
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(
+			SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
 	EnterUIMode();
 }
@@ -351,7 +396,8 @@ void ASGMainHUD::PlayerDeath()
 
 	FText ScoreFormat = GetUIText("PlayerScore");
 	FText PlayerScore = FText::Format(ScoreFormat, FText::AsNumber(PlayerController->GetScorePoint()));
-	FText GameOverText = FText::Format(FText::FromString(TEXT("{0}\n{1}")), GetUIText("GameOverHeaderText"), PlayerScore);
+	FText GameOverText = FText::Format(FText::FromString(TEXT("{0}\n{1}")), GetUIText("GameOverHeaderText"),
+	                                   PlayerScore);
 
 	FMenuData GameOverMenuData = GameMenusData[GameOver];
 	GameOverMenuData.HeaderElement.Text = GameOverText;
@@ -363,7 +409,8 @@ void ASGMainHUD::PlayerDeath()
 	}
 	else
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(
+			SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
 	EnterUIMode();
 }
@@ -380,11 +427,11 @@ void ASGMainHUD::PlayerWin()
 	}
 	else
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(
+			SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
 	EnterUIMode();
 }
-
 
 void ASGMainHUD::RestartGame()
 {
@@ -446,6 +493,7 @@ FText ASGMainHUD::GetUIText(const FString& Key)
 	EMMA_LOG(Error, TEXT("GetUIText: String with key %s not found in UI String Table"), *Key);
 	return FText::Format(NSLOCTEXT("SGMainHUD", "MissingText", "Missing: {0}"), FText::FromString(Key));
 }
+
 const UStringTable* ASGMainHUD::GetUIStringTable()
 {
 	const USGDeveloperSettings* DevSettings = GetDefault<USGDeveloperSettings>();

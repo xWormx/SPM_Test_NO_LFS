@@ -26,36 +26,18 @@ void ASGPlayerController::BeginPlay()
 		return;
 	}
 
-	/*/* In shipping builds, the PlayerController is created first, then the HUD, and then the PlayerCharacter.
+	/* In shipping builds, the PlayerController is created first, then the HUD, and then the PlayerCharacter.
 	 * At this point, PlayerCharacter isn't null because the pawn has been spawned and possessed, but its BeginPlay hasn't yet completed.
-	 * Sooo basically, we wait until the PlayerCharacter (and its components) are ready before binding the HUD to its components different events.#1#
+	 * Sooo basically, we wait until the PlayerCharacter (and its components) are ready before binding the HUD to its components different events.*/
 	PlayerCharacter->OnPlayerIsReady.AddLambda([this](ASGPlayerCharacter* CurrentPlayer)
 	{
 		ASGMainHUD* MainHUD = Cast<ASGMainHUD>(GetHUD());
-
 		if (!MainHUD)
 		{
 			return;
 		}
-
-		/*if (CurrentPlayer->GrapplingHook)
-		{
-			MainHUD->BindToGrappleEvents(CurrentPlayer->GrapplingHook);
-		}
-
-		if (CurrentPlayer->GunsComponent)
-		{
-			MainHUD->BindWeaponEvents(CurrentPlayer->GunsComponent);
-		}
-
-		if (CurrentPlayer->AmmoComponent)
-		{
-			MainHUD->BindToAmmoEvents(CurrentPlayer->AmmoComponent);
-		}#1#
 		MainHUD->BindToPlayerComponentEvents(CurrentPlayer);
-
-		
-	});*/
+	});
 	if (PlayerCharacter->HealthComponent)
 		{
 			USGHealthComponent* HealthComponent = PlayerCharacter->HealthComponent;
