@@ -24,7 +24,6 @@
 #include "Utils/SGDeveloperSettings.h"
 
 #include "Objectives/SGObjectiveFinalSweep.h"
-#include "SlateWidgets/DefaultLabeledPanel.h"
 #include "UI/Widgets/SGEndGameInteractWidget.h"
 
 #define LOCTEXT_NAMESPACE "SGMainHUD"
