@@ -53,6 +53,8 @@ public:
 
 	void PauseGame();
 	void PlayerDeath();
+	UFUNCTION()
+	void PlayerWin();
 
 	void RestartGame();
 	void LoadMap(const FName& LevelName);

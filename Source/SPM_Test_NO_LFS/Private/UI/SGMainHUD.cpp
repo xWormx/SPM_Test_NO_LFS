@@ -63,6 +63,7 @@ void ASGMainHUD::BeginPlay()
 	}
 
 	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnEndGame.AddDynamic(this, &ASGMainHUD::PlayerWin);
 
 	Cast<USGGameInstance>(GetWorld()->GetGameInstance())->GetTerminalWidget()->OnVisibilityChanged.AddDynamic(this, &ASGMainHUD::OnTerminalVisibilityChanged);
 
@@ -143,7 +144,7 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 		}));
 
 	//Define background colors for menu
-	FLinearColor StartMenuBackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.8f);
+	FLinearColor StartMenuBackgroundColor = FLinearColor(0.f, 0.f, 0.f, 1.f);
 
 	FMenuData StartMenuData =  SGWidgetFactory::CreateMenuData(
 		MainMenuHeaderText,
@@ -165,7 +166,6 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 	GameMenusData.Add(Start, StartMenuData);
 }
 
-//TODO: Endgame meny (för när man vinner som visar mängden kills + restart + quit game) (Emma fixar)
 void ASGMainHUD::BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepObjective)
 {
 	if (!FinalSweepObjective)
@@ -189,6 +189,7 @@ void ASGMainHUD::InitGameMenus()
 	// Localized text for buttons and headers
 	const FText ContinueGameText = GetUIText("ContinueGameText");
 	const FText RestartGameText = GetUIText("RestartGameText");
+	const FText LoadGameText = GetUIText("LoadGameText");
 	const FText SaveGameText = GetUIText("SaveGameText");
 	const FText ReturnToMainMenuText = GetUIText("ReturnToMainMenuText");
 
@@ -203,6 +204,15 @@ void ASGMainHUD::InitGameMenus()
 			return FReply::Handled();
 		}), true);
 	FButtonData ButtonRestartGame = SGWidgetFactory::MenuButton(RestartGameText,FOnClicked::CreateLambda([this]
+		{
+			if (USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance()))
+			{
+				GameInstance->ResetSavedGame();
+			}
+			RestartGame();
+			return FReply::Handled();
+		}));
+	FButtonData ButtonLoadSavedGame = SGWidgetFactory::MenuButton(LoadGameText,FOnClicked::CreateLambda([this]
 		{
 			RestartGame();
 			return FReply::Handled();
@@ -228,14 +238,15 @@ void ASGMainHUD::InitGameMenus()
 		}));
 
 	//Define background colors for menus
-	FLinearColor PausedBackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.9f);
+	//TODO: Replace with using styling table
+	FLinearColor PausedBackgroundColor = FLinearColor(0.f, 0.f, 0.f, 0.9);
 	FLinearColor GameOverBackgroundColor = FLinearColor(0.25f, 0.f, 0.f, 0.75f);
 
 	// Collect all data for the Pause and Game Over menus
 	FMenuData PauseMenuData = SGWidgetFactory::CreateMenuData(
 		PausedText,
-		SGWidgetFactory::ButtonGroup({ ButtonContinueGame, ButtonRestartGame, ButtonSaveGame, ButtonReturnToMainMenu },
-			Orient_Vertical, FAlignmentData(HAlign_Center, VAlign_Top)),
+		SGWidgetFactory::ButtonGroup({ ButtonContinueGame, ButtonRestartGame, ButtonSaveGame, ButtonLoadSavedGame, ButtonReturnToMainMenu },
+			Orient_Vertical, FAlignmentData(HAlign_Fill, VAlign_Top)),
 		SGWidgetFactory::Background(PausedBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 {HAlign_Fill, VAlign_Center}
 	);
@@ -243,7 +254,7 @@ void ASGMainHUD::InitGameMenus()
 	FMenuData GameOverMenuData = SGWidgetFactory::CreateMenuData(
 		GameOverText,
 		SGWidgetFactory::ButtonGroup({ButtonRestartGame },
-			Orient_Horizontal, FAlignmentData(HAlign_Center, VAlign_Fill)),
+			Orient_Horizontal, FAlignmentData(HAlign_Fill, VAlign_Center)),
 		SGWidgetFactory::Background(GameOverBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 		{HAlign_Fill, VAlign_Center}
 	);
@@ -356,6 +367,24 @@ void ASGMainHUD::PlayerDeath()
 	}
 	EnterUIMode();
 }
+
+void ASGMainHUD::PlayerWin()
+{
+	LastGameMenuState = Victory;;
+
+	MenuSlateWidget->SetMenuData(GameMenusData[Victory]);
+
+	if (MenuWidget.IsValid())
+	{
+		MenuWidget->SetVisibility(EVisibility::Visible);
+	}
+	else
+	{
+		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
+	}
+	EnterUIMode();
+}
+
 
 void ASGMainHUD::RestartGame()
 {

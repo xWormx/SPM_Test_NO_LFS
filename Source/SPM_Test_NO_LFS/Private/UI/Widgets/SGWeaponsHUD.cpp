@@ -85,6 +85,7 @@ void USGWeaponsHUD::SetAvailableWeapons(const TArray<ASGGun*>& Weapons)
 
 		FName WeaponNameKey = FName(*WeaponName.ToString());
 		WeaponEntriesMap.Add(WeaponNameKey, WeaponEntry);
+		WeaponEntry->WeaponNameTextBlock->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
 	// Remove entries without assigned weapons (iterate in reverse)
