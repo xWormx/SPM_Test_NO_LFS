@@ -222,8 +222,7 @@ void ASGMainHUD::BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepO
 	USGEndGameInteractWidget* EndGameInteractWidgetPtr = EndGameInteractWidget.Get();
 	FinalSweepObjective->OnEscapeWithPodEnabled.AddDynamic(EndGameInteractWidgetPtr,
 	                                                       &USGEndGameInteractWidget::ShowEscapeWidget);
-	FinalSweepObjective->OnEscapeWithPodDisabled.AddDynamic(EndGameInteractWidgetPtr,
-	                                                        &USGEndGameInteractWidget::HideEscapeWidget);
+	FinalSweepObjective->OnEscapeWithPodDisabled.AddDynamic(EndGameInteractWidgetPtr,&USGEndGameInteractWidget::HideEscapeWidget);
 }
 
 void ASGMainHUD::InitGameMenus()
@@ -235,17 +234,26 @@ void ASGMainHUD::InitGameMenus()
 	const FText SaveGameText = GetUIText("SaveGameText");
 	const FText ReturnToMainMenuText = GetUIText("ReturnToMainMenuText");
 
+	const FText VictoryReturnToMainMenuText = GetUIText("VictoryReturnToMainMenuText");
+	const FText VictoryContinueGameText = GetUIText("VictoryContinueGameText");
+
 	const FText PausedText = GetUIText("PausedMenuHeaderText");
 	const FText GameOverText = GetUIText("GameOverHeaderText");
 	const FText VictoryText = GetUIText("VictoryHeaderText");
 
-	// Create buttons
-	FButtonData ButtonContinueGame = SGWidgetFactory::MenuButton(ContinueGameText, FOnClicked::CreateLambda([this]
+	auto OnClickContinueGame = FOnClicked::CreateLambda([this]
+	                                                  {
+		                                                  ContinueGame();
+		                                                  return FReply::Handled();
+	                                                  });
+	auto OnClickReturnToMainMenu = FOnClicked::CreateLambda([this]
 	{
-		ContinueGame();
+		LoadMap(MainMenuMap);
 		return FReply::Handled();
-	}), true);
+	});
 
+	// Create buttons
+	FButtonData ButtonContinueGame = SGWidgetFactory::MenuButton(ContinueGameText, OnClickContinueGame, true);
 	FButtonData ButtonRestartGame = SGWidgetFactory::MenuButton(RestartGameText, FOnClicked::CreateLambda([this]
 	{
 		if (USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance()))
@@ -274,7 +282,10 @@ void ASGMainHUD::InitGameMenus()
 		}
 		return FReply::Handled();
 	}));
-	FButtonData ButtonReturnToMainMenu = SGWidgetFactory::MenuButton(ReturnToMainMenuText, FOnClicked::CreateLambda([this] {LoadMap(MainMenuMap);  return FReply::Handled(); }));
+	FButtonData ButtonReturnToMainMenu = SGWidgetFactory::MenuButton(ReturnToMainMenuText,OnClickReturnToMainMenu);
+
+	FButtonData ButtonVictoryContinueGame = SGWidgetFactory::MenuButton(VictoryContinueGameText, OnClickContinueGame, true);
+	FButtonData ButtonVictoryReturnToMainMenu = SGWidgetFactory::MenuButton(VictoryReturnToMainMenuText, OnClickReturnToMainMenu);
 
 	//Define background colors for menus
 	//TODO: Replace with using styling table
@@ -303,8 +314,8 @@ void ASGMainHUD::InitGameMenus()
 
 	FMenuData VictoryMenuData = SGWidgetFactory::CreateMenuData(
 		VictoryText,
-		SGWidgetFactory::ButtonGroup({ButtonContinueGame, ButtonReturnToMainMenu},
-		                             Orient_Horizontal, FAlignmentData(HAlign_Center, VAlign_Fill)),
+		SGWidgetFactory::ButtonGroup({ButtonVictoryContinueGame, ButtonVictoryReturnToMainMenu},
+		                             Orient_Horizontal, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 		SGWidgetFactory::Background(GameOverBackgroundColor, FAlignmentData(HAlign_Fill, VAlign_Fill)),
 		{HAlign_Fill, VAlign_Center}
 	);
@@ -391,8 +402,8 @@ void ASGMainHUD::PlayerDeath()
 {
 	LastGameMenuState = GameOver;
 
+	//TODO: Add description text and remove duplicate code
 	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetOwningPlayerController());
-
 	FText ScoreFormat = GetUIText("PlayerScore");
 	FText PlayerScore = FText::Format(ScoreFormat, FText::AsNumber(PlayerController->GetScorePoint()));
 	FText GameOverText = FText::Format(FText::FromString(TEXT("{0}\n{1}")), GetUIText("GameOverHeaderText"),
@@ -408,17 +419,24 @@ void ASGMainHUD::PlayerDeath()
 	}
 	else
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(
-			SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
 	EnterUIMode();
 }
 
 void ASGMainHUD::PlayerWin()
 {
-	LastGameMenuState = Victory;;
+	LastGameMenuState = Victory;
 
-	MenuSlateWidget->SetMenuData(GameMenusData[Victory]);
+	//TODO: Add description text and remove duplicate code
+	ASGPlayerController* PlayerController = Cast<ASGPlayerController>(GetOwningPlayerController());
+	FText ScoreFormat = GetUIText("PlayerScore");
+	FText PlayerScore = FText::Format(ScoreFormat, FText::AsNumber(PlayerController->GetScorePoint()));
+	FText GameOverText = FText::Format(FText::FromString(TEXT("{0}\n{1}")), GetUIText("GameOverHeaderText"),PlayerScore);
+
+	FMenuData VictoryMenuData= GameMenusData[Victory];
+	VictoryMenuData.HeaderElement.Text = GameOverText;
+	MenuSlateWidget->SetMenuData(VictoryMenuData);
 
 	if (MenuWidget.IsValid())
 	{
@@ -426,8 +444,7 @@ void ASGMainHUD::PlayerWin()
 	}
 	else
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(
-			SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
 	EnterUIMode();
 }
