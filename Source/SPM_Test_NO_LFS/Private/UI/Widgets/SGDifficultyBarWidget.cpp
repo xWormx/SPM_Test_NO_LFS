@@ -38,6 +38,12 @@ float USGDifficultyBarWidget::GetTriggerAbsolutePositionX() const
 	return ImageTrigger->GetCachedGeometry().GetAbsolutePosition().X;
 }
 
+void USGDifficultyBarWidget::KeepIncreasingDifficultyAtLastLevel()
+{
+	ChangeDifficulty(CurrentDifficultyLevel);
+	CurrentDifficultyLevel++;
+}
+
 void USGDifficultyBarWidget::UpdateDifficultyBar(const float InDeltaTime)
 {
 	DifficultyBarOffsetLeft += DifficultBarScrollSpeed*InDeltaTime;
@@ -91,12 +97,20 @@ void USGDifficultyBarWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 	}
 	if(LastDifficultNotReached() || LastDifficultBoxNotCenteredAtTrigger())
 	{
-		UpdateDifficultyBar(InDeltaTime);	
+		if (!bCrazySlazyReached)
+			UpdateDifficultyBar(InDeltaTime);	
 	}
 	else
 	{
 		if (!bCrazySlazyReached)
 		{
+			GetWorld()->GetTimerManager().SetTimer(
+						DifficultyIncreaseTimerHandle,
+						this,
+					&USGDifficultyBarWidget::KeepIncreasingDifficultyAtLastLevel,
+					CrazySlazyIntervallSpeed,     
+					true       
+					);
 			OnCrazySlazy.Broadcast();
 			bCrazySlazyReached = true;
 		}

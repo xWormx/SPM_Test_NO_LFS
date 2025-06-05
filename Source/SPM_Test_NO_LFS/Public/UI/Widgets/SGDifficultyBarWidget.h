@@ -29,6 +29,9 @@ public:
 	FOnCrazySlazy OnCrazySlazy;
 
 	bool bCrazySlazyReached = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="UProperty - Difficulty Bar")
+	float CrazySlazyIntervallSpeed = 20;
 	
 protected:
 	virtual void NativeConstruct() override;
@@ -42,6 +45,12 @@ protected:
 	float GetTriggerAbsolutePositionX() const;
 
 private:
+	UPROPERTY()
+	FTimerHandle DifficultyIncreaseTimerHandle;
+	
+	UFUNCTION()
+	void KeepIncreasingDifficultyAtLastLevel();
+	
 	UPROPERTY(EditAnywhere, Category="UProperty - Difficulty Bar")
 	bool bPause = false;
 
