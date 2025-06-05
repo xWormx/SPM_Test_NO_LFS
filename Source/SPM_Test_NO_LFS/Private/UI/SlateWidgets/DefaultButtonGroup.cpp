@@ -46,3 +46,31 @@ void SDefaultButtonGroupWidget::SetButtonGroupData(const FButtonGroupData& InBut
 	}
 	ButtonGroupStackBox->SetOrientation(ButtonGroupData.Orientation);
 }
+
+void UDefaultButtonGroupWidget::ReleaseSlateResources(bool bReleaseChildren)
+{
+	Super::ReleaseSlateResources(bReleaseChildren);
+	CustomWidgetInstance.Reset();
+}
+
+void UDefaultButtonGroupWidget::SynchronizeProperties()
+{
+	Super::SynchronizeProperties();
+	if (CustomWidgetInstance)
+	{
+		CustomWidgetInstance->SetButtonGroupData(ButtonGroupData);
+	}
+}
+
+TSharedRef<SWidget> UDefaultButtonGroupWidget::RebuildWidget()
+{
+	CustomWidgetInstance = SNew(SDefaultButtonGroupWidget)
+		.InButtonGroupData(ButtonGroupData);
+	return CustomWidgetInstance.ToSharedRef();
+}
+
+void UDefaultButtonGroupWidget::SetButtonGroupData(const FButtonGroupData& InButtonGroupData)
+{
+	ButtonGroupData = InButtonGroupData;
+	SynchronizeProperties();
+}
