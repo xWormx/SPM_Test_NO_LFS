@@ -26,6 +26,12 @@ void USGWeaponsHUD::NativeConstruct()
 	ConstructWeaponEntries(WeaponData);
 }
 
+void USGWeaponsHUD::NativeDestruct()
+{
+	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+	Super::NativeDestruct();
+}
+
 void USGWeaponsHUD::ConstructWeaponEntries(const TArray<FWeaponData*>& WeaponData)
 {
 	if (!ensure(EntryTileClass))
@@ -165,7 +171,6 @@ void USGWeaponsHUD::ReloadWeapon(int32 WeaponIndex, ASGGun* Gun)
 			GetWorld()->GetTimerManager().ClearTimer(ReloadTimerHandle);
 			Gun->UpdateAndShowAmmoOnMesh();
 		}
-
 	});
 
 	constexpr float ReloadTime = 0.1f; // Gun->GetReloadTime();

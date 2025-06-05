@@ -20,6 +20,7 @@ class SPM_TEST_NO_LFS_API USGWeaponsHUD : public UUserWidget
 public:
 
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	void ConstructWeaponEntries(const TArray<FWeaponData*>& WeaponData);
 	void SetAvailableWeapons(const TArray<ASGGun*>& Weapons);
 
