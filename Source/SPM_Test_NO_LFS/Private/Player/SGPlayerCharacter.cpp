@@ -168,7 +168,7 @@ FTransform ASGPlayerCharacter::GetSpawnPointTransform()
 	FTransform PlayerNewTransform;
 	int32 ObjectiveID = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->GetSaveGameData().NumObjectivesCompleted;
 
-	if (ObjectiveID >= 0)
+	if (ObjectiveID <= 0)
 	{
 		PlayerNewTransform = GetActorTransform();
 		return PlayerNewTransform;
@@ -181,7 +181,7 @@ FTransform ASGPlayerCharacter::GetSpawnPointTransform()
 		{
 			if (NewSpawnPoint && NewSpawnPoint->SpawnNumber == 1)
 			{
-				PlayerNewTransform = NewSpawnPoint->GetTransform();
+				PlayerNewTransform = NewSpawnPoint->GetActorTransform();
 				return PlayerNewTransform;
 			}
 		}
@@ -189,12 +189,12 @@ FTransform ASGPlayerCharacter::GetSpawnPointTransform()
 		{
 			if (NewSpawnPoint && NewSpawnPoint->SpawnNumber == 2)
 			{
-				PlayerNewTransform = NewSpawnPoint->GetTransform();
+				PlayerNewTransform = NewSpawnPoint->GetActorTransform();
+				BASIR_LOG(Warning, TEXT("Spawn point 2 because ObjectiveID == %u"), ObjectiveID);
 				return PlayerNewTransform;
 			}
 		}
-		
 	}
-
+	
 	return GetActorTransform();
 }

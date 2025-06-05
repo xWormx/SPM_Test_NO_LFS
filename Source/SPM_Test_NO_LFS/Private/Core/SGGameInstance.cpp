@@ -199,14 +199,41 @@ void USGGameInstance::CollectAndSave(const bool bAsync)
 	{
 		EMMA_LOG(Warning, TEXT("💀World is NULL, cannot collect player stats."));
 		return;
-	}	
+	}
+	
 	ASGPlayerCharacter* PlayerCharacter = Cast<ASGPlayerCharacter>(World->GetFirstPlayerController()->GetPawn());
-	FSGSavedAttributes UpgradeStats = GetSubsystem<USGUpgradeSubsystem>()->GetPersistentUpgrades();
-
 	if (!PlayerCharacter)
 	{
 		EMMA_LOG(Warning, TEXT("💀PlayerCharacter is NULL, cannot collect player stats."));
 		return;
 	}
-	//SavePlayerStats(PlayerCharacter->GetPlayerStats(), UpgradeStats, bAsync);
+
+	USGUpgradeSubsystem* UpgradesSubSystem = GetSubsystem<USGUpgradeSubsystem>();
+	if (!UpgradesSubSystem)
+	{
+		BASIR_LOG(Error, TEXT("UpgradesSystem is Null"));
+		return;
+	}
+
+	USGObjectiveHandlerSubSystem* SGObjectiveSystem = World->GetSubsystem<USGObjectiveHandlerSubSystem>();
+	if (!SGObjectiveSystem)
+	{
+		BASIR_LOG(Error, TEXT("No Objective System, Null Value"));
+		return;
+	}
+
+	ASGEnemySpawnManager* SGSpawnManager = PlayerCharacter->GetCurrentSpawnManager();
+	if (!SGSpawnManager)
+	{
+		BASIR_LOG(Error, TEXT("No Spawn Manager, Null Value"));
+		return;
+	}
+
+	FPlayerStats PlayerStats = PlayerCharacter->GetPlayerStats();
+	FSGSavedAttributes UpgradeAttributes = UpgradesSubSystem->GetPersistentUpgrades();
+	FObjectiveSaveData SavedObjectives = SGObjectiveSystem->GetSaveGameData();
+	FSpawnManagerSavedData SpawnManagerSavedData = SGSpawnManager->GetSaveData();
+
+	SaveGame(PlayerStats, UpgradeAttributes, SavedObjectives, SpawnManagerSavedData, bAsync);
+	
 }
