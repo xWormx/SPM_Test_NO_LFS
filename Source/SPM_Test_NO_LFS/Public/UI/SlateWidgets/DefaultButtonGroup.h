@@ -30,4 +30,18 @@ UCLASS()
 class UDefaultButtonGroupWidget : public UWidget
 {
 	GENERATED_BODY()
+
+public:
+	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
+	virtual void SynchronizeProperties() override;
+	virtual TSharedRef<SWidget> RebuildWidget() override;
+
+	void SetButtonGroupData(const FButtonGroupData& InButtonGroupData);
+
+protected:
+	TSharedPtr<SDefaultButtonGroupWidget> CustomWidgetInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty")
+	FButtonGroupData ButtonGroupData;
+
 };
