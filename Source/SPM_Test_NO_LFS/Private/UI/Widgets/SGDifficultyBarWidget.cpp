@@ -59,6 +59,7 @@ void USGDifficultyBarWidget::UpdateDifficultyBar(const float InDeltaTime)
 
 		if (OverlayPositionX < TriggerAbsolutePosition && OverlayPositionX > 0.0f)
 		{
+			// Add another overlay box here !!!!
 			// Om Svårighetsgraden är på sista steget, skapa och lägg till en overlay i Horizontalboxen
 			ChangeDifficulty(DifficultyIndex);
 		}
@@ -91,6 +92,15 @@ void USGDifficultyBarWidget::NativeTick(const FGeometry& MyGeometry, float InDel
 	if(LastDifficultNotReached() || LastDifficultBoxNotCenteredAtTrigger())
 	{
 		UpdateDifficultyBar(InDeltaTime);	
+	}
+	else
+	{
+		if (!bCrazySlazyReached)
+		{
+			OnCrazySlazy.Broadcast();
+			bCrazySlazyReached = true;
+		}
+		
 	}
 }
 

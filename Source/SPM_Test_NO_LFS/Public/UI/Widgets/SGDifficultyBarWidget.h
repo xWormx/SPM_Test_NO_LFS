@@ -17,12 +17,19 @@ Written by
 class UImage;
 class UOverlay;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCrazySlazy);
+
 UCLASS()
 class SPM_TEST_NO_LFS_API USGDifficultyBarWidget : public UUserWidget
 {
 	GENERATED_BODY()
 public:
 	void PauseDifficultyBar(bool bPauseBar);
+
+	FOnCrazySlazy OnCrazySlazy;
+
+	bool bCrazySlazyReached = false;
+	
 protected:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
