@@ -11,25 +11,6 @@ void USGDifficultyBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	/*if (USGGameInstance* GameInstance = Cast<USGGameInstance>(GetGameInstance()))
-	{
-		GameInstance->OnDifficultyIncreased.AddDynamic(this, &USGDifficultyBarWidget::AnimationTriggerAlert);
-
-		/*ObjectiveToolTipWidget = GameInstance->GetObjectiveTooltipWidget();
-		if (ObjectiveToolTipWidget)
-		{
-			ObjectiveToolTipWidget->OnDifficultyChanged.AddDynamic(this, &USGDifficultyBarWidget::AnimationTriggerAlert);
-			ObjectiveToolTipWidget->OnDifficultyChanged.AddDynamic(GameInstance, &USGGameInstance::IncreaseDifficultyLevel);	
-		}#1#
-	}*/
-/*
-	OverlayWarningMessage->SetVisibility(ESlateVisibility::Hidden);
-	Overlays.Add(OverlayDifficulty);
-	Overlays.Add(OverlayDifficulty_1);
-	Overlays.Add(OverlayDifficulty_2);
-	Overlays.Add(OverlayDifficulty_3);
-*/
-	
 	TArray<UWidget*> AllWidgets;
 	WidgetTree->GetAllWidgets(AllWidgets);
 
@@ -78,6 +59,7 @@ void USGDifficultyBarWidget::UpdateDifficultyBar(const float InDeltaTime)
 
 		if (OverlayPositionX < TriggerAbsolutePosition && OverlayPositionX > 0.0f)
 		{
+			// Om Svårighetsgraden är på sista steget, skapa och lägg till en overlay i Horizontalboxen
 			ChangeDifficulty(DifficultyIndex);
 		}
 	}
@@ -125,29 +107,4 @@ bool USGDifficultyBarWidget::LastDifficultBoxNotCenteredAtTrigger() const
 {
 	return CurrentDifficultyLevel != Overlays.Num();
 }
-
-/*void USGDifficultyBarWidget::MoveOverlaysLeft(const float TranslationMovement)
-{
-	for (UOverlay* Overlay : Overlays)
-	{
-		const FVector2D NewPosition = FVector2D(DifficultBoxStartPosition - TranslationMovement, 0.0f);
-		Overlay->SetRenderTranslation(NewPosition);
-	}
-}*/
-/*float USGDifficultyBarWidget::GetDifficultBarScrollSpeed() const
-{
-	return DifficultBarScrollSpeed;
-}*/
-/*
-TArray<UOverlay*> USGDifficultyBarWidget::GetOverlays()
-{
-	return Overlays;
-}
-*/
-/*void USGDifficultyBarWidget::AnimationTriggerAlert(int NewDifficultLevel)
-{
-	DifficultLevel = NewDifficultLevel;
-	PlayAnimation(AnimationShowWarningMessage);
-	PlayAnimation(AnimationTriggerNewDifficultLevel);
-}*/
 
