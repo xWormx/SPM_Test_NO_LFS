@@ -1,6 +1,7 @@
 #include "Core/SGGameInstance.h"
 #include "SPM_Test_NO_LFS.h"
 #include "Core/SGUpgradeSubsystem.h"
+#include "Enemies/Managers/SGEnemySpawnManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objectives/SGTerminalWidget.h"
 #include "Player/SGPlayerCharacter.h"
@@ -138,6 +139,7 @@ void USGGameInstance::ResetSavedGame()
 	{
 		SavedData->PlayerStats.bSaveGameExists = false;
 		SavedData->SavedObjectives.ShouldLoad = false;
+		SavedData->SpawnManagerSavedData.bSaveGameExists = false;
 	}
 }
 
@@ -161,9 +163,15 @@ USGSaveGame* USGGameInstance::GetSaveGame() const
 	return SavedData;
 }
 
+struct FSpawnManagerSavedData USGGameInstance::GetSpawnManagerSavedData() const
+{
+	return SavedData->SpawnManagerSavedData;
+}
+
 void USGGameInstance::SaveGame(struct FPlayerStats PlayerStats,
 	struct FSGSavedAttributes UpgradeStats,
 	struct FObjectiveSaveData SavedObjectives,
+	struct FSpawnManagerSavedData SpawnManagerSavedData,
 	const bool bAsync)
 {
 	if (!SavedData)
@@ -180,6 +188,7 @@ void USGGameInstance::SaveGame(struct FPlayerStats PlayerStats,
 	SavedData->PlayerStats = PlayerStats;
 	SavedData->UpgradeSystemSavedAttributes = UpgradeStats;
 	SavedData->SavedObjectives = SavedObjectives;
+	SavedData->SpawnManagerSavedData = SpawnManagerSavedData;
 	SaveGameData(bAsync);
 }
 

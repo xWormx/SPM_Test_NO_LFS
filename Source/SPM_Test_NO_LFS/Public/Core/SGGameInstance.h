@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "GameFramework/SaveGame.h"
 #include "Objectives/SGObjectiveToolTipWidget.h"
 
 #include "SGGameInstance.generated.h"
@@ -56,7 +57,7 @@ public:
 	class USGSaveGame* GetSaveGame() const;
 
 	UFUNCTION(BlueprintCallable)
-	void SaveGame(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, struct FObjectiveSaveData SavedObjectives,
+	void SaveGame(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, struct FObjectiveSaveData SavedObjectives, struct FSpawnManagerSavedData SpawnManagerSavedData,
 	const bool bAsync);
 
 	void CollectAndSave(const bool bAsync);
@@ -75,6 +76,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	struct FObjectiveSaveData GetSavedObjectives() const;
+
+	UFUNCTION(BlueprintCallable)
+	struct FSpawnManagerSavedData GetSpawnManagerSavedData() const;
 
 	UFUNCTION(BlueprintCallable)
 	void ResetSavedGame();

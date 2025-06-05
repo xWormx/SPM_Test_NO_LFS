@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "Core/SGUpgradeSubsystem.h"
+#include "Enemies/Managers/SGEnemySpawnManager.h"
 #include "GameFramework/SaveGame.h"
 #include "SGSaveGame.generated.h"
 
@@ -19,7 +20,7 @@ struct FPlayerStats
 		Health = 0;
 	}
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	bool bSaveGameExists = false;
 	
 	UPROPERTY(EditAnywhere)
@@ -48,4 +49,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	struct FObjectiveSaveData SavedObjectives;
+
+	UPROPERTY(EditAnywhere)
+	struct FSpawnManagerSavedData SpawnManagerSavedData;
 };

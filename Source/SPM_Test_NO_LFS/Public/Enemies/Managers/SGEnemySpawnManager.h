@@ -9,13 +9,16 @@
 #include "Core/SGObjectiveHandlerSubSystem.h"
 #include "SGEnemySpawnManager.generated.h"
 
-USTRUCT()
-struct FSaveData
+USTRUCT(Blueprintable)
+struct FSpawnManagerSavedData
 {
     GENERATED_BODY()
 
-    bool bSaveGameExists;
-    int32 MissionsCompleted;
+    UPROPERTY(EditAnywhere)
+    bool bSaveGameExists = false;
+
+    UPROPERTY(EditAnywhere)
+    int32 MissionsCompleted = 0;
 };
 
 UENUM(BlueprintType)
@@ -48,8 +51,11 @@ class ASGEnemySpawnManager : public AActor
 public:
     ASGEnemySpawnManager();
 
-    FSaveData GetSaveData();
-    void LoadSaveData(FSaveData SaveData);
+    UFUNCTION(BlueprintCallable)
+    FSpawnManagerSavedData GetSaveData() const;
+
+    UFUNCTION(BlueprintCallable)
+    void LoadSaveData(FSpawnManagerSavedData SaveData);
 
     virtual void Tick(float DeltaTime) override;
     virtual void BeginPlay() override;

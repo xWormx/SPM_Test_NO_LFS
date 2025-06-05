@@ -13,6 +13,7 @@
 
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Player/SGPlayerController.h"
 #include "SaveGame/SGSaveGame.h"
@@ -144,4 +145,16 @@ void ASGPlayerCharacter::UseSavedGame(FPlayerStats SavedStats)
 	{
 		HealthComponent->SetCurrentHealth(SavedStats.Health);
 	}
+}
+
+ASGEnemySpawnManager* ASGPlayerCharacter::GetCurrentSpawnManager()
+{
+	//ASGEnemySpawnManager* TheCurrentSpawnManager* = 
+	CurrentSpawnManager = Cast<ASGEnemySpawnManager>(UGameplayStatics::GetActorOfClass(this, ASGEnemySpawnManager::StaticClass()));
+
+	if (CurrentSpawnManager)
+	{
+		return CurrentSpawnManager;
+	}
+	return nullptr;
 }

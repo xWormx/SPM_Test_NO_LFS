@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "SGPlayerCharacter.generated.h"
 
+class ASGEnemySpawnManager;
 class ASGPlayerCharacter;
 class USGCounterComponentAmmo;
 class USGCounterComponentOrbs;
@@ -112,6 +113,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UseSavedGame(FPlayerStats SavedStats);
 
+	UPROPERTY(EditAnywhere)
 	ASGPlayerController* PlayerController;
+
+	UPROPERTY(EditAnywhere)
+	ASGEnemySpawnManager* CurrentSpawnManager;
+
+	UFUNCTION(BlueprintCallable)
+	ASGEnemySpawnManager* GetCurrentSpawnManager();
 //----End: Added by Basir
 };

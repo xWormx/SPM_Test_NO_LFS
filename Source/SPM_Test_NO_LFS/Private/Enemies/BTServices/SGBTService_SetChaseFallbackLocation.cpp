@@ -3,7 +3,6 @@
 
 #include "Enemies/BTServices/SGBTService_SetChaseFallbackLocation.h"
 
-#include "HeadMountedDisplayTypes.h"
 #include "SPM_Test_NO_LFS.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/AI/SGAIControllerEnemy.h"

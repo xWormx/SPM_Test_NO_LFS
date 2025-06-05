@@ -18,14 +18,15 @@ ASGEnemySpawnManager::ASGEnemySpawnManager()
     PrimaryActorTick.bCanEverTick = true;
 }
 
-FSaveData ASGEnemySpawnManager::GetSaveData()
+FSpawnManagerSavedData ASGEnemySpawnManager::GetSaveData() const
 {
-    FSaveData SaveData;
+    FSpawnManagerSavedData SaveData;
+    SaveData.bSaveGameExists = true;
     SaveData.MissionsCompleted = MissionsCompleted;
     return SaveData;
 }
 
-void ASGEnemySpawnManager::LoadSaveData(FSaveData SaveData)
+void ASGEnemySpawnManager::LoadSaveData(FSpawnManagerSavedData SaveData)
 {
     MissionsCompleted = SaveData.MissionsCompleted;
     HandleMissionStart(EObjectiveType::EOT_None);
@@ -54,9 +55,9 @@ void ASGEnemySpawnManager::BeginPlay()
 
     if (GameIns)
     {
-        if (GameIns->GetSavedSGEnemySpawnManager().bSaveGameExists)
+        if (GameIns->GetSpawnManagerSavedData().bSaveGameExists)
         {
-            LoadSaveData(GameIns->GetSavedSGEnemySpawnManager());
+            LoadSaveData(GameIns->GetSpawnManagerSavedData());
         }
     }
 }

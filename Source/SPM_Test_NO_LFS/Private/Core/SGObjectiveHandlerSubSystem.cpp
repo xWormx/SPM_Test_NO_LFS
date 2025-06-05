@@ -310,6 +310,9 @@ void USGObjectiveHandlerSubSystem::StartMission()
 	UGameplayStatics::PlaySound2D(this, MissionStartedSound);
 	
 	OnObjectiveStarted.Broadcast();
+
+	if (!CurrentObjective) return;
+	
 	OnObjectiveStartedWithType.Broadcast(CurrentObjective->GetObjectiveType());
 }
 
