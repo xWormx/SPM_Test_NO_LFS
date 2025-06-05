@@ -20,11 +20,11 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category="Enemy Drops Data Table", meta=(AllowedClasses="/Script/Engine.DataTable"))
 	FSoftObjectPath EnemyDropsDataTable;
 
-	/*UPROPERTY(Config, EditAnywhere, Category="Object Pool Data Table", meta=(AllowedClasses="/Script/Engine.DataTable", ToolTip="Vilka actors som ska initeras vid start"))
-	FSoftObjectPath ObjectPoolDataTable;*/
-
 	UPROPERTY(Config, EditAnywhere, Category="UI| Weapon UI Data Table", meta=(AllowedClasses="/Script/Engine.DataTable"))
 	FSoftObjectPath WeaponUIDataTable;
+
+	UPROPERTY(Config, EditAnywhere, Category="UI| Styling", DisplayName="Selected Theme")
+	FDataTableRowHandle StylingThemeRow;
 
 	UPROPERTY(Config, EditAnywhere, Category="UI| Styling", meta=(AllowedClasses="/Script/Engine.DataTable"))
 	FSoftObjectPath StylingThemeDataTable;

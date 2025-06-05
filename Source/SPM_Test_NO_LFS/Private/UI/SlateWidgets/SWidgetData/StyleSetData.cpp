@@ -161,7 +161,8 @@ const FStylingTheme* FStyleSetData::GetCurrentTheme()
 	}
 
 	UDataTable* DataTable = Cast<UDataTable>(Settings->StylingThemeDataTable.TryLoad());
-	FString ThemeRowName = "DefaultStyle"; //TODO: Make this configurable or pass as a parameter
+	FDataTableRowHandle ThemeRowHandle = Settings->StylingThemeRow;
+	FString ThemeRowName = ThemeRowHandle.RowName.ToString(); //TODO: Make this configurable or pass as a parameter
 	return DataTable->FindRow<FStylingTheme>(FName(*ThemeRowName), TEXT("Looking for theme"));
 }
 
