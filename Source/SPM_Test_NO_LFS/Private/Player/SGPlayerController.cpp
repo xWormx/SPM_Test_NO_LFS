@@ -131,6 +131,19 @@ void ASGPlayerController::Jump(const FInputActionValue& Value)
 		return;
 	}
 	PlayerCharacter->bPressedJump = Value.Get<bool>();
+
+	int32 CurrentObjectiveID = 0;
+
+	USGObjectiveHandlerSubSystem* ObjectiveSystem = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
+
+	if (ObjectiveSystem)
+	{
+		struct FObjectiveSaveData DoneObjectives = ObjectiveSystem->GetSaveGameData();
+
+		CurrentObjectiveID = DoneObjectives.NumObjectivesCompleted;
+	}
+
+	BASIR_LOG(Warning, TEXT("Current Objective ID: %u"), CurrentObjectiveID);
 }
 
 void ASGPlayerController::Interact([[maybe_unused]] const FInputActionValue& Value)

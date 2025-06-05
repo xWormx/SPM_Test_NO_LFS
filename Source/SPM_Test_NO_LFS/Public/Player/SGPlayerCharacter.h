@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "SGPlayerCharacter.generated.h"
 
+class ASGPlayerSpawnPoint;
 class ASGEnemySpawnManager;
 class ASGPlayerCharacter;
 class USGCounterComponentAmmo;
@@ -121,5 +122,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	ASGEnemySpawnManager* GetCurrentSpawnManager();
+
+	UPROPERTY(EditAnywhere, Category = "SpawnPoints" )
+	TArray<AActor*> SpawnPoints;
+
+	FTransform GetSpawnPointTransform();
 //----End: Added by Basir
 };
