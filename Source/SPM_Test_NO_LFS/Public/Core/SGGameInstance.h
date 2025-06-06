@@ -26,6 +26,12 @@ public:
 	USGTerminalWidget* GetTerminalWidget() const;
 	USGObjectiveToolTipWidget* GetObjectiveTooltipWidget() const;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Loading Screen")
+	TSubclassOf<UUserWidget> LoadingWidgetClass;
+
+	UFUNCTION()
+	void StartLoadingScreen(const FString& MapName);
+
 private:
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -39,6 +45,7 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
+
 
 public:
 	FOnDifficultyIncreased OnDifficultyIncreased;

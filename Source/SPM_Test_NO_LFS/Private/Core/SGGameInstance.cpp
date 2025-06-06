@@ -1,4 +1,6 @@
 #include "Core/SGGameInstance.h"
+
+#include "MoviePlayer.h"
 #include "SPM_Test_NO_LFS.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Enemies/Managers/SGEnemySpawnManager.h"
@@ -21,7 +23,9 @@ void USGGameInstance::Init()
 	CreateHUDTerminal();
 
 	OnDifficultyIncreased.AddDynamic(this, &USGGameInstance::IncreaseDifficultyLevel);
-	
+
+	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &USGGameInstance::StartLoadingScreen);
+
 	EMMA_LOG(Warning, TEXT("Här är Emmas Log!"));
 	BASIR_LOG(Warning, TEXT("Här är Basirs Log!"));
 	CALLE_LOG(Warning, TEXT("Här är Calles Log!"));
@@ -72,6 +76,26 @@ USGObjectiveToolTipWidget* USGGameInstance::GetObjectiveTooltipWidget() const
 	return ObjectiveToolTipWidget;
 }
 
+void USGGameInstance::StartLoadingScreen([[maybe_unused]] const FString& MapName)
+{
+	if (!IsRunningDedicatedServer())
+	{
+		UUserWidget* const LoadingWidget = CreateWidget<UUserWidget>(this, LoadingWidgetClass, TEXT("LoadingScreen"));
+		TSharedRef<SWidget> LoadingSWidgetPtr = LoadingWidget->TakeWidget();
+
+		FLoadingScreenAttributes LoadingScreen;
+		LoadingScreen.WidgetLoadingScreen = LoadingSWidgetPtr;
+		LoadingScreen.bAllowInEarlyStartup = false;
+		LoadingScreen.PlaybackType = MT_Normal;
+		LoadingScreen.bAllowEngineTick = false;
+		LoadingScreen.bWaitForManualStop = false;
+		LoadingScreen.bAutoCompleteWhenLoadingCompletes = true;
+		LoadingScreen.MinimumLoadingScreenDisplayTime = 1.f;
+
+		GetMoviePlayer()->SetupLoadingScreen(LoadingScreen);
+	}
+}
+
 void USGGameInstance::IncreaseDifficultyLevel([[maybe_unused]] int Difficulty)
 {
 	if (const USGUpgradeSubsystem* UpgradeSubsystem = GetSubsystem<USGUpgradeSubsystem>())
@@ -107,7 +131,6 @@ void USGGameInstance::LoadGameData(bool bAsync)
 	}
 }
 
-
 void USGGameInstance::SaveGameData(bool bAsync)
 {
 	if (bAsync)
@@ -119,7 +142,6 @@ void USGGameInstance::SaveGameData(bool bAsync)
 		UGameplayStatics::SaveGameToSlot(SavedData, SlotName, 0);
 	}
 }
-
 
 void USGGameInstance::OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData) const
 {
