@@ -30,7 +30,11 @@ private:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="editor",meta=(AllowPrivateAccess = "true"))
 	TArray<USoundBase*> Sounds;
-	
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* JumpSound;
+
+	void CheckIfJumping();
 	void BindDelegateHandlers() const;
 
 	class ASGPlayerCharacter* PlayerRef = nullptr;
