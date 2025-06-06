@@ -18,8 +18,6 @@ enum EGameMenuState : uint8
 	Start, Pause, GameOver, Victory
 };
 
-
-
 UCLASS()
 class SPM_TEST_NO_LFS_API ASGMainHUD : public AHUD
 {
@@ -30,41 +28,40 @@ public:
 
 	template<typename T = UUserWidget>
 	T* CreateAndAddToViewPort(const TSubclassOf<T>& WidgetClass, bool Add = true);
-	
-	void BindToPlayerComponentEvents(ASGPlayerCharacter* PlayerCharacter);
 
+
+	
+protected:
+	//----INITIALIZATION
 	void InitHUD();
 	void InitStartMenu(bool AddToViewport = true);
 	void InitGameMenus();
-
+	
+public:
+//----BINDING & HANDLING	
+	void BindToPlayerComponentEvents(ASGPlayerCharacter* PlayerCharacter);
 	void BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepObjective);
 
-
-	void EnterUIMode();
-
-	UFUNCTION(BlueprintCallable, Category = "UFunction - HUD") // Tillfälligt används av BP-scriptet i PlayerController
-	void EnterPlayMode();
-
-	UFUNCTION() // Tillfälligt används för att kolla när terminalen är öppen eller stängd
+protected:
+	UFUNCTION() 
 	void OnTerminalVisibilityChanged(ESlateVisibility NewVisibility);
 
-	UFUNCTION() // Tillfälligt för att kolla första gången spelaren startar ett mission
+	UFUNCTION()
 	void StartDifficultyBar();
 
-	void PauseGame();
-	void PlayerDeath();
 	UFUNCTION()
 	void PlayerWin();
 
-	void RestartGame();
-	void LoadMap(const FName& LevelName);
-
-	void ContinueGame();
-	void QuitGame();
-	bool SaveGame();
+public:
+	void PauseGame();
+	void PlayerDeath();
+	
 private:
-	bool IsGameLevel() const;
+	void ChangeMap(const FName& LevelName, bool bResetGame = false);
+	void EnterUIMode();	
+    void EnterPlayMode();
 
+	bool IsGameLevel() const;
 protected:
 	FDelegateHandle PostLoadMapDelegateHandle;
 
@@ -85,7 +82,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<USGEndGameInteractWidget> EndGameInteractWidget;
-
 	
 	UPROPERTY(BlueprintReadOnly, Category ="Uproperty - HUD", meta=(BindWidget))
 	TWeakObjectPtr<USGMainHUDWidget> MainHUDWidget;
@@ -97,7 +93,7 @@ protected:
 	EGameMenuState LastGameMenuState = Pause;
 	TMap<EGameMenuState, FMenuData> GameMenusData;
 
-	//------------STRING TABLE
+//------------STRING TABLE
 
 	// Gets text from the UI String Table in developer settings
 	static FText GetUIText(const FString& Key);

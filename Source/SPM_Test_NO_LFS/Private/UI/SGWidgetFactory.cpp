@@ -46,12 +46,11 @@ FButtonGroupData SGWidgetFactory::ButtonGroup(const TArray<FButtonData>& ButtonD
 	return ButtonGroupData;
 }
 
-FMenuData SGWidgetFactory::CreateMenuData(const FText& TextData, const FButtonGroupData& ButtonGroupData, const FBackgroundData& BackgroundData, const FAlignmentData MenuAlignmentData)
+FMenuData SGWidgetFactory::CreateMenuData(const FText& TextData, const FButtonGroupData& ButtonGroupData,const FAlignmentData MenuAlignmentData)
 {
 	FMenuData MenuData;
 	MenuData.HeaderElement =  CreateHeader(TextData);
 	MenuData.ButtonGroupElement = ButtonGroupData;
-	MenuData.BackgroundData = BackgroundData;
 	MenuData.ElementAlignment = MenuAlignmentData;
 	return MenuData;
 }

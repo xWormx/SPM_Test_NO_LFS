@@ -14,7 +14,8 @@ public:
 
 	static FBackgroundData Background(const FSlateColor& BackgroundColor, const FAlignmentData& AlignmentData);
 
-	static FButtonGroupData ButtonGroup(const TArray<FButtonData>& ButtonDataArray,const EOrientation Orientation, const FAlignmentData& AlignmentData);
+	static FButtonGroupData ButtonGroup(const TArray<FButtonData>& ButtonDataArray,const EOrientation Orientation = Orient_Vertical, const FAlignmentData& AlignmentData ={HAlign_Fill, VAlign_Top});
 
 	static FMenuData CreateMenuData(const FText& TextData, const FButtonGroupData& ButtonGroupData,const FBackgroundData& BackgroundData,FAlignmentData MenuAlignmentData);
+	static FMenuData CreateMenuData(const FText& TextData, const FButtonGroupData& ButtonGroupData, FAlignmentData MenuAlignmentData = {HAlign_Fill, VAlign_Center});
 };
