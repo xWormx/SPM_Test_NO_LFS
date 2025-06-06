@@ -33,6 +33,7 @@ TSharedRef<SButton> FButtonData::CreateButton() const
 	return SNew(SButton)
 		.ButtonStyle(&ButtonStyle).VAlign( VAlign_Fill).HAlign(HAlign_Fill)
 		.OnClicked(OnClicked)
+		.IsFocusable(true)
 		[
 			TextData.CreateTextBlock()
 		];

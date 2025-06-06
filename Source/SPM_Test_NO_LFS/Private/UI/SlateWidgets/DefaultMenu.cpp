@@ -70,6 +70,11 @@ void SDefaultMenu::SetMenuData(const FMenuData& InMenuData)
 	}
 }
 
+TSharedPtr<SDefaultButtonGroupWidget> SDefaultMenu::GetButtonGroupWidget() const
+{
+	return ButtonGroupWidget;
+}
+
 void UDefaultMenuWidget::ReleaseSlateResources(bool bReleaseChildren)
 {
 	Super::ReleaseSlateResources(bReleaseChildren);

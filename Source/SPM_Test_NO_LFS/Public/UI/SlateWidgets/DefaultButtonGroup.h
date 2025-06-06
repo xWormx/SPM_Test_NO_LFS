@@ -17,7 +17,7 @@ public:
 
 	void Construct(const FArguments& InArgs);
 	void SetButtonGroupData(const FButtonGroupData& InButtonGroupData);
-	
+	TSharedPtr<SDefaultButtonWidget> GetButtonWidget(int32 Index) const;
 private:
 
 	FButtonGroupData ButtonGroupData;

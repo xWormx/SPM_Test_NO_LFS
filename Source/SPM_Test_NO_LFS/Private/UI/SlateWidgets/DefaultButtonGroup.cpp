@@ -47,6 +47,11 @@ void SDefaultButtonGroupWidget::SetButtonGroupData(const FButtonGroupData& InBut
 	ButtonGroupStackBox->SetOrientation(ButtonGroupData.Orientation);
 }
 
+TSharedPtr<SDefaultButtonWidget> SDefaultButtonGroupWidget::GetButtonWidget(const int32 Index) const
+{
+	return (Index >= 0 && Index < ButtonWidgets.Num()) ? ButtonWidgets[Index] : nullptr;
+}
+
 void UDefaultButtonGroupWidget::ReleaseSlateResources(bool bReleaseChildren)
 {
 	Super::ReleaseSlateResources(bReleaseChildren);

@@ -24,6 +24,8 @@
 #include "Utils/SGDeveloperSettings.h"
 
 #include "Objectives/SGObjectiveFinalSweep.h"
+#include "UI/SlateWidgets/DefaultButton.h"
+#include "UI/SlateWidgets/DefaultButtonGroup.h"
 #include "UI/Widgets/SGEndGameInteractWidget.h"
 
 #define LOCTEXT_NAMESPACE "SGMainHUD"
@@ -192,7 +194,10 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 	{
 		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
-
+	if (GetGameInstance<USGGameInstance>()->DoesSaveGameExist())
+	{
+		MenuSlateWidget->GetButtonGroupWidget()->GetButtonWidget(1)->SetVisibility(EVisibility::Visible);
+	}
 	//Not really necessary, but for consistency
 	LastGameMenuState = Start;
 	GameMenusData.Add(Start, StartMenuData);}
@@ -257,6 +262,8 @@ void ASGMainHUD::InitGameMenus()
 	auto OnClickSaveGame = FOnClicked::CreateLambda([this]
 	{
 		GetGameInstance<USGGameInstance>()->CollectAndSave(false);
+		MenuSlateWidget->GetButtonGroupWidget()->GetButtonWidget(2)->SetEnabled(false);		
+		MenuSlateWidget->GetButtonGroupWidget()->GetButtonWidget(3)->SetVisibility(EVisibility::Visible);
 		return FReply::Handled();
 	});
 	
@@ -269,6 +276,7 @@ void ASGMainHUD::InitGameMenus()
 	FButtonData ButtonVictoryReturnToMainMenu = SGWidgetFactory::MenuButton(VictoryReturnToMainMenuText, OnClickReturnToMainMenu);
 
 	FButtonGroupData PauseButtonGroup = SGWidgetFactory::ButtonGroup({ButtonContinueGame, ButtonRestartGame, ButtonSaveGame, ButtonLoadSavedGame, ButtonReturnToMainMenu});
+	
 	FButtonGroupData GameOverButtonGroup = SGWidgetFactory::ButtonGroup({ButtonRestartGame});
 	FButtonGroupData VictoryButtonGroup = SGWidgetFactory::ButtonGroup({ButtonVictoryContinueGame, ButtonVictoryReturnToMainMenu});
 	
@@ -278,6 +286,11 @@ void ASGMainHUD::InitGameMenus()
 
 	MenuSlateWidget = SNew(SDefaultMenu).InMenuData(PauseMenuData);
 
+	if (GetGameInstance<USGGameInstance>()->DoesSaveGameExist())
+	{
+        MenuSlateWidget->GetButtonGroupWidget()->GetButtonWidget(3)->SetVisibility(EVisibility::Visible);
+	}
+	
 	GameMenusData.Add(Pause, PauseMenuData);
 	GameMenusData.Add(GameOver, GameOverMenuData);
 	GameMenusData.Add(Victory, VictoryMenuData);
@@ -291,9 +304,13 @@ void ASGMainHUD::EnterUIMode()
 		MainHUDWidget->PauseAndHide();
 		MainHUDWidget->SetVisibility(ESlateVisibility::Collapsed);	
 	}
-
+	TSharedPtr<SDefaultButtonWidget> Button = MenuSlateWidget->GetButtonGroupWidget()->GetButtonWidget(0);
+	
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(Button->GetButtonWidget());
+	
 	APlayerController* Controller = GetOwningPlayerController();
-	Controller->SetInputMode(FInputModeUIOnly());
+	Controller->SetInputMode(InputMode);
 	Controller->bShowMouseCursor = true;
 	Controller->SetPause(true);
 }
@@ -343,12 +360,14 @@ void ASGMainHUD::PauseGame()
 	}
 	if (MenuWidget.IsValid())
 	{
+		EVisibility Visibility = GetGameInstance<USGGameInstance>()->DoesSaveGameExist() ?EVisibility::Visible: EVisibility::Collapsed;
+		MenuSlateWidget->GetButtonGroupWidget()->GetButtonWidget(3)->SetVisibility(Visibility);		
+		MenuSlateWidget->GetButtonGroupWidget()->GetButtonWidget(2)->SetEnabled(true);		
 		MenuWidget->SetVisibility(EVisibility::Visible);
 	}
 	else
 	{
-		GEngine->GameViewport->AddViewportWidgetContent(
-			SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
+		GEngine->GameViewport->AddViewportWidgetContent(SAssignNew(MenuWidget, SWeakWidget).PossiblyNullContent(MenuSlateWidget.ToSharedRef()));
 	}
 	EnterUIMode();
 }

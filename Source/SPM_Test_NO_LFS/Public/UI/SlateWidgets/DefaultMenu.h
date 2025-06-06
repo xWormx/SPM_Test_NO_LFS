@@ -20,7 +20,7 @@ public:
 
 	void Construct(const FArguments& InArgs);
 	void SetMenuData(const FMenuData& InMenuData);
-
+	TSharedPtr<SDefaultButtonGroupWidget> GetButtonGroupWidget() const;
 private:
 	FMenuData MenuData;
 
