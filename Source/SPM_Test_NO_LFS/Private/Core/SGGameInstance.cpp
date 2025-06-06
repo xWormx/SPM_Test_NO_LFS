@@ -96,6 +96,18 @@ void USGGameInstance::StartLoadingScreen([[maybe_unused]] const FString& MapName
 	}
 }
 
+void USGGameInstance::LoadLevel(const FName& MapName)
+{
+	GEngine->GameViewport->RemoveAllViewportWidgets();
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+	UGameplayStatics::OpenLevel(this, MapName);
+}
+
+bool USGGameInstance::DoesSaveGameExist() const
+{
+	return UGameplayStatics::DoesSaveGameExist(SlotName, 0);
+}
+
 void USGGameInstance::IncreaseDifficultyLevel([[maybe_unused]] int Difficulty)
 {
 	if (const USGUpgradeSubsystem* UpgradeSubsystem = GetSubsystem<USGUpgradeSubsystem>())

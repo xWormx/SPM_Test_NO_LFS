@@ -32,6 +32,10 @@ public:
 	UFUNCTION()
 	void StartLoadingScreen(const FString& MapName);
 
+	UFUNCTION()
+	void LoadLevel(const FName& MapName);
+
+	bool DoesSaveGameExist() const;
 private:
 
 	UPROPERTY(EditAnywhere, Category = UPROPERTY)
@@ -45,7 +49,6 @@ private:
 	
 	UPROPERTY(VisibleAnywhere, Category = UPROPERTY)
 	USGObjectiveToolTipWidget* ObjectiveToolTipWidget;
-
 
 public:
 	FOnDifficultyIncreased OnDifficultyIncreased;
@@ -64,8 +67,7 @@ public:
 	class USGSaveGame* GetSaveGame() const;
 
 	UFUNCTION(BlueprintCallable)
-	void SaveGame(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, struct FObjectiveSaveData SavedObjectives, struct FSpawnManagerSavedData SpawnManagerSavedData,
-	const bool bAsync);
+	void SaveGame(struct FPlayerStats PlayerStats, struct FSGSavedAttributes UpgradeStats, struct FObjectiveSaveData SavedObjectives, struct FSpawnManagerSavedData SpawnManagerSavedData,const bool bAsync);
 
 	void CollectAndSave(const bool bAsync);
 
