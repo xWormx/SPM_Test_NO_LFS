@@ -61,7 +61,7 @@ bool ASGAIControllerEnemy::IsFacingTarget() const
 		return false;
 	}
 
-	float ToleranceDegree = 70.f;
+	float ToleranceDegree = 10.f;
 
 	FVector DirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
 	FVector ForwardVector = ControlledEnemy->GetActorForwardVector();
@@ -165,12 +165,18 @@ void ASGAIControllerEnemy::PatrolDelay()
 
 void ASGAIControllerEnemy::RotateTowardsTarget()
 {
+	if (IsFacingTarget())
+	{
+		return;
+	}
 	FVector StartLocation = ControlledEnemy->GetActorLocation();
 	FVector TargetLocation = AttackTarget->GetActorLocation();
 
 	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
 
-	ControlledEnemy->SetActorRotation(LookAtRotation);
+	FRotator InterpRotation = FMath::RInterpTo(ControlledEnemy->GetActorRotation(), LookAtRotation, GetWorld()->GetDeltaSeconds(), 50.f);
+
+	ControlledEnemy->SetActorRotation(InterpRotation);
 }
 
 float ASGAIControllerEnemy::GetCharacterVelocity() const

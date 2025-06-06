@@ -34,6 +34,8 @@ void ASGVoiceLines::Tick(float DeltaTime)
 			}
 		}
 	}
+
+	CheckIfJumping();
 }
 
 void ASGVoiceLines::BeginPlay()
@@ -60,6 +62,16 @@ void ASGVoiceLines::PlaySound(USoundBase* Sound, float Cooldown)
 	
 	AudioComponent->SetSound(Sound);
 	AudioComponent->Play();
+}
+
+void ASGVoiceLines::CheckIfJumping()
+{
+	FVector Velocity = PlayerRef->GetVelocity();
+
+	if (Velocity.Z > 10.0f)
+	{
+		PlaySound(Sounds[6], 3.f);
+	}
 }
 
 // Delegate handling
