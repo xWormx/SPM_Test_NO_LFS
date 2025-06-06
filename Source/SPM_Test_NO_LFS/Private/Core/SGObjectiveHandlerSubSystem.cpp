@@ -342,7 +342,8 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 	{
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted();
-		ObjectivesCompleted.Add(CurrentObjective);
+		// Gör detta i RemoveCurrentObjective istället?
+		//ObjectivesCompleted.Add(CurrentObjective);
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
 		
 		OnObjectiveCompleted.Broadcast();
@@ -368,9 +369,11 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 
 void USGObjectiveHandlerSubSystem::RemoveCurrentObjective()
 {
+	
 	// Ta bort avklarat objective från Arrayen
 	if (GameObjectives.Num() > 0)
 	{
+		ObjectivesCompleted.Add(CurrentObjective);
 		GameObjectives.RemoveAt(0);
 		if (GameObjectives.Num() <= 0)
 		{

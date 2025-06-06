@@ -73,13 +73,13 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 		{
 			// Sålänge avståndet är större än 150 så interpolar vi långsammare mot slutet
 			// Annars (när vi är nära målet gör vi det med konstant hastighet)
-			if (DistanceBetweenHeadAndAttachment > 150)
+			if (DistanceBetweenHeadAndAttachment > 350)
 			{
 				NewHeadPosition = FMath::VInterpTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, HeadTravelSpeed);
 			}
 			else
 			{
-				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, 3500);
+				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, 1500);
 			}
 				
 			Head->SetActorLocation(NewHeadPosition);
@@ -218,36 +218,86 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 {
 	if (Character == nullptr || !HeadAttached())
 		return;
+
+	float DistanceToGrapplePoint = FVector::Distance(GetAttachmentPoint(), Character->GetActorLocation());
+
+	// Riktning till grapplepoint
+	FVector ToGrapplePoint = (AttachmentPoint - Character->GetActorLocation()).GetSafeNormal();
+
+	// Override a velocity
+	Character->GetCharacterMovement()->Velocity = ToGrapplePoint * DragSpeed * 1000.0f;
+
+	// När vi når mål, släpp och ge impuls
+	if (DistanceToGrapplePoint < GrappleReleaseDistance)
+	{
+		ResetAndLaunch(Character, DeltaTime);
+	}
+
+	/*
+	if (Character == nullptr || !HeadAttached())
+		return;
 	
 	if (HeadAttached())
 	{
-		FVector NewPosition = FMath::VInterpTo(Character->GetActorLocation(),
-												GetAttachmentPoint(),
-												GetWorld()->GetDeltaSeconds(),
-												GetDragSpeed());
+		float DistanceToGrapplePoint = FVector::Distance(GetAttachmentPoint(), Character->GetActorLocation());
 		
-		float DistanceToGrapplePoint = FVector::Distance(GetAttachmentPoint(), NewPosition); 
+		FVector NewPosition =  FVector::ZeroVector;
+		
+		if (DistanceToGrapplePoint > 350)
+		{
+			NewPosition = FMath::VInterpTo(Character->GetActorLocation(),
+													GetAttachmentPoint(),
+													DeltaTime,
+													GetDragSpeed());	
+		}
+		else
+		{
+			NewPosition = FMath::VInterpConstantTo(Character->GetActorLocation(), GetAttachmentPoint(), DeltaTime, 1500);
+		}
+		// Riktning till grapplepoint
+		FVector ToGrapplePoint = (AttachmentPoint - Character->GetActorLocation()).GetSafeNormal();
+
+		// Konstant draghastighet
+		float GrapplePullSpeed = 3000.0f;
+
+		// Override velocity directly
+		Character->GetCharacterMovement()->Velocity = ToGrapplePoint * GrapplePullSpeed;
 
 		if (DistanceToGrapplePoint < GrappleReleaseDistance)
 		{
-			ResetGrapple();
-
-			FVector Impuls = FVector::ZeroVector;
-			FVector Direction = (AttachmentPoint - PointOfDeparture).GetSafeNormal();
-			Impuls = Direction * ImpulsAtArrival;
-
-			// Om hook riktningen är uppåt så lägg till lite extra kraft uppåt!
-			if (GetGrappleDirectionNormalized().Z > 0)
-				Impuls.Z += ExtraUpwardsImpuls;
-
-			Impuls *= DeltaTime * 10000;
-			Character->LaunchCharacter(Impuls, true, true);
+			ResetAndLaunch(Character, DeltaTime);
 		}
 		else
-		{			
-			Character->SetActorLocation(NewPosition);
+		{
+			// Använder Sweep för att när man interpolarer med ett högt konstant värde kan man fastna i väggar. Men man kan behöb aett högt värde
+			// För att motverka bakåtlänges air control movement och därmed förhindra att spelaren inte kommer fram till grapplepointen och blir fast hängandes
+			// under grapplepointen.
+			FHitResult Hit;
+			bool bConstantInterCollision = Character->SetActorLocation(NewPosition, true, &Hit);
+			if (bConstantInterCollision)
+			{
+				if (GrappledActor == Hit.GetActor())
+					ResetAndLaunch(Character, DeltaTime);
+			}
 		}			
 	}
+	*/
+}
+
+void ASGGrapplingHook::ResetAndLaunch(ACharacter* Character, float DeltaTime)
+{
+	ResetGrapple();
+
+	FVector Impuls = FVector::ZeroVector;
+	FVector Direction = (AttachmentPoint - PointOfDeparture).GetSafeNormal();
+	Impuls = Direction * ImpulsAtArrival;
+
+	// Om hook riktningen är uppåt så lägg till lite extra kraft uppåt!
+	if (GetGrappleDirectionNormalized().Z > 0)
+		Impuls.Z += ExtraUpwardsImpuls;
+
+	Impuls *= DeltaTime * 10000;
+	Character->LaunchCharacter(Impuls, true, true);
 }
 
 bool ASGGrapplingHook::AttachGrapple(AController* Controller, FHitResult& HitResult)
@@ -257,6 +307,8 @@ bool ASGGrapplingHook::AttachGrapple(AController* Controller, FHitResult& HitRes
 	
 	
 	bool didHit = GrappleTrace(HitResult, Controller);
+
+	GrappledActor = HitResult.GetActor();
 	
 	if (!didHit)
 	{
