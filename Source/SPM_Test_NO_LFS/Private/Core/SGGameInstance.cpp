@@ -2,6 +2,7 @@
 
 #include "MoviePlayer.h"
 #include "SPM_Test_NO_LFS.h"
+#include "Core/SGUpgradeGuardSubsystem.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Enemies/Managers/SGEnemySpawnManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -16,9 +17,27 @@ void USGGameInstance::Init()
 
 	LoadGameData(false);
 	//ResetSavedGame();
-
 	//GetSubsystem<USGUpgradeSubsystem>()->LoadPersistentUpgrades(SavedData->UpgradeSystemSavedAttributes);
 
+	FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda( [this]([[maybe_unused]] UWorld* World)
+	{
+		if (DoesSaveGameExist())
+		{
+			FSGSavedAttributes UpgradeSaves = SavedData->UpgradeSystemSavedAttributes;
+			GetSubsystem<USGUpgradeSubsystem>()->LoadPersistentUpgrades(UpgradeSaves);
+
+			USGUpgradeGuardSubsystem* UpgradeGuard = GetSubsystem<USGUpgradeGuardSubsystem>();
+			float Orbs = UpgradeSaves.Orbs - UpgradeGuard->GetCount();
+			if (Orbs < UpgradeSaves.Orbs)
+			{
+				UpgradeGuard->RemoveFromCount(Orbs);
+			}
+			else
+			{
+				UpgradeGuard->AddToCount(Orbs);
+			}			
+		}
+	});
 	CreateObjectiveToolTip();
 	CreateHUDTerminal();
 
@@ -105,6 +124,10 @@ void USGGameInstance::LoadLevel(const FName& MapName)
 
 bool USGGameInstance::DoesSaveGameExist() const
 {
+	if (SlotName.IsEmpty())
+	{
+		return false;
+	}
 	return UGameplayStatics::DoesSaveGameExist(SlotName, 0);
 }
 
@@ -243,12 +266,12 @@ void USGGameInstance::CollectAndSave(const bool bAsync)
 	}
 
 	USGUpgradeSubsystem* UpgradesSubSystem = GetSubsystem<USGUpgradeSubsystem>();
-	if (!UpgradesSubSystem)
+	USGUpgradeGuardSubsystem* UpgradeGuard = GetSubsystem<USGUpgradeGuardSubsystem>();
+	if (!UpgradesSubSystem || !UpgradeGuard)
 	{
-		BASIR_LOG(Error, TEXT("UpgradesSystem is Null"));
+		BASIR_LOG(Error, TEXT("UpgradesSystem or UpgradeGuard is Null"));
 		return;
 	}
-
 	USGObjectiveHandlerSubSystem* SGObjectiveSystem = World->GetSubsystem<USGObjectiveHandlerSubSystem>();
 	if (!SGObjectiveSystem)
 	{
@@ -265,6 +288,7 @@ void USGGameInstance::CollectAndSave(const bool bAsync)
 
 	FPlayerStats PlayerStats = PlayerCharacter->GetPlayerStats();
 	FSGSavedAttributes UpgradeAttributes = UpgradesSubSystem->GetPersistentUpgrades();
+	UpgradeAttributes.Orbs = UpgradeGuard->GetCount();
 	FObjectiveSaveData SavedObjectives = SGObjectiveSystem->GetSaveGameData();
 	FSpawnManagerSavedData SpawnManagerSavedData = SGSpawnManager->GetSaveData();
 
