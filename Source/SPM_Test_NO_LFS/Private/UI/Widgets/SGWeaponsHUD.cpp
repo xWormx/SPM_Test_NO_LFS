@@ -164,6 +164,10 @@ void USGWeaponsHUD::ReloadWeapon(int32 WeaponIndex, ASGGun* Gun)
 	FTimerHandle ReloadTimerHandle;
 	ReloadDelegate.BindLambda([WeaponEntry, Gun, this, AmmoClip, &ReloadTimerHandle]
 	{
+		if (!WeaponEntry || !WeaponEntriesBox)
+		{
+			return;
+		}
 		if (AmmoClip < Gun->GetAmmoClip())
 		{
 			WeaponEntry.Get()->WeaponNameTextBlock->SetText(Gun->GetWeaponDisplayName());
