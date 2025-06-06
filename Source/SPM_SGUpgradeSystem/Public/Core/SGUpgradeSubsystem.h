@@ -29,13 +29,21 @@ struct FSGDependentUpgradePersistentData
 	FName TargetPropertyName;
 	FSGUpgradePersistentData Dependency;
 };
+USTRUCT(Blueprintable)
+struct FSGSavedAttributeEntry
+{
+	GENERATED_BODY()
 
+	FString ClassNameKey;
+	TArray<FSGUpgradePersistentData> PersistentUpgrades;
+};
 USTRUCT(Blueprintable)
 struct FSGSavedAttributes
 {
 	GENERATED_BODY()
-	TMap<FString, TArray<FSGUpgradePersistentData>> PersistentUpgradesByClass;
-	TMap<FString, TArray<FSGDependentUpgradePersistentData>> PersistentDependenciesByClass;
+
+	float Orbs = 1.0f;
+	TArray<FSGSavedAttributeEntry> SomeAttributes;
 };
 
 struct FSGAUpgradeResult
@@ -167,5 +175,5 @@ public:
 	/// @brief Save all persistent upgrades to be used in the next level or save file. Used when saving the game.
 	/// @return FSGSavedAttributes containing all attributes to be saved and reconnected in the next level
 	UFUNCTION(BlueprintCallable)
-	FSGSavedAttributes GetPersistentUpgrades() const;
+	FSGSavedAttributes GetPersistentUpgrades();
 };

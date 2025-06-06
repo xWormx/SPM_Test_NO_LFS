@@ -34,8 +34,9 @@ void USGUpgradeSubsystem::Deinitialize()
 
 void USGUpgradeSubsystem::OnPreLevelChange([[maybe_unused]] const FString& String)
 {
-	SavePersistentUpgrades();
-
+	//UE_LOG(LogTemp, Display, TEXT("💀USGUpgradeSubsystem::OnPreLevelChange: Saving persistent upgrades..."));
+	//SavePersistentUpgrades();
+	UE_LOG(LogTemp, Display, TEXT("💀USGUpgradeSubsystem::OnPreLevelChange: Clearing registered attributes..."));
 	RegisteredAttributes.Empty();
 	AttributesByRow.Empty();
 	AttributesByKey.Empty();
@@ -46,6 +47,7 @@ void USGUpgradeSubsystem::SavePersistentUpgrades()
 {
 	if (RegisteredAttributes.Num() == 0)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("❤️️SavePersistentUpgrades: No registered attributes to save."));
 		return;
 	}
 
@@ -53,13 +55,20 @@ void USGUpgradeSubsystem::SavePersistentUpgrades()
 
 	for (const TUniquePtr<FSGAttribute>& AttributePtr : RegisteredAttributes)
 	{
+		UE_LOG(LogTemp, Display, TEXT("❤️️Processing Attribute: %s"), *AttributePtr->RowName.ToString());
 		const FSGAttribute* Attribute = AttributePtr.Get();
-		if (!Attribute || !Attribute->Owner.IsValid() || !Attribute->bFindOnReload)
+		if (!Attribute || !Attribute->Owner.IsValid())
 		{
+			UE_LOG(LogTemp, Warning, TEXT("❤️️SavePersistentUpgrades: Invalid attribute found"));
 			continue;
 		}
 
 		UObject* Owner = Attribute->Owner.Get();
+		if (!Owner || !IsValid(Owner))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("❤️️SavePersistentUpgrades: Invalid owner found for %s"), *AttributePtr->RowName.ToString());
+			continue;
+		}
 		FString ClassNameKey = GetClassNameKey(Owner);
 
 		FSGUpgradePersistentData PersistentData;
@@ -70,14 +79,28 @@ void USGUpgradeSubsystem::SavePersistentUpgrades()
 		PersistentData.InitialValue = Attribute->InitialValue;
 
 		PersistentUpgradesByClass.FindOrAdd(ClassNameKey).Add(PersistentData);
-		int32 Key = GetKey(Owner, Attribute->Property);
+		/*int32 Key = GetKey(Owner, Attribute->Property);
 		TArray<FSGDependentAttribute*>* Dependencies = DependentAttributesByKey.Find(Key);
 		if (!Dependencies)
 		{
 			continue;
 		}
+		
 		for (FSGDependentAttribute* Dependency : *Dependencies)
 		{
+			if (!Dependency)
+			{
+				UE_LOG (LogTemp, Warning, TEXT("❤️❤️️️SavePersistentUpgrades: Invalid dependent attribute found for %s"),*AttributePtr->RowName.ToString());
+				continue;
+			}
+
+			if (Dependency->Owner.IsStale())
+			{
+				UE_LOG (LogTemp, Warning, TEXT("❤️❤️️️SavePersistentUpgrades: Stale owner found for dependent attribute %s"), *Dependency->Property->GetFName().ToString());
+			}
+			
+			UE_LOG(LogTemp, Display, TEXT("❤️❤️️️Processing Dependent Attribute: %s, Property: %s"), *Dependency->Owner->GetName(), *Dependency->Property->GetFName().ToString());
+
 			FSGDependentUpgradePersistentData PersistentDependentData;
 			PersistentDependentData.ClassNameKey = GetClassNameKey(Dependency->Owner.Get());
 			PersistentDependentData.PropertyName = Dependency->Property->GetFName();
@@ -90,22 +113,41 @@ void USGUpgradeSubsystem::SavePersistentUpgrades()
 			FString DependencyClassNameKey = GetClassNameKey(Dependency->Owner.Get());
 			PersistentDependenciesByClass.FindOrAdd(DependencyClassNameKey).Add(PersistentDependentData);
 		}
+		*/
+
+		UE_LOG(LogTemp, Display,TEXT( "❤️️PersistentUpgradesByClass [%s] - Property: %s, Row: %s, Category: %s, CurrentUpgradeLevel: %d, InitialValue: %f"),
+		       *ClassNameKey, *PersistentData.PropertyName.ToString(), *PersistentData.RowName.ToString(),
+		       *PersistentData.Category.ToString(), PersistentData.CurrentUpgradeLevel, PersistentData.InitialValue);
 	}
 }
 
 void USGUpgradeSubsystem::LoadPersistentUpgrades(const FSGSavedAttributes& SavedAttributes)
 {
-	PersistentUpgradesByClass = SavedAttributes.PersistentUpgradesByClass;
-	PersistentDependenciesByClass = SavedAttributes.PersistentDependenciesByClass;
-	/*ReconnectAttributes();
-	ValidateReferences();*/
+	float SaveValue = SavedAttributes.Orbs;
+	UE_LOG(LogTemp, Display, TEXT("🫡LoadPersistentUpgrades: Loading PersistentUpgrades: Orbs = %f"), SaveValue);
+	for (FSGSavedAttributeEntry SomeAttribute : SavedAttributes.SomeAttributes)
+	{
+		UE_LOG(LogTemp, Display, TEXT("LoadPersistentUpgrades: ClassNameKey = %s"), *SomeAttribute.ClassNameKey);
+	}
+	ReconnectAttributes();
 }
 
-FSGSavedAttributes USGUpgradeSubsystem::GetPersistentUpgrades() const
+FSGSavedAttributes USGUpgradeSubsystem::GetPersistentUpgrades()
 {
-	FSGSavedAttributes SavedAttributes;
-	SavedAttributes.PersistentUpgradesByClass = PersistentUpgradesByClass;
-	SavedAttributes.PersistentDependenciesByClass = PersistentDependenciesByClass;
+	UE_LOG (LogTemp, Display, TEXT("👽USGUpgradeSubsystem::GetPersistentUpgrades: Saving persistent upgrades..."));
+	SavePersistentUpgrades();
+	FSGSavedAttributes SavedAttributes = {2.0f};
+	for (const TPair UpgradesByClass : PersistentUpgradesByClass)
+	{
+		FString ClassNameKey = UpgradesByClass.Key;
+		FSGSavedAttributeEntry SavedEntry;
+		SavedEntry.ClassNameKey = ClassNameKey;
+		SavedEntry.PersistentUpgrades = UpgradesByClass.Value;
+		SavedAttributes.SomeAttributes.Add(SavedEntry);
+		UE_LOG(LogTemp, Display, TEXT("👽LoadPersistentUpgrades: ClassNameKey = %s, and PersistentUpgrades: %d"), *ClassNameKey, UpgradesByClass.Value.Num());
+	}
+	UE_LOG(LogTemp, Display, TEXT("👽LoadPersistentUpgrades: Saving PersistentUpgrades: Orbs = %f"),SavedAttributes.Orbs);
+
 	return SavedAttributes;
 }
 
@@ -171,18 +213,18 @@ void USGUpgradeSubsystem::ProcessObjectForReconnection(UObject* Object)
 				NewAttribute->InitialValue = Data.InitialValue;
 
 				//Bortkommenterat så alla attribut reset:as när leveln startas om
-				/*if (Data.CurrentUpgradeLevel == 1)
+				if (Data.CurrentUpgradeLevel == 1)
 				{
 					continue;
 				}
 				for (int32 i = 0; i < Data.CurrentUpgradeLevel-1; ++i)
 				{
 					NewAttribute->OnAttributeModified.Broadcast();
-				}*/
+				}
 			}
 		}
 	}
-	else if (TArray<FSGDependentUpgradePersistentData>* StoredDependentData = PersistentDependenciesByClass.
+	/*else if (TArray<FSGDependentUpgradePersistentData>* StoredDependentData = PersistentDependenciesByClass.
 		Find(ClassNameKey))
 	{
 		for (const FSGDependentUpgradePersistentData& Data : *StoredDependentData)
@@ -201,7 +243,7 @@ void USGUpgradeSubsystem::ProcessObjectForReconnection(UObject* Object)
 			BindDependentAttribute(Object, Data.PropertyName, Data.bOverrideOnModified, TargetObject,
 			                       Data.TargetPropertyName);
 		}
-	}
+	}*/
 }
 
 void USGUpgradeSubsystem::ValidateReferences()
@@ -277,10 +319,7 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 	{
 		BindDependentAttribute(Owner, PropertyName, false, ExistingAttribute->Owner.Get(),
 		                       ExistingAttribute->Property->GetFName());
-		return;
-		//Category = TEXT("Hidden");
-		//FoundExisting->Category = Category; //TODO: Se över alternativ. Snabblösning för att fungera med arvshierarkin för vapen. (Basklassen Gun's BeginPlay-funktion körs före.)
-		//return;
+		return;		
 	}
 
 	//Hämtar propertyns data (för uppgradering) och gör early return om den inte finns
@@ -327,6 +366,9 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 		FloatProp->SetPropertyValue_InContainer(NewAttributeRaw->Owner.Get(), Current);
 	});
 
+	UE_LOG (LogTemp, Display, TEXT("Binding Attribute: %s, Property: %s, RowName: %s, Category: %s"),
+	       *NewAttributeRaw->RowName.ToString(), *NewAttributeRaw->Property->GetFName().ToString(),
+	       *NewAttributeRaw->RowName.ToString(), *NewAttributeRaw->Category.ToString());
 	// Lägg till i alla listor/loop-ups
 	AttributesByRow.FindOrAdd(RowName).Add(NewAttributeRaw);
 	AttributesByKey.Add(GetKey(Owner, Prop), NewAttributeRaw);
@@ -335,7 +377,8 @@ void USGUpgradeSubsystem::BindAttribute(UObject* Owner, const FName PropertyName
 	OnBindAttribute.Broadcast();
 }
 
-void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FName PropertyName, const bool OverrideOnModified, UObject* TargetOwner, FName TargetPropertyName)
+void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FName PropertyName, const bool OverrideOnModified,
+                                                 UObject* TargetOwner, FName TargetPropertyName)
 {
 	if (!Owner)
 	{
@@ -361,7 +404,8 @@ void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FName PropertyN
 
 //------- HELPERS
 
-void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FProperty* Prop, const bool OverrideOnModified, FSGAttribute* TargetAttribute)
+void USGUpgradeSubsystem::BindDependentAttribute(UObject* Owner, FProperty* Prop, const bool OverrideOnModified,
+                                                 FSGAttribute* TargetAttribute)
 {
 	//Inga null-checkar av parametrar för de är gjordes i funktionerna: BindDependentAttribute (public) och BindAttribute.
 	const FSGAttributeData* AttributeData = UpgradeDataTable->FindRow<FSGAttributeData>(
