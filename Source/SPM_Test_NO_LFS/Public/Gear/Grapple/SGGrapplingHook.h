@@ -109,7 +109,7 @@ private:
 	float HookCooldown = 3;
 
 	FTimerHandle GrappleTimerHandle;
-
+	
 	float CableLengthWhenAttached = 0;
 
 	bool bHUDGrappleInitialized = false;
@@ -121,11 +121,15 @@ private:
 	FVector AttachmentPoint = FVector::ZeroVector;
 	FVector PointOfDeparture = FVector::ZeroVector;
 	FVector GrappleDirection = FVector::ZeroVector;
+
+	UPROPERTY(VisibleAnywhere)
+	AActor* GrappledActor;
 	
 	AController* GetValidController() const;
 	bool GrappleTrace(FHitResult& OutHitResult, AController* Controller);
 	void StartCharacterLaunch(ACharacter* Character);
 	void UpdatePlayerPosition(ACharacter* Character, float DeltaTime);
+	void ResetAndLaunch(ACharacter* Character, float DeltaTime);
 	bool AttachGrapple(AController* Controller,FHitResult& HitResult);
 	void TravelDirectly(ACharacter* Character, FHitResult& HitResult);
 
