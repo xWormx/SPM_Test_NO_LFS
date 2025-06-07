@@ -4,6 +4,7 @@
 #include "AIController.h"
 #include "SGAIControllerEnemy.generated.h"
 
+class UBehaviorTreeComponent;
 class ASGEnemyCharacter;
 
 UCLASS()
@@ -22,6 +23,8 @@ public:
 	virtual void PatrolDelay();
 
 	virtual void RotateTowardsTarget();
+
+	virtual void SetBehaviorTreeEnabled(bool bEnabled);
 	
 	//float helpers
 	UFUNCTION(BlueprintCallable)

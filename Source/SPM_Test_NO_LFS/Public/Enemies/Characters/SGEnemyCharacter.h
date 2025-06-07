@@ -66,7 +66,10 @@ protected:
 
 	ASGAIControllerEnemy* AIController;
 
-	UBehaviorTreeComponent* BTComp;
+	UPROPERTY(EditAnywhere, Category = "DeathEffect")
+	class UNiagaraSystem* DeathEffect;
+
+	void PlayDeathEffect() const;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "UFunction - Enemy")
