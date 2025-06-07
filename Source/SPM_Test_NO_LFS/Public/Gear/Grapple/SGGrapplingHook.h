@@ -41,7 +41,6 @@ public:
 	void FireGrapple();
 	void ResetGrapple();
 	void SetGrappleVisibility(bool bVisibility);
-	void SetHeadConstraint(AActor* OtherActor);
 	void SetMaxHookRange(float NewMaxHookRange) {	MaxHookRange = NewMaxHookRange; }
 	void SetCoolDown(float NewCoolDown) { HookCooldown = NewCoolDown; }
 	void EnableGrappling();

@@ -21,12 +21,7 @@ class SPM_TEST_NO_LFS_API ASGObjectiveKillEmAll : public ASGObjectiveBase
 {
 	GENERATED_BODY()
 public:
-	/*
-	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual void OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual void Update(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	*/
+
 	virtual bool IsCompleted() override;
 	virtual void OnStart() override;
 	virtual void OnCompleted() override;

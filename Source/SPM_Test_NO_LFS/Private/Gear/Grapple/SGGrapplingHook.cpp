@@ -42,16 +42,10 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 	FHitResult HitResult;
 	AController* Controller = GetValidController();
 	
-	if (const bool bDidHit = GrappleTrace(HitResult, Controller); !bDidHit)
+	bool bDidHit = GrappleTrace(HitResult, Controller);
+	if (!bDidHit)
 	{
 		OnCanGrapple.Broadcast(bDidHit);
-	}
-
-	if (!CanGrapple())
-	{
-		int TimeLeft = GetWorldTimerManager().GetTimerRemaining(GrappleTimerHandle);
-		//FString str = FString::Printf(TEXT("Grapple Time: %d"), TimeLeft);
-		//GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Red, str);
 	}
 	
 	if (bDidGrapple)
@@ -97,13 +91,12 @@ void ASGGrapplingHook::ResetGrapple()
 	}
 	
 	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 2.0f;
-	// TODO (Calle): Friction borde resettas när man INTE ÄR I LUFTEN LÄNGRE, så att man kan glida på väggar
-	// annars fastnar man i dem.
-	//Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
 	
 	Head->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
 	Head->SetActorLocation(GrappleHeadPosition->GetComponentLocation());
+	
 	SetGrappleVisibility(false);
+	
 	bHeadAttached = false;
 	bStartTravel = false;
 }
@@ -114,10 +107,7 @@ void ASGGrapplingHook::SetGrappleVisibility(bool bVisibility)
 	CableComponent->SetVisibility(bVisibility);
 }
 
-void ASGGrapplingHook::SetHeadConstraint(AActor* OtherActor)
-{
-	Head->SetConstraintTo(OtherActor);
-}
+
 
 void ASGGrapplingHook::EnableGrappling()
 {
@@ -317,7 +307,6 @@ bool ASGGrapplingHook::AttachGrapple(AController* Controller, FHitResult& HitRes
 {
 	if (!CanGrapple())
 		return false;
-	
 	
 	bool didHit = GrappleTrace(HitResult, Controller);
 

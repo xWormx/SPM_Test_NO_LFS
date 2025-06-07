@@ -32,12 +32,7 @@ public:
 	ASGObjectiveDefendThePod();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-/*
-	virtual void OnStart(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual bool IsCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual void OnCompleted(ASGGameObjectivesHandler* ObjectiveHandler) override;
-	virtual void Update(ASGGameObjectivesHandler* ObjectiveHandler) override;
-*/
+
 	virtual bool IsCompleted() override;
 	virtual void OnStart() override;
 	virtual void OnCompleted() override;

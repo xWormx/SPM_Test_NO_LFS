@@ -29,7 +29,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void SetConstraintTo(AActor* OtherActor);
 private:
 	
 	UPROPERTY(EditAnywhere)
@@ -38,6 +37,4 @@ private:
 	UPROPERTY(EditAnywhere)
 	USceneComponent* Root;
 
-	UPROPERTY(EditAnywhere)
-	class UPhysicsConstraintComponent* PhysicsConstraint;
 };
