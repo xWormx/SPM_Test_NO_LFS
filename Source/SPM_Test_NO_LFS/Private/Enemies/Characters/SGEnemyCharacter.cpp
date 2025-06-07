@@ -1,8 +1,8 @@
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
+#include "NiagaraFunctionLibrary.h"
 #include "SPM_Test_NO_LFS.h"
 #include "BehaviorTree/BehaviorTree.h"
-#include "Components/CapsuleComponent.h"
 #include "Components/SGHealthComponent.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Enemies/AI/SGAIControllerEnemy.h"
@@ -41,11 +41,6 @@ void ASGEnemyCharacter::BeginPlay()
 	}
 
 	AIController = Cast<ASGAIControllerEnemy>(GetController());
-
-	if (AIController)
-	{
-		BTComp = Cast<UBehaviorTreeComponent>(AIController->GetBrainComponent());
-	}
 }
 
 void ASGEnemyCharacter::HandleDeath(float NewHealth)
@@ -56,12 +51,30 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 	OnEnemyDied.Broadcast(this);
 	OnEnemyDiedObjective.Broadcast(this);
 
-	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
+	
 	HealthComponent->SetCurrentHealth(HealthComponent->GetMaxHealth());
 
 	if (DeathSound)
 	{
 		UGameplayStatics::SpawnSoundAttached(DeathSound, GetMesh(), "DeathSound");
+	}
+
+	PlayDeathEffect();
+	
+	GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>()->ReturnObjectToPool(this);
+}
+
+void ASGEnemyCharacter::PlayDeathEffect() const
+{
+	if (DeathEffect)
+	{
+		GetCharacterMovement()->StopMovementImmediately();
+		const FVector DeathEffectLocation = GetActorLocation();
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+			this,
+			DeathEffect,
+			DeathEffectLocation
+			);
 	}
 }
 
@@ -72,30 +85,14 @@ void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ASGEnemyCharacter::SetBehaviorTreeEnabled(bool bEnabled)
 {
-	if (bEnabled)
+
+	if (!AIController)
 	{
-		if (AIController)
-		{
-			if (BTComp)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("BT Stopped"));
-				//BTComp->StopTree(EBTStopMode::Forced);
-				BTComp->StartLogic();
-			}
-		}
+		BASIR_LOG(Warning, TEXT("No AIController"));
+		return;
 	}
-	else
-	{
-		if (AIController)
-		{
-			if (BTComp)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("BT Stopped"));
-				//BTComp->StopTree(EBTStopMode::Forced);
-				BTComp->StopLogic(TEXT("Dead"));
-			}
-		}
-	}
+
+	AIController->SetBehaviorTreeEnabled(bEnabled);
 }
 
 USGEnemyAttackComponentBase* ASGEnemyCharacter::GetAttackComponent()
@@ -128,6 +125,7 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 	MovementComp->bOrientRotationToMovement = false;
 	MovementComp->bUseControllerDesiredRotation = false;
 	GetCharacterMovement()->bUseRVOAvoidance = false;
+	GetMesh()->bPauseAnims = true;
 
 	VerticalLaunchVelocity = GetJumpVelocity(VerticalLaunchVelocity, HeightDifference);
 
@@ -142,7 +140,7 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 		JumpTimerHandle,
 		this,
 		&ASGEnemyCharacter::AdjustJumpRotation,
-		1.5f,
+		1.f,
 		false
 	);
 }
@@ -177,17 +175,15 @@ void ASGEnemyCharacter::AdjustJumpRotation()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	GetCharacterMovement()->bUseRVOAvoidance = true;
+	GetMesh()->bPauseAnims = false;
 }
 
 void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)
 {
-	// Get current rotation before push
 	FRotator CurrentRotation = GetActorRotation();
-
-	// Apply push force
+	
 	LaunchCharacter(PushDirection.GetSafeNormal() * PushStrength, true, true);
-
-	// Set up a timer to restore rotation after physics update
+	
 	GetWorldTimerManager().SetTimerForNextTick([this, CurrentRotation]()
 	{
 		SetActorRotation(CurrentRotation);

@@ -342,8 +342,6 @@ void USGObjectiveHandlerSubSystem::UpdateCurrentGameObjective(UObject* Objective
 	{
 		LastCompletedObjective = GetCurrentObjective();
 		CurrentObjective->OnCompleted();
-		// Gör detta i RemoveCurrentObjective istället?
-		//ObjectivesCompleted.Add(CurrentObjective);
 		UGameplayStatics::PlaySound2D(this, MissionCompletedSound);
 		
 		OnObjectiveCompleted.Broadcast();
