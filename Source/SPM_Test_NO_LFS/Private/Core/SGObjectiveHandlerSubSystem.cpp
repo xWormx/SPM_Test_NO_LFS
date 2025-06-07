@@ -71,7 +71,7 @@ void USGObjectiveHandlerSubSystem::OnWorldBeginPlay(UWorld& InWorld)
 				TimerHandle,
 				this,
 				&USGObjectiveHandlerSubSystem::OnLoadGameDelay,
-				3.f,
+				0.5f,
 				false);
 		}
 		else

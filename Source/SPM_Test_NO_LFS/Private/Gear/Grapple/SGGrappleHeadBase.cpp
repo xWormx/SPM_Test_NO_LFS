@@ -17,8 +17,6 @@ ASGGrappleHeadBase::ASGGrappleHeadBase()
 	GrappleHeadMesh	= CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GrappleHeadMesh"));
 	GrappleHeadMesh->SetupAttachment(Root);
 
-	PhysicsConstraint = CreateDefaultSubobject<UPhysicsConstraintComponent>(TEXT("PhysicsConstraint"));
-	PhysicsConstraint->SetupAttachment(GrappleHeadMesh);
 
 }
 
@@ -34,15 +32,6 @@ void ASGGrappleHeadBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASGGrappleHeadBase::SetConstraintTo(AActor* OtherActor)
-{
-	if (OtherActor != nullptr)
-	{
-		PhysicsConstraint->ConstraintActor1 = this;
-		PhysicsConstraint->ConstraintActor2 = OtherActor;
-		PhysicsConstraint->SetConstrainedComponents(GrappleHeadMesh, NAME_None, OtherActor->GetComponentByClass<UCapsuleComponent>(), NAME_None);		
-	}
-}
 
 
 
