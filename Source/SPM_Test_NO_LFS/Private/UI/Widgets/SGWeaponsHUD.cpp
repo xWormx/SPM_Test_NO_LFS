@@ -164,7 +164,7 @@ void USGWeaponsHUD::ReloadWeapon(int32 WeaponIndex, ASGGun* Gun)
 	FTimerHandle ReloadTimerHandle;
 	ReloadDelegate.BindLambda([WeaponEntry, Gun, this, AmmoClip, &ReloadTimerHandle]
 	{
-		if (!WeaponEntry || !WeaponEntriesBox)
+		if (!WeaponEntry || !WeaponEntriesBox || !Gun)
 		{
 			return;
 		}
