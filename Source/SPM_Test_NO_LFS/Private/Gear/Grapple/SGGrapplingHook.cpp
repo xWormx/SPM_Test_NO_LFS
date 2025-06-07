@@ -53,44 +53,16 @@ void ASGGrapplingHook::Tick(float DeltaTime)
 		//FString str = FString::Printf(TEXT("Grapple Time: %d"), TimeLeft);
 		//GEngine->AddOnScreenDebugMessage(-1, 0.1, FColor::Red, str);
 	}
-		
 	
 	if (bDidGrapple)
 	{
-		// Detta skjuter iväg Grapplehead och uppdateras dess position tills att den är inom 50 enheter
-		// av AttachmentPoint
-		FVector NewHeadPosition = Head->GetActorLocation();
-		
-		float DistanceBetweenHeadAndAttachment = FVector::Dist(NewHeadPosition, AttachmentPoint); 
-		if (DistanceBetweenHeadAndAttachment < 10)
-		{
-			bHeadAttached = true;
-			bDidGrapple = false;
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), GrappleAttachmentSound, Head->GetActorLocation(), 0.6);
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), GrappleAttachmentParticles, Head->GetActorLocation());
-		}
-		else
-		{
-			// Sålänge avståndet är större än 150 så interpolar vi långsammare mot slutet
-			// Annars (när vi är nära målet gör vi det med konstant hastighet)
-			if (DistanceBetweenHeadAndAttachment > 350)
-			{
-				NewHeadPosition = FMath::VInterpTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, HeadTravelSpeed);
-			}
-			else
-			{
-				NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, 1500);
-			}
-				
-			Head->SetActorLocation(NewHeadPosition);
-		}
+		UpdateGrappleHeadPosition(DeltaTime);
 	}
 
 	if (HeadAttached() && PlayerWantToTravel())
 	{
 		UpdatePlayerPosition(GetValidController()->GetCharacter(), DeltaTime);
 	}
-
 }
 
 void ASGGrapplingHook::FireGrapple()
@@ -213,6 +185,37 @@ void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
 	Character->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
 	Character->GetCharacterMovement()->bUseSeparateBrakingFriction = true;
 	Character->GetCharacterMovement()->GravityScale = 0.6f;
+}
+
+void ASGGrapplingHook::UpdateGrappleHeadPosition(float DeltaTime)
+{
+	// Detta skjuter iväg Grapplehead och uppdateras dess position tills att den är inom 50 enheter
+	// av AttachmentPoint
+	FVector NewHeadPosition = Head->GetActorLocation();
+		
+	float DistanceBetweenHeadAndAttachment = FVector::Dist(NewHeadPosition, AttachmentPoint); 
+	if (DistanceBetweenHeadAndAttachment < 10)
+	{
+		bHeadAttached = true;
+		bDidGrapple = false;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), GrappleAttachmentSound, Head->GetActorLocation(), 0.6);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), GrappleAttachmentParticles, Head->GetActorLocation());
+	}
+	else
+	{
+		// Sålänge avståndet är större än 150 så interpolar vi långsammare mot slutet
+		// Annars (när vi är nära målet gör vi det med konstant hastighet)
+		if (DistanceBetweenHeadAndAttachment > 350)
+		{
+			NewHeadPosition = FMath::VInterpTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, HeadTravelSpeed);
+		}
+		else
+		{
+			NewHeadPosition = FMath::VInterpConstantTo(Head->GetActorLocation(), AttachmentPoint, DeltaTime, 1500);
+		}
+				
+		Head->SetActorLocation(NewHeadPosition);
+	}
 }
 
 void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTime)
