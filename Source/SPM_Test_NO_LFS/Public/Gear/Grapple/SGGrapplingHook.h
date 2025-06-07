@@ -129,6 +129,8 @@ private:
 	bool GrappleTrace(FHitResult& OutHitResult, AController* Controller);
 	void StartCharacterLaunch(ACharacter* Character);
 	void UpdatePlayerPosition(ACharacter* Character, float DeltaTime);
+	void UpdatePlayerPositionVelocityBased(ACharacter* Character, float DeltaTime);
+	void UpdatePlayerPositionLocationBased(ACharacter* Character, float DeltaTime);
 	void ResetAndLaunch(ACharacter* Character, float DeltaTime);
 	bool AttachGrapple(AController* Controller,FHitResult& HitResult);
 	void TravelDirectly(ACharacter* Character, FHitResult& HitResult);

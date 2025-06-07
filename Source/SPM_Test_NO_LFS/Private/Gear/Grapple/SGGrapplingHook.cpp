@@ -208,6 +208,7 @@ void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
 		return;
 	// Skjuter upp karaktären när hooken avlossas för att få ett bra momentum och att karaktären inte dras mot marken
 	Character->LaunchCharacter(FVector(0, 0, 300), true, true);
+	
 	// För att karaktären inte ska bromsas när den dras mot väggar
 	Character->GetCharacterMovement()->BrakingFrictionFactor = 0.0f;
 	Character->GetCharacterMovement()->bUseSeparateBrakingFriction = true;
@@ -215,6 +216,14 @@ void ASGGrapplingHook::StartCharacterLaunch(ACharacter* Character)
 }
 
 void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTime)
+{
+	UpdatePlayerPositionVelocityBased(Character, DeltaTime);
+
+	// Denna variant kämpar emot Unreals inbyggda Movement/Physics system vilket kan leda till en del "buggar" och specialfall som måste hanteras.
+	//UpdatePlayerPositionLocationBased(Character, DeltaTime);
+}
+
+void ASGGrapplingHook::UpdatePlayerPositionVelocityBased(ACharacter* Character, float DeltaTime)
 {
 	if (Character == nullptr || !HeadAttached())
 		return;
@@ -232,8 +241,10 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 	{
 		ResetAndLaunch(Character, DeltaTime);
 	}
+}
 
-	/*
+void ASGGrapplingHook::UpdatePlayerPositionLocationBased(ACharacter* Character, float DeltaTime)
+{
 	if (Character == nullptr || !HeadAttached())
 		return;
 	
@@ -281,7 +292,6 @@ void ASGGrapplingHook::UpdatePlayerPosition(ACharacter* Character, float DeltaTi
 			}
 		}			
 	}
-	*/
 }
 
 void ASGGrapplingHook::ResetAndLaunch(ACharacter* Character, float DeltaTime)
