@@ -79,7 +79,7 @@ void ASGMainHUD::BeginPlay()
 	}
 	if (!ObjectiveHandler->OnEndGame.IsAlreadyBound(this, &ASGMainHUD::PlayerWin))
 	{
-		ObjectiveHandler->OnEndGame.RemoveDynamic(this, &ASGMainHUD::PlayerWin);
+		ObjectiveHandler->OnEndGame.AddDynamic(this, &ASGMainHUD::PlayerWin);
 	}
 
 	USGGameInstance* GameInstance = GetGameInstance<USGGameInstance>();
@@ -360,8 +360,7 @@ void ASGMainHUD::OnTerminalVisibilityChanged(ESlateVisibility NewVisibility)
 void ASGMainHUD::StartDifficultyBar()
 {
 	MainHUDWidget->StartDifficultyBar();
-	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.RemoveDynamic(
-		this, &ASGMainHUD::StartDifficultyBar);
+	GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>()->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::StartDifficultyBar);
 }
 
 //---- ON CLICKED
