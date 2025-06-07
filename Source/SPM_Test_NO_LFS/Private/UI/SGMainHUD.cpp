@@ -44,7 +44,10 @@ void ASGMainHUD::BeginPlay()
 
 #if WITH_EDITOR
 		ASGPlayerCharacter* PlayerCharacter = Cast<ASGPlayerCharacter>(GetOwningPlayerController()->GetCharacter());
-		PlayerCharacter->OnPlayerIsReady.AddUObject(this, &ASGMainHUD::BindToPlayerComponentEvents);
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->OnPlayerIsReady.AddUObject(this, &ASGMainHUD::BindToPlayerComponentEvents);
+		}
 #endif
 
 		PostLoadMapDelegateHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda([this]([[maybe_unused]] UWorld* World)
@@ -70,10 +73,20 @@ void ASGMainHUD::BeginPlay()
 	}
 
 	USGObjectiveHandlerSubSystem* ObjectiveHandler = GetWorld()->GetSubsystem<USGObjectiveHandlerSubSystem>();
-	ObjectiveHandler->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
-	ObjectiveHandler->OnEndGame.AddDynamic(this, &ASGMainHUD::PlayerWin);
+	if (!ObjectiveHandler->OnObjectiveStarted.IsAlreadyBound(this, &ASGMainHUD::StartDifficultyBar))
+	{
+			ObjectiveHandler->OnObjectiveStarted.AddDynamic(this, &ASGMainHUD::StartDifficultyBar);
+	}
+	if (!ObjectiveHandler->OnEndGame.IsAlreadyBound(this, &ASGMainHUD::PlayerWin))
+	{
+		ObjectiveHandler->OnEndGame.RemoveDynamic(this, &ASGMainHUD::PlayerWin);
+	}
 
-	GetGameInstance<USGGameInstance>()->GetTerminalWidget()->OnVisibilityChanged.AddDynamic(this, &ASGMainHUD::OnTerminalVisibilityChanged);
+	USGGameInstance* GameInstance = GetGameInstance<USGGameInstance>();
+	if (GameInstance && GameInstance->GetTerminalWidget() && !GameInstance->GetTerminalWidget()->OnVisibilityChanged.IsAlreadyBound(this, &ASGMainHUD::OnTerminalVisibilityChanged))
+	{
+		GetGameInstance<USGGameInstance>()->GetTerminalWidget()->OnVisibilityChanged.AddDynamic(this, &ASGMainHUD::OnTerminalVisibilityChanged);
+	}
 }
 
 void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -83,7 +96,10 @@ void ASGMainHUD::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		ObjectiveHandler->OnObjectiveStarted.RemoveDynamic(this, &ASGMainHUD::StartDifficultyBar);
 	}
-	
+	if (ObjectiveHandler->OnEndGame.IsAlreadyBound(this, &ASGMainHUD::PlayerWin))
+	{
+		ObjectiveHandler->OnEndGame.RemoveDynamic(this, &ASGMainHUD::PlayerWin);
+	}
 	FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLoadMapDelegateHandle);
 	Super::EndPlay(EndPlayReason);
 }
@@ -215,8 +231,7 @@ void ASGMainHUD::BindToEndGameInteractEvents(ASGObjectiveFinalSweep* FinalSweepO
 	}
 
 	USGEndGameInteractWidget* EndGameInteractWidgetPtr = EndGameInteractWidget.Get();
-	FinalSweepObjective->OnEscapeWithPodEnabled.AddDynamic(EndGameInteractWidgetPtr,
-	                                                       &USGEndGameInteractWidget::ShowEscapeWidget);
+	FinalSweepObjective->OnEscapeWithPodEnabled.AddDynamic(EndGameInteractWidgetPtr,&USGEndGameInteractWidget::ShowEscapeWidget);
 	FinalSweepObjective->OnEscapeWithPodDisabled.AddDynamic(EndGameInteractWidgetPtr,&USGEndGameInteractWidget::HideEscapeWidget);
 }
 
