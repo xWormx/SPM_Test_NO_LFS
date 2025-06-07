@@ -4,7 +4,6 @@
 #include "AIController.h"
 #include "SGAIControllerEnemy.generated.h"
 
-class UBehaviorTreeComponent;
 class ASGEnemyCharacter;
 
 UCLASS()
@@ -78,7 +77,7 @@ protected:
 
 	//Behavior Tree
 	UPROPERTY(EditAnywhere)
-	class UBehaviorTree* BehaviorTree;
+	class UBehaviorTree* EnemyBehaviorTree;
 	
 	//float values
 	UPROPERTY(EditAnywhere, Category= "Combat",  meta = (AllowPrivateAccess = true))

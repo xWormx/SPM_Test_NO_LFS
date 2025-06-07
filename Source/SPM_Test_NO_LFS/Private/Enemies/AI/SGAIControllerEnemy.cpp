@@ -42,9 +42,9 @@ void ASGAIControllerEnemy::SetInitialValues()
 		return;
 	}
 
-	if (BehaviorTree)
+	if (EnemyBehaviorTree)
 	{
-		RunBehaviorTree(BehaviorTree);
+		RunBehaviorTree(EnemyBehaviorTree);
 		GetBlackboardComponent()->SetValueAsObject(TEXT("AttackTarget"), AttackTarget);
 		
 	}
@@ -164,15 +164,14 @@ void ASGAIControllerEnemy::RotateTowardsTarget()
 
 void ASGAIControllerEnemy::SetBehaviorTreeEnabled(bool bEnabled)
 {
-	BASIR_LOG(Error, TEXT("Method called"));
-	if (!BehaviorTree)
+	if (!EnemyBehaviorTree)
 	{
 		return;
 	}
 	
 	if (bEnabled)
 	{
-		RunBehaviorTree(BehaviorTree);
+		RunBehaviorTree(EnemyBehaviorTree);
 	}
 	else
 	{
