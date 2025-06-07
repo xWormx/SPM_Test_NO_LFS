@@ -3,6 +3,8 @@
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "SPM_Test_NO_LFS.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Navigation/SGEnemyPatrolPoint.h"
@@ -40,9 +42,9 @@ void ASGAIControllerEnemy::SetInitialValues()
 		return;
 	}
 
-	if (BehaviorTree)
+	if (EnemyBehaviorTree)
 	{
-		RunBehaviorTree(BehaviorTree);
+		RunBehaviorTree(EnemyBehaviorTree);
 		GetBlackboardComponent()->SetValueAsObject(TEXT("AttackTarget"), AttackTarget);
 		
 	}
@@ -61,7 +63,7 @@ bool ASGAIControllerEnemy::IsFacingTarget() const
 		return false;
 	}
 
-	float ToleranceDegree = 10.f;
+	float ToleranceDegree = 30.f;
 
 	FVector DirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
 	FVector ForwardVector = ControlledEnemy->GetActorForwardVector();
@@ -103,25 +105,6 @@ class AActor* ASGAIControllerEnemy::GetPatrolPoint()
 void ASGAIControllerEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	if (!ControlledEnemy)
-	{
-		return;
-	}
-
-	if (ControlledEnemy->IsHidden())
-	{
-		ControlledEnemy->GetCharacterMovement()->StopMovementImmediately();
-		ControlledEnemy->GetCharacterMovement()->GravityScale = 0.f;
-		return;
-	}
-
-	if (bShouldBeFlying)
-	{
-		return;
-	}
-	
-	ControlledEnemy->GetCharacterMovement()->GravityScale = 1.f;
 }
 
 void ASGAIControllerEnemy::Patrol()
@@ -177,6 +160,33 @@ void ASGAIControllerEnemy::RotateTowardsTarget()
 	FRotator InterpRotation = FMath::RInterpTo(ControlledEnemy->GetActorRotation(), LookAtRotation, GetWorld()->GetDeltaSeconds(), 50.f);
 
 	ControlledEnemy->SetActorRotation(InterpRotation);
+}
+
+void ASGAIControllerEnemy::SetBehaviorTreeEnabled(bool bEnabled)
+{
+	if (!EnemyBehaviorTree)
+	{
+		return;
+	}
+	
+	if (bEnabled)
+	{
+		RunBehaviorTree(EnemyBehaviorTree);
+	}
+	else
+	{
+		UBehaviorTreeComponent* BTComp = Cast<UBehaviorTreeComponent>(BrainComponent);
+
+		if (!BTComp)
+		{
+			BASIR_LOG(Error, TEXT("AI Controller, No BTComp"));
+		}
+
+		if (BTComp->IsRunning())
+		{
+			BTComp->StopTree(EBTStopMode::Safe);
+		}
+	}
 }
 
 float ASGAIControllerEnemy::GetCharacterVelocity() const

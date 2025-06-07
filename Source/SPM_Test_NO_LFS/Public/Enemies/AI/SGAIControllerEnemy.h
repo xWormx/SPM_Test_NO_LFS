@@ -22,6 +22,8 @@ public:
 	virtual void PatrolDelay();
 
 	virtual void RotateTowardsTarget();
+
+	virtual void SetBehaviorTreeEnabled(bool bEnabled);
 	
 	//float helpers
 	UFUNCTION(BlueprintCallable)
@@ -75,7 +77,7 @@ protected:
 
 	//Behavior Tree
 	UPROPERTY(EditAnywhere)
-	class UBehaviorTree* BehaviorTree;
+	class UBehaviorTree* EnemyBehaviorTree;
 	
 	//float values
 	UPROPERTY(EditAnywhere, Category= "Combat",  meta = (AllowPrivateAccess = true))
