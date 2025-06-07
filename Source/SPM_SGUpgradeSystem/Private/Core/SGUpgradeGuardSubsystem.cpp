@@ -4,22 +4,13 @@
 void USGUpgradeGuardSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
-
-	PostLevelLoadHandle = FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &USGUpgradeGuardSubsystem::ResetCount);
-
-}
-
-void USGUpgradeGuardSubsystem::Deinitialize()
-{
-	FCoreUObjectDelegates::PostLoadMapWithWorld.Remove(PostLevelLoadHandle);
-
-	Super::Deinitialize();
+	ResetCount();
 }
 
 void USGUpgradeGuardSubsystem::AddToCount(const float Amount)
 {
 	Count += Amount;
-	OnCountAddToCount.Broadcast();
+	OnCountModified.Broadcast();
 }
 
 void USGUpgradeGuardSubsystem::RemoveFromCount(const float Amount)
@@ -29,6 +20,7 @@ void USGUpgradeGuardSubsystem::RemoveFromCount(const float Amount)
 	{
 		Count = 0;
 	}
+	OnCountModified.Broadcast();
 }
 
 bool USGUpgradeGuardSubsystem::CanUpgradeBasedOnCount(const float UpgradeCost) const
@@ -40,7 +32,15 @@ float USGUpgradeGuardSubsystem::GetCount() const
 {
 	return Count;
 }
-void USGUpgradeGuardSubsystem::ResetCount(UWorld* World)
+
+void USGUpgradeGuardSubsystem::SetCount(float NewCount)
+{
+	Count = NewCount;
+	OnCountModified.Broadcast();
+}
+
+void USGUpgradeGuardSubsystem::ResetCount()
 {
 	Count = DefaultValue;
+	OnCountModified.Broadcast();
 }

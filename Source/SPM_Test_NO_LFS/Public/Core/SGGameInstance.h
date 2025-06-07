@@ -19,6 +19,11 @@ class SPM_TEST_NO_LFS_API USGGameInstance : public UGameInstance
 	GENERATED_BODY()
 public:
 	virtual void Init() override;
+	void Shutdown();
+	UFUNCTION()
+	void UpdateUpgrades(UWorld* World);
+	UFUNCTION()
+	void UpdateUpgradesMapName(const FString& MapName);
 	void CreateObjectiveToolTip();
 	void CreateHUDTerminal();
 	void SetTerminalWidget(USGTerminalWidget* InWidget);
@@ -106,4 +111,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class USGUpgradeSubsystem* UpgradeSubSystem;
+
+	FDelegateHandle UpdateUpgradesHandle;
 };

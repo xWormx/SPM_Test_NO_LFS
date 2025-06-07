@@ -34,16 +34,16 @@ struct FSGSavedAttributeEntry
 {
 	GENERATED_BODY()
 
-	FString ClassNameKey;
-	TArray<FSGUpgradePersistentData> PersistentUpgrades;
+	FString ClassNameKey = FString();
+	TArray<FSGUpgradePersistentData> PersistentUpgrades = TArray<FSGUpgradePersistentData>();
 };
 USTRUCT(Blueprintable)
 struct FSGSavedAttributes
 {
 	GENERATED_BODY()
 
-	float Orbs = 1.0f;
-	TArray<FSGSavedAttributeEntry> SomeAttributes;
+	float Orbs = 10.0f;
+	TArray<FSGSavedAttributeEntry> SomeAttributes = TArray<FSGSavedAttributeEntry>();
 };
 
 struct FSGAUpgradeResult
@@ -83,7 +83,10 @@ public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-
+	void ClearAttributes();
+	/*
+	void ClearPersistentUpgrades();
+	*/
 	/// @brief Registrera ett attribut som ska kunna uppgraderas
 	/// @param Owner Ägaren av attributen (annars hittas den inte)
 	/// @param PropertyName Vad attributen heter (måste just nu vara en float)
@@ -91,7 +94,6 @@ public:
 	/// @param Category Kategori för attributen (ex. "Player", "Enemy" osv)
 	/// @param bFindOnReload
 	void BindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category, bool bFindOnReload = false);
-	//void BindAttribute(UObject* Owner, FName PropertyName, FName RowName, FName Category);
 
 	void BindDependentAttribute(UObject* Owner, FName PropertyName, bool OverrideOnModified, UObject* TargetOwner, FName TargetPropertyName);
 
@@ -148,12 +150,23 @@ private:
 	TMap<uint64, TArray<FSGDependentAttribute*>> DependentAttributesByKey;
 
 protected:
+
 	void OnPreLevelChange(const FString& String);
+
 	void SavePersistentUpgrades();
 
+	/*
 	void OnPostLevelChange(UWorld* World);
+	*/
+	/*
 	void ReconnectAttributes();
+	*/
+	/*
 	void ProcessObjectForReconnection(UObject* Object);
+	*/
+	/*
+	bool ReconnectAttributeWithPersistentUpgrades(UObject* Object, FString ClassNameKey);
+	*/
 	void ValidateReferences();
 	void RemoveAttributeFromCollections(const FSGAttribute* Attribute);
 

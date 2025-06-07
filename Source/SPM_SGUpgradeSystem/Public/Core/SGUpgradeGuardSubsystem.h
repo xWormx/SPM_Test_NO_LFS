@@ -5,6 +5,7 @@
 #include "SGUpgradeGuardSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCountAddToCount);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCountModified);
 
 
 //TODO: 😷 Temporär lösning - Kolla om man ska kunna sätta "constraints" hos respektive attribut för uppgradering eller om sån logik ska ske utanför. 
@@ -18,7 +19,6 @@ public:
 	USGUpgradeGuardSubsystem(){};
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	virtual void Deinitialize() override;
 
 	UFUNCTION(BlueprintCallable, Category = "UFunction - Upgrade System")
 	void AddToCount(float Amount);
@@ -31,20 +31,18 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "UFunction - Upgrade System")
 	float GetCount() const;
-
-protected:
-	void ResetCount(UWorld* World);
+	void SetCount(float NewCount);
+	void ResetCount();
 
 private:
 
 	UPROPERTY()
-	float Count = 10.0f;
+	float Count;
 
 	UPROPERTY()
 	float DefaultValue = 10.0f;
 
-	FDelegateHandle PostLevelLoadHandle;
-
 public:
 	FOnCountAddToCount OnCountAddToCount;
+	FOnCountModified OnCountModified;
 };

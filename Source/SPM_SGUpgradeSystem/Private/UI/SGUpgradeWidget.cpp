@@ -23,7 +23,7 @@ void USGUpgradeWidget::NativeConstruct()
 	Sub->OnBindAttribute.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
 	Sub->OnUpgrade.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
 
-	GetGameInstance()->GetSubsystem<USGUpgradeGuardSubsystem>()->OnCountAddToCount.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
+	GetGameInstance()->GetSubsystem<USGUpgradeGuardSubsystem>()->OnCountModified.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
 }
 
 //TODO: Borde hantera logik för att uppgradera attributen i UI:t också (ta bort det ansvaret från USGUpgradeEntryTile)

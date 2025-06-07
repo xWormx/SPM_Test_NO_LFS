@@ -17,38 +17,54 @@ void USGGameInstance::Init()
 
 	LoadGameData(false);
 	//ResetSavedGame();
-	//GetSubsystem<USGUpgradeSubsystem>()->LoadPersistentUpgrades(SavedData->UpgradeSystemSavedAttributes);
+	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &USGGameInstance::UpdateUpgrades);
 
-	FCoreUObjectDelegates::PostLoadMapWithWorld.AddLambda( [this]([[maybe_unused]] UWorld* World)
-	{
-		if (DoesSaveGameExist())
-		{
-			FSGSavedAttributes UpgradeSaves = SavedData->UpgradeSystemSavedAttributes;
-			GetSubsystem<USGUpgradeSubsystem>()->LoadPersistentUpgrades(UpgradeSaves);
-
-			USGUpgradeGuardSubsystem* UpgradeGuard = GetSubsystem<USGUpgradeGuardSubsystem>();
-			float Orbs = UpgradeSaves.Orbs - UpgradeGuard->GetCount();
-			if (Orbs < UpgradeSaves.Orbs)
-			{
-				UpgradeGuard->RemoveFromCount(Orbs);
-			}
-			else
-			{
-				UpgradeGuard->AddToCount(Orbs);
-			}			
-		}
-	});
 	CreateObjectiveToolTip();
 	CreateHUDTerminal();
 
 	OnDifficultyIncreased.AddDynamic(this, &USGGameInstance::IncreaseDifficultyLevel);
-
 	FCoreUObjectDelegates::PreLoadMap.AddUObject(this, &USGGameInstance::StartLoadingScreen);
 
 	EMMA_LOG(Warning, TEXT("Här är Emmas Log!"));
 	BASIR_LOG(Warning, TEXT("Här är Basirs Log!"));
 	CALLE_LOG(Warning, TEXT("Här är Calles Log!"));
 	JOEL_LOG(Warning, TEXT("Här är Joels Log!"));
+}
+
+void USGGameInstance::Shutdown()
+{
+	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
+	OnDifficultyIncreased.Clear();
+
+	Super::Shutdown();
+}
+
+void USGGameInstance::UpdateUpgrades([[maybe_unused]] UWorld* World)
+{
+	USGUpgradeSubsystem* UpgradeSubsystem = GetSubsystem<USGUpgradeSubsystem>();
+	USGUpgradeGuardSubsystem* UpgradeGuard = GetSubsystem<USGUpgradeGuardSubsystem>();
+
+	if (UpgradeGuard)
+	{
+		EMMA_LOG(Warning, TEXT("☀️USGGameInstance::UpdateUpgrades: Resetting upgrade guard count..."));
+		UpgradeGuard->ResetCount();
+	}
+	if (!DoesSaveGameExist())
+	{
+		EMMA_LOG(Warning, TEXT("☀️USGGameInstance::UpdateUpgrades: No save data found"));
+		return;
+	}
+
+	EMMA_LOG(Warning, TEXT("☀️USGGameInstance::UpdateUpgrades: Loading persistent upgrades from save data..."));
+	FSGSavedAttributes UpgradeSaves = SavedData->UpgradeSystemSavedAttributes;
+	if (UpgradeSubsystem)
+	{
+		UpgradeSubsystem->LoadPersistentUpgrades(UpgradeSaves);
+	}
+	if (UpgradeGuard)
+	{
+		UpgradeGuard->SetCount(UpgradeSaves.Orbs);
+	}
 }
 
 void USGGameInstance::CreateObjectiveToolTip()
@@ -64,7 +80,7 @@ void USGGameInstance::CreateObjectiveToolTip()
 	}
 }
 
-inline void USGGameInstance::CreateHUDTerminal()
+void USGGameInstance::CreateHUDTerminal()
 {
 	if (HUDTerminalClass)
 	{
@@ -124,7 +140,7 @@ void USGGameInstance::LoadLevel(const FName& MapName)
 
 bool USGGameInstance::DoesSaveGameExist() const
 {
-	if (SlotName.IsEmpty())
+	if (!SavedData || !SavedData->PlayerStats.bSaveGameExists || SlotName.IsEmpty())
 	{
 		return false;
 	}
@@ -145,6 +161,7 @@ void USGGameInstance::LoadGameData(bool bAsync)
 	if (!UGameplayStatics::DoesSaveGameExist(SlotName, 0))
 	{
 		SavedData = Cast<USGSaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
+		EMMA_LOG(Warning, TEXT("☀️USGGameInstance::LoadGameData: No save game found, creating new save game object."));
 	}
 	else
 	{
@@ -160,10 +177,11 @@ void USGGameInstance::LoadGameData(bool bAsync)
 		else
 		{
 			USaveGame* LoadedGameData = UGameplayStatics::LoadGameFromSlot(SlotName, 0);
-
 			SavedData = Cast<USGSaveGame>(LoadedGameData);
+			EMMA_LOG(Warning, TEXT("☀️USGGameInstance::LoadGameData: Loaded game data from slot %s."), *SlotName);
 		}
 	}
+	EMMA_LOG(Warning, TEXT("☀️USGGameInstance::LoadGameData: Save game data loaded successfully."));
 }
 
 void USGGameInstance::SaveGameData(bool bAsync)
