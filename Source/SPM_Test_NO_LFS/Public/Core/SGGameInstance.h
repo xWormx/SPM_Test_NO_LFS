@@ -22,8 +22,6 @@ public:
 	void Shutdown();
 	UFUNCTION()
 	void UpdateUpgrades(UWorld* World);
-	UFUNCTION()
-	void UpdateUpgradesMapName(const FString& MapName);
 	void CreateObjectiveToolTip();
 	void CreateHUDTerminal();
 	void SetTerminalWidget(USGTerminalWidget* InWidget);
