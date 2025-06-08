@@ -63,7 +63,7 @@ bool ASGAIControllerEnemy::IsFacingTarget() const
 		return false;
 	}
 
-	float ToleranceDegree = 30.f;
+	float ToleranceDegree = 70.f;
 
 	FVector DirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
 	FVector ForwardVector = ControlledEnemy->GetActorForwardVector();
