@@ -305,6 +305,38 @@ bool ASGAIControllerEnemy::IsStuck()
 	return bIsStuck;
 }
 
+bool ASGAIControllerEnemy::IsStuckOutsideNavMesh()
+{
+	if (!ControlledEnemy)
+	{
+		return false;
+	}
+
+	UWorld* World = ControlledEnemy->GetWorld();
+	if (!World)
+	{
+		return false;
+	}
+
+	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(World);
+	if (!NavSys)
+	{
+		return false;
+	}
+
+	ControlledEnemyLocation = ControlledEnemy->GetActorLocation();
+
+	
+	const FVector TestLocation = ControlledEnemyLocation + FVector(0, 0, 50);
+	const FVector SearchLocation = FVector(50, 50, 200);
+
+	FNavLocation NearestNavLocation;
+	
+	bool bIsOnNavMesh = NavSys->ProjectPointToNavigation(TestLocation, NearestNavLocation, SearchLocation);
+	
+	return !bIsOnNavMesh && IsStuck();
+}
+
 bool ASGAIControllerEnemy::HasReachedPatrolPoint(float Tolerance)
 {
 	if (!ControlledEnemy || !CurrentPatrolPoint)

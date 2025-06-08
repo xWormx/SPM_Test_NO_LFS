@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "SGEnemyCharacter.generated.h"
 
+class USGEnemyHealthBarWidget;
 class UBehaviorTreeComponent;
 class ASGAIControllerEnemy;
 class USGEnemyAttackComponentBase;
@@ -56,6 +57,17 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Jump")
 	float JumpHorizontalSpeed = 600.f;
+
+	UFUNCTION(BlueprintCallable)
+	void HandleDeathBarOnHurt(float NewHealth,  float MaxHealth, UWidgetComponent* HealthBar, UProgressBar* HealthProgressBar);
+
+	UFUNCTION(BlueprintCallable)
+	void SetHealthBarVisible(UWidgetComponent* HealthBar, bool bVisible);
+
+	FTimerHandle HealthBarDelayTimerHandle;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void HandleDeathBarOnDeath(UWidgetComponent* HealthBar, UProgressBar* HealthProgressBar);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy", meta = (AllowPrivateAccess = "true"))

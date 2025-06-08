@@ -2,10 +2,12 @@
 
 #include "NiagaraFunctionLibrary.h"
 #include "SPM_Test_NO_LFS.h"
-#include "BehaviorTree/BehaviorTree.h"
+#include "Components/ProgressBar.h"
 #include "Components/SGHealthComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Enemies/AI/SGAIControllerEnemy.h"
+#include "Enemies/Components/SGEnemyHealthBarWidget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -23,7 +25,7 @@ ASGEnemyCharacter::ASGEnemyCharacter()
 void ASGEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+		
 	if (HealthComponent)
 	{
 		HealthComponent->OnNoHealth.AddDynamic(this, &ASGEnemyCharacter::HandleDeath);
@@ -176,6 +178,51 @@ void ASGEnemyCharacter::AdjustJumpRotation()
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	GetCharacterMovement()->bUseRVOAvoidance = true;
 	GetMesh()->bPauseAnims = false;
+}
+
+void ASGEnemyCharacter::HandleDeathBarOnHurt(float NewHealth,  float MaxHealth, UWidgetComponent* HealthBar, UProgressBar* HealthProgressBar)
+{
+	float NewPercentage = NewHealth / MaxHealth;
+	
+	HealthProgressBar->SetPercent(NewPercentage);
+
+	HealthProgressBar->SetFillColorAndOpacity(FColor::Green);
+
+	SetHealthBarVisible(HealthBar, true);
+
+	if (NewHealth < (MaxHealth/3.0))
+	{
+		HealthProgressBar->SetFillColorAndOpacity(FColor::Red);
+		if (GetWorld()->GetTimerManager().IsTimerActive(HealthBarDelayTimerHandle))
+		{
+			GetWorld()->GetTimerManager().ClearTimer(HealthBarDelayTimerHandle);
+		}
+	}
+	else
+	{
+		HealthProgressBar->SetFillColorAndOpacity(FColor::Green);
+		bool bVisible = false;
+		GetWorld()->GetTimerManager().SetTimer(
+			HealthBarDelayTimerHandle,
+			[this, HealthBar, bVisible] ()
+			{
+				SetHealthBarVisible(HealthBar, bVisible);
+			},
+			2.f,
+			false
+			);
+	}
+}
+
+void ASGEnemyCharacter::SetHealthBarVisible(UWidgetComponent* HealthBar, bool bVisible)
+{
+	HealthBar->SetVisibility(bVisible);
+}
+
+void ASGEnemyCharacter::HandleDeathBarOnDeath(UWidgetComponent* HealthBar, UProgressBar* HealthProgressBar)
+{
+	SetHealthBarVisible(HealthBar, false);
+	HealthProgressBar->SetFillColorAndOpacity(FColor::Green);
 }
 
 void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)
