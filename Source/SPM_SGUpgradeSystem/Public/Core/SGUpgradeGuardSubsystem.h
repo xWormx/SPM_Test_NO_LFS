@@ -5,6 +5,8 @@
 #include "SGUpgradeGuardSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCountAddToCount);
+
+UDELEGATE(Blueprintable)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCountModified);
 
 
@@ -44,5 +46,6 @@ private:
 
 public:
 	FOnCountAddToCount OnCountAddToCount;
+	UPROPERTY(BlueprintAssignable, Category = "Delegates")
 	FOnCountModified OnCountModified;
 };
