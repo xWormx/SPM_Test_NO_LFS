@@ -1,6 +1,5 @@
 #include "UI/Widgets/SGWeaponsHUD.h"
 
-#include "SPM_Test_NO_LFS.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
@@ -180,6 +179,7 @@ void USGWeaponsHUD::ReloadWeapon(int32 WeaponIndex, ASGGun* Gun)
 	constexpr float ReloadTime = 0.1f; // Gun->GetReloadTime();
 	GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, ReloadDelegate, ReloadTime, true);
 }
+
 void USGWeaponsHUD::UpdateAmmo([[maybe_unused]] int32 AmmoAmount, ASGGun* Gun)
 {
 	if (!Gun)
@@ -199,6 +199,10 @@ void USGWeaponsHUD::UpdateAmmo([[maybe_unused]] int32 AmmoAmount, ASGGun* Gun)
 	FTimerHandle AmmoUpdateTimerHandle;
 	AmmoUpdateDelegate.BindLambda([WeaponEntry, this]
 	{
+		if (!WeaponEntry)
+		{
+			return;
+		}
 		WeaponEntry->Get()->AmmoClipTextBlock->SetColorAndOpacity(GetAmmoStateChangeColor(0));
 	});
 	GetWorld()->GetTimerManager().SetTimer(AmmoUpdateTimerHandle, AmmoUpdateDelegate, 1.f, false);
