@@ -17,8 +17,6 @@ void USGGameInstance::Init()
 	LoadGameData(false);
 	//ResetSavedGame();
 
-	//GetSubsystem<USGUpgradeSubsystem>()->LoadPersistentUpgrades(SavedData->UpgradeSystemSavedAttributes);
-
 	CreateObjectiveToolTip();
 	CreateHUDTerminal();
 
@@ -45,7 +43,7 @@ void USGGameInstance::CreateObjectiveToolTip()
 	}
 }
 
-inline void USGGameInstance::CreateHUDTerminal()
+void USGGameInstance::CreateHUDTerminal()
 {
 	if (HUDTerminalClass)
 	{
