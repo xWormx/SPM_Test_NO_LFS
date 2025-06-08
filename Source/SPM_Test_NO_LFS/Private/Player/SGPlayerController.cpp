@@ -46,6 +46,7 @@ void ASGPlayerController::BeginPlay()
 		}
 
 	//TODO: Consider moving this to SGPlayerCharacter
+	/*
 	if (USGUpgradeSubsystem* UpgradeSystem = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>())
 	{
 		const FName MovementSpeed = TEXT("MoveSpeed");
@@ -56,6 +57,7 @@ void ASGPlayerController::BeginPlay()
 			UpgradeSystem->BindAttribute(CharacterMovement, TEXT("JumpZVelocity"), TEXT("JumpHeight"), Category);			
 		}		
 	}
+*/
 }
 
 void ASGPlayerController::SetupInputComponent()
