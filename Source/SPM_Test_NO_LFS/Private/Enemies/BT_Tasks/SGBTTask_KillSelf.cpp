@@ -7,6 +7,7 @@
 #include "Enemies/AI/SGAIControllerEnemy.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utils/SGObjectPoolSubsystem.h"
 
 USGBTTask_KillSelf::USGBTTask_KillSelf()
 {
@@ -33,7 +34,15 @@ EBTNodeResult::Type USGBTTask_KillSelf::ExecuteTask(UBehaviorTreeComponent& Owne
 		return EBTNodeResult::Failed;
 	}
 	
-	UGameplayStatics::ApplyDamage(ControlledEnemy, 2000.f, nullptr, ControlledEnemy, UDamageType::StaticClass());
+	USGObjectPoolSubsystem* ObjectPoolingSystem = Cast<USGObjectPoolSubsystem>(GetWorld()->GetGameInstance()->GetSubsystem<USGObjectPoolSubsystem>());
+	if (!ObjectPoolingSystem)
+	{
+		BASIR_LOG(Error, TEXT("Kill Self, Object Pooling System is null"));
+		return EBTNodeResult::Failed;
+	}
+
+	ControlledEnemy->PlayDeathEffect();
+	ObjectPoolingSystem->ReturnObjectToPool(ControlledEnemy);
 	return EBTNodeResult::Succeeded;
 }
 

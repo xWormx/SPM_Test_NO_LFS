@@ -69,6 +69,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void HandleDeathBarOnDeath(UWidgetComponent* HealthBar, UProgressBar* HealthProgressBar);
 
+	void PlayDeathEffect() const;
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UProperty - Enemy", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USGHealthComponent> HealthComponent;
@@ -80,8 +82,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "DeathEffect")
 	class UNiagaraSystem* DeathEffect;
-
-	void PlayDeathEffect() const;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "UFunction - Enemy")

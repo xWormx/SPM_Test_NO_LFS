@@ -307,7 +307,7 @@ bool ASGAIControllerEnemy::IsStuck()
 
 bool ASGAIControllerEnemy::IsStuckOutsideNavMesh()
 {
-	if (!ControlledEnemy)
+	if (!ControlledEnemy || ControlledEnemy->IsHidden())
 	{
 		return false;
 	}
