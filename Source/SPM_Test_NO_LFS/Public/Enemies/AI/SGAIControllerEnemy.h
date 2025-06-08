@@ -40,6 +40,8 @@ public:
 
 	virtual bool IsStuck();
 
+	virtual bool IsStuckOutsideNavMesh();
+
 	virtual bool HasReachedPatrolPoint(float Tolerance);
 
 	virtual void UpdatePatrolPoints();

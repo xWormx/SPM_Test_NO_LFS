@@ -31,6 +31,7 @@ void ASGEnemySpawnManager::LoadSaveData(FSpawnManagerSavedData SaveData)
 {
     MissionsCompleted = SaveData.MissionsCompleted;
     HandleMissionStart(EObjectiveType::EOT_None);
+    StopSpawning();
 }
 
 // Sätter upp referenser och bindings
@@ -56,9 +57,10 @@ void ASGEnemySpawnManager::BeginPlay()
 
     if (GameIns)
     {
-        if (GameIns->GetSpawnManagerSavedData().bSaveGameExists)
+        FSpawnManagerSavedData SaveData = GameIns->GetSpawnManagerSavedData();
+        if (SaveData.bSaveGameExists)
         {
-            LoadSaveData(GameIns->GetSpawnManagerSavedData());
+            LoadSaveData(SaveData);
         }
     }
 }

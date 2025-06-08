@@ -63,7 +63,7 @@ bool ASGAIControllerEnemy::IsFacingTarget() const
 		return false;
 	}
 
-	float ToleranceDegree = 30.f;
+	float ToleranceDegree = 70.f;
 
 	FVector DirectionToTarget = (AttackTarget->GetActorLocation() - ControlledEnemy->GetActorLocation()).GetSafeNormal();
 	FVector ForwardVector = ControlledEnemy->GetActorForwardVector();
@@ -303,6 +303,38 @@ bool ASGAIControllerEnemy::IsStuck()
 	bWasStuckLastCheck = bIsStuck;
 
 	return bIsStuck;
+}
+
+bool ASGAIControllerEnemy::IsStuckOutsideNavMesh()
+{
+	if (!ControlledEnemy || ControlledEnemy->IsHidden())
+	{
+		return false;
+	}
+
+	UWorld* World = ControlledEnemy->GetWorld();
+	if (!World)
+	{
+		return false;
+	}
+
+	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(World);
+	if (!NavSys)
+	{
+		return false;
+	}
+
+	ControlledEnemyLocation = ControlledEnemy->GetActorLocation();
+
+	
+	const FVector TestLocation = ControlledEnemyLocation + FVector(0, 0, 50);
+	const FVector SearchLocation = FVector(50, 50, 200);
+
+	FNavLocation NearestNavLocation;
+	
+	bool bIsOnNavMesh = NavSys->ProjectPointToNavigation(TestLocation, NearestNavLocation, SearchLocation);
+	
+	return !bIsOnNavMesh && IsStuck();
 }
 
 bool ASGAIControllerEnemy::HasReachedPatrolPoint(float Tolerance)
