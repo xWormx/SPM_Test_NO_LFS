@@ -24,6 +24,9 @@ public:
 	virtual void RotateTowardsTarget();
 
 	virtual void SetBehaviorTreeEnabled(bool bEnabled);
+
+	//FVector helpers
+	virtual FVector GetFallbackChaseLocation() const;
 	
 	//float helpers
 	UFUNCTION(BlueprintCallable)
