@@ -7,7 +7,6 @@
 #include "Components/WidgetComponent.h"
 #include "Core/SGUpgradeSubsystem.h"
 #include "Enemies/AI/SGAIControllerEnemy.h"
-#include "Enemies/Components/SGEnemyHealthBarWidget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
