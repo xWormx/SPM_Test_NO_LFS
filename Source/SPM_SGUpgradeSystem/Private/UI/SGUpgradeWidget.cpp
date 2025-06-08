@@ -19,26 +19,28 @@ void USGUpgradeWidget::NativeConstruct()
 	{
 		return;
 	}
-
+	//TODO: check if all these are even needed?
 	Sub->OnBindAttribute.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
 	Sub->OnUpgrade.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
-
 	GetGameInstance()->GetSubsystem<USGUpgradeGuardSubsystem>()->OnCountModified.AddDynamic(this, &USGUpgradeWidget::ConstructEntries);
 }
 
-//TODO: Borde hantera logik för att uppgradera attributen i UI:t också (ta bort det ansvaret från USGUpgradeEntryTile)
+void USGUpgradeWidget::UpdateCategoryWidget(USGUpgradeEntryTile* UpgradeEntryTile)
+{
+	if (!UpgradeEntryTile || !UpgradeCategoryWidget)
+	{
+		return;
+	}
+	const FSGUpgradeEntry UpgradeEntryData = UpgradeEntryTile->BoundEntry;
+    UpgradeCategoryWidget->SetupEntry(&UpgradeEntryData);
+}
+
 void USGUpgradeWidget::ConstructEntries()
 {
-	UE_LOG(LogTemp, Display, TEXT("USGUpgradeWidget::ConstructEntries"));
-	if (!EntryTileClass || !EntriesBox || !CategoryWidgetClass || !MiscEntriesBox)
+	if (!EntryTileClass || !EntriesBox || !CategoryWidgetClass)
 	{		
 		return;
 	}
-	
-	//TODO: Pool/Optimera för sätt att återanvända widgets
-	EntriesBox->ClearChildren(); 
-	MiscEntriesBox->ClearChildren(); 
-	CategoryWidgets.Empty();
 
 	const USGUpgradeSubsystem* Sub = GetGameInstance()->GetSubsystem<USGUpgradeSubsystem>();
 	if (!ensureMsgf(Sub, TEXT("Upgrade Subsystem was nullptr")))
@@ -48,47 +50,28 @@ void USGUpgradeWidget::ConstructEntries()
 
 	for (const FSGUpgradeEntry& UpgradeEntry : Sub->GetUpgradeEntries())
 	{
-		USGUpgradeEntryTile* Tile = CreateWidget<USGUpgradeEntryTile>(this, EntryTileClass);
+		USGUpgradeEntryTile* Tile = nullptr;
+		if (TObjectPtr<USGUpgradeEntryTile>* TilePtr = UpgradeEntryTileMap.Find(UpgradeEntry.DisplayName)) //Try to reuse existing Tile
+		{
+			Tile = *TilePtr;
+		}
+		if (!Tile) // If this is the first time creating a Tile
+		{
+			Tile = CreateWidget<USGUpgradeEntryTile>(this, EntryTileClass);
+			UpgradeEntryTileMap.Add(UpgradeEntry.DisplayName, Tile);
+			Tile->SetIsFocusable(true);
+			Tile->OnEnteredEntryTile.AddDynamic(this, &USGUpgradeWidget::UpdateCategoryWidget);
+			EntriesBox->AddChild(Tile);
+		}
 		if (!ensureMsgf(Tile, TEXT("Tile was nullptr")))
 		{
 			continue;
 		}
 		Tile->SetupEntry(UpgradeEntry);
-
-		// Check if we already have a category widget
-		USGUpgradeCategoryWidget* CategoryWidget = nullptr;
-		if (CategoryWidgets.Contains(UpgradeEntry.Category))
-		{
-			CategoryWidget = CategoryWidgets[UpgradeEntry.Category];
-		}
-		else
-		{
-			// Create a new category widget
-			CategoryWidget = CreateWidget<USGUpgradeCategoryWidget>(this, CategoryWidgetClass);
-			if (!ensureMsgf(CategoryWidget, TEXT("Failed to create category widget")))
-			{
-				continue;
-			}
-
-			// Add to map and vertical box
-			CategoryWidgets.Add(UpgradeEntry.Category, CategoryWidget);
-			if (UpgradeEntry.Category == "Player") // TODO: justera hårdkodad lösning - fält i datatabellen för kategori/tab?
-			{
-				EntriesBox->AddChild(CategoryWidget);
-			}
-			else
-			{
-				MiscEntriesBox->AddChild(CategoryWidget);
-			}
-		}
-
-		// Now safe to call SetupEntry on a valid widget
-		CategoryWidget->SetupEntry(UpgradeEntry.Category, Tile);
 	}
 }
 
-void USGUpgradeWidget::VisibilityChanged(const ESlateVisibility NewVisibility)
+void USGUpgradeWidget::VisibilityChanged([[maybe_unused]] const ESlateVisibility NewVisibility)
 {
-	UE_LOG(LogTemp, Display, TEXT("VisibilityChanged"));
-	ConstructEntries();	
+	ConstructEntries();
 }

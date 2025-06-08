@@ -761,7 +761,7 @@ TArray<FSGUpgradeEntry> USGUpgradeSubsystem::GetUpgradeEntries() const
 		Entry.CurrentValue = Current;
 		Entry.CurrentUpgradeLevel = TargetAttribute->CurrentUpgradeLevel;
 		Entry.MaxNumberOfUpgrades = AttributeData->Data.MaxNumberOfUpgrades;
-
+		Entry.DescriptionText = AttributeData->DescriptionText;
 		Out.Add(Entry);
 	}
 

@@ -58,6 +58,9 @@ struct FSGAttributeData : public FTableRowBase
 	
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
     TSoftObjectPtr<UTexture2D> Icon = TSoftObjectPtr<UTexture2D>(FSoftObjectPath(TEXT("/Engine/VREditor/Devices/Vive/UE4_Logo.UE4_Logo")));
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText DescriptionText = FText::FromString("Some description here...");
 };
 
 USTRUCT(BlueprintType)
@@ -76,5 +79,5 @@ struct FSGUpgradeEntry : public FSGUpgradeData
 	
 	FName Category;
 	FName RowName;
+	FText DescriptionText;
 };
-

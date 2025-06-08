@@ -5,6 +5,7 @@
 #include "Core/SGAttribute.h"
 #include "SGUpgradeEntryTile.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEnteredEntryTile, USGUpgradeEntryTile*, EntryTile);
 class UButton;
 class UImage;
 class UTextBlock;
@@ -15,11 +16,13 @@ class SPM_SGUPGRADESYSTEM_API USGUpgradeEntryTile : public UUserWidget
 	GENERATED_BODY()
 
 public:
+
 	USGUpgradeEntryTile(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 	
 	UFUNCTION(BlueprintCallable, Category="Upgrades")
 	void SetupEntry(const FSGUpgradeEntry& Entry);
-	
+
+	FOnEnteredEntryTile OnEnteredEntryTile;
 private:
 	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override;
@@ -28,6 +31,9 @@ private:
 
 	UFUNCTION()
 	void HandleClicked();
+
+	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent) override;
 public:
 	UFUNCTION()
 	void HandleButtonState();
@@ -36,7 +42,7 @@ protected:
 	FSGUpgradeEntry BoundEntry;
 	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
-	TObjectPtr<UImage> Icon; // TODO: ikon för ägare eller attribut?
+	TObjectPtr<UImage> Icon;
 	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UTextBlock> UpgradeText;
@@ -55,4 +61,6 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UButton> UpgradeButton;
+
+	friend class USGUpgradeWidget;
 };

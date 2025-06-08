@@ -31,16 +31,6 @@ void USGUpgradeEntryTile::SetupEntry(const FSGUpgradeEntry& Entry)
 
 	// ICON
 	Icon->SetBrushFromTexture(Entry.Icon);
-	Icon->SetVisibility(ESlateVisibility::Hidden); //TODO: Ta bort denna när ikoner finns
-
-	/*if (Entry.MaxNumberOfUpgrades == -1)
-	{
-		UpgradeLevelText->SetText(FText::Format(FText::FromString("{0}/Infinite"), EntryCurrentLevel));
-	}
-	else
-	{
-		UpgradeLevelText->SetText(FText::Format(FText::FromString("{0}/{1}"), EntryCurrentLevel, EntryMaxLevel));
-	}*/
 
 	if (Entry.CurrentUpgradeLevel == Entry.MaxNumberOfUpgrades)
 	{
@@ -83,6 +73,20 @@ void USGUpgradeEntryTile::HandleClicked()
 	}
 
 	Upgrader->RequestUpgrade(CanUpgrade(), BoundEntry.RowName, BoundEntry.Category);
+}
+
+void USGUpgradeEntryTile::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
+
+	UE_LOG(LogTemp, Display, TEXT("USGUpgradeEntryTile::NativeOnMouseEnter - %s"), *BoundEntry.DisplayName.ToString());
+	OnEnteredEntryTile.Broadcast(this);
+}
+
+void USGUpgradeEntryTile::NativeOnAddedToFocusPath(const FFocusEvent& InFocusEvent)
+{
+	Super::NativeOnAddedToFocusPath(InFocusEvent);
+	OnEnteredEntryTile.Broadcast(this);
 }
 
 void USGUpgradeEntryTile::HandleButtonState()
