@@ -189,6 +189,35 @@ void ASGAIControllerEnemy::SetBehaviorTreeEnabled(bool bEnabled)
 	}
 }
 
+FVector ASGAIControllerEnemy::GetFallbackChaseLocation() const
+{
+	if (!ControlledEnemy)
+	{
+		return FVector::ZeroVector;
+	}
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return FVector::ZeroVector;
+	}
+
+	UNavigationSystemV1* NavSys = Cast<UNavigationSystemV1>(World->GetNavigationSystem());
+	if (!NavSys)
+	{
+		return FVector::ZeroVector;
+	}
+
+	FVector CurrentEnemyLocation = ControlledEnemy->GetActorLocation();
+
+	float SearchRadius = 500.f;
+
+	FNavLocation RandomLocation;
+
+	NavSys->GetRandomReachablePointInRadius(CurrentEnemyLocation, SearchRadius, RandomLocation, nullptr);
+
+	return RandomLocation;
+}
+
 float ASGAIControllerEnemy::GetCharacterVelocity() const
 {
 	if (!ControlledEnemy)

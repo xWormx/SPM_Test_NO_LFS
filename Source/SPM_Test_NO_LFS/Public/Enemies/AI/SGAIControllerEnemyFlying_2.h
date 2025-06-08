@@ -18,7 +18,7 @@ public:
 
 	virtual void SetFlyingMode(bool bShouldFly);
 
-	virtual FVector GetFallbackChaseLocation() const;
+	virtual FVector GetFallbackChaseLocation() const override;
 
 	virtual void FlyTowardsLocation(const FVector& TargetLocation);
 

@@ -5,7 +5,7 @@
 
 #include "SPM_Test_NO_LFS.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Enemies/AI/SGAIControllerEnemyFlying_2.h"
+#include "Enemies/AI/SGAIControllerEnemy.h"
 
 USGBTTask_GetFallbackChaseLocation::USGBTTask_GetFallbackChaseLocation()
 {
@@ -16,7 +16,7 @@ EBTNodeResult::Type USGBTTask_GetFallbackChaseLocation::ExecuteTask(UBehaviorTre
 {
 	Super::ExecuteTask(Comp, NodeMemory);
 
-	ASGAIControllerEnemyFlying_2* AIController = Cast<ASGAIControllerEnemyFlying_2>(Comp.GetAIOwner());
+	ASGAIControllerEnemy* AIController = Cast<ASGAIControllerEnemy>(Comp.GetAIOwner());
 
 	if (!AIController)
 	{
