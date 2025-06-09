@@ -37,6 +37,7 @@ protected:
 private:
 	void FireGun();
 	void CanFireAgain();
+	void CanFireAgain(ASGGun& Gun);
 	void ReloadGun();
 
 	void OnFireButtonPressed(const FInputActionValue& Value);

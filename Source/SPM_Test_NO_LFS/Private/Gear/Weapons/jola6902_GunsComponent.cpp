@@ -83,8 +83,19 @@ void Ujola6902_GunsComponent::FireGun()
 		}
 		
 		Gun->Fire();
+
 		float FireRate = Gun->GetFireRate();
-		GetWorld()->GetTimerManager().SetTimer(CanFireAgainTimer, this, &Ujola6902_GunsComponent::CanFireAgain, FireRate, false);
+		int32 GunIndex = CurrentGunIndex;
+		EMMA_LOG(Log, TEXT("jola6902_GunsComponent::FireGun() | GunIndex: %d, FireRate: %f"), GunIndex, FireRate);
+		FTimerDelegate TimerDelegate = FTimerDelegate::CreateLambda([this, GunIndex]
+		{
+			EMMA_LOG(Log, TEXT("jola6902_GunsComponent::TimerDelegate CanFireAgain() | GunIndex: %d"), GunIndex);
+			if (Guns.IsValidIndex(GunIndex) && Guns[GunIndex])
+			{
+				CanFireAgain(*Guns[GunIndex]);
+			}
+		});
+		GetWorld()->GetTimerManager().SetTimer(CanFireAgainTimer, TimerDelegate, FireRate, false);
 
 		OnFireGun.Broadcast(CurrentGunIndex, Gun);
 	}
@@ -96,6 +107,12 @@ void Ujola6902_GunsComponent::CanFireAgain()
 	bCanFire = true;
 
 	OnCanFireGun.Broadcast(bCanFire, CurrentGunIndex, Guns[CurrentGunIndex]);
+}
+void Ujola6902_GunsComponent::CanFireAgain(ASGGun& Gun)
+{
+	bCanFire = true;
+	EMMA_LOG(Log, TEXT("jola6902_GunsComponent::CanFireAgain() | Gun: %s"), *Gun.GetName());
+	OnCanFireGun.Broadcast(bCanFire, CurrentGunIndex, &Gun);
 }
 
 void Ujola6902_GunsComponent::ReloadGun()
