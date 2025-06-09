@@ -41,8 +41,9 @@ EBTNodeResult::Type USGBTTask_KillSelf::ExecuteTask(UBehaviorTreeComponent& Owne
 		BASIR_LOG(Error, TEXT("Kill Self, Object Pooling System is null"));
 		return EBTNodeResult::Failed;
 	}
-
+	
 	ControlledEnemy->PlayDeathEffect();
+	EMMA_LOG(Error, TEXT("💀Kill Self"));
 	ObjectPoolingSystem->ReturnObjectToPool(ControlledEnemy);
 	ASGEnemySpawnManager* SpawnManager = Cast<ASGEnemySpawnManager>(AIController->SpawnManagers[0]);
 

@@ -49,6 +49,7 @@ void ASGEnemyCharacter::HandleDeath(float NewHealth)
 	SetBehaviorTreeEnabled(false);
 	GetGameInstance()->GetSubsystem<USGPickUpSubsystem>()->DropItem(this);
 
+	BASIR_LOG (Warning, TEXT("Enemy Died: %s"), *GetName());
 	OnEnemyDied.Broadcast(this);
 	OnEnemyDiedObjective.Broadcast(this);
 

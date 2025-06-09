@@ -224,7 +224,18 @@ TSubclassOf<ASGEnemyCharacter> ASGEnemySpawnManager::GetRandomEnemyType() const
 
 void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
 {
-    BASIR_LOG(Warning, TEXT("SGEnemySpawnManager::HandleEnemyDeath() | Function called."));
+    if (!DeadEnemy)
+    {
+        return;
+    }
+    if (!DeadEnemy->OnEnemyDied.IsAlreadyBound( this, &ASGEnemySpawnManager::HandleEnemyDeath))
+    {
+        EMMA_LOG(Error, TEXT("SGEnemySpawnManager::HandleEnemyDeath() | Attempted to handle death of an enemy that was not bound to this function! Enemy: %s"), *DeadEnemy->GetName());
+        return;
+    }
+    DeadEnemy->SetBehaviorTreeEnabled(false);
+    
+    BASIR_LOG(Warning, TEXT("SGEnemySpawnManager::HandleEnemyDeath() | Function called. Enemy: %s"), *DeadEnemy->GetName());
     EnemiesAlive = FMath::Max(0, EnemiesAlive - 1); // Hade innan refactor problem med att EnemiesAlive kunde bli ett negativt heltal, problemet är löst men denna finns kvar som en säkerhetsbarriär.
     DeadEnemy->OnEnemyDied.RemoveDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
     if (VoiceLineManager) DeadEnemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::Voice_Fluff);

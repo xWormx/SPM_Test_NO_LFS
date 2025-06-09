@@ -56,6 +56,10 @@ void ASGAIControllerEnemy::SetInitialValues()
 
 void ASGAIControllerEnemy::SetShouldPatrol()
 {
+	if (ControlledEnemy->IsHidden())
+	{
+		bShouldPatrol = false;
+	}
 	bShouldPatrol = true;
 }
 
@@ -314,7 +318,7 @@ bool ASGAIControllerEnemy::CanAttackTarget()
 
 bool ASGAIControllerEnemy::IsStuck()
 {
-	if (!ControlledEnemy)
+	if (!ControlledEnemy || ControlledEnemy->IsHidden())
 	{
 		return false;
 	}
@@ -365,8 +369,15 @@ bool ASGAIControllerEnemy::IsStuckOutsideNavMesh()
 	FNavLocation NearestNavLocation;
 	
 	bool bIsOnNavMesh = NavSys->ProjectPointToNavigation(TestLocation, NearestNavLocation, SearchLocation);
-	
-	return !bIsOnNavMesh && IsStuck();
+
+	if (!bIsOnNavMesh && IsStuck())
+	{
+		BASIR_LOG(Warning, TEXT("Enemy is not on NavMesh at location: "));
+		return true;
+		
+	}
+	return false;
+	//return !bIsOnNavMesh && IsStuck();
 }
 
 bool ASGAIControllerEnemy::HasReachedPatrolPoint(float Tolerance)
