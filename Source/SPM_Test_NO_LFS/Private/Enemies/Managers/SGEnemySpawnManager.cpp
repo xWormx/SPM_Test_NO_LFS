@@ -235,7 +235,6 @@ void ASGEnemySpawnManager::HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy)
     }
     DeadEnemy->SetBehaviorTreeEnabled(false);
     
-    BASIR_LOG(Warning, TEXT("SGEnemySpawnManager::HandleEnemyDeath() | Function called. Enemy: %s"), *DeadEnemy->GetName());
     EnemiesAlive = FMath::Max(0, EnemiesAlive - 1); // Hade innan refactor problem med att EnemiesAlive kunde bli ett negativt heltal, problemet är löst men denna finns kvar som en säkerhetsbarriär.
     DeadEnemy->OnEnemyDied.RemoveDynamic(this, &ASGEnemySpawnManager::HandleEnemyDeath);
     if (VoiceLineManager) DeadEnemy->OnEnemyDied.RemoveDynamic(VoiceLineManager, &ASGVoiceLines::Voice_Fluff);

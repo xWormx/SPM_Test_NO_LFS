@@ -42,9 +42,6 @@ EBTNodeResult::Type USGBTTask_KillSelf::ExecuteTask(UBehaviorTreeComponent& Owne
 		return EBTNodeResult::Failed;
 	}
 	
-	ControlledEnemy->PlayDeathEffect();
-	EMMA_LOG(Error, TEXT("💀Kill Self"));
-	ObjectPoolingSystem->ReturnObjectToPool(ControlledEnemy);
 	ASGEnemySpawnManager* SpawnManager = Cast<ASGEnemySpawnManager>(AIController->SpawnManagers[0]);
 
 	if (!SpawnManager)
@@ -52,7 +49,10 @@ EBTNodeResult::Type USGBTTask_KillSelf::ExecuteTask(UBehaviorTreeComponent& Owne
 		BASIR_LOG(Error, TEXT("Kill Self, Spawn Manager is null"));
 		return EBTNodeResult::Failed;
 	}
-	
+
+	BASIR_LOG(Error, TEXT("Kill Self, ------------------Controlled Enemy"));
+	ControlledEnemy->PlayDeathEffect();
+	ObjectPoolingSystem->ReturnObjectToPool(ControlledEnemy);
 	SpawnManager->HandleEnemyDeath(ControlledEnemy);
 	return EBTNodeResult::Succeeded;
 }
