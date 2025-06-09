@@ -7,6 +7,7 @@
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Enemies/Managers/SGEnemySpawnManager.h"
 #include "Enemies/Navigation/SGEnemyPatrolPoint.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -49,6 +50,8 @@ void ASGAIControllerEnemy::SetInitialValues()
 		
 	}
 	UpdatePatrolPoints();
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASGEnemySpawnManager::StaticClass(), SpawnManagers);
 }
 
 void ASGAIControllerEnemy::SetShouldPatrol()
