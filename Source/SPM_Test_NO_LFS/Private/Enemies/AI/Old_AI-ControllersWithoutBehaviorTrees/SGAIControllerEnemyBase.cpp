@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Enemies/AI/SGAIControllerEnemyBase.h"
+#include "Enemies/AI/Old_AI-ControllersWithoutBehaviorTrees/SGAIControllerEnemyBase.h"
 
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
@@ -15,7 +15,6 @@
 ASGAIControllerEnemyBase::ASGAIControllerEnemyBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	//PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemyBase::BeginPlay()

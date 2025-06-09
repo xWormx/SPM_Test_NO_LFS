@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Enemies/AI/SGAIControllerEnemySmall.h"
+#include "Enemies/AI/Old_AI-ControllersWithoutBehaviorTrees/SGAIControllerEnemySmall.h"
 
 #include "SPM_Test_NO_LFS.h"
 #include "Components/CapsuleComponent.h"
-#include "Enemies/AI/SGAIControllerEnemyBig.h"
+#include "Enemies/AI/Old_AI-ControllersWithoutBehaviorTrees/SGAIControllerEnemyBig.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Components/SGEnemyShootAttackComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"

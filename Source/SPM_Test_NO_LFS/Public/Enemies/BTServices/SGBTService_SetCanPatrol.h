@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Services/BTService_BlackboardBase.h"
-#include "BTService_SetCanPatrol.generated.h"
+#include "SGBTService_SetCanPatrol.generated.h"
 
 UCLASS()
-class SPM_TEST_NO_LFS_API UBTService_SetCanPatrol : public UBTService_BlackboardBase
+class SPM_TEST_NO_LFS_API USGBTService_SetCanPatrol : public UBTService_BlackboardBase
 {
 	GENERATED_BODY()
 
 public:
 
-	UBTService_SetCanPatrol();
+	USGBTService_SetCanPatrol();
 
 protected:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;

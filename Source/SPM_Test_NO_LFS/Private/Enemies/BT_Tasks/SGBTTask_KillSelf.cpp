@@ -49,8 +49,7 @@ EBTNodeResult::Type USGBTTask_KillSelf::ExecuteTask(UBehaviorTreeComponent& Owne
 		BASIR_LOG(Error, TEXT("Kill Self, Spawn Manager is null"));
 		return EBTNodeResult::Failed;
 	}
-
-	BASIR_LOG(Error, TEXT("Kill Self, ------------------Controlled Enemy"));
+	
 	ControlledEnemy->PlayDeathEffect();
 	ObjectPoolingSystem->ReturnObjectToPool(ControlledEnemy);
 	SpawnManager->HandleEnemyDeath(ControlledEnemy);

@@ -8,14 +8,8 @@
 ASGEnemyCharacterGroundSmall::ASGEnemyCharacterGroundSmall()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickInterval = 0.5f;
 	AttackComponent = CreateDefaultSubobject<USGEnemyShootAttackComponent>(TEXT("ShootAttackComponent"));
 }
-
-/*void ASGEnemyCharacterGroundSmall::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}*/
 
 void ASGEnemyCharacterGroundSmall::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
