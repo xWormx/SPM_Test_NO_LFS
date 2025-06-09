@@ -4,6 +4,9 @@
 #include "SGCounterComponent.h"
 #include "SGCounterComponentHealth.generated.h"
 
+UDELEGATE(Blueprintable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShieldChanged);
+
 class USGHealthComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -58,5 +61,9 @@ private:
 	UFUNCTION()
 	void DecreaseHealthBuffer(float Amount);
 	void StartHealthBufferTimer();
+
+public:
+	UPROPERTY(BlueprintAssignable, Category = "Health Component")
+	FOnShieldChanged OnShieldChanged;
 
  };

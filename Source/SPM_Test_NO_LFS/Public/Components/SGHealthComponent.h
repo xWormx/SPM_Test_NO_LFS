@@ -3,6 +3,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "SGHealthComponent.generated.h"
+UDELEGATE(Blueprintable)
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHealthChanged);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNoHealth, float, NewHealth);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHurt, float, NewHealth);
@@ -20,6 +22,9 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category = "Health Component")
 	FOnHurt OnHurt;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health Component")
+	FOnHealthChanged OnHealthChanged;
 
 	UFUNCTION(BlueprintCallable, Category = "Health Component")
 	void Heal(float HealAmount);

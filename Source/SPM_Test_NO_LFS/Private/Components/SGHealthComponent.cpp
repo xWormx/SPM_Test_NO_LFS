@@ -38,6 +38,7 @@ void USGHealthComponent::DamageTaken(AActor* DamagedActor, float Damage, const U
 		CurrentHealth = 0;
 		OnNoHealth.Broadcast(CurrentHealth);		
 	}
+	OnHealthChanged.Broadcast();
 }
 
 void USGHealthComponent::Heal(float HealAmount)
@@ -47,7 +48,8 @@ void USGHealthComponent::Heal(float HealAmount)
 		return;
 	}
 	
-	CurrentHealth = CurrentHealth + HealAmount >= MaxHealth ? MaxHealth : CurrentHealth + HealAmount;	
+	CurrentHealth = CurrentHealth + HealAmount >= MaxHealth ? MaxHealth : CurrentHealth + HealAmount;
+	OnHealthChanged.Broadcast();
 }
 
 float USGHealthComponent::GetCurrentHealth() const
@@ -63,6 +65,5 @@ float USGHealthComponent::GetMaxHealth() const
 void USGHealthComponent::SetCurrentHealth(float NewHealth)
 {
 	CurrentHealth = NewHealth;
+	OnHealthChanged.Broadcast();
 }
-
-

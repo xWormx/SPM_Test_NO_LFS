@@ -108,6 +108,7 @@ void USGCounterComponentHealth::StartHealthBufferTimer()
 	FTimerDelegate TimerDelegate;
 	TimerDelegate.BindUObject(this, &USGCounterComponentHealth::DecreaseHealthBuffer, HealthBufferDecreaseRate);
 	GetWorld()->GetTimerManager().SetTimer(HealthBufferTimerHandle, TimerDelegate, HealthBufferTimerInterval, true);
+	OnShieldChanged.Broadcast();
 }
 
 void USGCounterComponentHealth::DecreaseHealthBuffer(const float Amount)
@@ -125,6 +126,7 @@ void USGCounterComponentHealth::DecreaseHealthBuffer(const float Amount)
 	{
 		HealthBuffer -= Amount;
 	}
+	OnShieldChanged.Broadcast();
 }
 
 void USGCounterComponentHealth::UseHealthBuffer(const float Amount)
