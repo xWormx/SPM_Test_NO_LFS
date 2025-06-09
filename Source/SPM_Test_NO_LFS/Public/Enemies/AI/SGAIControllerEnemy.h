@@ -26,6 +26,8 @@ public:
 
 	virtual void SetBehaviorTreeEnabled(bool bEnabled);
 
+	virtual void ClearBlackboardValues();
+
 	//FVector helpers
 	virtual FVector GetFallbackChaseLocation() const;
 	
@@ -128,6 +130,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	AActor* CurrentPatrolPoint;
-
 	
 };

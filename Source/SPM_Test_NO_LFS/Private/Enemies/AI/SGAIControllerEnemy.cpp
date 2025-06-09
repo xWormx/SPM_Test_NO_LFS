@@ -6,6 +6,9 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Bool.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_String.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType_Vector.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 #include "Enemies/Managers/SGEnemySpawnManager.h"
 #include "Enemies/Navigation/SGEnemyPatrolPoint.h"
@@ -192,6 +195,33 @@ void ASGAIControllerEnemy::SetBehaviorTreeEnabled(bool bEnabled)
 		if (BTComp->IsRunning())
 		{
 			BTComp->StopTree(EBTStopMode::Safe);
+			ClearBlackboardValues();
+		}
+	}
+}
+
+void ASGAIControllerEnemy::ClearBlackboardValues()
+{
+	UBlackboardComponent* BlackboardComp = Cast<UBlackboardComponent>(Blackboard);
+	UBlackboardData* BlackboardData = BlackboardComp ? BlackboardComp->GetBlackboardAsset() : nullptr;
+
+	if (!BlackboardData || !BlackboardComp)
+	{
+		BASIR_LOG(Warning, TEXT("Blackboard Component or Blackboard Data is null"));
+		return;
+	}
+
+	const TArray<FBlackboardEntry>& Entries = BlackboardData->GetKeys();
+
+	for (const FBlackboardEntry& Entry : Entries)
+	{
+		const UBlackboardKeyType* KeyType = Entry.KeyType;
+		FName KeyName = Entry.EntryName;
+
+		if (KeyType->IsA(UBlackboardKeyType_Bool::StaticClass()) ||
+			KeyType->IsA(UBlackboardKeyType_Vector::StaticClass()))
+		{
+			BlackboardComp->ClearValue(KeyName);
 		}
 	}
 }
