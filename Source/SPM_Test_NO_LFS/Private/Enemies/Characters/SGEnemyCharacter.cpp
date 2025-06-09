@@ -87,7 +87,6 @@ void ASGEnemyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ASGEnemyCharacter::SetBehaviorTreeEnabled(bool bEnabled)
 {
-
 	if (!AIController)
 	{
 		BASIR_LOG(Warning, TEXT("No AIController"));
@@ -149,27 +148,27 @@ void ASGEnemyCharacter::JumpToLocation(const FVector Destination)
 
 const float ASGEnemyCharacter::GetJumpVelocity(float VerticalLaunchVelocity, float HeightDifference) const
 {
-	if (HeightDifference < 0.f)
+	if (HeightDifference <= 0.f)
 	{
 		return VerticalLaunchVelocity;
 	}
 
-	float LauchZVelocity = 0.f;
+	float LaunchZVelocity = 0.f;
 	if (HeightDifference > 200)
 	{
-		LauchZVelocity = (VerticalLaunchVelocity * 2.f);
+		LaunchZVelocity = (VerticalLaunchVelocity * 2.f);
 	}
 	else if (HeightDifference > 100.f)
 	{
-		LauchZVelocity = (VerticalLaunchVelocity * 1.75f);
+		LaunchZVelocity = (VerticalLaunchVelocity * 1.75f);
 		
 	}
 	else if (HeightDifference > 0.f)
 	{
-		LauchZVelocity = (VerticalLaunchVelocity * 1.5f);
+		LaunchZVelocity = (VerticalLaunchVelocity * 1.5f);
 	}
 
-	return LauchZVelocity;
+	return LaunchZVelocity;
 }
 
 void ASGEnemyCharacter::AdjustJumpRotation()
@@ -219,12 +218,14 @@ void ASGEnemyCharacter::SetHealthBarVisible(UWidgetComponent* HealthBar, bool bV
 	HealthBar->SetVisibility(bVisible);
 }
 
-void ASGEnemyCharacter::HandleDeathBarOnDeath(UWidgetComponent* HealthBar, UProgressBar* HealthProgressBar)
+void ASGEnemyCharacter::HandleHealthBarOnDeath(UWidgetComponent* HealthBar, UProgressBar* HealthProgressBar)
 {
 	SetHealthBarVisible(HealthBar, false);
 	HealthProgressBar->SetFillColorAndOpacity(FColor::Green);
 }
 
+
+//---Added by Emmm
 void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStrength)
 {
 	FRotator CurrentRotation = GetActorRotation();
@@ -236,4 +237,4 @@ void ASGEnemyCharacter::ApplyPush(const FVector& PushDirection, float PushStreng
 		SetActorRotation(CurrentRotation);
 	});
 }
-
+//---End of Emma's addition

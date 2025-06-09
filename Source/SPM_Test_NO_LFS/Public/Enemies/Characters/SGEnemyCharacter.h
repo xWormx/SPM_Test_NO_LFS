@@ -67,7 +67,7 @@ public:
 	FTimerHandle HealthBarDelayTimerHandle;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void HandleDeathBarOnDeath(UWidgetComponent* HealthBar, UProgressBar* HealthProgressBar);
+	virtual void HandleHealthBarOnDeath(UWidgetComponent* HealthBar, UProgressBar* HealthProgressBar);
 
 	void PlayDeathEffect() const;
 

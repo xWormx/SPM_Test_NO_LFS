@@ -1,19 +1,19 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Enemies/BTServices/BTService_SetShouldRetreat.h"
+#include "Enemies/BTServices/SGBTService_SetShouldRetreat.h"
 
 #include "SPM_Test_NO_LFS.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/AI/SGAIControllerEnemy.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
-UBTService_SetShouldRetreat::UBTService_SetShouldRetreat()
+USGBTService_SetShouldRetreat::USGBTService_SetShouldRetreat()
 {
 	NodeName = TEXT("Set Should Retreat");
 }
 
-void UBTService_SetShouldRetreat::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+void USGBTService_SetShouldRetreat::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 

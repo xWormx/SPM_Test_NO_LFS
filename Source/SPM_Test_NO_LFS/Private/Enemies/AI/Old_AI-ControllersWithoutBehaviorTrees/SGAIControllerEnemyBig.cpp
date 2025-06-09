@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Enemies/AI/SGAIControllerEnemyBig.h"
+#include "Enemies/AI/Old_AI-ControllersWithoutBehaviorTrees/SGAIControllerEnemyBig.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"

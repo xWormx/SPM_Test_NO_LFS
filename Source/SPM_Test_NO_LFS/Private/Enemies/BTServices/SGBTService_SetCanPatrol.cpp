@@ -1,17 +1,17 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Enemies/BTServices/BTService_SetCanPatrol.h"
+#include "Enemies/BTServices/SGBTService_SetCanPatrol.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Enemies/AI/SGAIControllerEnemy.h"
 
-UBTService_SetCanPatrol::UBTService_SetCanPatrol()
+USGBTService_SetCanPatrol::USGBTService_SetCanPatrol()
 {
 	NodeName = TEXT("Set Can Patrol");
 }
 
-void UBTService_SetCanPatrol::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
+void USGBTService_SetCanPatrol::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
 

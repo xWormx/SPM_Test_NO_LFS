@@ -2,8 +2,8 @@
 #include "Enemies/Navigation/SGEnemyNavLink.h"
 
 #include "SPM_Test_NO_LFS.h"
-#include "Enemies/AI/SGAIControllerEnemyBase.h"
-#include "Enemies/AI/SGAIControllerEnemyBig.h"
+#include "Enemies/AI/Old_AI-ControllersWithoutBehaviorTrees/SGAIControllerEnemyBase.h"
+#include "Enemies/AI/Old_AI-ControllersWithoutBehaviorTrees/SGAIControllerEnemyBig.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
 
 #include "Navigation/NavLinkProxy.h"

@@ -1,16 +1,13 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
+﻿
 #include "Sound/SGSoundManager.h"
 
 #include "Components/AudioComponent.h"
 #include "Sound/SoundCue.h"
 
 
-// Sets default values
+
 ASGSoundManager::ASGSoundManager()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	AudioComponent  = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
@@ -20,7 +17,6 @@ ASGSoundManager::ASGSoundManager()
 	RootComponent = AudioComponent;
 }
 
-// Called when the game starts or when spawned
 void ASGSoundManager::BeginPlay()
 {
 	Super::BeginPlay();
@@ -33,7 +29,6 @@ void ASGSoundManager::BeginPlay()
 	
 }
 
-// Called every frame
 void ASGSoundManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
