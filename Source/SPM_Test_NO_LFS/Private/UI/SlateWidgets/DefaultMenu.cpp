@@ -36,7 +36,7 @@ void SDefaultMenu::Construct(const FArguments& InArgs)
 	RootOverlayPanel->AddSlot()
 	                .HAlign(InHAlignment)
 	                .VAlign(InVAlignment)
-	                .Padding(InPadding)
+	                .Padding(InPadding).ZOrder(10)
 	[
 		MenuElementsPanel.ToSharedRef()
 	];
