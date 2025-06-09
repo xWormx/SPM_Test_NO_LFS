@@ -91,7 +91,9 @@ void ASGGrapplingHook::ResetGrapple()
 	}
 	
 	Controller->GetCharacter()->GetCharacterMovement()->GravityScale = 2.0f;
-	
+	Controller->GetCharacter()->GetCharacterMovement()->BrakingFrictionFactor = 1.0f;
+	Controller->GetCharacter()->GetCharacterMovement()->bUseSeparateBrakingFriction = false;
+
 	Head->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
 	Head->SetActorLocation(GrappleHeadPosition->GetComponentLocation());
 	
@@ -338,4 +340,3 @@ void ASGGrapplingHook::TravelDirectly(ACharacter* Character, FHitResult& HitResu
 	
 	Head->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 }
-
