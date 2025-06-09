@@ -39,7 +39,11 @@ void USGUpgradeEntryTile::SetupEntry(const FSGUpgradeEntry& Entry)
 		this->SetToolTipText(FText::FromString("Maxed out"));
 		return;
 	}	
-	
+
+	if (UpgradeButton->OnClicked.IsAlreadyBound( this, &USGUpgradeEntryTile::HandleClicked))
+	{
+		UpgradeButton->OnClicked.RemoveDynamic(this, &USGUpgradeEntryTile::HandleClicked);
+	}
 	UpgradeButton->OnClicked.AddDynamic(this, &USGUpgradeEntryTile::HandleClicked);
 	HandleButtonState();
 }
@@ -79,7 +83,6 @@ void USGUpgradeEntryTile::NativeOnMouseEnter(const FGeometry& InGeometry, const 
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
 
-	UE_LOG(LogTemp, Display, TEXT("USGUpgradeEntryTile::NativeOnMouseEnter - %s"), *BoundEntry.DisplayName.ToString());
 	OnEnteredEntryTile.Broadcast(this);
 }
 
