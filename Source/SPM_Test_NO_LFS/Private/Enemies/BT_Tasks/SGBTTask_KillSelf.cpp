@@ -6,6 +6,7 @@
 #include "SPM_Test_NO_LFS.h"
 #include "Enemies/AI/SGAIControllerEnemy.h"
 #include "Enemies/Characters/SGEnemyCharacter.h"
+#include "Enemies/Managers/SGEnemySpawnManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utils/SGObjectPoolSubsystem.h"
 
@@ -43,6 +44,15 @@ EBTNodeResult::Type USGBTTask_KillSelf::ExecuteTask(UBehaviorTreeComponent& Owne
 
 	ControlledEnemy->PlayDeathEffect();
 	ObjectPoolingSystem->ReturnObjectToPool(ControlledEnemy);
+	ASGEnemySpawnManager* SpawnManager = Cast<ASGEnemySpawnManager>(AIController->SpawnManagers[0]);
+
+	if (!SpawnManager)
+	{
+		BASIR_LOG(Error, TEXT("Kill Self, Spawn Manager is null"));
+		return EBTNodeResult::Failed;
+	}
+	
+	SpawnManager->HandleEnemyDeath(ControlledEnemy);
 	return EBTNodeResult::Succeeded;
 }
 

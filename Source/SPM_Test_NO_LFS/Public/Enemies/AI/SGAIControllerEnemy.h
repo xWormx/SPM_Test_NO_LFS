@@ -4,6 +4,7 @@
 #include "AIController.h"
 #include "SGAIControllerEnemy.generated.h"
 
+class ASGEnemySpawnManager;
 class ASGEnemyCharacter;
 
 UCLASS()
@@ -70,6 +71,8 @@ public:
 	//TimerHandles
 	FTimerHandle PatrolDelayTimer;
 
+	TArray<AActor*> SpawnManagers;
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -125,4 +128,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	AActor* CurrentPatrolPoint;
+
+	
 };

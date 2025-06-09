@@ -113,6 +113,9 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="design")
     TArray<class ASGEnemySpawnVolume*> SpawnVolumes;
 
+    UFUNCTION()
+    void HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy);
+
 private:
     void StartSpawnTimer();
     void OnSpawnTimerElapsed();
@@ -121,8 +124,7 @@ private:
     ASGEnemySpawnPoint* GetRandomSpawnPoint(const TArray<AActor*>& Points) const;
     TSubclassOf<ASGEnemyCharacter> GetRandomEnemyType() const;
 
-    UFUNCTION()
-    void HandleEnemyDeath(ASGEnemyCharacter* DeadEnemy);
+    
     
     void UpdateDespawnChecks(float DeltaTime);
     void CheckDespawnCandidate(ASGEnemyCharacter* Enemy);
