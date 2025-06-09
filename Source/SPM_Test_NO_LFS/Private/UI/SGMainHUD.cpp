@@ -192,7 +192,7 @@ void ASGMainHUD::InitStartMenu(const bool AddToViewport)
 	});
 	auto OnQuitGameClicked = FOnClicked::CreateLambda([this]
 	{
-		GEngine->GameViewport->RemoveAllViewportWidgets();
+		//GEngine->GameViewport->RemoveAllViewportWidgets();
 		UKismetSystemLibrary::QuitGame(GetWorld(), PlayerOwner.Get(), EQuitPreference::Quit, true);
 		return FReply::Handled();
 	});
