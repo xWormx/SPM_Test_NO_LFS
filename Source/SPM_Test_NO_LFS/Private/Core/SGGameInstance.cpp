@@ -16,7 +16,10 @@ void USGGameInstance::Init()
 	Super::Init();
 
 	LoadGameData(false);
-	//ResetSavedGame();
+	if (!SaveGameClass)
+	{
+		EMMA_LOG(Error, TEXT("SaveGameClass is NULL! Save system will fail!"));
+	}
 	FCoreUObjectDelegates::PostLoadMapWithWorld.AddUObject(this, &USGGameInstance::UpdateUpgrades);
 
 	CreateObjectiveToolTip();
@@ -34,6 +37,7 @@ void USGGameInstance::Init()
 void USGGameInstance::Shutdown()
 {
 	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this);
+
 	OnDifficultyIncreased.Clear();
 
 	Super::Shutdown();
@@ -158,6 +162,11 @@ void USGGameInstance::IncreaseDifficultyLevel([[maybe_unused]] int Difficulty)
 
 void USGGameInstance::LoadGameData(bool bAsync)
 {
+	if (!SaveGameClass)
+	{
+		EMMA_LOG(Error, TEXT("SaveGameClass is NULL! Cannot load or create save game."));
+		return;
+	}
 	if (!UGameplayStatics::DoesSaveGameExist(SlotName, 0))
 	{
 		SavedData = Cast<USGSaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
@@ -169,16 +178,17 @@ void USGGameInstance::LoadGameData(bool bAsync)
 		{
 			FAsyncLoadGameFromSlotDelegate AsyncLoadGameFromSlotDelegate;
 			AsyncLoadGameFromSlotDelegate.BindUObject(this, &USGGameInstance::OnSaveGameLoaded);
-			UGameplayStatics::AsyncLoadGameFromSlot( SlotName,
-				0,
-				AsyncLoadGameFromSlotDelegate
-				);
+			UGameplayStatics::AsyncLoadGameFromSlot( SlotName,0,AsyncLoadGameFromSlotDelegate);
 		}
 		else
 		{
 			USaveGame* LoadedGameData = UGameplayStatics::LoadGameFromSlot(SlotName, 0);
 			SavedData = Cast<USGSaveGame>(LoadedGameData);
 			EMMA_LOG(Warning, TEXT("☀️USGGameInstance::LoadGameData: Loaded game data from slot %s."), *SlotName);
+			for (FSGSavedAttributeEntry SomeAttribute : SavedData->UpgradeSystemSavedAttributes.SomeAttributes)
+			{
+				EMMA_LOG(Warning, TEXT("☀️USGGameInstance::LoadGameData: Loaded Attribute: %s"), *SomeAttribute.ClassNameKey);
+			}
 		}
 	}
 	EMMA_LOG(Warning, TEXT("☀️USGGameInstance::LoadGameData: Save game data loaded successfully."));
@@ -186,30 +196,70 @@ void USGGameInstance::LoadGameData(bool bAsync)
 
 void USGGameInstance::SaveGameData(bool bAsync)
 {
+	if (!SavedData)
+	{
+		EMMA_LOG(Error, TEXT("😭Cannot save game: SavedData is NULL"));
+		return;
+	}
 	if (bAsync)
 	{
-		UGameplayStatics::AsyncSaveGameToSlot(SavedData, SlotName, 0); 
+		FAsyncSaveGameToSlotDelegate SavedDelegate;
+		SavedDelegate.BindUObject(this, &USGGameInstance::OnGameSaved);
+	    UGameplayStatics::AsyncSaveGameToSlot(SavedData, SlotName, 0, SavedDelegate);
+
 	}
 	else
 	{
-		UGameplayStatics::SaveGameToSlot(SavedData, SlotName, 0);
+		const bool bSuccess = UGameplayStatics::SaveGameToSlot(SavedData, SlotName, 0);
+		if (!bSuccess)
+		{
+			EMMA_LOG(Error, TEXT("😭Failed to save game to slot %s"), *SlotName);
+		}
 	}
 }
 
-void USGGameInstance::OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData) const
+void USGGameInstance::OnGameSaved(const FString& TheSaveSlot, const int32 UserIndex, bool bSuccess)
 {
-	if (Cast<USGSaveGame>(LoadedGameData))
+	if (bSuccess)
+	{
+		EMMA_LOG(Warning, TEXT("✅ Successfully saved game to slot %s"), *TheSaveSlot);
+	}
+	else
+	{
+		EMMA_LOG(Error, TEXT("❌Failed to save game to slot %s"), *TheSaveSlot);
+	}
+}
+void USGGameInstance::OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData)
+{
+	USGSaveGame* TypedSaveGame = Cast<USGSaveGame>(LoadedGameData);
+	if (TypedSaveGame)
+	{
+		SavedData = TypedSaveGame;
+		EMMA_LOG(Warning, TEXT("✅ Save game loaded successfully from slot %s"), *TheSlotName);
+		OnGameLoaded.Broadcast();
+	}
+	else
+	{
+		BASIR_LOG(Warning, TEXT("❌SaveGame is not of type USGSaveGame!"));
+		SavedData = Cast<USGSaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
+	}
+	/*if (Cast<USGSaveGame>(LoadedGameData))
 	{
 		OnGameLoaded.Broadcast();
 	}
 	else
 	{
 		BASIR_LOG(Warning, TEXT("SaveGame is not of type USGSaveGame!"));
-	}
+	}*/
 }
 
 void USGGameInstance::ResetSavedGame()
 {
+	if (!SavedData && SaveGameClass)
+	{
+		SavedData = Cast<USGSaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
+	}
+
 	if (SavedData)
 	{
 		SavedData->PlayerStats.bSaveGameExists = false;
@@ -218,38 +268,58 @@ void USGGameInstance::ResetSavedGame()
 	}
 }
 
-struct FSGSavedAttributes USGGameInstance::GetSavedUpgradeAttributes() const
+FSGSavedAttributes USGGameInstance::GetSavedUpgradeAttributes() const
 {
+	if (!SavedData)
+	{
+		EMMA_LOG(Warning, TEXT("💀GetSavedUpgradeAttributes: SavedData is NULL!"));
+		return FSGSavedAttributes();
+	}
 	return SavedData->UpgradeSystemSavedAttributes;
 }
 
-struct FPlayerStats USGGameInstance::GetSavedPlayerStats() const
+FPlayerStats USGGameInstance::GetSavedPlayerStats() const
 {
+	if (!SavedData)
+	{
+		EMMA_LOG(Warning, TEXT("💀GetSavedPlayerStats: SavedData is NULL!"));
+		return FPlayerStats();
+	}
 	return SavedData->PlayerStats;
 }
 
-struct FObjectiveSaveData USGGameInstance::GetSavedObjectives() const
+FObjectiveSaveData USGGameInstance::GetSavedObjectives() const
 {
+	if (!SavedData)
+	{
+		EMMA_LOG(Warning, TEXT("💀GetSavedObjectives: SavedData is NULL!"));
+		return FObjectiveSaveData();
+	}
 	return SavedData->SavedObjectives;
 }
 
 USGSaveGame* USGGameInstance::GetSaveGame() const
 {
+	if (!SavedData)
+	{
+		EMMA_LOG(Warning, TEXT("💀GetSaveGame: SavedData is NULL!"));
+		return nullptr;
+	}
 	return SavedData;
 }
 
-struct FSpawnManagerSavedData USGGameInstance::GetSpawnManagerSavedData() const
+FSpawnManagerSavedData USGGameInstance::GetSpawnManagerSavedData() const
 {
+	if (!SavedData)
+	{
+		EMMA_LOG(Warning, TEXT("💀GetSpawnManagerSavedData: SavedData is NULL!"));
+		return FSpawnManagerSavedData();
+	}
 	return SavedData->SpawnManagerSavedData;
 }
 
-void USGGameInstance::SaveGame(struct FPlayerStats PlayerStats,
-	struct FSGSavedAttributes UpgradeStats,
-	struct FObjectiveSaveData SavedObjectives,
-	struct FSpawnManagerSavedData SpawnManagerSavedData,
-	const bool bAsync)
-{
-	if (!SavedData)
+void USGGameInstance::SaveGame(FPlayerStats PlayerStats, FSGSavedAttributes UpgradeStats, FObjectiveSaveData SavedObjectives, FSpawnManagerSavedData SpawnManagerSavedData,const bool bAsync)
+{	if (!SavedData)
 	{
 		BASIR_LOG(Warning, TEXT("SavedData is NULL!"));
 		SavedData = Cast<USGSaveGame>(UGameplayStatics::CreateSaveGameObject(SaveGameClass));
@@ -264,6 +334,11 @@ void USGGameInstance::SaveGame(struct FPlayerStats PlayerStats,
 	SavedData->UpgradeSystemSavedAttributes = UpgradeStats;
 	SavedData->SavedObjectives = SavedObjectives;
 	SavedData->SpawnManagerSavedData = SpawnManagerSavedData;
+
+	for (auto [ClassNameKey, PersistentUpgrades] : SavedData->UpgradeSystemSavedAttributes.SomeAttributes)
+	{
+		EMMA_LOG(Warning, TEXT("Saving Attribute: %s"), *ClassNameKey);
+	}
 	SaveGameData(bAsync);
 }
 
@@ -275,7 +350,15 @@ void USGGameInstance::CollectAndSave(const bool bAsync)
 		EMMA_LOG(Warning, TEXT("💀World is NULL, cannot collect player stats."));
 		return;
 	}
-	
+
+	APlayerController* PlayerController = World->GetFirstPlayerController();
+	if (!PlayerController)
+	{
+		EMMA_LOG(Warning, TEXT("💀PlayerController is NULL, cannot collect player stats."));
+		return;
+	}
+
+
 	ASGPlayerCharacter* PlayerCharacter = Cast<ASGPlayerCharacter>(World->GetFirstPlayerController()->GetPawn());
 	if (!PlayerCharacter)
 	{

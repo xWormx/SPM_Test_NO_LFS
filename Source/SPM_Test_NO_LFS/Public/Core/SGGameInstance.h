@@ -65,6 +65,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void SaveGameData(bool bAsync);
+	void OnGameSaved(const FString& TheSaveSlot, int32 UserIndex, bool bSuccess);
 
 	UFUNCTION(BlueprintCallable)
 	class USGSaveGame* GetSaveGame() const;
@@ -78,7 +79,7 @@ public:
 	void SaveUpgradeStats(struct FSGSavedAttributes UpgradesStats, const bool bAsync);*/
 
 	UFUNCTION()
-	void OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData) const;
+	void OnSaveGameLoaded(const FString& TheSlotName, const int32 UserIndex, USaveGame* LoadedGameData);
 
 	UFUNCTION(BlueprintCallable)
 	struct FPlayerStats GetSavedPlayerStats() const;
