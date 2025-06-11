@@ -12,7 +12,6 @@
 ASGAIControllerEnemyFlying::ASGAIControllerEnemyFlying()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	//PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemyFlying::BeginPlay()
@@ -28,28 +27,6 @@ void ASGAIControllerEnemyFlying::BeginPlay()
 
 void ASGAIControllerEnemyFlying::SetFlyingMode(bool bShouldFly)
 {
-	/*if (!bShouldFly)
-	{
-		return;
-	}
-	
-	if (!ControlledEnemy)
-	{
-		return;
-	}
-	
-	CurrentLocation = ControlledEnemy->GetActorLocation();
-
-	const float ZValue = CurrentLocation.Z;
-	
-	const float HoverZ = ZValue + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
-	
-	
-	CurrentLocation.Z = FMath::FInterpTo(ZValue, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
-	
-	ControlledEnemy->SetActorLocation(CurrentLocation, true);*/
-
-
 	if (!ControlledEnemy)
 	{
 		return;
@@ -76,9 +53,7 @@ void ASGAIControllerEnemyFlying::SetFlyingMode(bool bShouldFly)
 	ControlledEnemy->SetActorLocation(NewLocation, true);
 }
 
-void ASGAIControllerEnemyFlying::HandleMovement()
-{
-}
+void ASGAIControllerEnemyFlying::HandleMovement(){}
 
 void ASGAIControllerEnemyFlying::FlyTowardsTarget()
 {
@@ -106,8 +81,6 @@ void ASGAIControllerEnemyFlying::FlyTowardsLocation(const FVector& TargetLocatio
 	{
 		return;
 	}
-
-	//BASIR_LOG(Warning, TEXT("Flying Towards Location : %s, from Location: %s"), *TargetLocation.ToCompactString(), *ControlledEnemy->GetActorLocation().ToCompactString());
 
 	FVector ToTarget = TargetLocation - ControlledEnemy->GetActorLocation();
 	FVector Direction = ToTarget.GetSafeNormal();
@@ -318,57 +291,22 @@ void ASGAIControllerEnemyFlying::UpdateMoveToPoints()
 
 void ASGAIControllerEnemyFlying::Tick(float DeltaTime)
 {
-
 	if (!ControlledEnemy)
 	{
 		return;
 	}
-
-	if (!ControlledEnemy->IsActorTickEnabled())
-	{
-		return;
-	}
-	Super::Tick(DeltaTime);
-
-	/*if (LineOfSightTo(AttackTarget))
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Has line of sight to target"));
-		}
-	}*/
-
-	/*if (!AttackTarget || !ControlledEnemy)
-	{
-		return;
-	}
-
 	
-
+	Super::Tick(DeltaTime);
+	
+	SetFlyingMode(true);
+	
 	if (bHasFoundTarget)
 	{
-		SetFlyingMode(true);
 		CurrentMoveToPoint = nullptr;
-
 		SetChaseAndAttackMode();
 	}
 	else
 	{
 		SearchForTarget();
-	}*/
-
-	//SetFlyingMode(true);
-	FVector MoveToLocation = GetFallbackChaseLocation();
-	FlyTowardsLocation(MoveToLocation);
-}
-
-void ASGAIControllerEnemyFlying::HoverZDelay()
-{
-	const float TargetZ = AttackTarget->GetActorLocation().Z;
-	float HoverZ = TargetZ + FMath::Sin(GetWorld()->TimeSeconds * HoverSpeed) * HoverAmplitude;
-	CurrentLocation.Z = FMath::FInterpTo(CurrentLocation.Z, HoverZ, GetWorld()->GetDeltaSeconds(), HoverInterpSpeed);
-
-	//CurrentLocation = ControlledEnemy->GetActorLocation();
-	//ControlledEnemy->SetActorLocation(CurrentLocation, true);
-	
+	}
 }
