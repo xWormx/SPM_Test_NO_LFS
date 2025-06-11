@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 
 #include "Enemies/AI/Old_AI-ControllersWithoutBehaviorTrees/SGAIControllerEnemySmall.h"
 
@@ -13,7 +11,6 @@
 ASGAIControllerEnemySmall::ASGAIControllerEnemySmall()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickInterval = 0.5f;
 }
 
 void ASGAIControllerEnemySmall::BeginPlay()
@@ -50,19 +47,6 @@ void ASGAIControllerEnemySmall::Tick(float DeltaTime)
 	{
 		BASIR_LOG(Error ,TEXT("Should Retreat Service, Controlled Enemy is Null"));
 		return;
-	}
-
-	if (!ControlledEnemy->IsActorTickEnabled())
-	{
-		ControlledEnemy->GetCapsuleComponent()->SetEnableGravity(false);
-		ControlledEnemy->GetCharacterMovement()->GravityScale = 0.f;
-		ControlledEnemy->GetCharacterMovement()->StopMovementImmediately();
-		return;
-	}
-
-	if (ControlledEnemy->IsActorTickEnabled())
-	{
-		ControlledEnemy->GetCharacterMovement()->GravityScale = 1.f;
 	}
 	
 	Super::Tick(DeltaTime);

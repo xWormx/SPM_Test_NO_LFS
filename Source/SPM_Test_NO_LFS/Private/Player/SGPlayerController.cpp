@@ -282,13 +282,13 @@ void ASGPlayerController::EnableGameOver([[maybe_unused]] float NewHealth)
 
 void ASGPlayerController::PlayTempDamageEffect([[maybe_unused]] float NewHealth)
 {
-	if (!TempDamageEffect)
+	if (!DamageEffect)
 	{
 		return;
 	}
 
-	TempDamageEffect->AddToViewport();
-	TempDamageEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
+	DamageEffect->AddToViewport();
+	DamageEffect->SetVisibility(ESlateVisibility::HitTestInvisible);
 	if (TempDamageEffectCameraShake)
 	{
 		PlayerCameraManager->StartCameraShake(TempDamageEffectCameraShake);
@@ -305,9 +305,9 @@ void ASGPlayerController::PlayTempDamageEffect([[maybe_unused]] float NewHealth)
 
 void ASGPlayerController::RemoveDamageEffect()
 {
-	if (TempDamageEffect)
+	if (DamageEffect)
 	{
-		TempDamageEffect->RemoveFromParent();
+		DamageEffect->RemoveFromParent();
 	}
 }
 

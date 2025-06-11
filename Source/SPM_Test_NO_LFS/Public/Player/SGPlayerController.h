@@ -128,8 +128,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Menus")
 	UUserWidget* GameOverMenu;
 
-	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Hurt Effect")
-	UUserWidget* TempDamageEffect;
+	UPROPERTY(EditAnywhere, Category = "UProperty - Player | UI | Hurt Effect", meta = (AllowPrivateAccess = "true"))
+	UUserWidget* DamageEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UProperty - Player | UI | Hurt Effect")
 	TSubclassOf<UCameraShakeBase> TempDamageEffectCameraShake;

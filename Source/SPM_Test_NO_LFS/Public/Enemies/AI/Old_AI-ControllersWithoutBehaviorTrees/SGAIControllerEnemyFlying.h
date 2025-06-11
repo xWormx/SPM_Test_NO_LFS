@@ -70,8 +70,6 @@ private:
 
 	bool bHasFoundTarget = true;
 
-	virtual void HoverZDelay();
-
 	struct FTimerHandle HoverZTimerHandle;
 
 	FVector CurrentLocation;

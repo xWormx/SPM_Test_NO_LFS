@@ -299,14 +299,12 @@ bool ASGAIControllerEnemy::CanReachTarget()
 	if (!AttackTarget)
 	{
 		BASIR_LOG(Warning, TEXT("Target is null"));
+		return false;
 	}
 
 	if (!ControlledEnemy)
 	{
 		BASIR_LOG(Warning, TEXT("Controlled Enemy null"));
-	}
-	if (!AttackTarget || !ControlledEnemy)
-	{
 		return false;
 	}
 
@@ -314,6 +312,7 @@ bool ASGAIControllerEnemy::CanReachTarget()
 
 	if (!NavSys)
 	{
+		BASIR_LOG(Warning, TEXT("NavSys is null"));
 		return false;
 	}
 
@@ -402,12 +401,11 @@ bool ASGAIControllerEnemy::IsStuckOutsideNavMesh()
 
 	if (!bIsOnNavMesh && IsStuck())
 	{
-		BASIR_LOG(Warning, TEXT("Enemy is not on NavMesh at location: "));
+		BASIR_LOG(Warning, TEXT("Enemy is not on NavMesh"));
 		return true;
 		
 	}
 	return false;
-	//return !bIsOnNavMesh && IsStuck();
 }
 
 bool ASGAIControllerEnemy::HasReachedPatrolPoint(float Tolerance)
