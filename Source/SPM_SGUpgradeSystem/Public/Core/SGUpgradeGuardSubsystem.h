@@ -4,11 +4,8 @@
 #include "Engine/GameInstance.h"
 #include "SGUpgradeGuardSubsystem.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCountAddToCount);
-
 UDELEGATE(Blueprintable)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCountModified);
-
 
 //TODO: 😷 Temporär lösning - Kolla om man ska kunna sätta "constraints" hos respektive attribut för uppgradering eller om sån logik ska ske utanför. 
 UCLASS()
@@ -39,13 +36,12 @@ public:
 private:
 
 	UPROPERTY()
-	float Count;
+	float Count = 0.0f;
 
 	UPROPERTY()
 	float DefaultValue = 10.0f;
 
 public:
-	FOnCountAddToCount OnCountAddToCount;
-	UPROPERTY(BlueprintAssignable, Category = "Delegates")
+	UPROPERTY(BlueprintAssignable, Category = "UPROPERTY - Delegates")
 	FOnCountModified OnCountModified;
 };

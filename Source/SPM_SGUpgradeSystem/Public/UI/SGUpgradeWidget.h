@@ -22,10 +22,10 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	TObjectPtr<UVerticalBox> EntriesBox;
 
-	UPROPERTY(EditAnywhere, Category="Upgrades")
+	UPROPERTY(EditAnywhere, Category="UPROPERTY - Upgrades")
 	TSubclassOf<USGUpgradeEntryTile> EntryTileClass;
 
-	UPROPERTY(EditAnywhere, Category="Upgrades")
+	UPROPERTY(EditAnywhere, Category="UPROPERTY - Upgrades")
 	TSubclassOf<USGUpgradeCategoryWidget> CategoryWidgetClass;
 
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))

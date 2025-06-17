@@ -16,8 +16,8 @@ struct FSGAttribute
 	int32 CurrentUpgradeLevel = 1;
 	float InitialValue = 0.f; 
 	FOnAttributeModified OnAttributeModified;
-	mutable FName Category; // mutable för att tillåta ändring om dubblett hittas. Se BindAttribute
-	bool bFindOnReload = false;
+	FName Category;
+	bool bSave = true;
 };
 
 USTRUCT(BlueprintType)
@@ -30,6 +30,7 @@ struct FSGDependentAttribute
 	bool bOverrideOnModified = false; // Ifall nuvarande värde ska spegla det modifierade värdet. Om inte så kommer den ändras procentuellt.
 };
 
+// For
 USTRUCT(BlueprintType)
 struct FSGUpgradeData
 {
@@ -63,6 +64,7 @@ struct FSGAttributeData : public FTableRowBase
 	FText DescriptionText = FText::FromString("Some description here...");
 };
 
+//UI representation
 USTRUCT(BlueprintType)
 struct FSGUpgradeEntry : public FSGUpgradeData
 {
@@ -80,4 +82,35 @@ struct FSGUpgradeEntry : public FSGUpgradeData
 	FName Category;
 	FName RowName;
 	FText DescriptionText;
+};
+
+//Save attribut
+USTRUCT(Blueprintable)
+struct FSGUpgradePersistentData
+{
+	GENERATED_BODY()
+	FName PropertyName;
+	FName RowName;
+	FName Category;
+	int32 CurrentUpgradeLevel;
+	float InitialValue;
+};
+
+//TMap workaround
+USTRUCT(Blueprintable)
+struct FSGSavedAttributeEntry
+{
+	GENERATED_BODY()
+
+	FString ClassNameKey = FString();
+	TArray<FSGUpgradePersistentData> PersistentUpgrades = TArray<FSGUpgradePersistentData>();
+};
+
+USTRUCT(Blueprintable)
+struct FSGSavedAttributes
+{
+	GENERATED_BODY()
+
+	float Orbs = 10.0f;
+	TArray<FSGSavedAttributeEntry> SomeAttributes = TArray<FSGSavedAttributeEntry>();
 };

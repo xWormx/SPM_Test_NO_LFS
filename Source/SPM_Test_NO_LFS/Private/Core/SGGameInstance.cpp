@@ -63,7 +63,7 @@ void USGGameInstance::UpdateUpgrades([[maybe_unused]] UWorld* World)
 	FSGSavedAttributes UpgradeSaves = SavedData->UpgradeSystemSavedAttributes;
 	if (UpgradeSubsystem)
 	{
-		UpgradeSubsystem->LoadPersistentUpgrades(UpgradeSaves);
+		UpgradeSubsystem->LoadSavedAttributes(UpgradeSaves);
 	}
 	if (UpgradeGuard)
 	{
@@ -155,8 +155,8 @@ void USGGameInstance::IncreaseDifficultyLevel([[maybe_unused]] int Difficulty)
 {
 	if (const USGUpgradeSubsystem* UpgradeSubsystem = GetSubsystem<USGUpgradeSubsystem>())
 	{
-		UpgradeSubsystem->ModifyAttributeByRow(TEXT("EnemyHealth"));
-		UpgradeSubsystem->ModifyAttributeByRow(TEXT("EnemyDamage"));
+		UpgradeSubsystem->UpgradeByRow(TEXT("EnemyHealth"));
+		UpgradeSubsystem->UpgradeByRow(TEXT("EnemyDamage"));
 	}
 }
 
@@ -388,7 +388,7 @@ void USGGameInstance::CollectAndSave(const bool bAsync)
 	}
 
 	FPlayerStats PlayerStats = PlayerCharacter->GetPlayerStats();
-	FSGSavedAttributes UpgradeAttributes = UpgradesSubSystem->GetPersistentUpgrades();
+	FSGSavedAttributes UpgradeAttributes = UpgradesSubSystem->GetSavedAttributes();
 	UpgradeAttributes.Orbs = UpgradeGuard->GetCount();
 	FObjectiveSaveData SavedObjectives = SGObjectiveSystem->GetSaveGameData();
 	FSpawnManagerSavedData SpawnManagerSavedData = SGSpawnManager->GetSaveData();

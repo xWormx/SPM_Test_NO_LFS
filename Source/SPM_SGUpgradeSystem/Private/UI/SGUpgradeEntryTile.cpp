@@ -76,7 +76,7 @@ void USGUpgradeEntryTile::HandleClicked()
 		return;
 	}
 
-	Upgrader->RequestUpgrade(CanUpgrade(), BoundEntry.RowName, BoundEntry.Category);
+	Upgrader->AttemptUpgrade(CanUpgrade(), BoundEntry.RowName, BoundEntry.Category);
 }
 
 void USGUpgradeEntryTile::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
